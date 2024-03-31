@@ -11,8 +11,8 @@ declare global {
 }
 export const app = new Elysia()
   .use(staticPlugin())
-  .use(indexRouter)
   .use(html())
+  .use(indexRouter)
   .ws(`/live-reload`, {
     open: (ws) => {
       globalThis.ws = ws;

@@ -3,15 +3,21 @@
   "version": "1.0.50",
   "scripts": {
     "start": "bun src/index.ts",
-    "dev": "bun run tailwind-watch & bun --hot src/index.ts",
+    "dev": "bun --hot src/index.ts",
     "create-database": "echo 'PRAGMA schema_version;' | sqlite3 database.db && echo 'database created'",
-    "tailwind-watch": "bun x tailwindcss -i ./src/tailwind.css -o ./public/output.css --watch"
+    "tailwind-watch": "bun x tailwindcss -i ./src/tailwind.css -o ./public/output.css --watch",
+    "drizzle-generate": "drizzle-kit generate:sqlite",
+    "drizzle-seed": "bun run src/database/seed.ts",
+    "drizzle-push": "drizzle-kit push:sqlite"
   },
   "dependencies": {
     "@elysiajs/html": "^0.8.0",
     "@elysiajs/static": "^0.8.1",
     "@libsql/client": "^0.5.3",
+    "better-sqlite3": "^9.4.3",
     "concurrently": "^8.2.2",
+    "drizzle-kit": "^0.20.14",
+    "drizzle-orm": "^0.30.6",
     "elysia": "latest",
     "open": "^10.1.0"
   },
