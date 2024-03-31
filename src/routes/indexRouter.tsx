@@ -1,27 +1,27 @@
-import { Elysia, t } from "elysia";
-import { html } from "@elysiajs/html";
-import { Home } from "../pages/Home";
+import express from 'express';
+import { renderToHtml } from 'jsxte';
+import { Home } from '../views/pages/Home';
 
-export const indexRouter = new Elysia()
-  .get("/", () => <Home />)
-  .post(
-    "/test",
-    ({ body }) => {
-      body.password;
-    },
-    {
-      body: t.Object({
-        username: t.Number(),
-        password: t.String(),
-      }),
-    }
-  )
-  .get("/transactions", () => {
-    console.log("/transactions route was called");
-    const transactions = [
-      { id: 1, type: "deposit", amount: 100 },
-      { id: 2, type: "withdrawal", amount: 50 },
-    ];
+const router = express.Router();
 
-    return transactions;
-  });
+router.get('/', (_, res) => {
+  console.log('home route hit');
+  const html = renderToHtml(<Home />);
+  res.send(html);
+});
+
+router.post('/test', (_, res) => {
+  res.send('Success!');
+});
+
+router.get('/transactions', (_, res) => {
+  console.log('/transactions route was called');
+  const transactions = [
+    { id: 1, type: 'deposit', amount: 100 },
+    { id: 2, type: 'withdrawal', amount: 50 },
+  ];
+
+  res.json(transactions);
+});
+
+export const indexRouter = router;

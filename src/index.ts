@@ -1,41 +1,55 @@
-import { Elysia, ListenCallback } from 'elysia';
-import { staticPlugin } from '@elysiajs/static';
-import { html } from '@elysiajs/html';
+import express from 'express';
+import { type Request, type Response } from 'express';
+import session from 'express-session';
 import { indexRouter } from './routes/indexRouter';
-import open from 'open';
+import bodyParser from 'body-parser';
+import connectLiveReload from 'connect-livereload';
+import path from 'node:path';
+import liveReload from 'livereload';
+import { dirname } from 'path';
+import { fileURLToPath } from 'url';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
 const PORT = process.env.PORT || 3000;
 
-declare global {
-  var ws: any;
-  var isOpened: boolean;
-}
-export const app = new Elysia()
-  .use(staticPlugin())
-  .use(html())
-  .use(indexRouter)
-  .ws(`/live-reload`, {
-    open: (ws) => {
-      globalThis.ws = ws;
+const app = express();
+
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(express.static('public'));
+app.use(connectLiveReload());
+
+app.use(
+  session({
+    secret: 'secret',
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      httpOnly: true,
+      secure: false,
+      maxAge: 24 * 60 * 60 * 1000,
     },
-  });
-
-// hot reload for server when running dev
-const callback: ListenCallback = async ({ hostname, port }) => {
-  if (!globalThis.isOpened) {
-    globalThis.isOpened = true;
-    open(`http://${hostname}:${port}`);
-  }
-
-  if (globalThis.ws) globalThis.ws.send('live-reload');
-};
-
-if (process.env.IS_DEV) {
-  console.log('Running in dev environment!');
-  app.listen(PORT, callback);
-} else {
-  app.listen(PORT);
-}
-
-console.log(
-  `🦊 Elysia is running at ${app.server?.hostname}:${app.server?.port}`
+  })
 );
+
+const liveReloadServer = liveReload.createServer();
+liveReloadServer.watch(path.join(__dirname));
+liveReloadServer.server.once('connection', () => {
+  setTimeout(() => {
+    liveReloadServer.refresh('/');
+  }, 0);
+});
+
+app.use(indexRouter);
+
+app.use((_: Request, res: Response) => {
+  res.status(404).send('Page not found');
+});
+
+app.use((error: Error, _: Request, res: Response) => {
+  console.error(error);
+  res.status(500).send('Internal Server Error');
+});
+
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+});
