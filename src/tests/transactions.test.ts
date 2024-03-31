@@ -1,5 +1,5 @@
 import { test, expect } from 'bun:test';
-import { Transaction } from '../interface/interface';
+import type { Transaction } from '../interface/interface';
 
 test('POST /test should handle request body correctly', async () => {
   const body = {
@@ -22,6 +22,8 @@ test('POST /test should handle request body correctly', async () => {
 
 test('Each transaction should have id, type, and amount', async () => {
   const response = await fetch('http://localhost:3000/transactions');
+  // should cast this to be "as Transaction[]" to get rid of type error
+  // likely came up after we migrated to express
   const transactions = await response.json();
 
   expect(response.status).toBe(200);
