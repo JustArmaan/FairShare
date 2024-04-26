@@ -8,11 +8,31 @@ import path from 'node:path';
 import liveReload from 'livereload';
 import { dirname } from 'path';
 import { fileURLToPath } from 'url';
+import {
+  setupKinde,
+  protectRoute,
+  getUser,
+  GrantType,
+} from '@kinde-oss/kinde-node-express';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const PORT = process.env.PORT || 3000;
 
 const app = express();
+
+const kindeConfig = {
+  clientId: 'b003c7a7216442fe9b3988b348d70b5a', // make env
+  issuerBaseUrl: 'https://idsp1expensetracker.kinde.com',
+  siteUrl: 'http://localhost:3000',
+  secret: 'S8f2LX9mAPI8MzpnogkvbZBjoPrp7cNKbbvfOD0jhyxMRIomca', // make env
+  redirectUrl: 'http://localhost:3000',
+  scope: 'openid profile email',
+  grantType: GrantType.AUTHORIZATION_CODE, //or CLIENT_CREDENTIALS or PKCE
+  unAuthorisedUrl: 'http://localhost:3000/login',
+  postLogoutRedirectUrl: 'http://localhost:3000',
+};
+
+setupKinde(kindeConfig, app);
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static('public'));

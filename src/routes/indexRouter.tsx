@@ -5,7 +5,6 @@ import { Home } from '../views/pages/Home';
 const router = express.Router();
 
 router.get('/', (_, res) => {
-  console.log('home route hit');
   const html = renderToHtml(<Home />);
   res.send(html);
 });
