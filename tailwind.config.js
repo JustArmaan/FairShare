@@ -14,7 +14,15 @@ export default {
       'pure-white': 'FFFFFF',
       'font-grey': '8D8D93',
       'card-black': '1C1C1E',
-    },
+      "positive-number": "#37BA3C",
+      "negative-number": "#DD4242",
+      "font-black": "#2F2F2F",
+      "font-off-white": "#F9F9F9",
+      "primary-black-page": "#181616",
+      "primary-black": "#343434",
+      "primary-faded-black": "#4E4E4E",
+      "primary-faded-black": "#4E4E4E",
+    }
   },
   plugins: [],
 };
