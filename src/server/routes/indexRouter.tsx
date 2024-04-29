@@ -1,14 +1,11 @@
 import express from 'express';
 import { renderToHtml } from 'jsxte';
-import { Home } from '../views/pages/Home';
+import { Overview } from '../views/pages/Overview/Overview';
 
 const router = express.Router();
 
 router.get('/home', async (_, res) => {
-  const html = renderToHtml(<Home />);
-  await new Promise((resolve) => {
-    setTimeout(resolve, 1000);
-  });
+  const html = renderToHtml(<Overview/>);
   res.send(html);
 });
 
