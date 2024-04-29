@@ -10,6 +10,7 @@ import {
   GrantType,
 } from '@kinde-oss/kinde-node-express';
 import ViteExpress from 'vite-express';
+import { breakdownRouter } from './routes/breakdownRouter';
 
 // const __dirname = dirname(fileURLToPath(import.meta.url));
 const PORT = process.env.PORT || 3000;
@@ -30,8 +31,9 @@ const kindeConfig = {
 
 // setupKinde(kindeConfig, app);
 
+app.use(ViteExpress.static());
 app.use(bodyParser.urlencoded({ extended: false }));
-app.use(express.static('public'));
+!process.env.isDev && app.use(express.static('public'));
 
 app.use(
   session({
@@ -46,6 +48,7 @@ app.use(
   })
 );
 
+app.use('/breakdown', breakdownRouter);
 app.use(indexRouter);
 
 /*
