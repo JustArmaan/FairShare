@@ -1,4 +1,4 @@
-import { Html } from '../components/Html';
+import { Html } from "../components/Html";
 
 export const Home = () => {
   return (
