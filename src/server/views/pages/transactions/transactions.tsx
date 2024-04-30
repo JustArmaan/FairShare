@@ -1,5 +1,5 @@
-import { Html } from "../../components/Html";
-import { Transaction } from "./components/transaction";
+import { Html } from '../../components/Html';
+import { Transaction } from './components/transaction';
 
 interface Category {
   id: number;
@@ -23,14 +23,14 @@ interface TransactionsData {
 
 export const TransactionsPage = ({ transactions }: TransactionsData) => {
   return (
-    <Html>
-      <div>
-        <h3>All Transactions</h3>
+    <div class="p-6">
+      <p class="text-xl text-font-off-white font-bold">Transaction History</p>
+      <div class="mt-6">
         {transactions.map((transaction) => (
           <Transaction transaction={transaction} />
         ))}
       </div>
-    </Html>
+    </div>
   );
 };
 
