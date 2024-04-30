@@ -1,5 +1,6 @@
 import { Html } from "../../components/Html";
 import { Transaction } from "./components/transaction";
+import { Card } from "./components/card";
 
 interface Category {
   id: number;
@@ -24,6 +25,7 @@ interface TransactionsData {
 export const TransactionsPage = ({ transactions }: TransactionsData) => {
   return (
     <Html>
+      <Card />
       <div>
         <h3>All Transactions</h3>
         {transactions.map((transaction) => (
