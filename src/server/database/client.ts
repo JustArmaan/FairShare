@@ -1,4 +1,4 @@
-import { drizzle } from 'drizzle-orm/libsql';
+import { LibSQLDatabase, drizzle } from 'drizzle-orm/libsql';
 import { createClient } from '@libsql/client';
 
 const isDev = process.env.IS_DEV;
@@ -16,4 +16,8 @@ export const config = {
 
 const client = createClient(isDev ? { ...config, url: `file:${url}` } : config);
 
-export const db = drizzle(client);
+let dbSingleton: LibSQLDatabase | undefined;
+
+export const getDB = () => {
+  return (dbSingleton ??= drizzle(client));
+};
