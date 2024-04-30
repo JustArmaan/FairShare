@@ -1,8 +1,10 @@
 import { faker } from "@faker-js/faker";
-import { db } from "./client";
+import { getDB } from "./client";
 import { users } from "./schema/users";
 import { transactions } from "./schema/transaction";
 import { categories } from "./schema/category";
+
+let db = getDB();
 
 interface InsertedIdResult {
   insertedId: number;
@@ -43,10 +45,11 @@ try {
     const numberOfUsers = 30;
     for (let i = 0; i < numberOfUsers; i++) {
       const userName = faker.person.firstName();
+      const userEmail = faker.internet.email({ firstName: userName });
       console.log(`Inserting user with name: ${userName}`);
       const result = (await trx
         .insert(users)
-        .values({ name: userName })
+        .values({ name: userName, email: userEmail })
         .returning({ insertedId: users.id })) as InsertedIdResult[];
       userIds.push(result[0].insertedId);
       console.log(`Inserted user with name: ${userName}`);

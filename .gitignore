@@ -183,3 +183,5 @@ dist
 .DS_Store
 notes.md
 dev.db
+error.log
+./src/server/database/dev.db
