@@ -31,7 +31,7 @@ const kindeConfig = {
 // setupKinde(kindeConfig, app);
 
 app.use(bodyParser.urlencoded({ extended: false }));
-app.use(express.static('public'));
+//app.use(express.static('public'));
 
 app.use(
   session({

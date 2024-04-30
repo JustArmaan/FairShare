@@ -1,11 +1,13 @@
 import express from 'express';
 import { renderToHtml } from 'jsxte';
 import { Overview } from '../views/pages/Overview/Overview';
-
+import { Header } from '../views/components/Header';
+import { Nav } from '../views/components/Navigation';
+import { Default } from '../views/components/Default';
 const router = express.Router();
 
 router.get('/home', async (_, res) => {
-  const html = renderToHtml(<Overview/>);
+  const html = renderToHtml(<Default/>);
   res.send(html);
 });
 

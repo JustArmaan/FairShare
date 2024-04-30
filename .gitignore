@@ -182,3 +182,7 @@ dist
 # Finder (MacOS) folder config
 .DS_Store
 notes.md
+
+# Local DB
+
+./src/server/database/dev.db
