@@ -4,6 +4,8 @@ import { Home } from "../views/pages/Home";
 import { TransactionsPage } from "../views/pages/transactions/transactions";
 import { env } from "../../../env";
 import { getTransactionsForUser } from "../services/transaction.service";
+import { text } from "stream/consumers";
+import type { tr } from "@faker-js/faker";
 
 const router = express.Router();
 
@@ -18,8 +20,16 @@ router.get("/home", async (_, res) => {
 router.get("/test", async (_, res) => {
   try {
     const transactions = await getTransactionsForUser(151);
-    console.log(transactions);
-    const html = renderToHtml(<Home />);
+    const mappedTransactions = transactions.map((item) => {
+      return {
+        ...item.transactions,
+        category: item.categories,
+      };
+    });
+
+    const html = renderToHtml(
+      <TransactionsPage transactions={mappedTransactions} />
+    );
     res.send(html);
   } catch (error) {
     console.error(error);

@@ -1,24 +1,36 @@
 import { Html } from "../../components/Html";
-import { transactions } from "../../../database/schema/transaction";
 import { Transaction } from "./components/transaction";
 
+interface Category {
+  id: number;
+  name: string;
+  icon: string;
+}
 
-type TransactionsProps = {
-  transactions: Array<{
-    id: number;
-    type: string;
-    amount: number;
-  }>;
-};
+interface Transaction {
+  id: number;
+  userId: number;
+  categoryId: number;
+  company: string;
+  amount: number;
+  timestamp: string;
+  category: Category;
+}
 
-export const TransactionsPage = ({ transactions }: TransactionsProps) => {
+interface TransactionsData {
+  transactions: Transaction[];
+}
+
+export const TransactionsPage = ({ transactions }: TransactionsData) => {
   return (
-    <div>
-      <h3>All Transactions</h3>
-      {transactions.map((transaction) => (
-        <Transaction transaction={transaction} />
-      ))}
-    </div>
+    <Html>
+      <div>
+        <h3>All Transactions</h3>
+        {transactions.map((transaction) => (
+          <Transaction transaction={transaction} />
+        ))}
+      </div>
+    </Html>
   );
 };
 
