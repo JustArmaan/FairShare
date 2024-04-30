@@ -5,7 +5,7 @@
     "dev": "nodemon -e ts,tsx,html -w src/server -x tsx src/server/main.ts",
     "start": "NODE_ENV=production bun src/server/main.ts",
     "build": "vite build",
-    "tailwind-watch": "bun x tailwindcss -i ./src/tailwind.css -o ./public/output.css --watch",
+    "tailwind-watch": "bun x tailwindcss -i ./src/server/views/tailwind.css -o ./public/output.css --watch",
     "drizzle-generate": "drizzle-kit generate:sqlite",
     "drizzle-seed": "bun run src/database/seed.ts",
     "drizzle-push": "drizzle-kit push:sqlite"
@@ -21,7 +21,7 @@
     "@types/livereload": "^0.9.5",
     "@vitejs/plugin-react": "^4.2.1",
     "better-sqlite3": "^9.4.3",
-    "drizzle-kit": "^0.20.14",
+    "drizzle-kit": "^0.20.17",
     "drizzle-orm": "^0.30.6",
     "express": "^4.19.2",
     "express-session": "^1.18.0",
