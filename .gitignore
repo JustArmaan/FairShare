@@ -184,4 +184,7 @@ dist
 notes.md
 dev.db
 error.log
+
+# Local DB
+
 ./src/server/database/dev.db

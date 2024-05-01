@@ -1,4 +1,3 @@
-import { Html } from "../../components/Html";
 import { Transaction } from "./components/transaction";
 import { Card } from "./components/card";
 

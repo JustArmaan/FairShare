@@ -22,7 +22,7 @@ export default {
       "primary-black": "#343434",
       "primary-faded-black": "#4E4E4E",
       "primary-faded-black": "#4E4E4E",
-      'primary-red': '#e60000',
+      "primary-red": "#e60000",
     },
   },
   plugins: [],

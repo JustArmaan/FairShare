@@ -6,8 +6,10 @@ import { env } from "../../../env";
 import { getTransactionsForUser } from "../services/transaction.service";
 import { text } from "stream/consumers";
 import type { tr } from "@faker-js/faker";
-import { }
-
+import { Overview } from '../views/pages/Overview/Overview';
+import { Header } from '../views/components/Header';
+import { Nav } from '../views/components/Navigation';
+import { Default } from '../views/components/Default';
 const router = express.Router();
 
 router.get("/home", async (_, res) => {
@@ -15,6 +17,10 @@ router.get("/home", async (_, res) => {
   await new Promise((resolve) => {
     setTimeout(resolve, 1000);
   });
+})
+
+router.get('/home', async (_, res) => {
+  const html = renderToHtml(<Default/>);
   res.send(html);
 });
 
