@@ -1,27 +1,21 @@
 import express from "express";
 import { renderToHtml } from "jsxte";
-import { Home } from "../views/pages/Home";
 import { TransactionsPage } from "../views/pages/transactions/transactions";
 import { env } from "../../../env";
 import { getTransactionsForUser } from "../services/transaction.service";
 import { text } from "stream/consumers";
 import type { tr } from "@faker-js/faker";
-import { Overview } from '../views/pages/Overview/Overview';
-import { Header } from '../views/components/Header';
-import { Nav } from '../views/components/Navigation';
-import { Default } from '../views/components/Default';
+import { Overview } from "../views/pages/Overview/Overview";
+import { Header } from "../views/components/Header";
+import { Nav } from "../views/components/Navigation";
+import { Default } from "../views/components/Default";
 const router = express.Router();
 
 router.get("/home", async (_, res) => {
-  const html = renderToHtml(<Home />);
+  const html = renderToHtml(<Overview />);
   await new Promise((resolve) => {
     setTimeout(resolve, 1000);
   });
-})
-
-router.get('/home', async (_, res) => {
-  const html = renderToHtml(<Default/>);
-  res.send(html);
 });
 
 router.get("/test", async (_, res) => {
@@ -60,11 +54,21 @@ router.get("/test", async (_, res) => {
 
 router.get("/header", (req, res) => {
   try {
-    const html = renderToHtml(<)
+    const html = renderToHtml(<Header />);
+    res.send(html);
   } catch (err) {
-    console.error(err)
+    console.error(err);
   }
-})
+});
+
+router.get("/nav", (req, res) => {
+  try {
+    const html = renderToHtml(<Nav />);
+    res.send(html);
+  } catch (err) {
+    console.error(err);
+  }
+});
 
 router.get("/transactions", (_, res) => {
   console.log("/transactions route was called");

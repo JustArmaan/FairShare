@@ -10,7 +10,13 @@
     <link rel="stylesheet" href="/output.css" />
   </head>
   <body class="bg-primary-black-page">
+    <div id="header" hx-get="/header" hx-trigger="load" hx-swap="outerHTML">
+      Loading
+    </div>
     <div id="app" hx-get="/test" hx-trigger="load" hx-swap="outerHTML">
+      Loading...
+    </div>
+    <div id="/nav" hx-get="/nav" hx-trigger="load" hx-swap="outerHTML">
       Loading...
     </div>
   </body>
