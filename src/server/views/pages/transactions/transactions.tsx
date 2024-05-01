@@ -22,10 +22,31 @@ interface TransactionsData {
   transactions: Transaction[];
 }
 
-export const TransactionsPage = ({ transactions }: TransactionsData) => {
+interface CardDetails {
+  primaryColor: string;
+  textColor: string;
+  accentColor1: string;
+  accentColor2: string;
+  bankLogo: string;
+  bankName: string;
+  cardNumber: string;
+  cardHolder: string;
+  expiryDate: string;
+}
+
+interface TransactionsPageProps {
+  transactions: Transaction[];
+  cardDetails: CardDetails;
+}
+
+export const TransactionsPage = ({
+  transactions,
+  cardDetails,
+}: TransactionsPageProps) => {
   return (
     <div class="p-6">
-      <Card />
+      <div id="page" hx-get="/home" hx-trigger="click" hx-target="#app" hx-swap="outerHTML" class="text-font-off-white">Click me</div>
+      <Card cardDetails={cardDetails} />
       <p class="text-xl text-font-off-white font-bold">Transaction History</p>
       <div class="mt-6">
         {transactions.map((transaction) => (
