@@ -1,7 +1,4 @@
 import express, {
-  type NextFunction,
-  type Request,
-  type Response,
   type Application,
 } from "express";
 import session from "express-session";
@@ -11,7 +8,7 @@ export const configureApp = (app: Application) => {
   app.use(express.json());
   app.use(bodyParser.urlencoded({ extended: false }));
   app.use(express.static("../../../public"));
-  
+
   app.use(
     session({
       secret: "secret",

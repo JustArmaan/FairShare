@@ -24,15 +24,15 @@ interface TransactionsData {
 
 export const TransactionsPage = ({ transactions }: TransactionsData) => {
   return (
-    <Html>
+    <div class="p-6">
       <Card />
-      <div>
-        <h3>All Transactions</h3>
+      <p class="text-xl text-font-off-white font-bold">Transaction History</p>
+      <div class="mt-6">
         {transactions.map((transaction) => (
           <Transaction transaction={transaction} />
         ))}
       </div>
-    </Html>
+    </div>
   );
 };
 
