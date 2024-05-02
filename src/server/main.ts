@@ -1,5 +1,4 @@
 import express from 'express';
-import { type Request, type Response } from 'express';
 import { indexRouter } from './routes/indexRouter';
 import {
   setupKinde,
@@ -11,7 +10,6 @@ import ViteExpress from 'vite-express';
 import { breakdownRouter } from './routes/breakdownRouter';
 import { configureApp } from './middleware/express.middleware';
 
-// const __dirname = dirname(fileURLToPath(import.meta.url));
 const PORT = process.env.VITE_PORT || 3000;
 
 const app = express();

@@ -12,16 +12,12 @@ import { Default } from '../views/components/Default';
 import { Menu } from '../views/components/Menu';
 const router = express.Router();
 
+export type Transactions = Awaited<ReturnType<typeof getTransactionsForUser>>;
+
 router.get('/home', async (_, res) => {
   const transactions = await getTransactionsForUser(15, 4);
-  const mappedTransactions = transactions.map((item) => {
-    return {
-      ...item.transactions,
-      category: item.categories,
-    };
-  });
 
-  const html = renderToHtml(<Overview transactions={mappedTransactions} />);
+  const html = renderToHtml(<Overview transactions={transactions} />);
   res.send(html);
 });
 
@@ -45,16 +41,10 @@ router.get('/transactions', async (_, res) => {
     };
 
     const transactions = await getTransactionsForUser(15);
-    const mappedTransactions = transactions.map((item) => {
-      return {
-        ...item.transactions,
-        category: item.categories,
-      };
-    });
 
     const html = renderToHtml(
       <TransactionsPage
-        transactions={mappedTransactions}
+        transactions={transactions}
         cardDetails={cardHtml}
       />
     );

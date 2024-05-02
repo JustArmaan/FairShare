@@ -1,8 +1,8 @@
-import { getDB } from "../database/client";
-import { categories } from "../database/schema/category";
-import { transactions } from "../database/schema/transaction";
-import { eq, asc, desc } from "drizzle-orm";
-import { getUser } from "./user.service";
+import { getDB } from '../database/client';
+import { categories } from '../database/schema/category';
+import { transactions } from '../database/schema/transaction';
+import { eq, desc } from 'drizzle-orm';
+import { getUser } from './user.service';
 
 let db = getDB();
 
@@ -15,16 +15,14 @@ export const getTransactionsForUser = async (
     if (!user) {
       return [];
     }
-    let query = db
+
+    return await db
       .select()
       .from(transactions)
       .orderBy(desc(transactions.timestamp))
-      .leftJoin(categories, eq(transactions.categoryId, categories.id))
+      .innerJoin(categories, eq(transactions.categoryId, categories.id))
       .where(eq(transactions.userId, userId))
-      .limit(limit ? limit : 99999) // hacky
-
-    const allTransactions = await query;
-    return allTransactions;
+      .limit(limit ? limit : 99999); // hacky
   } catch (error) {
     console.error(error);
     return [];

@@ -1,21 +1,6 @@
 import { Transaction } from './components/Transaction';
+import { type Transactions } from '../../../routes/indexRouter';
 import { Card } from './components/Card';
-
-interface Category {
-  id: number;
-  name: string;
-  icon: string;
-}
-
-interface Transaction {
-  id: number;
-  userId: number;
-  categoryId: number;
-  company: string;
-  amount: number;
-  timestamp: string;
-  category: Category;
-}
 
 interface CardDetails {
   primaryColor: string;
@@ -30,7 +15,7 @@ interface CardDetails {
 }
 
 interface TransactionsPageProps {
-  transactions: Transaction[];
+  transactions: Transactions;
   cardDetails: CardDetails;
 }
 
