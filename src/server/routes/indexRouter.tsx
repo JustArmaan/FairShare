@@ -12,13 +12,21 @@ import { Default } from "../views/components/Default";
 const router = express.Router();
 
 router.get("/home", async (_, res) => {
-  const html = renderToHtml(<Overview />);
-  await new Promise((resolve) => {
-    setTimeout(resolve, 1000);
-  });
+  setTimeout(async () => {
+    const transactions = await getTransactionsForUser(151, 4);
+    const mappedTransactions = transactions.map((item) => {
+      return {
+        ...item.transactions,
+        category: item.categories,
+      };
+    });
+
+    const html = renderToHtml(<Overview transactions={mappedTransactions} />);
+    res.send(html);
+  }, 5000); // Delay in milliseconds
 });
 
-router.get("/test", async (_, res) => {
+router.get("/transactions", async (_, res) => {
   try {
     const cardHtml = {
       bankLogo: "/cardAssets/scotiabank.svg",
@@ -68,16 +76,6 @@ router.get("/nav", (req, res) => {
   } catch (err) {
     console.error(err);
   }
-});
-
-router.get("/transactions", (_, res) => {
-  console.log("/transactions route was called");
-  const transactions = [
-    { id: 1, type: "deposit", amount: 102 },
-    { id: 2, type: "withdrawal", amount: 50 },
-  ];
-
-  res.json(transactions);
 });
 
 export const indexRouter = router;

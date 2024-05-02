@@ -42,10 +42,9 @@ export const TransactionsPage = ({
     <>
       <div id="app" class="p-6">
         <a
-        href="#"
           hx-get="/home"
           hx-trigger="click"
-          hx-target="this"
+          hx-target="#app"
           hx-swap="outerHTML"
           class="text-font-off-white w-60 bg-accent-blue"
         >
