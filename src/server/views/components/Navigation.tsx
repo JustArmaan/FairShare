@@ -53,6 +53,10 @@ export const Nav = () => {
           <a
             href="#"
             class="flex flex-col items-center text-font-off-white dark:text-white group-hover:accent-accent-red"
+            hx-get="/menu"
+            hx-target=".menu"
+            hx-include="[name=original]"
+            aria-label="Toggle menu"
           >
             <img src="/images/menu.svg" alt="Menu Icon" class="h-6 p-1"></img>
             <p class="mt-1 text-sm">More</p>

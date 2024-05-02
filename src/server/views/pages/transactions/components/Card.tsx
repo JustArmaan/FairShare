@@ -19,11 +19,11 @@ export const Card = ({ cardDetails }: CardProps) => {
     <div
       class={`bg-${cardDetails.primaryColor} text-font-off-white rounded-xl shadow-lg py-4 px-2 relative h-48 overflow-hidden mb-3 w-full`}
     >
-      <div class="hidden bg-primary-red "></div>
+      <div class="hidden bg-primary-red"></div>
       {/* This will send the color down to client in the output.css */}
       <div class="flex justify-between items-center mb-1">
         <div class="flex items-center mb-2">
-          <img src="/cardAssets/scotiabank.svg" class="h-9 w-9 mr-1" />{" "}
+          <img src="/cardAssets/scotiabank.svg" class="h-9 w-9 mr-1" />{' '}
           <h2 class="text-xl font-medium">{cardDetails.bankName}</h2>
         </div>
       </div>

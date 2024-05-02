@@ -21,7 +21,7 @@ export const Overview = ({ transactions }: { transactions: Transaction[] }) => {
     <div class="p-6">
       {' '}
       <h1 class="text-2xl text-font-off-white pt-2"> Welcome, User</h1>{' '}
-      <div class="rounded-lg pl-4 mt-3 py-2 flex justify-between items-center bg-primary-black">
+      <div class="rounded-lg pl-4 mt-3 py-2 flex justify-between items-center bg-primary-black relative">
         <div>
           <p class="text-base text-font-off-white">Overview</p>
           <p class="text-2xl text-font-off-white">$8,987.32</p>
