@@ -1,22 +1,7 @@
 import { Transaction } from '../transactions/components/Transaction';
+import { type Transactions } from '../../../routes/indexRouter';
 
-interface Category {
-  id: number;
-  name: string;
-  icon: string;
-}
-
-interface Transaction {
-  id: number;
-  userId: number;
-  categoryId: number;
-  company: string;
-  amount: number;
-  timestamp: string;
-  category: Category;
-}
-
-export const Overview = ({ transactions }: { transactions: Transaction[] }) => {
+export const Overview = ({ transactions }: { transactions: Transactions }) => {
   return (
     <div class="p-6">
       {' '}
@@ -68,7 +53,7 @@ export const Overview = ({ transactions }: { transactions: Transaction[] }) => {
             View All
           </a>
         </div>
-        {transactions.map((transaction: Transaction) => (
+        {transactions.map((transaction) => (
           <Transaction transaction={transaction} />
         ))}
       </div>

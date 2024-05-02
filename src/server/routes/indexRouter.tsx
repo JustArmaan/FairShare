@@ -12,7 +12,10 @@ import { Default } from '../views/components/Default';
 import { Menu } from '../views/components/Menu';
 const router = express.Router();
 
+export type Transactions = Awaited<ReturnType<typeof getTransactionsForUser>>;
+
 router.get('/home', async (_, res) => {
+<<<<<<< HEAD
   const transactions = await getTransactionsForUser(61, 4);
   const mappedTransactions = transactions.map((item) => {
     return {
@@ -20,8 +23,11 @@ router.get('/home', async (_, res) => {
       category: item.categories,
     };
   });
+=======
+  const transactions = await getTransactionsForUser(15, 4);
+>>>>>>> 22e8c3b948f1d840643d219a3141426c47246a10
 
-  const html = renderToHtml(<Overview transactions={mappedTransactions} />);
+  const html = renderToHtml(<Overview transactions={transactions} />);
   res.send(html);
 });
 
@@ -44,6 +50,7 @@ router.get('/transactions', async (_, res) => {
       accentColor2: 'accent-red',
     };
 
+<<<<<<< HEAD
     const transactions = await getTransactionsForUser(61);
     const mappedTransactions = transactions.map((item) => {
       return {
@@ -51,10 +58,13 @@ router.get('/transactions', async (_, res) => {
         category: item.categories,
       };
     });
+=======
+    const transactions = await getTransactionsForUser(15);
+>>>>>>> 22e8c3b948f1d840643d219a3141426c47246a10
 
     const html = renderToHtml(
       <TransactionsPage
-        transactions={mappedTransactions}
+        transactions={transactions}
         cardDetails={cardHtml}
       />
     );
