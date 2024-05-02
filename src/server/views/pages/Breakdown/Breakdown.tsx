@@ -85,7 +85,7 @@ export const Breakdown = ({ categories }: { categories: Category[] }) => {
             <p class="text-3xl text-center mt-6 font-bold pl-2 pr-2">$3,750</p>
             <div class="h-0.5 bg-font-grey rounded mt-0.5 w-full"></div>
           </div>
-          <p class="absolute right-0 text-sm text-font-grey">-20% from March</p>
+          {/*<p class="absolute right-0 text-sm text-font-grey">-20% from March</p>*/}
         </div>
       </div>
       <Graph slices={pathStyles} />
