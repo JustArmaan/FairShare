@@ -4,10 +4,16 @@ import { Overview } from '../views/pages/Overview/Overview';
 import { Header } from '../views/components/Header';
 import { Nav } from '../views/components/Navigation';
 import { Default } from '../views/components/Default';
+import { Menu } from '../views/components/Menu';
 const router = express.Router();
 
 router.get('/home', async (_, res) => {
-  const html = renderToHtml(<Default/>);
+  const html = renderToHtml(<Nav/>);
+  res.send(html);
+});
+
+router.get('/menu', async (_, res) => {
+  const html = renderToHtml(<Menu/>);
   res.send(html);
 });
 

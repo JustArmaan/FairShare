@@ -80,13 +80,17 @@ export const Nav = () => {
           </a>
         </li>
         <li class="group">
-          <a
-            href="#"
-            class="flex flex-col items-center text-font-off-white dark:text-white group-hover:accent-accent-red"
+          <button
+            hx-get="/menu"
+            hx-target=".menu"
+            hx-include="[name=original]"
+            class="more flex flex-col items-center text-font-off-white dark:text-white group-hover:accent-accent-red focus:outline-none"
+            aria-label="Toggle menu"
           >
-            <img src="/images/menu.svg" alt="Menu Icon" class="mb-2 mt-1"></img>
+            <img src="/images/menu.svg" alt="Menu Icon" class="mt-2"></img>
             More
-          </a>
+          </button>
+
         </li>
       </ul>
     </nav>

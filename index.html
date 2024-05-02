@@ -8,10 +8,29 @@
     <script type="module" src="/src/client/main.ts" defer></script>
     <script src="https://unpkg.com/htmx.org@1.9.10"></script>
     <link rel="stylesheet" href="/output.css" />
+    <script defer>
+      document.addEventListener('DOMContentLoaded', function () {
+          const dropdownButton = document.getElementsByClassName('more');
+          const dropdownContent = document.getElementById('dropdownNavbar');
+          console.log(dropdownButton)
+      
+          dropdownButton.addEventListener('click', function(event) {
+              const isVisible = dropdownContent.style.display === 'block';
+              dropdownContent.style.display = isVisible ? 'none' : 'block';
+      
+              // Prevent default if dropdown is already visible to stop htmx from reloading the content
+              if (isVisible) {
+                  event.preventDefault();
+              }
+          });
+      });
+      </script>
   </head>
   <body>
     <div id="app" hx-get="/home" hx-trigger="load" hx-swap="outerHTML">
       Loading...
+    </div>
+    <div class="menu" >
     </div>
   </body>
 </html>
