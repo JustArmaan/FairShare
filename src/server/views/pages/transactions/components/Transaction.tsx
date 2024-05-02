@@ -21,24 +21,24 @@ interface TransactionsData {
 function formatDate(timestamp: string) {
   const date = new Date(timestamp);
 
-  return date.toLocaleString("default", {
-    month: "long",
-    day: "numeric",
-    year: "numeric",
+  return date.toLocaleString('default', {
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric',
   });
 }
 
 const iconColors = [
-  "bg-accent-red",
-  "bg-accent-blue",
-  "bg-accent-green",
-  "bg-accent-yellow",
+  'bg-accent-red',
+  'bg-accent-blue',
+  'bg-accent-green',
+  'bg-accent-yellow',
 ];
 
 const randomIconPaths = [
-  "icons/bed.svg",
-  "icons/local_dining.svg",
-  "icons/local_gas_station.svg",
+  'icons/bed.svg',
+  'icons/local_dining.svg',
+  'icons/local_gas_station.svg',
 ];
 
 export const Transaction = ({ transaction }: TransactionsData) => {
@@ -60,16 +60,16 @@ export const Transaction = ({ transaction }: TransactionsData) => {
           />
         </div>
         <div>
-          <h4 class="text-font-off-white text-sm font-bold">
-            {transaction.company.split(" ")[0].split(",")[0]}
+          <h4 class="text-font-off-white font-semibold">
+            {transaction.company.split(' ')[0].split(',')[0]}
           </h4>
           <p class="text-gray-400 text-sm text-font-off-white">
             {formatDate(transaction.timestamp)}
           </p>
         </div>
       </div>
-      <div class="text-font-off-white text-md font-bold mr-4">
-        ${Math.abs(transaction.amount).toFixed(2)}
+      <div class="text-font-off-white text-lg font-semibold mr-4">
+        -${Math.abs(transaction.amount).toFixed(2)}
       </div>
     </div>
   );

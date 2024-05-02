@@ -1,6 +1,6 @@
 import express from 'express';
 import { renderToHtml } from 'jsxte';
-import { TransactionsPage } from '../views/pages/transactions/transactions';
+import { TransactionsPage } from '../views/pages/transactions/Transactions';
 import { env } from '../../../env';
 import { getTransactionsForUser } from '../services/transaction.service';
 import { text } from 'stream/consumers';
@@ -13,7 +13,7 @@ const router = express.Router();
 
 router.get('/home', async (_, res) => {
   setTimeout(async () => {
-    const transactions = await getTransactionsForUser(151, 4);
+    const transactions = await getTransactionsForUser(31, 4);
     const mappedTransactions = transactions.map((item) => {
       return {
         ...item.transactions,
@@ -40,7 +40,7 @@ router.get('/transactions', async (_, res) => {
       accentColor2: 'accent-red',
     };
 
-    const transactions = await getTransactionsForUser(151);
+    const transactions = await getTransactionsForUser(31);
     const mappedTransactions = transactions.map((item) => {
       return {
         ...item.transactions,

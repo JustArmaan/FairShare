@@ -1,5 +1,5 @@
-import { Transaction } from './components/transaction';
-import { Card } from './components/card';
+import { Transaction } from './components/Transaction';
+import { Card } from './components/Card';
 
 interface Category {
   id: number;
@@ -40,22 +40,27 @@ export const TransactionsPage = ({
 }: TransactionsPageProps) => {
   return (
     <div class="p-6">
-      <a
-        hx-get="/home"
-        hx-trigger="click"
-        hx-target="#app"
-        hx-swap="innerHTML"
-        class="text-font-off-white w-60 bg-accent-blue"
-      >
-        Click me
-      </a>
+      <div class="mb-2 flex justify-start w-fit items-center">
+        <a
+          hx-get="/home"
+          hx-trigger="click"
+          hx-target="#app"
+          hx-swap="innerHTML"
+          class="text-font-off-white mr-3 text-xl"
+        >
+          Card
+        </a>
+        <img class="h-3" src="images/right-triangle.svg" alt="triangle icon" />
+      </div>
       <Card cardDetails={cardDetails} />
-      <p class="text-xl text-font-off-white font-bold">Transaction History</p>
-      <div class="mt-6">
+      <div class="h-px bg-primary-dark-grey mb-2" />
+      <p class="text-xl text-font-off-white font-medium">Transaction History</p>
+      <div class="mt-2">
         {transactions.map((transaction) => (
           <Transaction transaction={transaction} />
         ))}
       </div>
+      <div class="h-20"></div>
     </div>
   );
 };
