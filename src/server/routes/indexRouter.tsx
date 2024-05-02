@@ -10,6 +10,7 @@ import { Header } from '../views/components/Header';
 import { Nav } from '../views/components/Navigation';
 import { Default } from '../views/components/Default';
 import { Menu } from '../views/components/Menu';
+import { TransactionDetailsPage } from '../views/pages/transactions/TransactionDetails';
 const router = express.Router();
 
 export type Transactions = Awaited<ReturnType<typeof getTransactionsForUser>>;
@@ -26,26 +27,28 @@ const cardHtml = {
   accentColor2: 'accent-red',
 };
 
-
 router.get('/home', async (_, res) => {
-  const transactions = await getTransactionsForUser(15, 4);
+  const transactions = await getTransactionsForUser(61, 4);
 
   const userDetails = {
     userName: 'John Doe',
     totalAmount: '8,987.34',
-    cardsAmount: [
-      "3,411.12",
-      "5,223.52"
-    ]
-  }
+    cardsAmount: ['3,411.12', '5,223.52'],
+  };
 
+  const html = renderToHtml(
+    <Overview transactions={transactions} userDetails={userDetails} />
+  );
+  res.send(html);
+});
 
+router.get('/transactionDetails', async (_, res) => {
+  const transactions = await getTransactionsForUser(61, 4);
+  const transaction = transactions[0];
 
-  const html = renderToHtml(<Overview
-     transactions={transactions}
-     userDetails={userDetails}
-     cardDetails={cardHtml}
-      />);
+  const html = renderToHtml(
+    <TransactionDetailsPage transaction={transaction} />
+  );
   res.send(html);
 });
 
@@ -56,7 +59,7 @@ router.get('/menu', async (_, res) => {
 
 router.get('/transactions', async (_, res) => {
   try {
-    const transactions = await getTransactionsForUser(15);
+    const transactions = await getTransactionsForUser(61);
 
     const html = renderToHtml(
       <TransactionsPage transactions={transactions} cardDetails={cardHtml} />

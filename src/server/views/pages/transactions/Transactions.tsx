@@ -1,6 +1,6 @@
-import { Transaction } from './components/Transaction';
-import { type Transactions } from '../../../routes/indexRouter';
-import { Card } from './components/Card';
+import { Transaction } from "./components/Transaction";
+import { type Transactions } from "../../../routes/indexRouter";
+import { Card } from "./components/Card";
 
 const iconColors = [
   'bg-accent-red',
