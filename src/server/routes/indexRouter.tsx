@@ -13,7 +13,7 @@ const router = express.Router();
 
 router.get('/home', async (_, res) => {
   setTimeout(async () => {
-    const transactions = await getTransactionsForUser(31, 4);
+    const transactions = await getTransactionsForUser(15, 4);
     const mappedTransactions = transactions.map((item) => {
       return {
         ...item.transactions,
@@ -31,16 +31,16 @@ router.get('/transactions', async (_, res) => {
     const cardHtml = {
       bankLogo: '/cardAssets/scotiabank.svg',
       bankName: 'ScotiaBank',
-      cardNumber: '8763 2736 9873 ****',
+      cardNumber: '8763 **** **** ****',
       cardHolder: 'John Doe',
       expiryDate: '10/28',
-      primaryColor: 'primary-red',
+      primaryColor: 'card-red',
       textColor: 'font-off-white',
       accentColor1: 'accent-yellow',
       accentColor2: 'accent-red',
     };
 
-    const transactions = await getTransactionsForUser(31);
+    const transactions = await getTransactionsForUser(15);
     const mappedTransactions = transactions.map((item) => {
       return {
         ...item.transactions,

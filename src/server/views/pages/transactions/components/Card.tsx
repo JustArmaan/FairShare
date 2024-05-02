@@ -16,11 +16,15 @@ interface CardProps {
 
 export const Card = ({ cardDetails }: CardProps) => {
   return (
+<<<<<<< HEAD
     <div
       class={`bg-${cardDetails.primaryColor} text-font-off-white rounded-xl shadow-lg py-4 px-2 relative h-48 overflow-hidden mb-3 w-full`}
     >
       <div class="hidden bg-primary-red "></div>
       {/* This will send the color down to client in the output.css */}
+=======
+    <div class="bg-card-red text-font-off-white rounded-xl shadow-lg py-4 px-2 relative h-48 overflow-hidden mb-3 w-full">
+>>>>>>> bb8e351b8095dc5d050ff27d3f22efb39c299d8f
       <div class="flex justify-between items-center mb-1">
         <div class="flex items-center mb-2">
           <img src="/cardAssets/scotiabank.svg" class="h-9 w-9 mr-1" />{" "}

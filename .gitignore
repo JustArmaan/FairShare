@@ -6,7 +6,7 @@ public/output.css
 
 # Local DB
 
-database.db
+./src/server/database/dev.db
 
 # Logs
 
@@ -182,6 +182,7 @@ dist
 # Finder (MacOS) folder config
 .DS_Store
 notes.md
+<<<<<<< HEAD
 dev.db
 error.log
 

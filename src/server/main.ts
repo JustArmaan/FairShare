@@ -6,8 +6,9 @@ import {
   protectRoute,
   getUser,
   GrantType,
-} from "@kinde-oss/kinde-node-express";
-import ViteExpress from "vite-express";
+} from '@kinde-oss/kinde-node-express';
+import ViteExpress from 'vite-express';
+import { breakdownRouter } from './routes/breakdownRouter';
 import { configureApp } from "./middleware/express.middleware";
 
 // const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -31,6 +32,7 @@ const kindeConfig = {
 
 configureApp(app);
 
+app.use('/breakdown', breakdownRouter);
 app.use(indexRouter);
 
 /*
