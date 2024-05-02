@@ -4,7 +4,7 @@ import { transactions } from '../database/schema/transaction';
 import { eq, desc } from 'drizzle-orm';
 import { getUser } from './user.service';
 
-let db = getDB();
+const db = getDB();
 
 export const getTransactionsForUser = async (
   userId: number,

@@ -1,15 +1,20 @@
+import type { Transactions } from '../../../../routes/indexRouter';
+import Transaction from '../../transactions/components/Transaction';
+
 export const BudgetCard = ({
   clipPathStyle,
   percentage,
   tailwindColorClass,
   totalCosts,
   title,
+  transactions,
 }: {
   clipPathStyle: string;
   tailwindColorClass: string;
   percentage: string;
   totalCosts: string;
   title: string;
+  transactions: Transactions;
 }) => {
   return (
     <div class="mt-6 rounded bg-primary-faded-black p-4 flex flex-col">
@@ -17,7 +22,7 @@ export const BudgetCard = ({
         <p class="text-2xl">{title}</p>
         <div class={`ml-4 rounded-full ${tailwindColorClass} w-5 h-5`}></div>
       </div>
-      <p class="text-3xl tracking-tighter">{totalCosts}</p>
+      <p class="text-3xl tracking-tighter">${totalCosts}</p>
       <div class="flex w-full items-center flex-col mt-2">
         <p class="text-2xl mb-4 mt-4">{percentage}</p>
         <div class="bg-none drop-shadow-graph rounded-full w-3/5 aspect-square overflow-hidden relative">
@@ -29,7 +34,14 @@ export const BudgetCard = ({
       </div>
       <div class="mt-4">
         <p class="font-bold">Transactions</p>
-        <div>TODO: add transaction component here</div>
+        {transactions.map((transaction) => 
+          (
+            <Transaction
+              transaction={transaction}
+              tailwindColorClass={tailwindColorClass}
+            />
+          )
+        )}
       </div>
     </div>
   );

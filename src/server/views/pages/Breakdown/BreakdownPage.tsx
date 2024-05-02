@@ -1,5 +1,7 @@
+import type { Transactions } from '../../../routes/indexRouter';
 import { BudgetCard } from './components/BudgetCard';
 import { Graph } from './components/TotalExpenses/Graph';
+import { type ArrayElement } from '../transactions/components/Transaction';
 
 type Coordinate = {
   x: number;
@@ -48,15 +50,17 @@ function rangeToStyleString({ start, end }: { start: number; end: number }) {
 }
 
 export type Category = {
+  id: number;
   tailwindColorClass: string;
   percentage: number;
   cost: number;
   title: string;
+  transactions?: ArrayElement<Transactions>['transactions'][];
 };
 
-export const Breakdown = ({ categories }: { categories: Category[] }) => {
+function generatePathStyles(categories: Category[]) {
   let startingPercentage = 0;
-  const pathStyles = categories.map((category) => {
+  return categories.map((category) => {
     const start = startingPercentage;
     const end = startingPercentage + category.percentage;
     startingPercentage += category.percentage;
@@ -67,8 +71,68 @@ export const Breakdown = ({ categories }: { categories: Category[] }) => {
       title: category.title,
       percentage: `${(category.percentage * 100).toFixed(2)}%`,
       totalCosts: category.cost.toFixed(2),
+      categoryId: category.id,
     };
   });
+}
+
+function updatePercentages(category: Category, categories: Category[]) {
+  const percentage =
+    category.cost /
+    categories.reduce((sum, category) => sum + category.cost, 0);
+  category.percentage = percentage;
+  return category;
+}
+
+const iconColors = [
+  'bg-accent-red',
+  'bg-accent-blue',
+  'bg-accent-green',
+  'bg-accent-yellow',
+];
+
+function mapTransactionsToCategories(transactions: Transactions) {
+  const categories = transactions.reduce((categories, transaction) => {
+    console.log(categories);
+    const index = categories.findIndex(
+      (currentCategory) => currentCategory.title === transaction.categories.name
+    );
+    if (index === -1) {
+      const newCategory: Category = {
+        id: transaction.categories.id,
+        tailwindColorClass:
+          iconColors[Math.floor(Math.random() * (iconColors.length - 1))], // transaction.categories.color
+        cost: transaction.transactions.amount,
+        title: transaction.categories.name,
+        percentage: 0,
+      };
+
+      return [...categories, newCategory];
+    } else {
+      const category = categories[index];
+      category.transactions
+        ? category.transactions.push(transaction.transactions)
+        : (category.transactions = [transaction.transactions]);
+      category.cost = category.transactions.reduce(
+        (sum, transaction) => transaction.amount + sum,
+        0
+      );
+      return categories;
+    }
+  }, [] as Category[]);
+  return categories.map((category) => updatePercentages(category, categories));
+}
+
+export const BreakdownPage = ({
+  transactions,
+}: {
+  transactions: Transactions;
+}) => {
+  const categories = mapTransactionsToCategories(transactions);
+  const pathStyles = generatePathStyles(categories);
+  console.log(
+    categories.reduce((sum, category) => category.percentage + sum, 0)
+  );
 
   return (
     <div class="text-font-off-white h-fit w-screen p-8 page">
@@ -82,7 +146,9 @@ export const Breakdown = ({ categories }: { categories: Category[] }) => {
         </p>
         <div class="flex flex-row items-center justify-center relative">
           <div>
-            <p class="text-3xl text-center mt-6 font-bold pl-2 pr-2">$3,750</p>
+            <p class="text-3xl text-center mt-6 font-bold pl-2 pr-2">
+              ${categories.reduce((sum, category) => category.cost + sum, 0)}
+            </p>
             <div class="h-0.5 bg-font-grey rounded mt-0.5 w-full"></div>
           </div>
           {/*<p class="absolute right-0 text-sm text-font-grey">-20% from March</p>*/}
@@ -99,6 +165,7 @@ export const Breakdown = ({ categories }: { categories: Category[] }) => {
             title={card.title}
             percentage={card.percentage}
             totalCosts={card.totalCosts}
+            transactions={transactions.filter(transaction => transaction.transactions.categoryId === card.categoryId)}
           />
         );
       })}

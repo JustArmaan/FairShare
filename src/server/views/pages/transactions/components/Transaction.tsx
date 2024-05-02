@@ -23,22 +23,20 @@ const randomIconPaths = [
   'icons/local_gas_station.svg',
 ];
 
-type ArrayElement<ArrayType extends readonly unknown[]> =
+export type ArrayElement<ArrayType extends readonly unknown[]> =
   ArrayType extends readonly (infer ElementType)[] ? ElementType : never;
 
 export const Transaction = ({
   transaction,
+  tailwindColorClass,
 }: {
   transaction: ArrayElement<Transactions>;
+  tailwindColorClass: string;
 }) => {
   return (
     <div class="mt-4 bg-primary-black p-2 rounded-xl shadow-md mb-1 flex items-center justify-between max-w-xl">
       <div class="flex items-center">
-        <div
-          class={`p-3 pl-4 pr-4 mr-4 ${
-            iconColors[Math.floor(Math.random() * (iconColors.length - 1))]
-          } rounded-xl`}
-        >
+        <div class={`p-3 pl-4 pr-4 mr-4 ${tailwindColorClass} rounded-xl`}>
           <img
             src={
               randomIconPaths[

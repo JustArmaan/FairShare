@@ -1,6 +1,7 @@
 import express from 'express';
 import { renderToHtml } from 'jsxte';
-import { Breakdown } from '../views/pages/Breakdown/Breakdown';
+import { BreakdownPage } from '../views/pages/Breakdown/BreakdownPage';
+import { getTransactionsForUser } from '../services/transaction.service';
 
 const router = express.Router();
 
@@ -26,7 +27,8 @@ const examples = [
 ];
 
 router.get('/page', async (_, res) => {
-  const html = renderToHtml(<Breakdown categories={examples} />);
+  const transactions = await getTransactionsForUser(15);
+  const html = renderToHtml(<BreakdownPage transactions={transactions} />);
 
   res.send(html);
 });

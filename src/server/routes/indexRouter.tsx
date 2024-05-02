@@ -43,10 +43,7 @@ router.get('/transactions', async (_, res) => {
     const transactions = await getTransactionsForUser(15);
 
     const html = renderToHtml(
-      <TransactionsPage
-        transactions={transactions}
-        cardDetails={cardHtml}
-      />
+      <TransactionsPage transactions={transactions} cardDetails={cardHtml} />
     );
     res.send(html);
   } catch (error) {
