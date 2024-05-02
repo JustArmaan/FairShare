@@ -7,7 +7,9 @@ export const Nav = () => {
             href="#"
             class="flex flex-col items-center text-font-off-white dark:text-white group-hover:text-accent-yellow"
             hx-get="/home"
-            hx-target=".page"
+            hx-target="#app"
+            hx-trigger="click"
+            hx-swap="innerHTML"
           >
             <svg
               width="30"
