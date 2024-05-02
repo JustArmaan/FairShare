@@ -27,9 +27,9 @@
 
     // Vite settings
 
-    "useDefineForClassFields": true
+    "useDefineForClassFields": true,
   },
-  "include": ["src", "../src/server", "../src/client"]
+  "include": ["src", "../src/server", "../src/client"],
 }
 
 /*
