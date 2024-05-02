@@ -1,0 +1,4 @@
+/* Add this in your CSS file */
+.parent:hover .child:first-child {
+    visibility: hidden;
+}

@@ -13,14 +13,44 @@ const iconColors = [
   'bg-accent-yellow',
 ];
 
-export const Overview = ({ transactions }: { transactions: Transactions }) => {
+interface UserDetails {
+  userName: string;
+  totalAmount: string;
+  cardsAmount: string[];
+}
+
+interface CardDetails {
+  primaryColor: string;
+  textColor: string;
+  accentColor1: string;
+  accentColor2: string;
+  bankLogo: string;
+  bankName: string;
+  cardNumber: string;
+  cardHolder: string;
+  expiryDate: string;
+}
+
+interface CardProps {
+  cardDetails: CardDetails;
+}
+
+export const Overview = ({
+  transactions,
+  userDetails,
+}: {
+  transactions: Transactions;
+  userDetails: UserDetails;
+}) => {
   const categories = mapTransactionsToCategories(transactions);
   const pathStyles = generatePathStyles(categories);
-
   return (
     <div class="p-6">
       {' '}
-      <h1 class="text-2xl text-font-off-white pt-2"> Welcome, User</h1>{' '}
+      <h1 class="text-2xl text-font-off-white pt-2">
+        {' '}
+        Welcome, {userDetails.userName}
+      </h1>{' '}
       <div class="rounded-lg pl-4 mt-3 py-2 flex justify-between items-center bg-primary-black relative">
         <div>
           <p class="text-base text-font-off-white">Total Balance</p>
