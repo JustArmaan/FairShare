@@ -14,10 +14,38 @@ const router = express.Router();
 
 export type Transactions = Awaited<ReturnType<typeof getTransactionsForUser>>;
 
+const cardHtml = {
+  bankLogo: '/cardAssets/scotiabank.svg',
+  bankName: 'ScotiaBank',
+  cardNumber: '8763 **** **** ****',
+  cardHolder: 'John Doe',
+  expiryDate: '10/28',
+  primaryColor: 'card-red',
+  textColor: 'font-off-white',
+  accentColor1: 'accent-yellow',
+  accentColor2: 'accent-red',
+};
+
+
 router.get('/home', async (_, res) => {
   const transactions = await getTransactionsForUser(15, 4);
 
-  const html = renderToHtml(<Overview transactions={transactions} />);
+  const userDetails = {
+    userName: 'John Doe',
+    totalAmount: '8,987.34',
+    cardsAmount: [
+      "3,411.12",
+      "5,223.52"
+    ]
+  }
+
+
+
+  const html = renderToHtml(<Overview
+     transactions={transactions}
+     userDetails={userDetails}
+     cardDetails={cardHtml}
+      />);
   res.send(html);
 });
 
@@ -28,18 +56,6 @@ router.get('/menu', async (_, res) => {
 
 router.get('/transactions', async (_, res) => {
   try {
-    const cardHtml = {
-      bankLogo: '/cardAssets/scotiabank.svg',
-      bankName: 'ScotiaBank',
-      cardNumber: '8763 **** **** ****',
-      cardHolder: 'John Doe',
-      expiryDate: '10/28',
-      primaryColor: 'card-red',
-      textColor: 'font-off-white',
-      accentColor1: 'accent-yellow',
-      accentColor2: 'accent-red',
-    };
-
     const transactions = await getTransactionsForUser(15);
 
     const html = renderToHtml(

@@ -7,6 +7,7 @@
     <script type="module" src="/src/client/main.ts" defer></script>
     <script src="https://unpkg.com/htmx.org@1.9.10"></script>
     <link rel="stylesheet" href="/output.css" />
+    <link rel="stylesheet" href="/global.css" />
     <link rel="icon" type="image/x-icon" href="/favicon.svg" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -59,7 +60,7 @@
         </div>
       </div>
     </div>
-    <div id="/nav" hx-get="/nav" hx-trigger="load" hx-swap="outerHTML"></div>
+    <div id="nav" hx-get="/nav" hx-trigger="load" hx-swap="outerHTML"></div>
   </body>
 </html>
 <!-- Make it so this /home goes to header/navigation, then in there it knows to load the default overview page-->
