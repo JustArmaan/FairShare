@@ -1,6 +1,6 @@
-import { Transaction } from './components/Transaction';
-import { type Transactions } from '../../../routes/indexRouter';
-import { Card } from './components/Card';
+import { Transaction } from "./components/Transaction";
+import { type Transactions } from "../../../routes/indexRouter";
+import { Card } from "./components/Card";
 
 interface CardDetails {
   primaryColor: string;
@@ -42,7 +42,9 @@ export const TransactionsPage = ({
       <p class="text-xl text-font-off-white font-medium">Transaction History</p>
       <div class="mt-2">
         {transactions.map((transaction) => (
-          <Transaction transaction={transaction} />
+          <a hx-get="/home" hx-trigger="click" hx-target="#app" hx-swap="innerHTML" >
+            <Transaction transaction={transaction} />
+          </a>
         ))}
       </div>
       <div class="h-20"></div>
