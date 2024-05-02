@@ -13,7 +13,7 @@ import { Menu } from '../views/components/Menu';
 const router = express.Router();
 
 router.get('/home', async (_, res) => {
-  const transactions = await getTransactionsForUser(15, 4);
+  const transactions = await getTransactionsForUser(61, 4);
   const mappedTransactions = transactions.map((item) => {
     return {
       ...item.transactions,
@@ -44,7 +44,7 @@ router.get('/transactions', async (_, res) => {
       accentColor2: 'accent-red',
     };
 
-    const transactions = await getTransactionsForUser(15);
+    const transactions = await getTransactionsForUser(61);
     const mappedTransactions = transactions.map((item) => {
       return {
         ...item.transactions,

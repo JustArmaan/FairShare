@@ -182,7 +182,6 @@ dist
 # Finder (MacOS) folder config
 .DS_Store
 notes.md
-<<<<<<< HEAD
 dev.db
 error.log
 

@@ -21,24 +21,24 @@ interface TransactionsData {
 function formatDate(timestamp: string) {
   const date = new Date(timestamp);
 
-  return date.toLocaleString('default', {
-    month: 'long',
-    day: 'numeric',
-    year: 'numeric',
+  return date.toLocaleString("default", {
+    month: "long",
+    day: "numeric",
+    year: "numeric",
   });
 }
 
 const iconColors = [
-  'bg-accent-red',
-  'bg-accent-blue',
-  'bg-accent-green',
-  'bg-accent-yellow',
+  "bg-accent-red",
+  "bg-accent-blue",
+  "bg-accent-green",
+  "bg-accent-yellow",
 ];
 
 const randomIconPaths = [
-  'icons/bed.svg',
-  'icons/local_dining.svg',
-  'icons/local_gas_station.svg',
+  "icons/bed.svg",
+  "icons/local_dining.svg",
+  "icons/local_gas_station.svg",
 ];
 
 export const Transaction = ({ transaction }: TransactionsData) => {
@@ -50,18 +50,17 @@ export const Transaction = ({ transaction }: TransactionsData) => {
             iconColors[Math.floor(Math.random() * (iconColors.length - 1))]
           } rounded-xl`}
         >
-          <img
-            src={
-              randomIconPaths[
-                Math.floor(Math.random() * (randomIconPaths.length - 1))
-              ]
-            }
-            alt="category icon for transaction"
-          />
+          <div class="flex items-center justify-center w-10 h-10">
+            <img
+              src={transaction.category.icon}
+              alt="category icon for transaction"
+              class="w-10" 
+            />
+          </div>
         </div>
         <div>
           <h4 class="text-font-off-white font-semibold">
-            {transaction.company.split(' ')[0].split(',')[0]}
+            {transaction.company.split(" ")[0].split(",")[0]}
           </h4>
           <p class="text-gray-400 text-sm text-font-off-white">
             {formatDate(transaction.timestamp)}
