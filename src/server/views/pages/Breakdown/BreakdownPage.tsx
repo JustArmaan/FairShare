@@ -26,7 +26,6 @@ function coordToStyleString({ x, y }: { x: number; y: number }) {
 function rangeToStyleString({ start, end }: { start: number; end: number }) {
   const startCoord = floatToCoords(start);
   const endCoord = floatToCoords(end);
-  const middle = start + (end - start) / 2;
   // need to check every key coord
   // key coords are from 0 to 1 in all intervals of 0.125
   // if we include a key coord, we must add it as a point in our polygon
@@ -58,7 +57,7 @@ export type Category = {
   transactions?: ArrayElement<Transactions>['transactions'][];
 };
 
-function generatePathStyles(categories: Category[]) {
+export function generatePathStyles(categories: Category[]) {
   let startingPercentage = 0;
   return categories.map((category) => {
     const start = startingPercentage;
@@ -89,37 +88,42 @@ const iconColors = [
   'bg-accent-blue',
   'bg-accent-green',
   'bg-accent-yellow',
+  'bg-accent-purple',
 ];
 
-function mapTransactionsToCategories(transactions: Transactions) {
-  const categories = transactions.reduce((categories, transaction) => {
-    console.log(categories);
-    const index = categories.findIndex(
-      (currentCategory) => currentCategory.title === transaction.categories.name
-    );
-    if (index === -1) {
-      const newCategory: Category = {
-        id: transaction.categories.id,
-        tailwindColorClass:
-          iconColors[Math.floor(Math.random() * (iconColors.length - 1))], // transaction.categories.color
-        cost: transaction.transactions.amount,
-        title: transaction.categories.name,
-        percentage: 0,
-      };
-
-      return [...categories, newCategory];
-    } else {
-      const category = categories[index];
-      category.transactions
-        ? category.transactions.push(transaction.transactions)
-        : (category.transactions = [transaction.transactions]);
-      category.cost = category.transactions.reduce(
-        (sum, transaction) => transaction.amount + sum,
-        0
+export function mapTransactionsToCategories(transactions: Transactions) {
+  const categories = transactions.reduce(
+    (categories, transaction, categoryIndex) => {
+      console.log(categories);
+      const index = categories.findIndex(
+        (currentCategory) =>
+          currentCategory.title === transaction.categories.name
       );
-      return categories;
-    }
-  }, [] as Category[]);
+      if (index === -1) {
+        const newCategory: Category = {
+          id: transaction.categories.id,
+          tailwindColorClass:
+            iconColors[categoryIndex % (iconColors.length - 1)], // transaction.categories.color
+          cost: transaction.transactions.amount,
+          title: transaction.categories.name,
+          percentage: 0,
+        };
+
+        return [...categories, newCategory];
+      } else {
+        const category = categories[index];
+        category.transactions
+          ? category.transactions.push(transaction.transactions)
+          : (category.transactions = [transaction.transactions]);
+        category.cost = category.transactions.reduce(
+          (sum, transaction) => transaction.amount + sum,
+          0
+        );
+        return categories;
+      }
+    },
+    [] as Category[]
+  );
   return categories.map((category) => updatePercentages(category, categories));
 }
 
@@ -165,7 +169,10 @@ export const BreakdownPage = ({
             title={card.title}
             percentage={card.percentage}
             totalCosts={card.totalCosts}
-            transactions={transactions.filter(transaction => transaction.transactions.categoryId === card.categoryId)}
+            transactions={transactions.filter(
+              (transaction) =>
+                transaction.transactions.categoryId === card.categoryId
+            )}
           />
         );
       })}

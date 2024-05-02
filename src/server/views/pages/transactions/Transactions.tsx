@@ -2,6 +2,13 @@ import { Transaction } from './components/Transaction';
 import { type Transactions } from '../../../routes/indexRouter';
 import { Card } from './components/Card';
 
+const iconColors = [
+  'bg-accent-red',
+  'bg-accent-blue',
+  'bg-accent-green',
+  'bg-accent-yellow',
+];
+
 interface CardDetails {
   primaryColor: string;
   textColor: string;
@@ -41,8 +48,11 @@ export const TransactionsPage = ({
       <div class="h-px bg-primary-dark-grey mb-2" />
       <p class="text-xl text-font-off-white font-medium">Transaction History</p>
       <div class="mt-2">
-        {transactions.map((transaction) => (
-          <Transaction transaction={transaction} />
+        {transactions.map((transaction, categoryIndex) => (
+          <Transaction
+            transaction={transaction}
+            tailwindColorClass={iconColors[categoryIndex % iconColors.length]}
+          />
         ))}
       </div>
       <div class="h-20"></div>

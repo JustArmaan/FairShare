@@ -19,7 +19,7 @@ export const Card = ({ cardDetails }: CardProps) => {
     <div
       class={`bg-${cardDetails.primaryColor} text-font-off-white rounded-xl shadow-lg py-4 px-2 relative h-48 overflow-hidden mb-3 w-full`}
     >
-      <div class="hidden bg-primary-red"></div>
+      <div class="bg-primary-red hidden"></div>
       {/* This will send the color down to client in the output.css */}
       <div class="flex justify-between items-center mb-1">
         <div class="flex items-center mb-2">

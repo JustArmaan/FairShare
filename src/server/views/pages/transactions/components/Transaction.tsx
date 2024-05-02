@@ -10,13 +10,6 @@ function formatDate(timestamp: string) {
   });
 }
 
-const iconColors = [
-  'bg-accent-red',
-  'bg-accent-blue',
-  'bg-accent-green',
-  'bg-accent-yellow',
-];
-
 const randomIconPaths = [
   'icons/bed.svg',
   'icons/local_dining.svg',

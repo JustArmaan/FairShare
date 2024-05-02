@@ -34,14 +34,12 @@ export const BudgetCard = ({
       </div>
       <div class="mt-4">
         <p class="font-bold">Transactions</p>
-        {transactions.map((transaction) => 
-          (
-            <Transaction
-              transaction={transaction}
-              tailwindColorClass={tailwindColorClass}
-            />
-          )
-        )}
+        {transactions.map((transaction) => (
+          <Transaction
+            transaction={transaction}
+            tailwindColorClass={tailwindColorClass}
+          />
+        ))}
       </div>
     </div>
   );
