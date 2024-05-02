@@ -18,7 +18,7 @@ interface Transaction {
 
 export const Overview = ({ transactions }: { transactions: Transaction[] }) => {
   return (
-    <>
+    <div class="p-6">
       {' '}
       {/*Margin left and right might become a div later for cleaner code*/}
       <h1 class="text-2xl text-font-off-white pt-2"> Welcome, Holden</h1>{' '}
@@ -67,7 +67,7 @@ export const Overview = ({ transactions }: { transactions: Transaction[] }) => {
             hx-trigger="click"
             hx-target="#app"
             hx-swap="innerHTML"
-            class="text-font-off-white"
+            class="text-font-off-white cursor-pointer hover:opacity-90"
           >
             View All
           </a>
@@ -77,6 +77,6 @@ export const Overview = ({ transactions }: { transactions: Transaction[] }) => {
         ))}
       </div>
       <div class="h-20"></div>
-    </>
+    </div>
   );
 };

@@ -39,7 +39,7 @@ export const TransactionsPage = ({
   cardDetails,
 }: TransactionsPageProps) => {
   return (
-    <>
+    <div class="p-6">
       <a
         hx-get="/home"
         hx-trigger="click"
@@ -56,7 +56,7 @@ export const TransactionsPage = ({
           <Transaction transaction={transaction} />
         ))}
       </div>
-    </>
+    </div>
   );
 };
 
