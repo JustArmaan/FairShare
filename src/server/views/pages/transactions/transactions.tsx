@@ -40,15 +40,6 @@ export const TransactionsPage = ({
 }: TransactionsPageProps) => {
   return (
     <>
-      <a
-        hx-get="/home"
-        hx-trigger="click"
-        hx-target="#app"
-        hx-swap="innerHTML"
-        class="text-font-off-white w-60 bg-accent-blue"
-      >
-        Click me
-      </a>
       <Card cardDetails={cardDetails} />
       <p class="text-xl text-font-off-white font-bold">Transaction History</p>
       <div class="mt-6">
