@@ -2,7 +2,11 @@
 export default {
   content: ['./src/**/*.tsx', './index.html'],
   theme: {
-    extend: {},
+    extend: {
+      dropShadow: {
+        graph: '-4px 6px 4px rgb(0 0 0 / 0.5)',
+      },
+    },
     colors: {
       'primary-dark-grey': '#686868',
       'primary-grey': '#E7E7E7',
@@ -22,7 +26,7 @@ export default {
       'primary-black': '#343434',
       'primary-faded-black': '#4E4E4E',
       'primary-faded-black': '#4E4E4E',
-      'primary-red': '#e60000',
+      'card-red': '#e60000',
     },
     fontFamily: {
       sans: ['Work Sans', 'sans-serif'],

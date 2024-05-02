@@ -16,7 +16,7 @@ interface CardProps {
 
 export const Card = ({ cardDetails }: CardProps) => {
   return (
-    <div class="bg-primary-red text-font-off-white rounded-xl shadow-lg py-4 px-2 relative h-48 overflow-hidden mb-3 w-full">
+    <div class="bg-card-red text-font-off-white rounded-xl shadow-lg py-4 px-2 relative h-48 overflow-hidden mb-3 w-full">
       <div class="flex justify-between items-center mb-1">
         <div class="flex items-center mb-2">
           <img src="/cardAssets/scotiabank.svg" class="h-9 w-9 mr-1" />{' '}

@@ -34,7 +34,7 @@ router.get('/transactions', async (_, res) => {
       cardNumber: '8763 **** **** ****',
       cardHolder: 'John Doe',
       expiryDate: '10/28',
-      primaryColor: 'primary-red',
+      primaryColor: 'card-red',
       textColor: 'font-off-white',
       accentColor1: 'accent-yellow',
       accentColor2: 'accent-red',
