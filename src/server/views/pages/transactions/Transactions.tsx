@@ -42,7 +42,7 @@ export const TransactionsPage = ({
       <p class="text-xl text-font-off-white font-medium">Transaction History</p>
       <div class="mt-2">
         {transactions.map((transaction) => (
-          <a hx-get="/home" hx-trigger="click" hx-target="#app" hx-swap="innerHTML" >
+          <a hx-get="/transactionDetails" hx-trigger="click" hx-target="#app" hx-swap="innerHTML" >
             <Transaction transaction={transaction} />
           </a>
         ))}

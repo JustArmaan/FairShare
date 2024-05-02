@@ -15,14 +15,14 @@ const router = express.Router();
 
 export type Transactions = Awaited<ReturnType<typeof getTransactionsForUser>>;
 
-// router.get("/home", async (_, res) => {
-//   const transactions = await getTransactionsForUser(61, 4);
-
-//   const html = renderToHtml(<Overview transactions={transactions} />);
-//   res.send(html);
-// });
-
 router.get("/home", async (_, res) => {
+  const transactions = await getTransactionsForUser(61, 4);
+
+  const html = renderToHtml(<Overview transactions={transactions} />);
+  res.send(html);
+});
+
+router.get("/transactionDetails", async (_, res) => {
   const transactions = await getTransactionsForUser(61, 4);
   const transaction = transactions[0];
 
