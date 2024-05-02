@@ -10,7 +10,6 @@ export const getTransactionsForUser = async (
   userId: number,
   limit: number = 0
 ) => {
-  // 😭 How the heck do I fix this??? 😭
   try {
     const user = await getUser(userId);
     if (!user) {
