@@ -9,21 +9,25 @@ import { Overview } from '../views/pages/Overview/Overview';
 import { Header } from '../views/components/Header';
 import { Nav } from '../views/components/Navigation';
 import { Default } from '../views/components/Default';
+import { Menu } from '../views/components/Menu';
 const router = express.Router();
 
 router.get('/home', async (_, res) => {
-  setTimeout(async () => {
-    const transactions = await getTransactionsForUser(15, 4);
-    const mappedTransactions = transactions.map((item) => {
-      return {
-        ...item.transactions,
-        category: item.categories,
-      };
-    });
+  const transactions = await getTransactionsForUser(15, 4);
+  const mappedTransactions = transactions.map((item) => {
+    return {
+      ...item.transactions,
+      category: item.categories,
+    };
+  });
 
-    const html = renderToHtml(<Overview transactions={mappedTransactions} />);
-    res.send(html);
-  }, 0); // Delay in milliseconds
+  const html = renderToHtml(<Overview transactions={mappedTransactions} />);
+  res.send(html);
+});
+
+router.get('/menu', async (_, res) => {
+  const html = renderToHtml(<Menu />);
+  res.send(html);
 });
 
 router.get('/transactions', async (_, res) => {
