@@ -11,7 +11,8 @@ export const Nav = () => {
             hx-trigger="click"
             hx-swap="innerHTML"
           >
-            <img class="h-6" src="./images/home.svg" alt="home icon" />
+            <img id="homeIcon" class="h-6 hover:hidden absolute" src="./images/home.svg" alt="home icon"  />
+            <img class="h-6" src="./activeIcons/home.svg" alt="home icon"  />
             <p class="mt-1 text-sm">Home</p>
           </a>
         </li>
@@ -20,10 +21,11 @@ export const Nav = () => {
             href="#"
             class="flex flex-col items-center text-font-off-white dark:text-white group-hover:text-accent-purple"
           >
-            <img class="h-6" src="./images/group.svg" alt="group icon" />
+            <img id="groupIcon" class="h-6" src="./images/group.svg" alt="group icon" />
             <p class="mt-1 text-sm">Groups</p>
           </a>
         </li>
+          <div class="rounded-full bg-accent-blue size-10">
         <li class="flex justify-center items-center">
           <a
             href="#"
@@ -32,16 +34,18 @@ export const Nav = () => {
             <img
               src="/images/moreButton.svg"
               alt="More Icon"
-              class="h-[70px] w-[70px] mt-1"
+              class="mt-2"
             ></img>
           </a>
         </li>
+          </div>
         <li class="group w-1/6">
           <a
             href="#"
             class="flex flex-col items-center text-font-off-white dark:text-white text-sm group-hover:text-accent-green"
           >
             <img
+            id="notifIcon"
               class="h-6"
               src="./images/notifications.svg"
               alt="notifications icon"
@@ -58,7 +62,7 @@ export const Nav = () => {
             hx-include="[name=original]"
             aria-label="Toggle menu"
           >
-            <img src="/images/menu.svg" alt="Menu Icon" class="h-6 p-1"></img>
+            <img src="/images/menu.svg" alt="Menu Icon" class="h-6 p-1" id="moreIcon"></img>
             <p class="mt-1 text-sm">More</p>
           </a>
         </li>

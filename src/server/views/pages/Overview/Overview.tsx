@@ -16,15 +16,41 @@ interface Transaction {
   category: Category;
 }
 
-export const Overview = ({ transactions }: { transactions: Transaction[] }) => {
+interface UserDetails {
+  userName: string;
+  totalAmount: string;
+  cardsAmount: [
+    Scotia: string,
+    MasterCard: string
+  ]
+}
+
+interface CardDetails {
+  primaryColor: string;
+  textColor: string;
+  accentColor1: string;
+  accentColor2: string;
+  bankLogo: string;
+  bankName: string;
+  cardNumber: string;
+  cardHolder: string;
+  expiryDate: string;
+}
+
+interface CardProps {
+  cardDetails: CardDetails;
+}
+
+
+export const Overview = ({ transactions, userDetails, cardDetails }: { transactions: Transaction[], userDetails: UserDetails, cardDetails: CardProps }) => {
   return (
     <div class="p-6">
       {' '}
-      <h1 class="text-2xl text-font-off-white pt-2"> Welcome, User</h1>{' '}
+      <h1 class="text-2xl text-font-off-white pt-2"> Welcome, {userDetails.userName}</h1>{' '}
       <div class="rounded-lg pl-4 mt-3 py-2 flex justify-between items-center bg-primary-black relative">
         <div>
           <p class="text-base text-font-off-white">Overview</p>
-          <p class="text-2xl text-font-off-white">$8,987.32</p>
+          <p class="text-2xl text-font-off-white">${userDetails.totalAmount}</p>
           <p class="text-xs text-font-off-white">Contributions</p>
         </div>
         <span class="absolute top-3 right-3">
@@ -46,11 +72,11 @@ export const Overview = ({ transactions }: { transactions: Transaction[] }) => {
       <div class="rounded-lg bg-primary-black ">
         <div class="ml-4 mt-3 py-2 flex justify-between items-center">
           <p class="text-base text-font-off-white">
-            Bank<span class="text-sm text-font-off-white">(1000)</span>
+            Bank<span class="text-sm text-font-off-white">({cardDetails.cardNumber.slice(0, 4)})</span>
           </p>
         </div>
         <div class="flex justify-center">
-          <p class="text-base text-font-off-white">$2,344.10</p>
+          <p class="text-base text-font-off-white">${userDetails.cardsAmount[1]}</p>
         </div>
         <hr class="mx-3 h-0.5 bg-font-off-white"></hr>
         <p class="ml-4 mt-2 text-base text-font-off-white">Monthly Breakdown</p>
