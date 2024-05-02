@@ -41,7 +41,7 @@ export const Transaction = ({
         >
           <div class="flex items-center justify-center w-10 h-10">
             <img
-              src={transaction.category.icon}
+              src={transaction.categories.icon}
               alt="category icon for transaction"
               class="w-10" 
             />
@@ -49,11 +49,7 @@ export const Transaction = ({
         </div>
         <div>
           <h4 class="text-font-off-white font-semibold">
-<<<<<<< HEAD
-            {transaction.company.split(" ")[0].split(",")[0]}
-=======
             {transaction.transactions.company.split(' ')[0].split(',')[0]}
->>>>>>> 22e8c3b948f1d840643d219a3141426c47246a10
           </h4>
           <p class="text-gray-400 text-sm text-font-off-white">
             {formatDate(transaction.transactions.timestamp)}
