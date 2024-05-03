@@ -28,3 +28,7 @@ setupCounter(document.querySelector<HTMLButtonElement>('#counter')!);
 document.body.addEventListener('htmx:afterSwap', () => {
   window.scrollTo({ top: 0 });
 });
+
+async function main() { }
+
+main();

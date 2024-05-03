@@ -1,0 +1,118 @@
+diff --git a/node_modules/@kinde-oss/kinde-node-express/dist/helpers/kindeMiddlewareHelpers.js b/node_modules/@kinde-oss/kinde-node-express/dist/helpers/kindeMiddlewareHelpers.js
+index b5b974c..3fd0f57 100644
+--- a/node_modules/@kinde-oss/kinde-node-express/dist/helpers/kindeMiddlewareHelpers.js
++++ b/node_modules/@kinde-oss/kinde-node-express/dist/helpers/kindeMiddlewareHelpers.js
+@@ -13,19 +13,18 @@ const { authToken, getPem } = authUtils;
+  * @returns {Promise<void>}
+  */
+ export const getUser = async (req, res, next) => {
+-    const kindeClient = getInternalClient();
+-    if (!(await kindeClient.isAuthenticated(req))) {
+-        const logoutURL = await kindeClient.logout(req);
+-        return res.redirect(logoutURL.toString());
+-    }
+-    try {
+-        const userProfile = await kindeClient.getUserProfile(req);
+-        req.user = userProfile;
+-        return next();
+-    }
+-    catch (error) {
+-        return next(error);
+-    }
++  const kindeClient = getInternalClient();
++  if (!(await kindeClient.isAuthenticated(req))) {
++    return next()
++  }
++  try {
++    const userProfile = await kindeClient.getUserProfile(req);
++    req.user = userProfile;
++    return next();
++  }
++  catch (error) {
++    return next(error);
++  }
+ };
+ /**
+  * Custom middleware determines if the user is authenticated or not if so proceeds
+@@ -37,20 +36,20 @@ export const getUser = async (req, res, next) => {
+  * @returns {Promise<void>}
+  */
+ export const protectRoute = async (req, res, next) => {
+-    const kindeClient = getInternalClient();
+-    if (!(await kindeClient.isAuthenticated(req))) {
+-        const logoutURL = await kindeClient.logout(req);
+-        return res.redirect(logoutURL.toString());
+-    }
+-    const callbackFn = (error) => {
+-        if (error)
+-            return res.sendStatus(403);
+-        next();
+-    };
+-    const config = getInitialConfig();
+-    const pem = await getPem(config.issuerBaseUrl);
+-    const parsedToken = await kindeClient.getToken(req);
+-    authToken(parsedToken, pem, callbackFn);
++  const kindeClient = getInternalClient();
++  if (!(await kindeClient.isAuthenticated(req))) {
++    const logoutURL = await kindeClient.logout(req);
++    return res.redirect(logoutURL.toString());
++  }
++  const callbackFn = (error) => {
++    if (error)
++      return res.sendStatus(403);
++    next();
++  };
++  const config = getInitialConfig();
++  const pem = await getPem(config.issuerBaseUrl);
++  const parsedToken = await kindeClient.getToken(req);
++  authToken(parsedToken, pem, callbackFn);
+ };
+ /**
+  * Custom JWT verifier as middleware, for verifying integrity of JWT bearer
+@@ -61,25 +60,25 @@ export const protectRoute = async (req, res, next) => {
+  * @returns {ExpressMiddleware<Promise<void>>}
+  */
+ export const jwtVerify = (issuer, options) => {
+-    const { audience } = options;
+-    const verifier = JwtRsaVerifier.create({
+-        issuer,
+-        audience: audience || null,
+-        jwksUri: `${issuer}/.well-known/jwks.json`,
+-    });
+-    return async (req, res, next) => {
+-        try {
+-            const authHeader = req.headers.authorization;
+-            const token = authHeader && authHeader.split(' ')[1];
+-            const payload = await verifier.verify(token);
+-            // @ts-expect-error, preserving this behaviour owing to backward compatibility.
+-            req.user = { id: payload.sub };
+-            next();
+-        }
+-        catch (err) {
+-            console.log('Token not valid!');
+-            console.log(err);
+-            return res.sendStatus(403);
+-        }
+-    };
++  const { audience } = options;
++  const verifier = JwtRsaVerifier.create({
++    issuer,
++    audience: audience || null,
++    jwksUri: `${issuer}/.well-known/jwks.json`,
++  });
++  return async (req, res, next) => {
++    try {
++      const authHeader = req.headers.authorization;
++      const token = authHeader && authHeader.split(' ')[1];
++      const payload = await verifier.verify(token);
++      // @ts-expect-error, preserving this behaviour owing to backward compatibility.
++      req.user = { id: payload.sub };
++      next();
++    }
++    catch (err) {
++      console.log('Token not valid!');
++      console.log(err);
++      return res.sendStatus(403);
++    }
++  };
+ };

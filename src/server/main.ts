@@ -14,20 +14,6 @@ const PORT = process.env.PORT || 3000;
 
 const app = express();
 
-const kindeConfig = {
-  clientId: '', // TODO: setup with env vars
-  secret: '',
-  issuerBaseUrl: '',
-  siteUrl: 'http://localhost:3000',
-  redirectUrl: 'http://localhost:3000',
-  scope: 'openid profile email',
-  grantType: GrantType.AUTHORIZATION_CODE, //or CLIENT_CREDENTIALS or PKCE
-  unAuthorisedUrl: 'http://localhost:3000/login',
-  postLogoutRedirectUrl: 'http://localhost:3000',
-};
-
-// setupKinde(kindeConfig, app);
-
 configureApp(app);
 
 app.use('/breakdown', breakdownRouter);

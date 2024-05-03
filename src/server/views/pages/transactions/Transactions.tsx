@@ -38,9 +38,10 @@ export const TransactionsPage = ({
         hx-target="#app"
         hx-swap="innerHTML"
         class="mb-2 flex justify-start w-fit items-center hover:-translate-y-0.5 transition-transform cursor-pointer"
+        hx-push-url="true"
       >
         <p class="text-font-off-white mr-3 text-xl">Card</p>
-        <img class="h-3" src="images/right-triangle.svg" alt="triangle icon" />
+        <img class="h-3" src="/images/right-triangle.svg" alt="triangle icon" />
       </a>
       <Card cardDetails={cardDetails} />
       <div class="h-px bg-primary-dark-grey mb-2" />

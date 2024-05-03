@@ -13,14 +13,15 @@ export const Nav = () => {
             hx-target="#app"
             hx-trigger="click"
             hx-swap="innerHTML"
+            hx-push-url="true"
           >
             <img
               id="homeIcon"
               class="child h-6 absolute"
-              src="./images/home.svg"
+              src="/images/home.svg"
               alt="home icon"
             />
-            <img class="h-6" src="./activeIcons/home.svg" alt="home icon" />
+            <img class="h-6" src="/activeIcons/home.svg" alt="home icon" />
             <p class="mt-1 text-xs">Home</p>
           </a>
         </li>
@@ -32,10 +33,10 @@ export const Nav = () => {
             <img
               id="groupIcon"
               class=" child h-6 absolute"
-              src="./images/group.svg"
+              src="/images/group.svg"
               alt="group icon"
             />
-            <img class="h-6" src="./activeIcons/group.svg" alt="group icon" />
+            <img class="h-6" src="/activeIcons/group.svg" alt="group icon" />
             <p class="mt-1 text-xs">Groups</p>
           </a>
         </li>
@@ -61,12 +62,12 @@ export const Nav = () => {
             <img
               id="notifIcon"
               class=" child h-6 absolute"
-              src="./images/notifications.svg"
+              src="/images/notifications.svg"
               alt="notifications icon"
             />
             <img
               class="h-6"
-              src="./activeIcons/notif.svg"
+              src="/activeIcons/notif.svg"
               alt="notifications icon"
             />
             <p class="mt-1 text-xs">Notifications</p>

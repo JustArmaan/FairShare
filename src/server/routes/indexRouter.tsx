@@ -11,6 +11,7 @@ import { Nav } from '../views/components/Navigation';
 import { Default } from '../views/components/Default';
 import { Menu } from '../views/components/Menu';
 import { TransactionDetailsPage } from '../views/pages/transactions/TransactionDetails';
+import { getUser } from '@kinde-oss/kinde-node-express';
 const router = express.Router();
 
 export type Transactions = Awaited<
@@ -29,7 +30,17 @@ const cardHtml = {
   accentColor2: 'accent-red',
 };
 
-router.get('/home', async (_, res) => {
+router.get('/callback', async (req, res) => {
+  res.redirect('/');
+});
+
+router.get('/home', getUser, async (req, res) => {
+  // @ts-ignore
+  if (!req.user) {
+    return res.set('HX-Redirect', `${env.baseUrl}/login`).send();
+  }
+  // @ts-ignore
+  console.log(req.user, 'hi');
   const transactions = await debug_getTransactionsForAnyUser(4);
 
   const userDetails = {
@@ -44,9 +55,13 @@ router.get('/home', async (_, res) => {
   res.send(html);
 });
 
-router.get('/transactionDetails', async (_, res) => {
+router.get('/transactionDetails/:transactionId', async (req, res) => {
   const transactions = await debug_getTransactionsForAnyUser(4);
-  const transaction = transactions[0];
+  const transaction = transactions.find(
+    (transaction) =>
+      transaction.transactions.id === parseInt(req.params.transactionId)
+  );
+  if (!transaction) return res.status(404).send('404');
 
   const html = renderToHtml(
     <TransactionDetailsPage transaction={transaction} />

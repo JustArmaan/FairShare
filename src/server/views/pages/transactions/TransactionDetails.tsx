@@ -17,9 +17,10 @@ export const TransactionDetailsPage = ({
           hx-target="#app"
           hx-swap="innerHTML"
           class="text-font-off-white text-4xl cursor-pointer"
+          hx-push-url="true"
         >
           <img
-            src="icons/arrow_back_ios.svg"
+            src="/icons/arrow_back_ios.svg"
             alt="back arrow icon"
             class="hover:-translate-y-0.5 transition-transform hover:opacity-80 h-6"
           />
@@ -46,7 +47,7 @@ export const TransactionDetailsPage = ({
         </div>
         <div class="mt-6 w-full h-auto rounded-lg bg-primary-black">
           <img
-            src="./map/map-screenshot.png"
+            src="/map/map-screenshot.png"
             class="rounded-t-lg w-full h-44 object-cover"
           />
           <p class="text-font-off-white py-3 px-4">

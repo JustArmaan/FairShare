@@ -22,10 +22,11 @@ export const Transaction = ({
 }) => {
   return (
     <a
-      hx-get="/transactionDetails"
+      hx-get={`/transactionDetails/${transaction.transactions.id}`}
       hx-trigger="click"
       hx-target="#app"
       hx-swap="innerHTML"
+      hx-push-url="true"
     >
       <div class="hover:-translate-y-0.5 cursor-pointer transition-all mt-4 bg-primary-black p-2 rounded-xl shadow-md mb-1 flex items-center justify-between">
         <div class="flex items-center">

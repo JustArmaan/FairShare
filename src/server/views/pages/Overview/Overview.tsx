@@ -39,7 +39,10 @@ export const Overview = ({
         <div>
           <p class="text-base text-font-off-white">Total Balance</p>
           <p class="text-2xl text-font-off-white">
-            ${categories.reduce((sum, category) => category.cost + sum, 0).toFixed(2)}
+            $
+            {categories
+              .reduce((sum, category) => category.cost + sum, 0)
+              .toFixed(2)}
           </p>
         </div>
         {/*
@@ -69,7 +72,10 @@ export const Overview = ({
         </div>
         <div class="flex justify-center">
           <p class="text-3xl text-font-off-white font-semibold mb-1">
-            ${categories.reduce((sum, category) => category.cost + sum, 0).toFixed(2)}
+            $
+            {categories
+              .reduce((sum, category) => category.cost + sum, 0)
+              .toFixed(2)}
           </p>
         </div>
         <div class="mx-3 h-[3px] bg-primary-grey rounded"></div>
@@ -81,6 +87,7 @@ export const Overview = ({
               hx-swap="innerHTML"
               hx-get="/breakdown/page"
               hx-target="#app"
+              hx-push-url="true"
               // rotate 0.0001deg prevents strange subpixel snapping during animation when viewport is 430px wide. I spent 15 mins on this.
               // https://stackoverflow.com/questions/24854640/strange-pixel-shifting-jumping-in-firefox-with-css-transitions
               class="hover:-translate-y-0.5 rotate-[0.0001deg] transition-transform font-semibold px-12 py-2.5 bg-accent-blue rounded-xl w-2/3"
@@ -99,6 +106,7 @@ export const Overview = ({
             hx-target="#app"
             hx-swap="innerHTML"
             class="text-font-off-white cursor-pointer hover:opacity-90 hover:-translate-y-px transition-transform"
+            hx-push-url="true"
           >
             View All
           </a>
