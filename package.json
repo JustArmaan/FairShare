@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "scripts": {
     "dev": "nodemon -e ts,tsx,html -w src/server -x bun run src/server/main.ts",
-    "start": "NODE_ENV=production bun src/server/main.ts",
+    "start": "bun src/server/main.ts",
     "build": "vite build",
     "tailwind-watch": "bun x tailwindcss -i ./src/server/views/tailwind.css -o ./public/output.css --watch",
     "drizzle-generate": "drizzle-kit generate:sqlite",
@@ -13,8 +13,7 @@
   "dependencies": {
     "@faker-js/faker": "^8.4.1",
     "@kinde-oss/kinde-node-express": "^1.3.0",
-    "dev": "nodemon -e ts,tsx,html -w src/server -x tsx src/server/main.ts",
-    "@kinde-oss/kinde-typescpt-sdk": "^2.9.0",
+    "@kinde-oss/kinde-typescript-sdk": "^2.9.0",
     "@libsql/client": "^0.5.3",
     "@vitejs/plugin-react": "^4.2.1",
     "better-sqlite3": "^9.6.0",
