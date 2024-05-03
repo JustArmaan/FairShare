@@ -6,6 +6,7 @@
     "start": "bun src/server/main.ts",
     "build": "vite build",
     "tailwind-watch": "bun x tailwindcss -i ./src/server/views/tailwind.css -o ./public/output.css --watch",
+    "tailwind-build": "bun x tailwindcss -i ./src/server/views/tailwind.css -o ./public/output.css",
     "drizzle-generate": "drizzle-kit generate:sqlite",
     "drizzle-seed": "bun run src/server/database/seed.ts",
     "drizzle-push": "drizzle-kit push:sqlite"
@@ -16,7 +17,6 @@
     "@kinde-oss/kinde-typescript-sdk": "^2.9.0",
     "@libsql/client": "^0.5.3",
     "@vitejs/plugin-react": "^4.2.1",
-    "better-sqlite3": "^9.6.0",
     "dotenv": "^16.4.5",
     "drizzle-kit": "^0.20.17",
     "drizzle-orm": "^0.30.6",
@@ -32,11 +32,12 @@
     "vite-express": "^0.16.0"
   },
   "devDependencies": {
-    "@types/mime": "^4.0.0",
     "@types/connect-livereload": "^0.6.3",
     "@types/express": "^4.17.21",
     "@types/express-session": "^1.18.0",
     "@types/livereload": "^0.9.5",
+    "@types/mime": "^4.0.0",
+    "better-sqlite3": "^9.6.0",
     "bun-types": "latest",
     "tailwindcss": "^3.4.1"
   },
