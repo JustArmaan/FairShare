@@ -1,12 +1,13 @@
-import { drizzle } from 'drizzle-orm/libsql';
+import { LibSQLDatabase, drizzle } from 'drizzle-orm/libsql';
 import { createClient } from '@libsql/client';
+import { env } from '../../../env';
 
-const isDev = process.env.IS_DEV;
+const isDev = env.isDev;
 
-const url = isDev ? process.env.LOCAL_DB_URL : process.env.DB_URL;
+const url = isDev ? env.localDb : process.env.VITE_DB_URL;
 if (!url) throw new Error('Missing db url env variable');
 
-const authToken = process.env.AUTH_TOKEN;
+const authToken = process.env.VITE_AUTH_TOKEN;
 if (!authToken && !isDev) throw new Error('Missing db auth token env variable');
 
 export const config = {
@@ -16,4 +17,8 @@ export const config = {
 
 const client = createClient(isDev ? { ...config, url: `file:${url}` } : config);
 
-export const db = drizzle(client);
+let dbSingleton: LibSQLDatabase | undefined;
+
+export const getDB = () => {
+  return (dbSingleton ??= drizzle(client));
+};

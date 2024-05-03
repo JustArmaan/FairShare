@@ -1,8 +1,5 @@
 import express from 'express';
-import { type Request, type Response } from 'express';
-import session from 'express-session';
 import { indexRouter } from './routes/indexRouter';
-import bodyParser from 'body-parser';
 import {
   setupKinde,
   protectRoute,
@@ -10,9 +7,10 @@ import {
   GrantType,
 } from '@kinde-oss/kinde-node-express';
 import ViteExpress from 'vite-express';
+import { breakdownRouter } from './routes/breakdownRouter';
+import { configureApp } from './middleware/express.middleware';
 
-// const __dirname = dirname(fileURLToPath(import.meta.url));
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.VITE_PORT || 3000;
 
 const app = express();
 
@@ -30,22 +28,9 @@ const kindeConfig = {
 
 // setupKinde(kindeConfig, app);
 
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(express.static('public'));
+configureApp(app);
 
-app.use(
-  session({
-    secret: 'secret',
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-      httpOnly: true,
-      secure: false,
-      maxAge: 24 * 60 * 60 * 1000,
-    },
-  })
-);
-
+app.use('/breakdown', breakdownRouter);
 app.use(indexRouter);
 
 /*

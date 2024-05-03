@@ -15,6 +15,34 @@
       "when": 1711864161191,
       "tag": "0001_organic_miracleman",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1714429992114,
+      "tag": "0002_chief_marvel_apes",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1714445920925,
+      "tag": "0003_lonely_patriot",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "5",
+      "when": 1714447798893,
+      "tag": "0004_lonely_steve_rogers",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "5",
+      "when": 1714452937110,
+      "tag": "0005_overconfident_rawhide_kid",
+      "breakpoints": true
     }
   ]
 }
