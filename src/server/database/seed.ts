@@ -30,7 +30,7 @@ const categoriesList = [
   { name: "Tickets", icon: "./icons/tickets.svg" },
   { name: "Dentist", icon: "./icons/dentist.svg" },
   { name: "Deposit", icon: "./icons/dollar-sign.svg" },
-  { name: "Other", icon: "./icons/plus" },
+  { name: "Other", icon: "./icons/plus.svg" },
 ];
 
 await db.delete(transactions);

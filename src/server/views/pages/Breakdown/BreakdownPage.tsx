@@ -147,7 +147,7 @@ export const BreakdownPage = ({
         <div class="flex flex-row items-center justify-center relative">
           <div>
             <p class="text-3xl text-center mt-6 font-bold pl-2 pr-2">
-              ${categories.reduce((sum, category) => category.cost + sum, 0)}
+              ${categories.reduce((sum, category) => category.cost + sum, 0).toFixed(2)}
             </p>
             <div class="h-0.5 bg-font-grey rounded mt-0.5 w-full"></div>
           </div>

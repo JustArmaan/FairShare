@@ -39,7 +39,7 @@ export const Overview = ({
         <div>
           <p class="text-base text-font-off-white">Total Balance</p>
           <p class="text-2xl text-font-off-white">
-            ${categories.reduce((sum, category) => category.cost + sum, 0)}
+            ${categories.reduce((sum, category) => category.cost + sum, 0).toFixed(2)}
           </p>
         </div>
         {/*
@@ -69,7 +69,7 @@ export const Overview = ({
         </div>
         <div class="flex justify-center">
           <p class="text-3xl text-font-off-white font-semibold mb-1">
-            ${categories.reduce((sum, category) => category.cost + sum, 0)}
+            ${categories.reduce((sum, category) => category.cost + sum, 0).toFixed(2)}
           </p>
         </div>
         <div class="mx-3 h-[3px] bg-primary-grey rounded"></div>
