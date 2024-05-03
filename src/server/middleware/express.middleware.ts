@@ -3,8 +3,7 @@ import session from 'express-session';
 import bodyParser from 'body-parser';
 import { env } from '../../../env';
 import { GrantType } from '@kinde-oss/kinde-typescript-sdk';
-import { setupKinde, protectRoute } from '@kinde-oss/kinde-node-express';
-import ViteExpress from 'vite-express';
+import { setupKinde } from '@kinde-oss/kinde-node-express';
 
 export const configureApp = (app: Express) => {
   app.use(express.json());
