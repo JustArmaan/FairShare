@@ -94,7 +94,6 @@ const iconColors = [
 export function mapTransactionsToCategories(transactions: Transactions) {
   const categories = transactions.reduce(
     (categories, transaction, categoryIndex) => {
-      console.log(categories);
       const index = categories.findIndex(
         (currentCategory) =>
           currentCategory.title === transaction.categories.name
@@ -134,9 +133,6 @@ export const BreakdownPage = ({
 }) => {
   const categories = mapTransactionsToCategories(transactions);
   const pathStyles = generatePathStyles(categories);
-  console.log(
-    categories.reduce((sum, category) => category.percentage + sum, 0)
-  );
 
   return (
     <div class="text-font-off-white h-fit w-screen p-8 page">
