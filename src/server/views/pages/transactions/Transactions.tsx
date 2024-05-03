@@ -1,6 +1,6 @@
-import { Transaction } from "./components/Transaction";
-import { type Transactions } from "../../../routes/indexRouter";
-import { Card } from "./components/Card";
+import { Transaction } from './components/Transaction';
+import { type Transactions } from '../../../routes/indexRouter';
+import { Card } from './components/Card';
 
 const iconColors = [
   'bg-accent-red',
@@ -31,19 +31,17 @@ export const TransactionsPage = ({
   cardDetails,
 }: TransactionsPageProps) => {
   return (
-    <div class="p-6">
-      <div class="mb-2 flex justify-start w-fit items-center">
-        <a
-          hx-get="/home"
-          hx-trigger="click"
-          hx-target="#app"
-          hx-swap="innerHTML"
-          class="text-font-off-white mr-3 text-xl"
-        >
-          Card
-        </a>
+    <div class="p-6 animate-fade-in">
+      <a
+        hx-get="/home"
+        hx-trigger="click"
+        hx-target="#app"
+        hx-swap="innerHTML"
+        class="mb-2 flex justify-start w-fit items-center hover:-translate-y-0.5 transition-transform cursor-pointer"
+      >
+        <p class="text-font-off-white mr-3 text-xl">Card</p>
         <img class="h-3" src="images/right-triangle.svg" alt="triangle icon" />
-      </div>
+      </a>
       <Card cardDetails={cardDetails} />
       <div class="h-px bg-primary-dark-grey mb-2" />
       <p class="text-xl text-font-off-white font-medium">Transaction History</p>

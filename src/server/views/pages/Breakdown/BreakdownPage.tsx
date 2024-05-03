@@ -135,7 +135,7 @@ export const BreakdownPage = ({
   const pathStyles = generatePathStyles(categories);
 
   return (
-    <div class="text-font-off-white h-fit w-screen p-8 page">
+    <div class="text-font-off-white h-fit w-screen p-8 page animate-fade-in">
       <p class="text-2xl">
         <b>April</b>
       </p>

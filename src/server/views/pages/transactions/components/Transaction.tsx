@@ -27,7 +27,7 @@ export const Transaction = ({
       hx-target="#app"
       hx-swap="innerHTML"
     >
-      <div class="mt-4 bg-primary-black p-2 rounded-xl shadow-md mb-1 flex items-center justify-between max-w-xl">
+      <div class="hover:-translate-y-0.5 cursor-pointer transition-all mt-4 bg-primary-black p-2 rounded-xl shadow-md mb-1 flex items-center justify-between">
         <div class="flex items-center">
           <div class={`p-3 pl-4 pr-4 mr-4 ${tailwindColorClass} rounded-xl`}>
             <div class="flex items-center justify-center w-10 h-10">

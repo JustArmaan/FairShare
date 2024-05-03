@@ -6,6 +6,15 @@ export default {
       dropShadow: {
         graph: '-4px 6px 4px rgb(0 0 0 / 0.5)',
       },
+      keyframes: {
+        'fade-in': {
+          '0%': { opacity: 0 },
+          '100%': { opacity: 100 },
+        },
+      },
+      animation: {
+        'fade-in': 'fade-in 0.4s ease-out',
+      },
     },
     colors: {
       'primary-dark-grey': '#686868',

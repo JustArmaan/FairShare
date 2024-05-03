@@ -19,22 +19,6 @@ interface UserDetails {
   cardsAmount: string[];
 }
 
-interface CardDetails {
-  primaryColor: string;
-  textColor: string;
-  accentColor1: string;
-  accentColor2: string;
-  bankLogo: string;
-  bankName: string;
-  cardNumber: string;
-  cardHolder: string;
-  expiryDate: string;
-}
-
-interface CardProps {
-  cardDetails: CardDetails;
-}
-
 export const Overview = ({
   transactions,
   userDetails,
@@ -45,7 +29,7 @@ export const Overview = ({
   const categories = mapTransactionsToCategories(transactions);
   const pathStyles = generatePathStyles(categories);
   return (
-    <div class="p-6">
+    <div class="p-6 animate-fade-in">
       {' '}
       <h1 class="text-2xl text-font-off-white pt-2">
         {' '}
@@ -88,7 +72,7 @@ export const Overview = ({
             ${categories.reduce((sum, category) => category.cost + sum, 0)}
           </p>
         </div>
-        <hr class="mx-3 h-[3px] bg-primary-grey"></hr>
+        <div class="mx-3 h-[3px] bg-primary-grey rounded"></div>
         <div class="p-6 text-font-off-white">
           <p class="text-xl font-semibold">Monthly Breakdown</p>
           <Graph slices={pathStyles} />
@@ -97,7 +81,9 @@ export const Overview = ({
               hx-swap="innerHTML"
               hx-get="/breakdown/page"
               hx-target="#app"
-              class="hover:-translate-y-0.5 transition-all font-semibold px-12 py-2.5 bg-accent-blue rounded-xl w-2/3"
+              // rotate 0.0001deg prevents strange subpixel snapping during animation when viewport is 430px wide. I spent 15 mins on this.
+              // https://stackoverflow.com/questions/24854640/strange-pixel-shifting-jumping-in-firefox-with-css-transitions
+              class="hover:-translate-y-0.5 rotate-[0.0001deg] transition-transform font-semibold px-12 py-2.5 bg-accent-blue rounded-xl w-2/3"
             >
               More Info
             </button>
@@ -112,7 +98,7 @@ export const Overview = ({
             hx-trigger="click"
             hx-target="#app"
             hx-swap="innerHTML"
-            class="text-font-off-white cursor-pointer hover:opacity-90"
+            class="text-font-off-white cursor-pointer hover:opacity-90 hover:-translate-y-px transition-transform"
           >
             View All
           </a>

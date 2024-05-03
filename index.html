@@ -23,38 +23,7 @@
       hx-trigger="load"
       hx-swap="outerHTML"
     ></div>
-    <div id="app" hx-get="/home" hx-trigger="load" hx-swap="innerHTML">
-      <div
-        class="flex h-screen items-center justify-center bg-primary-black-page"
-      >
-        <div class="p-5 border-2 border-primary-grey rounded-lg">
-          <div class="flex items-center justify-center space-x-2">
-            <svg
-              class="animate-spin -ml-1 mr-3 h-5 w-5 text-font-off-white"
-              viewBox="0 0 24 24"
-            >
-              <circle
-                class="opacity-25"
-                cx="12"
-                cy="12"
-                r="10"
-                stroke="currentColor"
-                stroke-width="4"
-              ></circle>
-              <path
-                class="opacity-75"
-                fill="currentColor"
-                d="M4 12a8 8 0 0116 0H4z"
-              ></path>
-            </svg>
-            <span
-              class="text-base font-medium tracking-wide text-font-off-white"
-              >Processing...</span
-            >
-          </div>
-        </div>
-      </div>
-    </div>
+    <div id="app" hx-get="/home" hx-trigger="load" hx-swap="innerHTML"></div>
     <div id="nav" hx-get="/nav" hx-trigger="load" hx-swap="outerHTML"></div>
   </body>
 </html>

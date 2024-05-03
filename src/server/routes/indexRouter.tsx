@@ -2,7 +2,7 @@ import express from 'express';
 import { renderToHtml } from 'jsxte';
 import { TransactionsPage } from '../views/pages/transactions/Transactions';
 import { env } from '../../../env';
-import { getTransactionsForUser } from '../services/transaction.service';
+import { debug_getTransactionsForAnyUser } from '../services/transaction.service';
 import { text } from 'stream/consumers';
 import type { tr } from '@faker-js/faker';
 import { Overview } from '../views/pages/Overview/Overview';
@@ -13,7 +13,9 @@ import { Menu } from '../views/components/Menu';
 import { TransactionDetailsPage } from '../views/pages/transactions/TransactionDetails';
 const router = express.Router();
 
-export type Transactions = Awaited<ReturnType<typeof getTransactionsForUser>>;
+export type Transactions = Awaited<
+  ReturnType<typeof debug_getTransactionsForAnyUser>
+>;
 
 const cardHtml = {
   bankLogo: '/cardAssets/scotiabank.svg',
@@ -28,7 +30,7 @@ const cardHtml = {
 };
 
 router.get('/home', async (_, res) => {
-  const transactions = await getTransactionsForUser(61, 4);
+  const transactions = await debug_getTransactionsForAnyUser(4);
 
   const userDetails = {
     userName: 'John Doe',
@@ -43,7 +45,7 @@ router.get('/home', async (_, res) => {
 });
 
 router.get('/transactionDetails', async (_, res) => {
-  const transactions = await getTransactionsForUser(61, 4);
+  const transactions = await debug_getTransactionsForAnyUser(4);
   const transaction = transactions[0];
 
   const html = renderToHtml(
@@ -59,7 +61,7 @@ router.get('/menu', async (_, res) => {
 
 router.get('/transactions', async (_, res) => {
   try {
-    const transactions = await getTransactionsForUser(61);
+    const transactions = await debug_getTransactionsForAnyUser();
 
     const html = renderToHtml(
       <TransactionsPage transactions={transactions} cardDetails={cardHtml} />

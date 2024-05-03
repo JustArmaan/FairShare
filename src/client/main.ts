@@ -24,7 +24,7 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
 setupCounter(document.querySelector<HTMLButtonElement>('#counter')!);
 */
 
-import { naviIcon } from "./navicon"
-
 //const nav = document.querySelector("#nav")
-document.body.addEventListener("htmx:afterSwap", naviIcon)
+document.body.addEventListener('htmx:afterSwap', () => {
+  window.scrollTo({ top: 0 });
+});
