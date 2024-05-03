@@ -2,7 +2,7 @@ import express from 'express';
 import { renderToHtml } from 'jsxte';
 import { TransactionsPage } from '../views/pages/transactions/Transactions';
 import { env } from '../../../env';
-import { debug_getTransactionsForAnyUser } from '../services/transaction.service';
+import { debug_getTransactionsForAnyUser, getTransactionsForUser } from '../services/transaction.service';
 import { text } from 'stream/consumers';
 import type { tr } from '@faker-js/faker';
 import { Overview } from '../views/pages/Overview/Overview';
@@ -12,10 +12,11 @@ import { Default } from '../views/components/Default';
 import { Menu } from '../views/components/Menu';
 import { TransactionDetailsPage } from '../views/pages/transactions/TransactionDetails';
 import { getUser } from '@kinde-oss/kinde-node-express';
+import { createUser, findUser } from '../services/user.service';
 const router = express.Router();
 
 export type Transactions = Awaited<
-  ReturnType<typeof debug_getTransactionsForAnyUser>
+  ReturnType<typeof getTransactionsForUser>
 >;
 
 const cardHtml = {
@@ -31,10 +32,16 @@ const cardHtml = {
 };
 
 router.get('/callback', getUser, async (req, res) => {
-  if (!req.user) {
+  const {id, given_name, family_name, email, picture } = req.user;
+  console.log(req.user, "bye")
+  const user = await findUser(id)
+  console.log(user)
+  if (!user) {
     // do something like add to db
+    await createUser(id, given_name, family_name, email, picture)
+   return user
   }
-  res.redirect('/');
+  //res.redirect('/');
 });
 
 router.get('/home', getUser, async (req, res) => {
@@ -42,9 +49,18 @@ router.get('/home', getUser, async (req, res) => {
   if (!req.user) {
     return res.set('HX-Redirect', `${env.baseUrl}/login`).send();
   }
+
+  const {id, given_name, family_name, email, picture } = req.user;
+  console.log(req.user, "bye")
+  const databaseUser = await findUser(id)
+  console.log(databaseUser)
+  if (!databaseUser) {
+    // do something like add to db
+    await createUser(id, given_name, family_name, email, picture);
+  }
   // @ts-ignore
   console.log(req.user, 'hi');
-  const transactions = await debug_getTransactionsForAnyUser(4);
+  const transactions = await getTransactionsForUser(req.user.id, 4);
 
   const userDetails = {
     userName: 'John Doe',
@@ -59,10 +75,10 @@ router.get('/home', getUser, async (req, res) => {
 });
 
 router.get('/transactionDetails/:transactionId', async (req, res) => {
-  const transactions = await debug_getTransactionsForAnyUser(4);
+  const transactions = await getATransactionsForUser();
   const transaction = transactions.find(
     (transaction) =>
-      transaction.transactions.id === parseInt(req.params.transactionId)
+      transaction.transactions.id === (req.params.transactionId)
   );
   if (!transaction) return res.status(404).send('404');
 
@@ -79,7 +95,7 @@ router.get('/menu', async (_, res) => {
 
 router.get('/transactions', async (_, res) => {
   try {
-    const transactions = await debug_getTransactionsForAnyUser();
+    const transactions = await getTransactionsForUser(req.user.id, 4);
 
     const html = renderToHtml(
       <TransactionsPage transactions={transactions} cardDetails={cardHtml} />

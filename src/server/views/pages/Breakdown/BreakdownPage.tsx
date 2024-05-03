@@ -49,7 +49,7 @@ function rangeToStyleString({ start, end }: { start: number; end: number }) {
 }
 
 export type Category = {
-  id: number;
+  id: string;
   tailwindColorClass: string;
   percentage: number;
   cost: number;

@@ -4,11 +4,11 @@ import { categories } from "../schema/category";
 import { users } from "../schema/users";
 
 export const transactions = sqliteTable("transactions", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
-  userId: integer("user_id")
+  id: text("id").primaryKey(),
+  userId: text("user_id")
     .references(() => users.id, { onDelete: "cascade" })
     .notNull(),
-  categoryId: integer("category_id")
+  categoryId: text("category_id")
     .references(() => categories.id, { onDelete: "cascade" })
     .notNull(),
   company: text("company").notNull(),
