@@ -21,7 +21,7 @@ export const Nav = () => {
               alt="home icon"
             />
             <img class="h-6" src="./activeIcons/home.svg" alt="home icon" />
-            <p class="mt-1 text-sm">Home</p>
+            <p class="mt-1 text-xs">Home</p>
           </a>
         </li>
         <li class="group w-1/6">
@@ -36,7 +36,7 @@ export const Nav = () => {
               alt="group icon"
             />
             <img class="h-6" src="./activeIcons/group.svg" alt="group icon" />
-            <p class="mt-1 text-sm">Groups</p>
+            <p class="mt-1 text-xs">Groups</p>
           </a>
         </li>
         <div class="rounded-full bg-accent-blue size-12">
@@ -69,7 +69,7 @@ export const Nav = () => {
               src="./activeIcons/notif.svg"
               alt="notifications icon"
             />
-            <p class="mt-1 text-sm">Notifications</p>
+            <p class="mt-1 text-xs">Notifications</p>
           </a>
         </li>
         <li class="group w-1/6">
@@ -87,7 +87,7 @@ export const Nav = () => {
               class="h-6 p-1"
               id="moreIcon"
             ></img>
-            <p class="mt-1 text-sm">More</p>
+            <p class="mt-1 text-xs">More</p>
           </a>
         </li>
       </ul>
