@@ -16,4 +16,5 @@ export const transactions = sqliteTable("transactions", {
   timestamp: text("timestamp")
     .notNull()
     .default(sql`(current_timestamp)`),
+  address: text("address").notNull(),
 });

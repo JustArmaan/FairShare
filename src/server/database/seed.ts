@@ -82,6 +82,7 @@ try {
             faker.finance.amount({ min: 100, max: 2000, dec: 2 })
           ),
           timestamp: faker.date.recent().toISOString(),
+          address: faker.location.streetAddress({ useFullAddress: true }),
         });
       }
     }
