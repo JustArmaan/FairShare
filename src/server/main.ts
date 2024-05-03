@@ -10,7 +10,7 @@ import ViteExpress from 'vite-express';
 import { breakdownRouter } from './routes/breakdownRouter';
 import { configureApp } from './middleware/express.middleware';
 
-const PORT = process.env.VITE_PORT || 3000;
+const PORT = process.env.PORT || 3000;
 
 const app = express();
 
