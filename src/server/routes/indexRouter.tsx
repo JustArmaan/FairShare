@@ -30,7 +30,10 @@ const cardHtml = {
   accentColor2: 'accent-red',
 };
 
-router.get('/callback', async (req, res) => {
+router.get('/callback', getUser, async (req, res) => {
+  if (!req.user) {
+    // do something like add to db
+  }
   res.redirect('/');
 });
 
