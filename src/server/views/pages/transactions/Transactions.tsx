@@ -1,5 +1,5 @@
 import { Transaction } from './components/Transaction';
-import { type Transactions } from '../../../routes/indexRouter';
+import { type TransactionSchema } from '../../../interface/types';
 import { Card } from './components/Card';
 
 const iconColors = [
@@ -22,7 +22,7 @@ interface CardDetails {
 }
 
 interface TransactionsPageProps {
-  transactions: Transactions;
+  transactions: TransactionSchema[];
   cardDetails: CardDetails;
 }
 
@@ -33,7 +33,7 @@ export const TransactionsPage = ({
   return (
     <div class="p-6 animate-fade-in">
       <a
-        hx-get="/home"
+        hx-get="/home/page"
         hx-trigger="click"
         hx-target="#app"
         hx-swap="innerHTML"

@@ -5,6 +5,19 @@ import { env } from '../../../env';
 import { GrantType } from '@kinde-oss/kinde-typescript-sdk';
 import { setupKinde } from '@kinde-oss/kinde-node-express';
 
+interface RequestUser {
+  id: string;
+  given_name: string;
+  family_name: string;
+  email: string;
+  picture: string;
+}
+declare module 'express-serve-static-core' {
+  interface Request {
+    user?: RequestUser;
+  }
+}
+
 export const configureApp = (app: Express) => {
   app.use(express.json());
   app.use(bodyParser.urlencoded({ extended: false }));

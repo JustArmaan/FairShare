@@ -9,6 +9,8 @@ import {
 import ViteExpress from 'vite-express';
 import { breakdownRouter } from './routes/breakdownRouter';
 import { configureApp } from './middleware/express.middleware';
+import { homeRouter } from './routes/homeRouter';
+import { transactionRouter } from './routes/transactionRouter';
 
 const PORT = process.env.PORT || 3000;
 
@@ -16,8 +18,10 @@ const app = express();
 
 configureApp(app);
 
-app.use('/breakdown', breakdownRouter);
 app.use(indexRouter);
+app.use('/breakdown', breakdownRouter);
+app.use('/home', homeRouter);
+app.use('/transactions', transactionRouter);
 
 /*
 app.use((_: Request, res: Response) => {

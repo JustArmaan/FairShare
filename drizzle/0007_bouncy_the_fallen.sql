@@ -1,0 +1,1 @@
+ALTER TABLE transactions ADD `address` text NOT NULL;

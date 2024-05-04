@@ -1,5 +1,5 @@
 import { Transaction } from '../transactions/components/Transaction';
-import { type Transactions } from '../../../routes/indexRouter';
+import { type TransactionSchema } from '../../../interface/types';
 import { Graph } from '../Breakdown/components/TotalExpenses/Graph';
 import {
   generatePathStyles,
@@ -23,7 +23,7 @@ export const Overview = ({
   transactions,
   userDetails,
 }: {
-  transactions: Transactions;
+  transactions: TransactionSchema[];
   userDetails: UserDetails;
 }) => {
   const categories = mapTransactionsToCategories(transactions);
@@ -101,7 +101,7 @@ export const Overview = ({
         <div class="flex flex-row justify-between text-center items-center mb-0 mt-3">
           <p class="text-xl text-font-off-white">Transaction History</p>
           <a
-            hx-get="/transactions"
+            hx-get="/transactions/page"
             hx-trigger="click"
             hx-target="#app"
             hx-swap="innerHTML"

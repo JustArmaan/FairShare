@@ -15,7 +15,7 @@ export const config = {
   authToken,
 };
 
-const client = createClient(config);
+const client = createClient(isDev ? { ...config, url: `file:${url}` } : config);
 
 let dbSingleton: LibSQLDatabase | undefined;
 
