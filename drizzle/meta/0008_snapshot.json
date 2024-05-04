@@ -1,8 +1,8 @@
 {
   "version": "5",
   "dialect": "sqlite",
-  "id": "8e4ffaa8-47e4-460f-89f3-6bd87eba56eb",
-  "prevId": "5341e53b-4d31-480a-bf02-990694c24b30",
+  "id": "4b7cd317-e13d-46eb-8c15-c434a573daf4",
+  "prevId": "f80e9b03-38c7-4a89-918a-4121e10d7eb8",
   "tables": {
     "categories": {
       "name": "categories",
@@ -77,8 +77,14 @@
           "type": "text",
           "primaryKey": false,
           "notNull": true,
-          "autoincrement": false,
-          "default": "(current_timestamp)"
+          "autoincrement": false
+        },
+        "address": {
+          "name": "address",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
         }
       },
       "indexes": {},
@@ -170,8 +176,6 @@
   "_meta": {
     "schemas": {},
     "tables": {},
-    "columns": {
-      "\"users\".\"name\"": "\"users\".\"first_name\""
-    }
+    "columns": {}
   }
 }

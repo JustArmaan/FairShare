@@ -1,12 +1,12 @@
-import { Transaction } from './components/Transaction';
-import { type Transactions } from '../../../routes/indexRouter';
-import { Card } from './components/Card';
+import { Transaction } from "./components/Transaction";
+import { type ITransaction } from "../../../interface/interface";
+import { Card } from "./components/Card";
 
 const iconColors = [
-  'bg-accent-red',
-  'bg-accent-blue',
-  'bg-accent-green',
-  'bg-accent-yellow',
+  "bg-accent-red",
+  "bg-accent-blue",
+  "bg-accent-green",
+  "bg-accent-yellow",
 ];
 
 interface CardDetails {
@@ -22,7 +22,7 @@ interface CardDetails {
 }
 
 interface TransactionsPageProps {
-  transactions: Transactions;
+  transactions: ITransaction[];
   cardDetails: CardDetails;
 }
 
