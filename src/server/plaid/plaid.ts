@@ -18,14 +18,17 @@ export async function plaidRequest(endpoint: string, body: any) {
   }
 }
 
-export async function getLinkToken(user: { id: string, email: string }) {
+export async function getLinkToken(user: { id: string; email: string }) {
   const response = await plaidRequest('/link/token/create', {
     client_name: 'FairShare',
     language: 'en',
     country_codes: ['CA'],
     user: {
       client_user_id: user.id,
-      email: user.email,
-    }
+      email_address: user.email,
+    },
+    products: ['transactions'],
   });
+
+  return response;
 }

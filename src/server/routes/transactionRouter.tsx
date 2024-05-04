@@ -41,9 +41,7 @@ router.get('/details/:transactionId', async (req, res) => {
     if (!transaction) return res.status(404).send('404');
 
     const html = renderToHtml(
-      <TransactionDetailsPage
-        transaction={transaction}
-      />
+      <TransactionDetailsPage transaction={transaction} />
     );
     res.send(html);
   } catch (error) {

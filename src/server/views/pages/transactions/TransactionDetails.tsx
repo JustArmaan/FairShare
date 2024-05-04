@@ -2,12 +2,9 @@ import { type TransactionSchema } from "../../../interface/types";
 
 export const TransactionDetailsPage = ({
   transaction,
-  callbackUrl,
 }: {
   transaction: TransactionSchema;
-  callbackUrl: string;
 }) => {
-  console.log(callbackUrl);
   return (
     <div class="p-6 animate-fade-in">
       <div class="flex justify-start w-fit items-center mb-1">
