@@ -1,5 +1,5 @@
 import { Transaction } from "../transactions/components/Transaction";
-import { type ITransaction } from "../../../interface/interface";
+import { type Transaction } from "../../../interface/interface";
 import { Graph } from "../Breakdown/components/TotalExpenses/Graph";
 import {
   generatePathStyles,
@@ -23,7 +23,7 @@ export const Overview = ({
   transactions,
   userDetails,
 }: {
-  transactions: ITransaction[];
+  transactions: Transaction[];
   userDetails: UserDetails;
 }) => {
   const categories = mapTransactionsToCategories(transactions);

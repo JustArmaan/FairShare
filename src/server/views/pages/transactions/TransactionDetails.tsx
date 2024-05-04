@@ -1,9 +1,9 @@
-import { type ITransaction } from "../../../interface/interface";
+import { type Transaction } from "../../../interface/interface";
 
 export const TransactionDetailsPage = ({
   transaction,
 }: {
-  transaction: ITransaction;
+  transaction: Transaction;
 }) => {
   return (
     <div class="p-6 animate-fade-in">

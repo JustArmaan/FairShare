@@ -1,5 +1,5 @@
 import { Transaction } from "./components/Transaction";
-import { type ITransaction } from "../../../interface/interface";
+import { type Transaction } from "../../../interface/interface";
 import { Card } from "./components/Card";
 
 const iconColors = [
@@ -22,7 +22,7 @@ interface CardDetails {
 }
 
 interface TransactionsPageProps {
-  transactions: ITransaction[];
+  transactions: Transaction[];
   cardDetails: CardDetails;
 }
 

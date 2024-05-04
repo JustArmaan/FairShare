@@ -5,6 +5,6 @@ type ArrayElement<ArrayType extends readonly unknown[]> =
   ArrayType extends readonly (infer ElementType)[] ? ElementType : never;
 
 
-export type ITransaction = Awaited<ReturnType<typeof getTransaction>>;
+export type Transaction = Awaited<ReturnType<typeof getTransaction>>;
 export type IUser = Awaited<ReturnType<typeof findUser>>;
 
