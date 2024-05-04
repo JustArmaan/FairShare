@@ -1,4 +1,4 @@
-import { type TransactionSchema } from '../../../interface/types';
+import { type TransactionSchema } from "../../../interface/types";
 
 export const TransactionDetailsPage = ({
   transaction,
@@ -12,7 +12,7 @@ export const TransactionDetailsPage = ({
     <div class="p-6 animate-fade-in">
       <div class="flex justify-start w-fit items-center mb-1">
         <a
-          hx-get={'/home/page'}
+          hx-get={"/home/page"}
           hx-trigger="click"
           hx-target="#app"
           hx-swap="innerHTML"

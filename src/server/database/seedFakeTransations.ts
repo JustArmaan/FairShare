@@ -1,7 +1,7 @@
-import { faker } from '@faker-js/faker';
-import { getDB } from './client';
-import { categories } from './schema/category';
-import { createTransaction } from '../services/transaction.service';
+import { faker } from "@faker-js/faker";
+import { getDB } from "./client";
+import { categories } from "./schema/category";
+import { createTransaction } from "../services/transaction.service";
 
 const db = getDB();
 
@@ -35,9 +35,9 @@ export async function seedFakeTransactions(
         transactionData.address
       );
 
-      console.log('seeding complette');
+      console.log("seeding complette");
     }
   } catch (error) {
-    console.error('Seeding transactions failed:', error);
+    console.error("Seeding transactions failed:", error);
   }
 }

@@ -1,12 +1,12 @@
-import { type TransactionSchema } from '../../../../interface/types';
+import { type TransactionSchema } from "../../../../interface/types";
 
 function formatDate(timestamp: string) {
   const date = new Date(timestamp);
 
-  return date.toLocaleString('default', {
-    month: 'long',
-    day: 'numeric',
-    year: 'numeric',
+  return date.toLocaleString("default", {
+    month: "long",
+    day: "numeric",
+    year: "numeric",
   });
 }
 
@@ -20,7 +20,7 @@ export const Transaction = ({
   transaction: TransactionSchema;
   tailwindColorClass: string;
 }) => {
-  if (!transaction) throw new Error('404');
+  if (!transaction) throw new Error("404");
   return (
     <a
       hx-get={`/transactions/details/${transaction.id}`}
@@ -42,7 +42,7 @@ export const Transaction = ({
           </div>
           <div>
             <h4 class="text-font-off-white font-semibold">
-              {transaction.company.split(' ')[0].split(',')[0]}
+              {transaction.company.split(" ")[0].split(",")[0]}
             </h4>
             <p class="text-gray-400 text-sm text-font-off-white">
               {formatDate(transaction.timestamp)}
