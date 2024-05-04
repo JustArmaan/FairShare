@@ -1,43 +1,39 @@
-/* example starter from vite-express
-import './style.css';
-
-import { setupCounter } from './counter';
-
-document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
-  <div>
-    <a href="https://vitejs.dev" target="_blank">
-      <img src="/vite.svg" class="logo" alt="Vite logo" />
-    </a>
-    <a href="https://www.typescriptlang.org/" target="_blank">
-      <img src="${typescriptLogo}" class="logo vanilla" alt="TypeScript logo" />
-    </a>
-    <h1>Vite + TypeScript</h1>
-    <div class="card">
-      <button id="counter" type="button"></button>
-    </div>
-    <p class="read-the-docs">
-      Click on the Vite and TypeScript logos to learn more
-    </p>
-  </div>
-`;
-
-setupCounter(document.querySelector<HTMLButtonElement>('#counter')!);
-*/
-
-//const nav = document.querySelector("#nav")
 document.body.addEventListener('htmx:afterSwap', () => {
   window.scrollTo({ top: 0 });
 });
 
-function getToken() {
-  // await fetch();
+const apiVersion = 0;
+
+async function getToken() {
+  console.log('fetching token');
+  const response = await fetch(`/api/v${apiVersion}/plaid-token`);
+  const { error, data } = await response.json();
+
+  if (error) return console.log(error);
+  const { link_token } = data;
+  // @ts-ignore
+  const handler = Plaid.create({
+    token: link_token,
+    onSuccess: (public_token: string, metadata: any) => {
+      console.log(public_token, metadata);
+    },
+    onLoad: () => {
+      console.log('loaded');
+    },
+    onExit: (err: any | null, metadata: any) => {
+      console.log(err, metadata);
+    },
+    onEvent: (eventName: any | null, metadata: any) => {
+      console.log(eventName, metadata);
+    },
+  });
+
+  handler.open();
 }
 
-// @ts-ignore
-const handler = Plaid.create({
-  token: '',
-  onSuccess: (public_token: string, metadata: any) => { },
-  onLoad: () => { },
-  onExit: (err: any | null, metadata: any) => { },
-  onEvent: (eventName: any | null, metadata: any) => { },
-});
+try {
+  getToken();
+} catch (e) {
+  console.log(e, 'aaa');
+}
+console.log('runnign?');
