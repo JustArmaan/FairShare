@@ -1,6 +1,6 @@
-import { getDB } from "../database/client";
-import { users } from "../database/schema/users";
-import { eq } from "drizzle-orm";
+import { getDB } from '../database/client';
+import { users } from '../database/schema/users';
+import { eq } from 'drizzle-orm';
 
 let db = getDB();
 

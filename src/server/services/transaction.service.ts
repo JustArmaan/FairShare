@@ -1,10 +1,10 @@
-import { getDB } from "../database/client";
-import { users } from "../database/schema/users";
-import { categories } from "../database/schema/category";
-import { transactions } from "../database/schema/transaction";
-import { eq, desc } from "drizzle-orm";
-import { findUser } from "./user.service";
-import { v4 as uuidv4 } from "uuid";
+import { getDB } from '../database/client';
+import { users } from '../database/schema/users';
+import { categories } from '../database/schema/category';
+import { transactions } from '../database/schema/transaction';
+import { eq, desc } from 'drizzle-orm';
+import { findUser } from './user.service';
+import { v4 as uuidv4 } from 'uuid';
 
 const db = getDB();
 
@@ -26,13 +26,22 @@ export async function getTransactionsForUser(
       return [];
     }
 
-    return await db
+    const result = await db
       .select()
       .from(transactions)
       .orderBy(desc(transactions.timestamp))
       .innerJoin(categories, eq(transactions.categoryId, categories.id))
       .where(eq(transactions.userId, userId))
       .limit(limit);
+
+    const joined = result.map((result) => {
+      return {
+        ...result.transactions,
+        category: { ...result.categories },
+      };
+    });
+
+    return joined;
   } catch (error) {
     console.error(error);
     return [];
@@ -40,16 +49,21 @@ export async function getTransactionsForUser(
 }
 
 export async function getTransaction(transactionId: string) {
-  try {
-    const transaction = await db
-      .select()
-      .from(transactions)
-      .where(eq(transactions.id, transactionId));
+  const transaction = await db
+    .select()
+    .from(transactions)
+    .innerJoin(categories, eq(categories.id, transactions.categoryId))
+    .where(eq(transactions.id, transactionId));
 
-    return transaction[0];
-  } catch (error) {
-    console.error(error);
-  }
+  const joined = transaction.map((transaction) => {
+    return {
+      ...transaction.transactions,
+      category: { ...transaction.categories },
+    };
+  });
+
+  if (!joined[0]) throw new Error('no such transaction');
+  return joined[0];
 }
 
 export async function createTransaction(

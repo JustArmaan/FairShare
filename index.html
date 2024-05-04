@@ -6,6 +6,7 @@
     <title>IDSP Expense Tracker</title>
     <script type="module" src="/src/client/main.ts" defer></script>
     <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    <script src="https://cdn.plaid.com/link/v2/stable/link-initialize.js"></script>
     <link rel="stylesheet" href="/output.css" />
     <link rel="stylesheet" href="/global.css" />
     <link rel="icon" type="image/x-icon" href="/favicon.svg" />
@@ -23,7 +24,12 @@
       hx-trigger="load"
       hx-swap="outerHTML"
     ></div>
-    <div id="app" hx-get="/home" hx-trigger="load" hx-swap="innerHTML"></div>
+    <div
+      id="app"
+      hx-get="/home/page"
+      hx-trigger="load"
+      hx-swap="innerHTML"
+    ></div>
     <div id="nav" hx-get="/nav" hx-trigger="load" hx-swap="outerHTML"></div>
   </body>
 </html>

@@ -29,6 +29,15 @@ document.body.addEventListener('htmx:afterSwap', () => {
   window.scrollTo({ top: 0 });
 });
 
-async function main() { }
+function getToken() {
+  // await fetch();
+}
 
-main();
+// @ts-ignore
+const handler = Plaid.create({
+  token: '',
+  onSuccess: (public_token: string, metadata: any) => { },
+  onLoad: () => { },
+  onExit: (err: any | null, metadata: any) => { },
+  onEvent: (eventName: any | null, metadata: any) => { },
+});

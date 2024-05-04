@@ -1,7 +1,7 @@
-import type { Transactions } from '../../../routes/indexRouter';
 import { BudgetCard } from './components/BudgetCard';
 import { Graph } from './components/TotalExpenses/Graph';
 import { type ArrayElement } from '../transactions/components/Transaction';
+import type { TransactionSchema } from '../../../interface/types';
 
 type Coordinate = {
   x: number;
@@ -54,7 +54,7 @@ export type Category = {
   percentage: number;
   cost: number;
   title: string;
-  transactions?: ArrayElement<Transactions>['transactions'][];
+  transactions?: TransactionSchema[];
 };
 
 export function generatePathStyles(categories: Category[]) {
@@ -91,20 +91,19 @@ const iconColors = [
   'bg-accent-purple',
 ];
 
-export function mapTransactionsToCategories(transactions: Transactions) {
+export function mapTransactionsToCategories(transactions: TransactionSchema[]) {
   const categories = transactions.reduce(
     (categories, transaction, categoryIndex) => {
       const index = categories.findIndex(
-        (currentCategory) =>
-          currentCategory.title === transaction.categories.name
+        (currentCategory) => currentCategory.title === transaction.category.name
       );
       if (index === -1) {
         const newCategory: Category = {
-          id: transaction.categories.id,
+          id: transaction.category.id,
           tailwindColorClass:
             iconColors[categoryIndex % (iconColors.length - 1)], // transaction.categories.color
-          cost: transaction.transactions.amount,
-          title: transaction.categories.name,
+          cost: transaction.amount,
+          title: transaction.category.name,
           percentage: 0,
         };
 
@@ -112,8 +111,8 @@ export function mapTransactionsToCategories(transactions: Transactions) {
       } else {
         const category = categories[index];
         category.transactions
-          ? category.transactions.push(transaction.transactions)
-          : (category.transactions = [transaction.transactions]);
+          ? category.transactions.push(transaction)
+          : (category.transactions = [transaction]);
         category.cost = category.transactions.reduce(
           (sum, transaction) => transaction.amount + sum,
           0
@@ -129,7 +128,7 @@ export function mapTransactionsToCategories(transactions: Transactions) {
 export const BreakdownPage = ({
   transactions,
 }: {
-  transactions: Transactions;
+  transactions: TransactionSchema[];
 }) => {
   const categories = mapTransactionsToCategories(transactions);
   const pathStyles = generatePathStyles(categories);
@@ -147,7 +146,10 @@ export const BreakdownPage = ({
         <div class="flex flex-row items-center justify-center relative">
           <div>
             <p class="text-3xl text-center mt-6 font-bold pl-2 pr-2">
-              ${categories.reduce((sum, category) => category.cost + sum, 0).toFixed(2)}
+              $
+              {categories
+                .reduce((sum, category) => category.cost + sum, 0)
+                .toFixed(2)}
             </p>
             <div class="h-0.5 bg-font-grey rounded mt-0.5 w-full"></div>
           </div>
@@ -166,8 +168,7 @@ export const BreakdownPage = ({
             percentage={card.percentage}
             totalCosts={card.totalCosts}
             transactions={transactions.filter(
-              (transaction) =>
-                transaction.transactions.categoryId === card.categoryId
+              (transaction) => transaction.categoryId === card.categoryId
             )}
           />
         );

@@ -12,6 +12,8 @@ USER root
 # Install dependencies required for NVM and Node.js
 RUN apt-get update && apt-get install -y curl
 
+# TODO: remove nvm and npm installs, just replace everything with bun i now that sqlite3 is gone :)
+
 # Run your build command# Install NVM, Node.js, and use it in one command to ensure the environment is preserved
 RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash \
     && . $HOME/.nvm/nvm.sh \

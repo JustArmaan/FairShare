@@ -9,7 +9,7 @@ export const Nav = () => {
         <li class="group w-1/6 ">
           <a
             class=" parent hover:child-hidden flex flex-col items-center text-font-off-white dark:text-white group-hover:text-accent-yellow"
-            hx-get="/home"
+            hx-get="/home/page"
             hx-target="#app"
             hx-trigger="click"
             hx-swap="innerHTML"

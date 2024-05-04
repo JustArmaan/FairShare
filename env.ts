@@ -1,22 +1,16 @@
 import dotenv from 'dotenv';
 dotenv.config();
 
-const isDev = process.env.VITE_IS_DEV;
-const dbUrl = process.env.VITE_DB_URL;
-const authToken = process.env.VITE_AUTH_TOKEN;
-const localDb = process.env.VITE_LOCAL_DB_URL;
-const kindeClientId = process.env.VITE_KINDE_CLIENT_ID;
-const kindeSecret = process.env.VITE_KINDE_SECRET;
-const baseUrl = process.env.VITE_BASE_URL;
-
 export const env = {
-  isDev,
-  dbUrl,
-  authToken,
-  localDb,
-  kindeClientId,
-  kindeSecret,
-  baseUrl,
+  isDev: process.env.VITE_IS_DEV,
+  dbUrl: process.env.VITE_DB_URL,
+  authToken: process.env.VITE_AUTH_TOKEN,
+  localDb: process.env.VITE_LOCAL_DB_URL,
+  kindeClientId: process.env.VITE_KINDE_CLIENT_ID,
+  kindeSecret: process.env.VITE_KINDE_SECRET,
+  baseUrl: process.env.VITE_BASE_URL,
+  plaidClientId: process.env.VITE_PLAID_CLIENT_ID,
+  plaidSecret: process.env.VITE_PLAID_SECRET,
 };
 
 Object.entries(env).forEach(([key, value]) => {

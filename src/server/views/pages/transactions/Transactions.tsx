@@ -1,12 +1,12 @@
-import { Transaction } from "./components/Transaction";
-import { type Transaction } from "../../../interface/interface";
-import { Card } from "./components/Card";
+import { Transaction } from './components/Transaction';
+import { type TransactionSchema } from '../../../interface/types';
+import { Card } from './components/Card';
 
 const iconColors = [
-  "bg-accent-red",
-  "bg-accent-blue",
-  "bg-accent-green",
-  "bg-accent-yellow",
+  'bg-accent-red',
+  'bg-accent-blue',
+  'bg-accent-green',
+  'bg-accent-yellow',
 ];
 
 interface CardDetails {
@@ -22,7 +22,7 @@ interface CardDetails {
 }
 
 interface TransactionsPageProps {
-  transactions: Transaction[];
+  transactions: TransactionSchema[];
   cardDetails: CardDetails;
 }
 
@@ -33,7 +33,7 @@ export const TransactionsPage = ({
   return (
     <div class="p-6 animate-fade-in">
       <a
-        hx-get="/home"
+        hx-get="/home/page"
         hx-trigger="click"
         hx-target="#app"
         hx-swap="innerHTML"
