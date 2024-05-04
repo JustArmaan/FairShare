@@ -6,6 +6,6 @@ const isDev = process.env.VITE_IS_DEV;
 export default {
   schema: "./src/server/database/schema/*",
   out: "./drizzle",
-  driver: isDev ? "better-sqlite" : "turso",
+  driver: "turso",
   dbCredentials: config,
 } satisfies Config;

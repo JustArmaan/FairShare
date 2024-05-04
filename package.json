@@ -39,7 +39,6 @@
     "@types/express-session": "^1.18.0",
     "@types/livereload": "^0.9.5",
     "@types/mime": "^4.0.0",
-    "better-sqlite3": "^9.6.0",
     "bun-types": "latest",
     "tailwindcss": "^3.4.1"
   },
