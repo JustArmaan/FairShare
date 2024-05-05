@@ -1,6 +1,5 @@
 import express, { type Express } from 'express';
 import session from 'express-session';
-import bodyParser from 'body-parser';
 import { env } from '../../../env';
 import { GrantType } from '@kinde-oss/kinde-typescript-sdk';
 import { setupKinde } from '@kinde-oss/kinde-node-express';
@@ -20,7 +19,7 @@ declare module 'express-serve-static-core' {
 
 export const configureApp = (app: Express) => {
   app.use(express.json());
-  app.use(bodyParser.urlencoded({ extended: false }));
+  app.use(express.urlencoded({ extended: false }));
   app.use(express.static('~/public'));
 
   const kindeConfig = {

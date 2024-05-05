@@ -6,6 +6,8 @@ import {
   getTransactionsForUser,
 } from '../services/transaction.service';
 import TransactionsPage from '../views/pages/transactions/Transactions';
+import { getUser } from '@kinde-oss/kinde-node-express';
+import { env } from '../../../env';
 const router = express.Router();
 
 const cardHtml = {
@@ -20,7 +22,10 @@ const cardHtml = {
   accentColor2: 'accent-red',
 };
 
-router.get('/page', async (req, res) => {
+router.get('/page', getUser, async (req, res) => {
+  if (!req.user) {
+    return res.set('HX-Redirect', `${env.baseUrl}/login`).send();
+  }
   try {
     const transactions = await getTransactionsForUser(req.user!.id, 4); // Could this be undefined
 

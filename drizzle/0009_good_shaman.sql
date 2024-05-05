@@ -1,0 +1,1 @@
+ALTER TABLE users ADD `plaid_access_token` text;
