@@ -1,4 +1,5 @@
 import { type TransactionSchema } from "../../../interface/types";
+import { env } from "../../../../../env";
 
 export const TransactionDetailsPage = ({
   transaction,
@@ -41,10 +42,16 @@ export const TransactionDetailsPage = ({
           </div>
         </div>
         <div class="mt-6 w-full h-auto rounded-lg bg-primary-black">
-          <img
+          {/* <img
             src="/map/map-screenshot.png"
             class="rounded-t-lg w-full h-44 object-cover"
-          />
+          /> */}
+          <div id="map" class="h-48 w-full"></div>
+          <script defer type="module" src="/src/client/map/index.ts"></script>
+          <script
+            defer
+            src={`https://maps.googleapis.com/maps/api/js?key=${env.googleMapsApiKey}&callback=initMap`}
+          ></script>
           <p class="text-font-off-white py-3 px-4">
             {transaction.company} #{transaction.id}
           </p>

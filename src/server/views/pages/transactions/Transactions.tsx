@@ -1,12 +1,12 @@
-import { Transaction } from './components/Transaction';
-import { type TransactionSchema } from '../../../interface/types';
-import { Card } from './components/Card';
+import { Transaction } from "./components/Transaction";
+import { type TransactionSchema } from "../../../interface/types";
+import { Card } from "./components/Card";
 
 const iconColors = [
-  'bg-accent-red',
-  'bg-accent-blue',
-  'bg-accent-green',
-  'bg-accent-yellow',
+  "bg-accent-red",
+  "bg-accent-blue",
+  "bg-accent-green",
+  "bg-accent-yellow",
 ];
 
 interface CardDetails {
@@ -44,14 +44,51 @@ export const TransactionsPage = ({
         <img class="h-3" src="/images/right-triangle.svg" alt="triangle icon" />
       </a>
       <Card cardDetails={cardDetails} />
-      <div class="h-px bg-primary-dark-grey mb-2" />
-      <p class="text-xl text-font-off-white font-medium">Transaction History</p>
-      <div class="mt-2">
-        {transactions.map((transaction, categoryIndex) => (
-          <Transaction
-            transaction={transaction}
-            tailwindColorClass={iconColors[categoryIndex % iconColors.length]}
+      <div class="h-px bg-primary-black mb-2" />
+      <div class="relative w-full max-w-xs my-4 flex items-center">
+        <div class="flex items-center bg-primary-black border-2 border-primary-grey rounded-full">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-6 w-6 text-font-off-white ml-3"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+            />
+          </svg>
+          <input
+            id="searchInput"
+            type="search"
+            placeholder="Search transactions"
+            class="bg-primary-black outline-none w-full pl-2 pr-3 py-2 rounded-full text-font-grey placeholder-font-grey"
           />
+        </div>
+        <img
+          src="/activeIcons/filter.svg"
+          alt="filter icon"
+          class="ml-3 h-6 w-6"
+        />
+      </div>
+
+      <p class="text-xl text-font-off-white font-medium">Transaction History</p>
+      <div id="transactionsContainer" class="mt-2">
+        {transactions.map((transaction, categoryIndex) => (
+          <div
+            data-company={transaction.company}
+            class={`transaction ${
+              iconColors[categoryIndex % iconColors.length]
+            } rounded-xl`}
+          >
+            <Transaction
+              transaction={transaction}
+              tailwindColorClass={iconColors[categoryIndex % iconColors.length]}
+            />
+          </div>
         ))}
       </div>
       <div class="h-20"></div>
