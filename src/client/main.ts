@@ -31,7 +31,7 @@ async function getToken() {
     });
 
     handler.open();
-  })
+  });
 }
 
 async function isConnectedToPlaid(): Promise<boolean> {

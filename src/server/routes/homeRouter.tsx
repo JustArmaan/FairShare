@@ -24,7 +24,7 @@ router.get('/page', getUser, async (req, res) => {
       if (!databaseUser) throw new Error('failed to create user');
     }
     if (databaseUser.plaidAccessToken) {
-      console.log(await getBalance(databaseUser.plaidAccessToken));
+      getBalance(databaseUser.plaidAccessToken).then(console.log);
     }
     const transactions = await getTransactionsForUser(req.user.id, 4);
 
