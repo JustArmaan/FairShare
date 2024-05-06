@@ -14,4 +14,4 @@ export async function getGroup(groupId: string) {
   }
 }
 
-export type GroupSchema = Awaited<ReturnType<typeof getGroup>>;
+export type GroupSchema = NonNullable<Awaited<ReturnType<typeof getGroup>>>;
