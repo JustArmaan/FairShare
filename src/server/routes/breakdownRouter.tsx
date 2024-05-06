@@ -1,7 +1,7 @@
 import express from 'express';
 import { renderToHtml } from 'jsxte';
 import { BreakdownPage } from '../views/pages/Breakdown/BreakdownPage';
-import { debug_getTransactionsForAnyUser, getTransactionsForUser } from '../services/transaction.service';
+import { getTransactionsForUser } from '../services/transaction.service';
 import { env } from '../../../env';
 
 const router = express.Router();

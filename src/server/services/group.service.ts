@@ -1,8 +1,8 @@
-import { getDB } from "../database/client";
-import { groups } from "../database/schema/group";
-import { eq } from "drizzle-orm";
+import { getDB } from '../database/client';
+import { groups } from '../database/schema/group';
+import { eq } from 'drizzle-orm';
 
-let db = getDB();
+const db = getDB();
 
 export async function getGroup(groupId: string) {
   try {
