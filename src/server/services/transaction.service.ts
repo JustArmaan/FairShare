@@ -5,7 +5,6 @@ import { transactions } from "../database/schema/transaction";
 import { eq, desc, like, and, or, gte, lt } from "drizzle-orm";
 import { findUser } from "./user.service";
 import { v4 as uuidv4 } from "uuid";
-import { get } from "http";
 
 const db = getDB();
 
