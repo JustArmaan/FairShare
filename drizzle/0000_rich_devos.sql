@@ -12,6 +12,8 @@ CREATE TABLE `transactions` (
 	`amount` real NOT NULL,
 	`timestamp` text NOT NULL,
 	`address` text NOT NULL,
+	`latitude` real NOT NULL,
+	`longitude` real NOT NULL,
 	FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON UPDATE no action ON DELETE cascade,
 	FOREIGN KEY (`category_id`) REFERENCES `categories`(`id`) ON UPDATE no action ON DELETE cascade
 );
@@ -22,5 +24,6 @@ CREATE TABLE `users` (
 	`last_name` text NOT NULL,
 	`email` text NOT NULL,
 	`picture` text,
-	`created_at` text DEFAULT (current_timestamp)
+	`created_at` text DEFAULT (current_timestamp),
+	`plaid_access_token` text
 );

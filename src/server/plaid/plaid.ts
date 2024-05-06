@@ -19,7 +19,7 @@ export async function plaidRequest(endpoint: string, body: any) {
 }
 
 export async function getLinkToken(user: { id: string; email: string }) {
-  const response = await plaidRequest('/link/token/create', {
+  return await plaidRequest('/link/token/create', {
     client_name: 'FairShare',
     language: 'en',
     country_codes: ['CA'],
@@ -29,6 +29,16 @@ export async function getLinkToken(user: { id: string; email: string }) {
     },
     products: ['transactions'],
   });
+}
 
-  return response;
+export async function getAccessToken(publicToken: string) {
+  return await plaidRequest('/item/public_token/exchange', {
+    public_token: publicToken,
+  });
+}
+
+export async function getBalance(accessToken: string) {
+  return await plaidRequest('/accounts/balance/get', {
+    access_token: accessToken,
+  });
 }

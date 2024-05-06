@@ -37,3 +37,19 @@ export const createUser = async (
     console.error(err);
   }
 };
+
+// gets the return type, makes it not a promise and not null
+type User = NonNullable<Awaited<ReturnType<typeof findUser>>>;
+
+// partial makes all fields of type optional
+export const updateUser = async (
+  id: string,
+  newFields: Partial<Omit<User, 'id'>>
+) => {
+  console.log(newFields);
+  try {
+    await db.update(users).set(newFields).where(eq(users.id, id));
+  } catch (err) {
+    console.log(err);
+  }
+};

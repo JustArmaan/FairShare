@@ -1,8 +1,8 @@
-import { faker } from "@faker-js/faker";
-import { getDB } from "./client";
-import { categories } from "./schema/category";
-import { transactions } from "./schema/transaction";
-import { createTransaction } from "../services/transaction.service";
+import { faker } from '@faker-js/faker';
+import { getDB } from './client';
+import { categories } from './schema/category';
+import { transactions } from './schema/transaction';
+import { createTransaction } from '../services/transaction.service';
 
 const db = getDB();
 
@@ -39,14 +39,12 @@ export async function seedFakeTransactions(
         transactionData.latitude,
         transactionData.longitude
       );
-
-      console.log("seeding complette");
     }
+    console.log('seeding complete');
   } catch (error) {
-    console.error("Seeding transactions failed:", error);
+    console.error('Seeding transactions failed:', error);
   }
 }
-
 
 // await db.delete(transactions);
 // seedFakeTransactions("kp_1f69766a544b4f1e8ab2e4c795757fd9", 30);

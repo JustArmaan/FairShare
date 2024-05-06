@@ -5,71 +5,8 @@
     {
       "idx": 0,
       "version": "5",
-      "when": 1711862888801,
-      "tag": "0000_smiling_black_widow",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "5",
-      "when": 1711864161191,
-      "tag": "0001_organic_miracleman",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "5",
-      "when": 1714429992114,
-      "tag": "0002_chief_marvel_apes",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "5",
-      "when": 1714445920925,
-      "tag": "0003_lonely_patriot",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "5",
-      "when": 1714447798893,
-      "tag": "0004_lonely_steve_rogers",
-      "breakpoints": true
-    },
-    {
-      "idx": 5,
-      "version": "5",
-      "when": 1714452937110,
-      "tag": "0005_overconfident_rawhide_kid",
-      "breakpoints": true
-    },
-    {
-      "idx": 6,
-      "version": "5",
-      "when": 1714776512072,
-      "tag": "0006_hesitant_blue_shield",
-      "breakpoints": true
-    },
-    {
-      "idx": 7,
-      "version": "5",
-      "when": 1714784490137,
-      "tag": "0007_bouncy_the_fallen",
-      "breakpoints": true
-    },
-    {
-      "idx": 8,
-      "version": "5",
-      "when": 1714790724830,
-      "tag": "0008_nifty_mauler",
-      "breakpoints": true
-    },
-    {
-      "idx": 9,
-      "version": "5",
-      "when": 1714890806605,
-      "tag": "0009_chief_morgan_stark",
+      "when": 1715027681127,
+      "tag": "0000_rich_devos",
       "breakpoints": true
     }
   ]
