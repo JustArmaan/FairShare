@@ -7,11 +7,11 @@ let db = getDB();
 export async function getGroup(groupId: string) {
   try {
     const group = await db.select().from(groups).where(eq(groups.id, groupId));
-    if (group) return group[0];
-    return null;
+    return group[0];
   } catch (error) {
     console.error(error);
+    return null;
   }
 }
 
-export type GroupSchema = Awaited<ReturnType<typeof getGroup>>;
+export type GroupSchema = NonNullable<Awaited<ReturnType<typeof getGroup>>>;
