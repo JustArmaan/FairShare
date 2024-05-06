@@ -3,6 +3,7 @@ import { renderToHtml } from 'jsxte';
 import { env } from '../../../env';
 import { getTransactionsForUser } from '../services/transaction.service';
 import { Overview } from '../views/pages/Overview/Overview';
+import { Group} from '../views/pages/Groups/Group';
 import { getUser } from '@kinde-oss/kinde-node-express';
 import { createUser, findUser } from '../services/user.service';
 import { seedFakeTransactions } from '../database/seedFakeTransations';
@@ -35,7 +36,7 @@ router.get('/page', getUser, async (req, res) => {
     };
 
     const html = renderToHtml(
-      <Overview transactions={transactions} userDetails={userDetails} />
+      // <Overview transactions={transactions} userDetails={userDetails} />
     );
     res.send(html);
   } catch (error) {

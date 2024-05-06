@@ -1,11 +1,5 @@
 import express from "express";
 import { indexRouter } from "./routes/indexRouter";
-import {
-  setupKinde,
-  protectRoute,
-  getUser,
-  GrantType,
-} from "@kinde-oss/kinde-node-express";
 import ViteExpress from "vite-express";
 import { breakdownRouter } from "./routes/breakdownRouter";
 import { configureApp } from "./middleware/express.middleware";
