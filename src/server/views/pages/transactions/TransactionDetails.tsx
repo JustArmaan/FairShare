@@ -28,9 +28,7 @@ export const TransactionDetailsPage = ({
         <p class="text-3xl text-font-off-white font-semibold mb-1">
           ${transaction.amount}
         </p>
-        <div class="text-font-grey text-md mb-3">
-          1527 Main St, Vancouver, BC V6A 2W5
-        </div>
+        <div class="text-font-grey text-md mb-3">{transaction.address}</div>
         <div class="bg-primary-black rounded-lg shadow-lg px-4 py-2 w-full">
           <div class="text-font-off-white text-lg font-semibold">
             Status: <span class="text-green-600">Approved</span>
@@ -42,10 +40,6 @@ export const TransactionDetailsPage = ({
           </div>
         </div>
         <div class="mt-6 w-full h-auto rounded-lg bg-primary-black">
-          {/* <img
-            src="/map/map-screenshot.png"
-            class="rounded-t-lg w-full h-44 object-cover"
-          /> */}
           <div id="map" class="h-48 w-full"></div>
           <script defer type="module" src="/src/client/map/index.ts"></script>
           <script

@@ -23,7 +23,7 @@ export const Card = ({ cardDetails }: CardProps) => {
       {/* This will send the color down to client in the output.css */}
       <div class="flex justify-between items-center mb-1">
         <div class="flex items-center mb-2">
-          <img src="/cardAssets/scotiabank.svg" class="h-9 w-9 mr-1" />{' '}
+          <img src="/cardAssets/scotiabank.svg" class="h-9 w-9 mr-1" />{" "}
           <h2 class="text-xl font-medium">{cardDetails.bankName}</h2>
         </div>
       </div>

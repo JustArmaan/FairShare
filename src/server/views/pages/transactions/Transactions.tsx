@@ -64,25 +64,62 @@ export const TransactionsPage = ({
           <input
             id="searchInput"
             type="search"
+            name="search"
             placeholder="Search transactions"
             class="bg-primary-black outline-none w-full pl-2 pr-3 py-2 rounded-full text-font-grey placeholder-font-grey"
+            hx-post="/transactions/search"
+            hx-trigger="input changed delay:500ms, search"
+            hx-target="#transactionsContainer"
+            hx-include="[name='search']"
+            hx-indicator=".htmx-indicator" //   ⚠️ change this to the animation we will use 🎬
           />
+          <div class="relative w-full max-w-xs my-4 flex items-center"></div>
         </div>
+        <form
+          hx-post="/transactions/date"
+          hx-trigger="change"
+          hx-target="#transactionsContainer"
+          hx-include="[name='month'], [name='year']"
+        >
+          <select
+            name="year"
+            id="yearSelect"
+            class="bg-primary-black text-font-off-white outline-none mx-2 rounded"
+          >
+            {[2022, 2023, 2024].map((year) => (
+              <option value={String(year)}>{year}</option>
+            ))}
+          </select>
+          <select
+            name="month"
+            id="monthSelect"
+            class="bg-primary-black text-font-off-white outline-none mx-2 rounded"
+          >
+            {Array.from({ length: 12 }, (_, i) => (
+              <option value={String(i + 1)}>{i + 1}</option>
+            ))}
+          </select>
+          <input type="submit" value="Load Transactions" class="hidden" />{" "}
+        </form>
         <img
           src="/activeIcons/filter.svg"
           alt="filter icon"
           class="ml-3 h-6 w-6"
         />
       </div>
-
       <p class="text-xl text-font-off-white font-medium">Transaction History</p>
       <div id="transactionsContainer" class="mt-2">
         {transactions.map((transaction, categoryIndex) => (
           <div
+            data-id={transaction.id}
             data-company={transaction.company}
             class={`transaction ${
               iconColors[categoryIndex % iconColors.length]
             } rounded-xl`}
+            hx-get={`/transactions/details/${transaction.id}`}
+            hx-trigger="click"
+            hx-target="#transactionsContainer"
+            hx-swap="innerHTML"
           >
             <Transaction
               transaction={transaction}

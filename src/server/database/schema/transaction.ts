@@ -15,4 +15,6 @@ export const transactions = sqliteTable("transactions", {
   amount: real("amount").notNull(),
   timestamp: text("timestamp").notNull(),
   address: text("address").notNull(),
+  latitude: real("latitude").notNull(),
+  longitude: real("longitude").notNull(),
 });

@@ -1,6 +1,7 @@
 import { faker } from "@faker-js/faker";
 import { getDB } from "./client";
 import { categories } from "./schema/category";
+import { transactions } from "./schema/transaction";
 import { createTransaction } from "../services/transaction.service";
 
 const db = getDB();
@@ -24,6 +25,8 @@ export async function seedFakeTransactions(
           .recent({ days: 80, refDate: new Date() })
           .toISOString(),
         address: faker.location.streetAddress({ useFullAddress: true }),
+        latitude: faker.location.latitude({ min: 24, max: 60 }),
+        longitude: faker.location.longitude({ min: -125, max: -66 }),
       };
 
       await createTransaction(
@@ -32,7 +35,9 @@ export async function seedFakeTransactions(
         transactionData.company,
         transactionData.amount,
         transactionData.timestamp,
-        transactionData.address
+        transactionData.address,
+        transactionData.latitude,
+        transactionData.longitude
       );
 
       console.log("seeding complette");
@@ -41,3 +46,7 @@ export async function seedFakeTransactions(
     console.error("Seeding transactions failed:", error);
   }
 }
+
+
+// await db.delete(transactions);
+// seedFakeTransactions("kp_1f69766a544b4f1e8ab2e4c795757fd9", 30);
