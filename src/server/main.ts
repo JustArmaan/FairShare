@@ -12,6 +12,7 @@ import { configureApp } from "./middleware/express.middleware";
 import { homeRouter } from "./routes/homeRouter";
 import { transactionRouter } from "./routes/transactionRouter";
 import { apiRouterV0 } from "./routes/api/v0/apiRouter";
+import { groupRouter } from "./routes/groupRouter";
 
 const PORT = process.env.PORT || 3000;
 
@@ -24,6 +25,7 @@ app.use("/breakdown", breakdownRouter);
 app.use("/home", homeRouter);
 app.use("/transactions", transactionRouter);
 app.use("/api/v0", apiRouterV0);
+app.use("/groups", groupRouter);
 
 /*
 app.use((_: Request, res: Response) => {
