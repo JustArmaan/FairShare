@@ -3,6 +3,7 @@ import { renderToHtml } from 'jsxte';
 import { BreakdownPage } from '../views/pages/Breakdown/BreakdownPage';
 import { getTransactionsForUser } from '../services/transaction.service';
 import { env } from '../../../env';
+import { getUser } from '@kinde-oss/kinde-node-express';
 
 const router = express.Router();
 
@@ -27,7 +28,7 @@ const examples = [
   },
 ];
 
-router.get('/page', async (req, res) => {
+router.get('/page', getUser, async (req, res) => {
   if (!req.user) {
     return res.set('HX-Redirect', `${env.baseUrl}/login`).send();
   }

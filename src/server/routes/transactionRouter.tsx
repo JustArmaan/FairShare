@@ -9,7 +9,7 @@ import {
   getTransactionsByMonth,
 } from '../services/transaction.service';
 import Transaction from '../views/pages/transactions/components/Transaction';
-import TransactionsPage from '../views/pages/transactions/Transactions';
+import TransactionsPage from '../views/pages/transactions/TransactionList';
 import { getUser } from '@kinde-oss/kinde-node-express';
 import { env } from '../../../env';
 

@@ -22,9 +22,9 @@ configureApp(app);
 
 app.use(indexRouter);
 app.use('/breakdown', breakdownRouter);
+app.use('/groups', groupRouter);
 app.use('/home', homeRouter);
 app.use('/transactions', transactionRouter);
-app.use('/groups', groupRouter);
 app.use('/api/v0', apiRouterV0);
 
 /*

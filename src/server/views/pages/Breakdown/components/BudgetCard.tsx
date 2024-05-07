@@ -1,4 +1,4 @@
-import type { Transactions } from '../../../../routes/indexRouter';
+import type { TransactionSchema } from '../../../../interface/types';
 import Transaction from '../../transactions/components/Transaction';
 
 export const BudgetCard = ({
@@ -14,7 +14,7 @@ export const BudgetCard = ({
   percentage: string;
   totalCosts: string;
   title: string;
-  transactions: Transactions;
+  transactions: TransactionSchema[];
 }) => {
   return (
     <div class="mt-6 rounded bg-primary-faded-black p-4 flex flex-col">

@@ -18,7 +18,13 @@ router.get('/page', getUser, async (req, res) => {
     const { id, given_name, family_name, email, picture } = req.user;
     let databaseUser = await findUser(id);
     if (!databaseUser) {
-      await createUser(id, given_name, family_name, email, picture);
+      await createUser({
+        id,
+        firstName: given_name,
+        lastName: family_name,
+        email,
+        picture,
+      });
       await seedFakeTransactions(id, 20);
       databaseUser = await findUser(id);
       if (!databaseUser) throw new Error('failed to create user');
