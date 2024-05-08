@@ -1,27 +1,28 @@
-import express from 'express';
-import { GroupPage } from '../views/pages/Groups/GroupPage';
-import { renderToHtml } from 'jsxte';
-import { getUser } from '@kinde-oss/kinde-node-express';
-import { getCategories } from '../services/group.service';
-import { createUser, findUser } from '../services/user.service.ts';
-import { AddedMember } from '../views/pages/Groups/components/Member.tsx';
+import express from "express";
+import { GroupPage } from "../views/pages/Groups/GroupPage";
+import { renderToHtml } from "jsxte";
+import { getUser } from "@kinde-oss/kinde-node-express";
+import { getCategories } from "../services/group.service";
+import { createUser, findUser } from "../services/user.service.ts";
+import { AddedMember } from "../views/pages/Groups/components/Member.tsx";
 import {
   createGroup,
   addMember,
   getGroupWithMembers,
   getGroupsForUserWithMembers,
-} from '../services/group.service.ts';
-import { getUserByEmail } from '../services/user.service.ts';
-import { seedFakeTransactions } from '../database/seedFakeTransations.ts';
-import { env } from '../../../env.ts';
-import CreateGroup from '../views/pages/Groups/components/CreateGroup.tsx';
+} from "../services/group.service.ts";
+import { getUserByEmail } from "../services/user.service.ts";
+import { seedFakeTransactions } from "../database/seedFakeTransations.ts";
+import { env } from "../../../env.ts";
+import CreateGroup from "../views/pages/Groups/components/CreateGroup.tsx";
+import { EditGroupPage } from "../views/pages/Groups/components/EditGroup.tsx";
 
 const router = express.Router();
 
-router.get('/page', getUser, async (req, res) => {
+router.get("/page", getUser, async (req, res) => {
   try {
     if (!req.user) {
-      return res.set('HX-Redirect', `${env.baseUrl}/login`).send();
+      return res.set("HX-Redirect", `${env.baseUrl}/login`).send();
     }
 
     const groups = await getGroupsForUserWithMembers(req.user.id);
@@ -32,10 +33,10 @@ router.get('/page', getUser, async (req, res) => {
   }
 });
 
-router.get('/create', getUser, async (req, res) => {
+router.get("/create", getUser, async (req, res) => {
   try {
     if (!req.user) {
-      return res.set('HX-Redirect', `${env.baseUrl}/login`).send();
+      return res.set("HX-Redirect", `${env.baseUrl}/login`).send();
     }
 
     const { id, given_name, family_name } = req.user;
@@ -49,7 +50,7 @@ router.get('/create', getUser, async (req, res) => {
       });
       await seedFakeTransactions(id, 20);
       databaseUser = await findUser(id);
-      if (!databaseUser) throw new Error('failed to create user');
+      if (!databaseUser) throw new Error("failed to create user");
     }
 
     const allCategories = (await getCategories()) || [];
@@ -63,19 +64,19 @@ router.get('/create', getUser, async (req, res) => {
   }
 });
 
-router.get('/addMember', getUser, async (req, res) => {
+router.get("/addMember", getUser, async (req, res) => {
   try {
     const email = req.query.addEmail as string;
     const member = await getUserByEmail(email);
     let content;
 
     if (!member) {
-      return res.status(400).send('User not found.');
+      return res.status(400).send("User not found.");
     } else {
       content = (
         <AddedMember
           user={{
-            type: 'member',
+            type: "member",
             id: member.email,
             firstName: member.firstName,
             email: member.email,
@@ -90,11 +91,11 @@ router.get('/addMember', getUser, async (req, res) => {
   }
 });
 
-router.post('/create', getUser, async (req, res) => {
+router.post("/create", getUser, async (req, res) => {
   try {
     const id = req.user?.id;
     if (!id) {
-      return res.set('HX-Redirect', '/login').send();
+      return res.set("HX-Redirect", "/login").send();
     }
 
     const {
@@ -105,7 +106,7 @@ router.post('/create', getUser, async (req, res) => {
       selectedColor,
     } = req.body;
 
-    const isTemp = temporaryGroup === 'on';
+    const isTemp = temporaryGroup === "on";
 
     const group = await createGroup(
       groupName,
@@ -115,10 +116,10 @@ router.post('/create', getUser, async (req, res) => {
     );
 
     if (!group) {
-      return res.status(500).send('Failed to create group.');
+      return res.status(500).send("Failed to create group.");
     }
 
-    const groupMembers = memberEmails.split(',');
+    const groupMembers = memberEmails.split(",");
     for (const memberEmail of groupMembers) {
       const user = await getUserByEmail(memberEmail);
       if (user) {
@@ -136,10 +137,10 @@ router.post('/create', getUser, async (req, res) => {
   }
 });
 
-router.get('/edit', getUser, async (req, res) => {
+router.get("/edit", getUser, async (req, res) => {
   try {
     if (!req.user) {
-      return res.set('HX-Redirect', `${env.baseUrl}/login`).send();
+      return res.set("HX-Redirect", `${env.baseUrl}/login`).send();
     }
     const groups = await getGroupsForUserWithMembers(req.user.id);
     const html = renderToHtml(<GroupPage groups={groups ? groups : []} edit />);
@@ -149,13 +150,58 @@ router.get('/edit', getUser, async (req, res) => {
   }
 });
 
-router.get('/transactions/:groupId', getUser, async (req, res) => {
+export type UserGroupSchema = NonNullable<
+  Awaited<ReturnType<typeof getGroupWithMembers>>
+>;
+
+router.get("/edit/:groupId", getUser, async (req, res) => {
+  try {
+    if (!req.user) {
+      return res.set("HX-Redirect", `${env.baseUrl}/login`).send();
+    }
+
+    const currentUser = await findUser(req.user.id);
+    if (!currentUser) {
+      return res.status(500).send("Failed to get user");
+    }
+
+    const categories = await getCategories();
+    if (!categories) return res.status(500).send("Failed to get categories");
+
+    const group = await getGroupWithMembers(req.params.groupId);
+
+    if (!group) return res.status(404).send("No such group");
+    const html = renderToHtml(
+      <EditGroupPage
+        categories={categories}
+        currentUser={currentUser}
+        group={group}
+      />
+    );
+    res.send(html);
+  } catch (err) {
+    console.error(err);
+  }
+});
+
+router.post("/update/:groupId", getUser, async (req, res) => {
+  try {
+    const { groupName, selectedCategoryId, selectedColor, memberEmails, temporaryGroup } =
+      req.body;
+      console.log(req.body);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("An error occurred while updating the group.");
+  }
+});
+
+router.get("/transactions/:groupId", getUser, async (req, res) => {
   // unfinished
   if (!req.user) {
-    return res.set('HX-Redirect', `${env.baseUrl}/login`).send();
+    return res.set("HX-Redirect", `${env.baseUrl}/login`).send();
   }
   const group = await getGroupWithMembers(req.params.groupId);
-  if (!group) return res.status(404).send('No such group');
+  if (!group) return res.status(404).send("No such group");
   const { id } = req.user;
 });
 

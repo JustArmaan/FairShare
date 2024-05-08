@@ -1,14 +1,61 @@
 import { type CategoriesSchema } from "../../../../services/group.service";
 import { type UserSchema } from "../../../../interface/types";
 import { AddedMember } from "./Member";
+import { getGroupWithMembers } from "../../../../services/group.service";
 
-export const CreateGroup = ({
+export type UserGroupSchema = NonNullable<
+  Awaited<ReturnType<typeof getGroupWithMembers>>
+>;
+
+export const EditGroupPage = ({
   categories,
   currentUser,
+  group,
 }: {
   categories: CategoriesSchema;
   currentUser: UserSchema;
+  group: UserGroupSchema;
 }) => {
+  const colors = [
+    { name: "accent-blue", bgClass: "bg-accent-blue" },
+    { name: "accent-purple", bgClass: "bg-accent-purple" },
+    { name: "accent-red", bgClass: "bg-accent-red" },
+    { name: "accent-yellow", bgClass: "bg-accent-yellow" },
+    { name: "accent-green", bgClass: "bg-accent-green" },
+    { name: "positive-number", bgClass: "bg-positive-number" },
+    { name: "negative-number", bgClass: "bg-negative-number" },
+    { name: "card-red", bgClass: "bg-card-red" },
+  ];
+
+  function findMatchedCategory(
+    categoryId: string,
+    groupIcon: string,
+    categories: CategoriesSchema
+  ) {
+    const selectedCategory = categories.find(
+      (category) => category.id === categoryId
+    );
+    if (selectedCategory && selectedCategory.id === groupIcon) {
+      return (
+        <div id="selected-icon">
+          <button
+            type="button"
+            data-category-id={selectedCategory.id}
+            class="flex items-center p-2 mt-2 bg-card-black rounded-lg hover:bg-primary-faded-black focus:outline-none focus:ring-2 focus:ring-accent-blue w-full animation-fade-in"
+          >
+            <img
+              src={selectedCategory.icon}
+              alt={`${selectedCategory.name} icon`}
+              class="h-6 w-6 mr-2"
+            />
+            <span class="text-font-off-white">{selectedCategory.name}</span>
+          </button>
+        </div>
+      );
+    }
+    return <div id="selected-icon" class=""></div>;
+  }
+
   return (
     <div class="p-6 animate-fade-in">
       <div class="flex justify-start w-fit items-center mb-1">
@@ -33,7 +80,7 @@ export const CreateGroup = ({
           class="justify-center items-center text-font-grey bg-primary-black rounded-lg mt-2"
           type="text"
           name="groupName"
-          placeholder="  Enter group name"
+          value={group.name}
         />
         <label class="text-font-off-white justify-start bold mt-4 cursor-pointer">
           Select Icon
@@ -43,26 +90,31 @@ export const CreateGroup = ({
           class="justify-center items-center text-font-grey bg-primary-black rounded-lg mt-2"
           type="button"
           name="select-icon"
-          value="Select Group Icon"
+          value="Change Group Icon"
           placeholder="  Select Group Icon"
         />
-        <div id="selected-icon" class=""></div>
+        {categories.map((category) => (
+          <div>{findMatchedCategory(category.id, group.icon, categories)}</div>
+        ))}
         <div id="categoriesContainer" class="hidden">
           {categories.map((category) => (
-            <button
-              type="button"
-              data-category-id={category.id}
-              class="category-button flex items-center p-2 mt-2 bg-card-black rounded-lg hover:bg-primary-faded-black focus:outline-none focus:ring-2 focus:ring-accent-blue w-full animation-fade-in"
-            >
-              <img
-                src={category.icon}
-                alt={`${category.name} icon`}
-                class="h-6 w-6 mr-2"
-              />
-              <span class="text-font-off-white">{category.name}</span>
-            </button>
+            <div>
+              <button
+                type="button"
+                data-category-id={category.id}
+                class="category-button flex items-center p-2 mt-2 bg-card-black rounded-lg hover:bg-primary-faded-black focus:outline-none focus:ring-2 focus:ring-accent-blue w-full animation-fade-in"
+              >
+                <img
+                  src={category.icon}
+                  alt={`${category.name} icon`}
+                  class="h-6 w-6 mr-2"
+                />
+                <span class="text-font-off-white">{category.name}</span>
+              </button>
+            </div>
           ))}
         </div>
+
         <label class="text-font-off-white justify-start font-bold mt-4 cursor-pointer">
           Select Color
         </label>
@@ -70,51 +122,17 @@ export const CreateGroup = ({
         <input type="hidden" id="selectedColor" name="selectedColor" value="" />
 
         <div class="flex flex-wrap mt-2 gap-2">
-          <button
-            class="color-button h-10 w-10 rounded-full bg-accent-blue"
-            data-color="accent-blue"
-          ></button>
-          <button
-            class="color-button h-10 w-10 rounded-full bg-accent-purple"
-            data-color="accent-purple"
-          ></button>
-          <button
-            class="color-button h-10 w-10 rounded-full bg-accent-red"
-            data-color="accent-red"
-          ></button>
-          <button
-            class="color-button h-10 w-10 rounded-full bg-accent-yellow"
-            data-color="accent-yellow"
-          ></button>
-          <button
-            class="color-button h-10 w-10 rounded-full bg-accent-green"
-            data-color="accent-green"
-          ></button>
-          <button
-            class="color-button h-10 w-10 rounded-full bg-positive-number"
-            data-color="positive-number"
-          ></button>
-          <button
-            class="color-button h-10 w-10 rounded-full bg-negative-number"
-            data-color="negative-number"
-          ></button>
-          <button
-            class="color-button h-10 w-10 rounded-full bg-card-red"
-            data-color="card-red"
-          ></button>
-          <div class="ring-2 ring-offset-2 ring-accent-blue hidden"></div>
+          {colors.map((color) => (
+            <button
+              class={`color-button h-10 w-10 rounded-full ${color.bgClass} ${
+                group.color === color.name
+                  ? "ring-2 ring-offset-2 ring-accent-blue"
+                  : ""
+              }`}
+              data-color={color.name}
+            ></button>
+          ))}
         </div>
-        {/* <label class="text-font-off-white justify-start bold mt-4">
-          Select Tag
-        </label>
-        <input
-          id="select-tag"
-          class="justify-center items-center text-font-grey bg-primary-black rounded-lg mt-2"
-          type="button"
-          name="select-tag"
-          value="Select Group Tag"
-          placeholder="  Select Group Tag"
-        /> */}
         <h1 class="text-font-off-white justify-start bold text-lg mt-4">
           Add Members
         </h1>
@@ -134,7 +152,20 @@ export const CreateGroup = ({
             <div
               id="memberContainer"
               class="bg-primary-black w-full rounded-lg flex p-2 flex-col text-xs justify-center items-center"
-            ></div>
+            >
+              {group.members.slice(1).map((member) => {
+                return (
+                  <AddedMember
+                    user={{
+                      type: "member",
+                      id: member.email,
+                      firstName: member.firstName,
+                      email: member.email,
+                    }}
+                  />
+                );
+              })}
+            </div>
           </div>
 
           <div
@@ -178,6 +209,7 @@ export const CreateGroup = ({
             name="temporaryGroup"
             id="temporaryGroup"
             class="ml-2 mt-2"
+            checked={group.temporary.toString() === "true"}
           />
         </div>
 
@@ -196,7 +228,7 @@ export const CreateGroup = ({
         <div class="flex justify-center items-center mt-3 mb-4">
           <button
             type="button"
-            hx-post="/groups/create"
+            hx-post="/groups/update/${group.id}"
             hx-target="#response"
             hx-swap="outerHTML"
             hx-include="#selectedCategoryId, [name='groupName'], [name='temporaryGroup'], #memberEmails, #selectedColor"
@@ -211,4 +243,4 @@ export const CreateGroup = ({
   );
 };
 
-export default CreateGroup;
+export default EditGroupPage;

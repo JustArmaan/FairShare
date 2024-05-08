@@ -1,6 +1,6 @@
-import { getGroupsForUserWithMembers } from '../../../services/group.service';
-import type { ExtractFunctionReturnType } from '../../../services/user.service';
-import { GroupItem } from './components/GroupItem';
+import { getGroupsForUserWithMembers } from "../../../services/group.service";
+import type { ExtractFunctionReturnType } from "../../../services/user.service";
+import { GroupItem } from "./components/GroupItem";
 
 export type Groups = ExtractFunctionReturnType<
   typeof getGroupsForUserWithMembers
@@ -33,7 +33,7 @@ export const GroupPage = (props: { edit?: boolean; groups: Groups }) => {
             hx-get="/groups/edit"
             hx-target="#app"
             hx-trigger="click"
-            class={props.groups.length === 0 ? 'hidden' : ''}
+            class={props.groups.length === 0 ? "hidden" : ""}
           >
             <img class="h-4" src="icons/edit.svg" alt="edit icon" />
           </button>

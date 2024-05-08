@@ -30,6 +30,9 @@ function attachCategoryButtonListeners() {
 
   categoryButtons.forEach((button) => {
     const categoryId = button.getAttribute("data-category-id");
+    const selectedCategoryId = document.getElementById(
+      "selectedCategoryId"
+    ) as HTMLInputElement;
 
     if (!button.dataset.listenerAttached) {
       button.addEventListener("click", () => {
@@ -83,20 +86,25 @@ function selectCategory(id: string): void {
     "selectedCategoryId"
   ) as HTMLInputElement;
   const categoriesContainer = document.getElementById("categoriesContainer");
-  const selectedIcon = document.getElementById("selected-icon");
+  const selectedIcon = document.querySelectorAll("#selected-icon");
+  if (selectedIcon) {
+    selectedIcon.forEach((selectedIcon) => {
+      selectedIcon.innerHTML = "";
+    });
+
+    const clickedButton = document.querySelector(
+      `button[data-category-id='${id}']`
+    );
+
+    if (clickedButton) {
+      selectedIcon[0].innerHTML = "";
+      const clonedButton = clickedButton.cloneNode(true);
+      selectedIcon[0].appendChild(clonedButton);
+    }
+  }
 
   if (input) {
     input.value = id;
-  }
-
-  const clickedButton = document.querySelector(
-    `button[data-category-id='${id}']`
-  );
-
-  if (clickedButton && selectedIcon) {
-    selectedIcon.innerHTML = "";
-    const clonedButton = clickedButton.cloneNode(true);
-    selectedIcon.appendChild(clonedButton);
   }
 
   if (categoriesContainer) {
