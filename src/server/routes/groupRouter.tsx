@@ -1,42 +1,20 @@
 import express from 'express';
-import { GroupPage } from '../views/pages/Groups/components/CreateGroup';
+import { GroupPage } from '../views/pages/Groups/GroupPage';
 import { renderToHtml } from 'jsxte';
-import { getDB } from '../database/client.ts';
 import { getUser } from '@kinde-oss/kinde-node-express';
-import { type GroupSchema } from '../services/group.service';
-import { groups } from '../database/schema/group';
 import { getCategories } from '../services/group.service';
 import { createUser, findUser } from '../services/user.service.ts';
 import { AddedMember } from '../views/pages/Groups/components/Member.tsx';
-import { createGroup, addMember } from '../services/group.service.ts';
+import {
+  createGroup,
+  addMember,
+  getGroupWithMembers,
+  getGroupsForUserWithMembers,
+} from '../services/group.service.ts';
 import { getUserByEmail } from '../services/user.service.ts';
 import { seedFakeTransactions } from '../database/seedFakeTransations.ts';
 import { env } from '../../../env.ts';
-
-let db = getDB();
-
-const groupData = {
-  id: 'randomid1234',
-  name: 'Family👪',
-};
-
-const groupMembers = [
-  {
-    id: 'randomid1234',
-    name: 'Sandy',
-    email: 'sandy@gmail.com',
-  },
-  {
-    id: 'randomid1234',
-    name: 'Bob',
-    email: 'bob@gmail.com',
-  },
-  {
-    id: 'randomid1234',
-    name: 'Alice',
-    email: 'alice@gmail.com',
-  },
-];
+import CreateGroup from '../views/pages/Groups/components/CreateGroup.tsx';
 
 const router = express.Router();
 
@@ -46,12 +24,29 @@ router.get('/page', getUser, async (req, res) => {
       return res.set('HX-Redirect', `${env.baseUrl}/login`).send();
     }
 
-    const { id, given_name, family_name, email, picture } = req.user;
+    const groups = await getGroupsForUserWithMembers(req.user.id);
+    const html = renderToHtml(<GroupPage groups={groups ? groups : []} />);
+    res.send(html);
+  } catch (err) {
+    console.error(err);
+  }
+});
 
+router.get('/create', getUser, async (req, res) => {
+  try {
+    if (!req.user) {
+      return res.set('HX-Redirect', `${env.baseUrl}/login`).send();
+    }
+
+    const { id, given_name, family_name } = req.user;
 
     let databaseUser = await findUser(id);
     if (!databaseUser) {
-      await createUser(id, given_name, family_name, email, picture);
+      await createUser({
+        ...req.user,
+        firstName: given_name,
+        lastName: family_name,
+      });
       await seedFakeTransactions(id, 20);
       databaseUser = await findUser(id);
       if (!databaseUser) throw new Error('failed to create user');
@@ -60,7 +55,7 @@ router.get('/page', getUser, async (req, res) => {
     const allCategories = (await getCategories()) || [];
 
     const html = renderToHtml(
-      <GroupPage categories={allCategories} currentUser={databaseUser} />
+      <CreateGroup categories={allCategories} currentUser={databaseUser} />
     );
     res.send(html);
   } catch (error) {
@@ -132,6 +127,29 @@ router.post('/create', getUser, async (req, res) => {
   } catch (error) {
     console.error(error);
   }
+});
+
+router.get('/edit', getUser, async (req, res) => {
+  try {
+    if (!req.user) {
+      return res.set('HX-Redirect', `${env.baseUrl}/login`).send();
+    }
+    const groups = await getGroupsForUserWithMembers(req.user.id);
+    const html = renderToHtml(<GroupPage groups={groups ? groups : []} edit />);
+    res.send(html);
+  } catch (err) {
+    console.error(err);
+  }
+});
+
+router.get('/transactions/:groupId', getUser, async (req, res) => {
+  // unfinished
+  if (!req.user) {
+    return res.set('HX-Redirect', `${env.baseUrl}/login`).send();
+  }
+  const group = await getGroupWithMembers(req.params.groupId);
+  if (!group) return res.status(404).send('No such group');
+  const { id } = req.user;
 });
 
 export const groupRouter = router;

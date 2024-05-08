@@ -1,7 +1,9 @@
 import express from 'express';
 import { renderToHtml } from 'jsxte';
 import { BreakdownPage } from '../views/pages/Breakdown/BreakdownPage';
-import { debug_getTransactionsForAnyUser } from '../services/transaction.service';
+import { getTransactionsForUser } from '../services/transaction.service';
+import { env } from '../../../env';
+import { getUser } from '@kinde-oss/kinde-node-express';
 
 const router = express.Router();
 
@@ -26,8 +28,11 @@ const examples = [
   },
 ];
 
-router.get('/page', async (_, res) => {
-  const transactions = await debug_getTransactionsForAnyUser(4);
+router.get('/page', getUser, async (req, res) => {
+  if (!req.user) {
+    return res.set('HX-Redirect', `${env.baseUrl}/login`).send();
+  }
+  const transactions = await getTransactionsForUser(req.user.id, 4);
   const html = renderToHtml(<BreakdownPage transactions={transactions} />);
 
   res.send(html);

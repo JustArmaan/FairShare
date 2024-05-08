@@ -2,7 +2,7 @@ import { type CategoriesSchema } from '../../../../services/group.service';
 import { type UserSchema } from '../../../../interface/types';
 import { AddedMember } from './Member';
 
-export const GroupPage = ({
+export const CreateGroup = ({
   categories,
   currentUser,
 }: {
@@ -202,4 +202,4 @@ export const GroupPage = ({
   );
 };
 
-export default GroupPage;
+export default CreateGroup;
