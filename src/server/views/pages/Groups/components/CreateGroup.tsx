@@ -131,7 +131,6 @@ export const GroupPage = ({
                 email: currentUser!.email,
               }}
             />
-            <div id="errorContainer" class="text-accent-red"></div>
             <div
               id="memberContainer"
               class="bg-primary-black w-full rounded-lg flex p-2 flex-col text-xs justify-center items-center"
@@ -183,6 +182,11 @@ export const GroupPage = ({
           id="selectedCategoryId"
         />
         <input type="hidden" name="memberEmails" id="memberEmails" value="" />
+
+        <div
+          id="errorContainer"
+          class="text-accent-red bg-opacity-10 border border-accent-red p-4 rounded shadow hidden text-center mt-4"
+        ></div>
 
         <div class="flex justify-center items-center mt-3 mb-4">
           <button

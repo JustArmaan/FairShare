@@ -131,6 +131,35 @@ function isEmailDuplicated() {
   return existingEmails.includes(emailToCheck);
 }
 
+document.body.addEventListener("htmx:beforeSwap", function (evt) {
+  const xhr = (evt as CustomEvent).detail.xhr;
+  const status = xhr.status;
+
+  if (status === 400 || status === 500) {
+    evt.preventDefault();
+
+    const errorContainer = document.getElementById("errorContainer");
+    if (errorContainer) {
+      if (status === 400) {
+        errorContainer.classList.remove("hidden");
+        errorContainer.textContent = xhr.responseText;
+        setTimeout(() => {
+          errorContainer.classList.add("hidden");
+        }, 8000);
+      } else if (status === 500) {
+        errorContainer.classList.remove("hidden");
+        errorContainer.textContent =
+          "An internal server error occurred. Please try again later.";
+        setTimeout(() => {
+          errorContainer.classList.add("hidden");
+        }, 8000);
+      } else if (status === 200) {
+        errorContainer.classList.add("hidden");
+      }
+    }
+  }
+});
+
 window.isEmailDuplicated = isEmailDuplicated;
 window.collectEmailsAndUpdateInput = collectEmailsAndUpdateInput;
 window.selectCategory = selectCategory;

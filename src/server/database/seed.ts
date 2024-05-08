@@ -41,14 +41,14 @@ const memberTypes = [
   { type: "Admin" },
 ];
 
-// await db.delete(transactions);
-// console.log("Deleted all records from the transactions table.");
+await db.delete(transactions);
+console.log("Deleted all records from the transactions table.");
 
 await db.delete(categories);
 console.log("Deleted all records from the categories table.");
 
-// await db.delete(users);
-// console.log("Deleted all records from the users table.");
+await db.delete(users);
+console.log("Deleted all records from the users table.");
 
 await db.delete(memberType);
 console.log("Deleted all records from the memberTypes table.");

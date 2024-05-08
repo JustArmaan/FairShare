@@ -27,8 +27,12 @@ export const Nav = () => {
         </li>
         <li class="group w-1/6">
           <a
-            href="#"
             class="parent hover:child-hidden flex flex-col items-center text-font-off-white dark:text-white group-hover:text-accent-purple"
+            hx-get="/group/page"
+            hx-target="#app"
+            hx-trigger="click"
+            hx-swap="innerHTML"
+            hx-push-url="true"
           >
             <img
               id="groupIcon"

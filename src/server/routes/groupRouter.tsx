@@ -92,6 +92,7 @@ router.post("/create", getUser, async (req, res) => {
     if (!userId) {
       return res.set("HX-Redirect", "/login").send();
     }
+
     const {
       groupName,
       selectedCategoryId,
@@ -99,6 +100,10 @@ router.post("/create", getUser, async (req, res) => {
       temporaryGroup,
       selectedColor,
     } = req.body;
+
+    if (!groupName || !selectedCategoryId || !memberEmails || !selectedColor) {
+      return res.status(400).send("All fields must be filled.");
+    }
 
     const isTemp = temporaryGroup === "on";
 
@@ -118,10 +123,16 @@ router.post("/create", getUser, async (req, res) => {
       const user = await getUserByEmail(memberEmail);
       if (user) {
         await addMember(group.id, user.id);
+      } else {
+        return res
+          .status(400)
+          .send(`User with email ${memberEmail} not found.`);
       }
     }
+    res.status(200);
   } catch (error) {
     console.error(error);
+    res.status(500).send("An error occurred while creating the group.");
   }
 });
 
