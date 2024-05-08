@@ -15,6 +15,20 @@
       "when": 1715030231904,
       "tag": "0001_nebulous_vision",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1715140247894,
+      "tag": "0002_handy_invaders",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1715141047175,
+      "tag": "0003_silly_the_captain",
+      "breakpoints": true
     }
   ]
 }

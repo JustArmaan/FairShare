@@ -1,0 +1,1 @@
+ALTER TABLE groups ADD `temporary` text NOT NULL;

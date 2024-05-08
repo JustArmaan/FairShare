@@ -39,7 +39,7 @@ router.get('/page', getUser, async (req, res) => {
     return res.set('HX-Redirect', `${env.baseUrl}/login`).send();
   }
   try {
-    const transactions = await getTransactionsForUser(req.user!.id, 999999); // Could this be undefined
+    const transactions = await getTransactionsForUser(req.user!.id, 999999); 
 
     const html = renderToHtml(
       <TransactionsPage transactions={transactions} cardDetails={cardHtml} />

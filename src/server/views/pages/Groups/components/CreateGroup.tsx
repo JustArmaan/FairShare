@@ -1,0 +1,205 @@
+import { type CategoriesSchema } from "../../../../services/group.service";
+import { type UserSchema } from "../../../../interface/types";
+import { AddedMember } from "./Member";
+
+export const GroupPage = ({
+  categories,
+  currentUser,
+}: {
+  categories: CategoriesSchema;
+  currentUser: UserSchema;
+}) => {
+  return (
+    <div class="p-6 animate-fade-in">
+      <div class="flex justify-start w-fit items-center mb-1">
+        <a
+          hx-get="/home/page"
+          hx-trigger="click"
+          hx-target="#app"
+          hx-swap="innerHTML"
+          class="text-font-off-white text-4xl cursor-pointer"
+          hx-push-url="true"
+        >
+          <img
+            src="/icons/arrow_back_ios.svg"
+            alt="back arrow icon"
+            class="hover:-translate-y-0.5 transition-transform hover:opacity-80 h-6"
+          />
+        </a>
+      </div>
+      <div class="flex flex-col my-8">
+        <label class="text-font-off-white justify-start bold">Group Name</label>
+        <input
+          class="justify-center items-center text-font-grey bg-primary-black rounded-lg mt-2"
+          type="text"
+          name="groupName"
+          placeholder="  Enter group name"
+        />
+        <label class="text-font-off-white justify-start bold mt-4 cursor-pointer">
+          Select Icon
+        </label>
+        <input
+          id="select-icon"
+          class="justify-center items-center text-font-grey bg-primary-black rounded-lg mt-2"
+          type="button"
+          name="select-icon"
+          value="Select Group Icon"
+          placeholder="  Select Group Icon"
+        />
+        <div id="selected-icon" class=""></div>
+        <div id="categoriesContainer" class="hidden">
+          {categories.map((category) => (
+            <button
+              type="button"
+              data-category-id={category.id}
+              class="category-button flex items-center p-2 mt-2 bg-card-black rounded-lg hover:bg-primary-faded-black focus:outline-none focus:ring-2 focus:ring-accent-blue w-full animation-fade-in"
+            >
+              <img
+                src={category.icon}
+                alt={`${category.name} icon`}
+                class="h-6 w-6 mr-2"
+              />
+              <span class="text-font-off-white">{category.name}</span>
+            </button>
+          ))}
+        </div>
+        <label class="text-font-off-white justify-start font-bold mt-4 cursor-pointer">
+          Select Color
+        </label>
+
+        <input type="hidden" id="selectedColor" name="selectedColor" value="" />
+
+        <div class="flex flex-wrap mt-2 gap-2">
+          <button
+            class="color-button h-10 w-10 rounded-full bg-accent-blue"
+            data-color="accent-blue"
+          ></button>
+          <button
+            class="color-button h-10 w-10 rounded-full bg-accent-purple"
+            data-color="accent-purple"
+          ></button>
+          <button
+            class="color-button h-10 w-10 rounded-full bg-accent-red"
+            data-color="accent-red"
+          ></button>
+          <button
+            class="color-button h-10 w-10 rounded-full bg-accent-yellow"
+            data-color="accent-yellow"
+          ></button>
+          <button
+            class="color-button h-10 w-10 rounded-full bg-accent-green"
+            data-color="accent-green"
+          ></button>
+          <button
+            class="color-button h-10 w-10 rounded-full bg-positive-number"
+            data-color="positive-number"
+          ></button>
+          <button
+            class="color-button h-10 w-10 rounded-full bg-negative-number"
+            data-color="negative-number"
+          ></button>
+          <button
+            class="color-button h-10 w-10 rounded-full bg-card-red"
+            data-color="card-red"
+          ></button>
+          <div class="ring-2 ring-offset-2 ring-accent-blue hidden"></div>
+        </div>
+        {/* <label class="text-font-off-white justify-start bold mt-4">
+          Select Tag
+        </label>
+        <input
+          id="select-tag"
+          class="justify-center items-center text-font-grey bg-primary-black rounded-lg mt-2"
+          type="button"
+          name="select-tag"
+          value="Select Group Tag"
+          placeholder="  Select Group Tag"
+        /> */}
+        <h1 class="text-font-off-white justify-start bold text-lg mt-4">
+          Add Members
+        </h1>
+        <div
+          id="members"
+          class="bg-primary-black w-full rounded-lg flex p-6 flex-col text-xs justify-center items-center"
+        >
+          <div class="flex-col w-full">
+            <AddedMember
+              user={{
+                type: "currentUser",
+                id: currentUser!.id,
+                firstName: currentUser!.firstName,
+                email: currentUser!.email,
+              }}
+            />
+            <div id="errorContainer" class="text-accent-red"></div>
+            <div
+              id="memberContainer"
+              class="bg-primary-black w-full rounded-lg flex p-2 flex-col text-xs justify-center items-center"
+            ></div>
+          </div>
+
+          <div id="addMemberForm" class="flex justify-center w-full hidden">
+            <input
+              type="email"
+              name="addEmail"
+              class="text-font-off-white bg-primary-dark-grey rounded-lg mt-2 mr-3"
+              placeholder="Enter member email"
+            ></input>
+            <button
+              id="enterEmailButton"
+              class="w-14 h-8 bg-accent-blue text-font-off-white cursor-pointer rounded-lg"
+              hx-get="/group/addMember"
+              hx-trigger="click"
+              hx-include="[name='addEmail']"
+              hx-swap="beforeend"
+              hx-target="#memberContainer"
+              hx-vals="js:{shouldSend: !isEmailDuplicated()}"
+            >
+              Invite
+            </button>
+          </div>
+
+          <button
+            id="addMemberButton"
+            class="rounded-lg w-24 h-8 bg-accent-blue justify-center text-font-off-white my-2"
+          >
+            Add
+          </button>
+          <div class="flex text-font-off-white">
+            <p class="mr-2 mt-3">Temporary Group?</p>
+            <img src="/activeIcons/info.svg" alt="Hover for more info" />
+          </div>
+          <input
+            type="checkbox"
+            name="temporaryGroup"
+            id="temporaryGroup"
+            class="ml-2 mt-2"
+          />
+        </div>
+
+        <input
+          type="hidden"
+          name="selectedCategoryId"
+          id="selectedCategoryId"
+        />
+        <input type="hidden" name="memberEmails" id="memberEmails" value="" />
+
+        <div class="flex justify-center items-center mt-3 mb-4">
+          <button
+            type="button"
+            hx-post="/group/create"
+            hx-target="#response"
+            hx-swap="outerHTML"
+            hx-include="#selectedCategoryId, [name='groupName'], [name='temporaryGroup'], #memberEmails, #selectedColor"
+            class="rounded-lg w-32 h-10 bg-accent-blue justify-center text-font-off-white text-sm mb-6"
+          >
+            Create Group
+          </button>
+        </div>
+      </div>
+      <div id="response"></div>
+    </div>
+  );
+};
+
+export default GroupPage;
