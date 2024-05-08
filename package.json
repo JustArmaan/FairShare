@@ -10,13 +10,15 @@
     "drizzle-generate": "drizzle-kit generate:sqlite",
     "drizzle-seed": "bun run src/server/database/seed.ts",
     "drizzle-push": "drizzle-kit push:sqlite",
-    "postinstall": "patch-package"
+    "postinstall": "bunx patch-package"
   },
+  "typings": "/index.d.ts",
   "dependencies": {
     "@faker-js/faker": "^8.4.1",
     "@kinde-oss/kinde-node-express": "^1.3.0",
     "@kinde-oss/kinde-typescript-sdk": "^2.9.0",
     "@libsql/client": "^0.5.3",
+    "@types/react": "^18.3.1",
     "@types/uuid": "^9.0.8",
     "@vitejs/plugin-react": "^4.2.1",
     "better-sqlite3": "^9.6.0",

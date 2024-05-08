@@ -1,13 +1,6 @@
-import { Transaction } from "./components/Transaction";
-import { type TransactionSchema } from "../../../interface/types";
-import { Card } from "./components/Card";
-
-const iconColors = [
-  "bg-accent-red",
-  "bg-accent-blue",
-  "bg-accent-green",
-  "bg-accent-yellow",
-];
+import { Transaction } from './components/Transaction';
+import { type TransactionSchema } from '../../../interface/types';
+import { Card } from './components/Card';
 
 interface CardDetails {
   primaryColor: string;
@@ -25,6 +18,14 @@ interface TransactionsPageProps {
   transactions: TransactionSchema[];
   cardDetails: CardDetails;
 }
+
+const iconColors = [
+  'bg-accent-red',
+  'bg-accent-blue',
+  'bg-accent-green',
+  'bg-accent-yellow',
+  'bg-accent-purple',
+];
 
 export const TransactionsPage = ({
   transactions,
@@ -99,7 +100,7 @@ export const TransactionsPage = ({
               <option value={String(i + 1)}>{i + 1}</option>
             ))}
           </select>
-          <input type="submit" value="Load Transactions" class="hidden" />{" "}
+          <input type="submit" value="Load Transactions" class="hidden" />{' '}
         </form>
         <img
           src="/activeIcons/filter.svg"
@@ -110,22 +111,10 @@ export const TransactionsPage = ({
       <p class="text-xl text-font-off-white font-medium">Transaction History</p>
       <div id="transactionsContainer" class="mt-2">
         {transactions.map((transaction, categoryIndex) => (
-          <div
-            data-id={transaction.id}
-            data-company={transaction.company}
-            class={`transaction ${
-              iconColors[categoryIndex % iconColors.length]
-            } rounded-xl`}
-            hx-get={`/transactions/details/${transaction.id}`}
-            hx-trigger="click"
-            hx-target="#transactionsContainer"
-            hx-swap="innerHTML"
-          >
-            <Transaction
-              transaction={transaction}
-              tailwindColorClass={iconColors[categoryIndex % iconColors.length]}
-            />
-          </div>
+          <Transaction
+            transaction={transaction}
+            tailwindColorClass={iconColors[categoryIndex % iconColors.length]}
+          />
         ))}
       </div>
       <div class="h-20"></div>

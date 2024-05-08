@@ -2,11 +2,11 @@ import { getDB } from "../database/client";
 import { users } from "../database/schema/users";
 import { eq } from "drizzle-orm";
 
-let db = getDB();
+const db = getDB();
 
-export const findUser = async (userId: string) => {
+export const findUser = async (id: string) => {
   try {
-    const user = await db.select().from(users).where(eq(users.id, userId));
+    const user = await db.select().from(users).where(eq(users.id, id));
     return user[0];
   } catch (error) {
     console.error(error);
@@ -15,31 +15,23 @@ export const findUser = async (userId: string) => {
 };
 
 export const createUser = async (
-  userId: string,
-  firstName: string,
-  lastName: string,
-  email: string,
-  picture: string
+  user: Omit<Omit<User, 'createdAt'>, 'plaidAccessToken'>
 ) => {
   try {
-    const existUser = await findUser(userId);
-    if (!existUser) {
-      const newUser = await db.insert(users).values({
-        id: userId,
-        firstName: firstName,
-        lastName: lastName,
-        email: email,
-        picture: picture,
-      });
-      return newUser;
-    }
+    const newUser = await db.insert(users).values({
+      ...user,
+    });
+    return newUser;
   } catch (err) {
     console.error(err);
   }
 };
 
 // gets the return type, makes it not a promise and not null
-type User = NonNullable<Awaited<ReturnType<typeof findUser>>>;
+type User = ExtractFunctionReturnType<typeof findUser>;
+
+export type ExtractFunctionReturnType<T extends (...args: any[]) => any> =
+  NonNullable<Awaited<ReturnType<T>>>;
 
 // partial makes all fields of type optional
 export const updateUser = async (

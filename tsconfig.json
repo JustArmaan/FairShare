@@ -27,9 +27,11 @@
 
     // Vite settings
 
-    "useDefineForClassFields": true
+    "useDefineForClassFields": true,
+
+    "typeRoots": ["./index.d.ts"]
   },
-  "include": ["src", "../src/server", "../src/client", "public"]
+  "include": ["src", "../src/server", "../src/client", "public", "index.d.ts"]
 }
 
 /*

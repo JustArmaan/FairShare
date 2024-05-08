@@ -1,8 +1,8 @@
-import { type CategoriesSchema } from "../../../../services/group.service";
-import { type UserSchema } from "../../../../interface/types";
-import { AddedMember } from "./Member";
+import { type CategoriesSchema } from '../../../../services/group.service';
+import { type UserSchema } from '../../../../interface/types';
+import { AddedMember } from './Member';
 
-export const GroupPage = ({
+export const CreateGroup = ({
   categories,
   currentUser,
 }: {
@@ -125,8 +125,8 @@ export const GroupPage = ({
           <div class="flex-col w-full">
             <AddedMember
               user={{
-                type: "currentUser",
-                id: currentUser!.id,
+                type: 'currentUser',
+                id: currentUser.id,
                 firstName: currentUser!.firstName,
                 email: currentUser!.email,
               }}
@@ -206,4 +206,4 @@ export const GroupPage = ({
   );
 };
 
-export default GroupPage;
+export default CreateGroup;

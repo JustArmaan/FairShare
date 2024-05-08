@@ -1,10 +1,11 @@
-import { getDB } from "../database/client";
-import { users } from "../database/schema/users";
-import { categories } from "../database/schema/category";
-import { transactions } from "../database/schema/transaction";
-import { eq, desc, like, and, or, gte, lt } from "drizzle-orm";
-import { findUser } from "./user.service";
-import { v4 as uuidv4 } from "uuid";
+import { getDB } from '../database/client';
+import { users } from '../database/schema/users';
+import { categories } from '../database/schema/category';
+import { transactions } from '../database/schema/transaction';
+import { eq, desc, like, and, or, gte, lt } from 'drizzle-orm';
+import { findUser } from './user.service';
+import { v4 as uuidv4 } from 'uuid';
+import type { ExtractFunctionReturnType } from './user.service';
 
 const db = getDB();
 
@@ -62,31 +63,28 @@ export async function getTransaction(transactionId: string) {
     };
   });
 
-  if (!joined[0]) throw new Error("no such transaction");
+  if (!joined[0]) throw new Error('no such transaction');
   return joined[0];
 }
 
-export async function createTransaction(
-  userId: string,
-  categoryId: string,
-  company: string,
-  amount: number,
-  timestamp: string,
-  address: string,
-  latitude: number,
-  longitude: number
-) {
+async function getTransactionNoJoins(transactionId: string) {
+  const transaction = await db
+    .select()
+    .from(transactions)
+    .where(eq(transactions.id, transactionId));
+
+  return transaction[0];
+}
+
+export type Transaction = ExtractFunctionReturnType<
+  typeof getTransactionNoJoins
+>;
+
+export async function createTransaction(transaction: Omit<Transaction, 'id'>) {
   try {
     const newTransaction = await db.insert(transactions).values({
       id: uuidv4(),
-      userId: userId,
-      categoryId: categoryId,
-      company: company,
-      amount: amount,
-      timestamp: timestamp,
-      address: address,
-      latitude: latitude,
-      longitude: longitude,
+      ...transaction,
     });
     return newTransaction;
   } catch (error) {
@@ -153,7 +151,7 @@ function getNextMonthYear(year: string, month: string) {
   }
   return {
     nextYear: nextYear.toString(),
-    nextMonth: nextMonth.toString().padStart(2, "0"),
+    nextMonth: nextMonth.toString().padStart(2, '0'),
   };
 }
 export async function getTransactionsByMonth(
@@ -162,7 +160,7 @@ export async function getTransactionsByMonth(
   month: string
 ) {
   try {
-    const paddedMonth = month.padStart(2, "0");
+    const paddedMonth = month.padStart(2, '0');
     const startDate = `${year}-${paddedMonth}-01`;
     const { nextYear, nextMonth } = getNextMonthYear(year, paddedMonth);
     const endDate = `${nextYear}-${nextMonth}-01`;
@@ -189,7 +187,7 @@ export async function getTransactionsByMonth(
 
     return joined;
   } catch (error) {
-    console.error("Error retrieving transactions:", error);
+    console.error('Error retrieving transactions:', error);
     return [];
   }
 }
