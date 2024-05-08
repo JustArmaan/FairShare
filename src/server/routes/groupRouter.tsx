@@ -38,9 +38,12 @@ router.get("/view", getUser, async (req, res) => {
     if (!req.user) {
       return res.set("HX-Redirect", `${env.baseUrl}/login`).send();
     }
-    const userId = req.user.id;
-    const currentUser = await findUser(userId);
-    const transactions = await getTransactionsForUser(req.user.id, 4);
+    const userId = req.user.id; // TODO Use Promise.all
+    const [currentUser, transactions] = await Promise.all([
+      findUser(userId),
+      getTransactionsForUser(req.user.id, 4)
+    ]);
+    
     const html = renderToHtml(
       <ViewGroups
         transactions={transactions}
