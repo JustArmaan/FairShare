@@ -3,6 +3,7 @@ import { type TransactionSchema } from "../../../../interface/types";
 import Members from "./Members";
 import OwedGroup from "./OwedGroup";
 import { type UserSchema } from "../../../../interface/types";
+import BudgetChart from "./BudgetChart";
 const iconColors = [
   "bg-accent-red",
   "bg-accent-blue",
@@ -14,14 +15,21 @@ interface member {
   owe: string;
 }
 
+interface groupBudget {
+  budgetGoal: string;
+  spending: string;
+}
+
 export const ViewGroups = ({
   transactions,
   members,
   currentUser,
+  groupBudget,
 }: {
   transactions: TransactionSchema[];
   members: member[];
   currentUser: UserSchema;
+  groupBudget: groupBudget[];
 }) => {
   return (
     <div class="p-6 animate-fade-in">
@@ -62,6 +70,8 @@ export const ViewGroups = ({
         </div>
         <p class="text-font-off-white text-2xl pt-3">Owing</p>
         <OwedGroup memberDetails={members} currentUser={currentUser} />
+        <p class="text-font-off-white text-2xl pt-3 pb-1">Budget</p>
+        <BudgetChart groupBudget={groupBudget} />
         <p class="text-font-off-white text-2xl pt-3">Recent Expenses</p>
         {transactions.map((transaction, categoryIndex) => (
           <Transaction
