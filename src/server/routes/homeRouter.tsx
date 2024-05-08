@@ -6,7 +6,6 @@ import { Overview } from "../views/pages/Overview/Overview";
 import { getUser } from "@kinde-oss/kinde-node-express";
 import { createUser, findUser } from "../services/user.service";
 import { seedFakeTransactions } from "../database/seedFakeTransations";
-import { getBalance } from "../plaid/plaid";
 const router = express.Router();
 
 router.get("/page", getUser, async (req, res) => {
@@ -22,9 +21,6 @@ router.get("/page", getUser, async (req, res) => {
       await seedFakeTransactions(id, 20);
       databaseUser = await findUser(id);
       if (!databaseUser) throw new Error("failed to create user");
-    }
-    if (databaseUser.plaidAccessToken) {
-      getBalance(databaseUser.plaidAccessToken).then(console.log);
     }
     const transactions = await getTransactionsForUser(req.user.id, 4);
 
