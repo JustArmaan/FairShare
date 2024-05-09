@@ -3,11 +3,10 @@ import { groups } from "../database/schema/group";
 import { categories } from "../database/schema/category";
 import { usersToGroups } from "../database/schema/usersToGroups";
 import { memberType } from "../database/schema/memberType";
-import { eq } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 import { v4 as uuidv4 } from "uuid";
 import { users } from "../database/schema/users";
 import type { UserSchema } from "../interface/types";
-import { group } from "console";
 
 const db = getDB();
 
@@ -178,6 +177,27 @@ export const updateGroup = async (
   } catch (error) {
     console.error(error);
     return null;
+  }
+};
+
+export const checkUserInGroup = async (groupId: string, userId: string) => {
+  try {
+    const result = await db
+      .select()
+      .from(usersToGroups)
+      .where(
+        and(
+          eq(usersToGroups.groupId, groupId),
+          eq(usersToGroups.userId, userId)
+        )
+      );
+
+    if (result.length > 0 && result[0].id) {
+      return true;
+    }
+  } catch (error) {
+    console.error(error);
+    return false;
   }
 };
 

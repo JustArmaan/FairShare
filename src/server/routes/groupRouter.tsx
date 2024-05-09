@@ -2,7 +2,11 @@ import express from "express";
 import { GroupPage } from "../views/pages/Groups/GroupPage";
 import { renderToHtml } from "jsxte";
 import { getUser } from "@kinde-oss/kinde-node-express";
-import { getCategories, type GroupSchema } from "../services/group.service";
+import {
+  checkUserInGroup,
+  getCategories,
+  type GroupSchema,
+} from "../services/group.service";
 import { createUser, findUser } from "../services/user.service.ts";
 import { AddedMember } from "../views/pages/Groups/components/Member.tsx";
 import {
@@ -69,7 +73,23 @@ router.get("/addMember", getUser, async (req, res) => {
   try {
     const email = req.query.addEmail as string;
     const member = await getUserByEmail(email);
+
+    if (!member) {
+      return res.status(400).send("User not found.");
+    }
+
+    const inGroup = await checkUserInGroup(
+      member.id,
+      req.query.groupId as string
+    );
+
+    console.log(inGroup, "inGroup");
+
     let content;
+
+    if (inGroup) {
+      return res.status(400).send("User is already in the group.");
+    }
 
     if (!member) {
       return res.status(400).send("User not found.");
