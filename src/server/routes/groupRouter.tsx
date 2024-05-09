@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import express from "express";
 import { GroupPage } from "../views/pages/Groups/GroupPage";
 import { renderToHtml } from "jsxte";
