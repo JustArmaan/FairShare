@@ -11,15 +11,6 @@ import {
 } from "../services/group.service";
 import { createUser, findUser } from "../services/user.service.ts";
 import { AddedMember } from "../views/pages/Groups/components/Member.tsx";
-=======
-import express from 'express';
-import { GroupPage } from '../views/pages/Groups/GroupPage';
-import { renderToHtml } from 'jsxte';
-import { getUser } from '@kinde-oss/kinde-node-express';
-import { checkUserInGroup, getCategories } from '../services/group.service';
-import { createUser, findUser } from '../services/user.service.ts';
-import { AddedMember } from '../views/pages/Groups/components/Member.tsx';
->>>>>>> c5d6b3dcb919c5c1e72f9d97b142167dc6c160ea
 import {
   createGroup,
   addMember,
