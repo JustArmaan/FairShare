@@ -53,7 +53,7 @@ export const GroupPage = (props: { edit?: boolean; groups: Groups }) => {
         )}
         {props.groups.map((group, index) => (
           <>
-            <GroupItem group={group} tailwindColorClass={group.color} edit={props.edit} />
+            <GroupItem group={group} edit={props.edit} />
             {index !== props.groups.length - 1 && (
               <div class="mt-3 h-px rounded-full bg-primary-dark-grey" />
             )}
