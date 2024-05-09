@@ -1,4 +1,4 @@
-import { type CategoriesSchema } from '../../../../services/group.service';
+import { type CategoriesSchema, type MemberTypeSchema } from '../../../../services/group.service';
 import { type UserSchema } from '../../../../interface/types';
 import { AddedMember } from './Member';
 import { getGroupWithMembers } from '../../../../services/group.service';
@@ -13,7 +13,7 @@ export const EditGroupPage = ({
   group,
 }: {
   categories: CategoriesSchema;
-  currentUser: UserSchema;
+  currentUser: Omit<UserSchema, "type">;
   group: UserGroupSchema;
 }) => {
   const colors = [
@@ -147,12 +147,7 @@ export const EditGroupPage = ({
               {group.members.map((member) => {
                 return (
                   <AddedMember
-                    user={{
-                      type: 'member',
-                      id: member.email,
-                      firstName: member.firstName,
-                      email: member.email,
-                    }}
+                    user={member}
                   />
                 );
               })}

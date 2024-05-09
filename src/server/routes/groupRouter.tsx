@@ -135,12 +135,7 @@ router.get("/addMember", getUser, async (req, res) => {
     } else {
       content = (
         <AddedMember
-          user={{
-            type: "member",
-            id: member.email,
-            firstName: member.firstName,
-            email: member.email,
-          }}
+          user={member}
         />
       );
     }
