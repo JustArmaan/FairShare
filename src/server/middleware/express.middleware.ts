@@ -27,11 +27,11 @@ export const configureApp = (app: Express) => {
     secret: env.kindeSecret as string,
     issuerBaseUrl: 'https://idsp1expensetracker.kinde.com',
     siteUrl: env.baseUrl as string,
-    redirectUrl: 'http://localhost:3000/callback',
+    redirectUrl: `${env.baseUrl}/callback`,
     scope: 'openid profile email',
     grantType: GrantType.AUTHORIZATION_CODE,
-    unAuthorisedUrl: 'http://localhost:3000/login',
-    postLogoutRedirectUrl: 'http://localhost:3000',
+    unAuthorisedUrl: `${env.baseUrl}/login`,
+    postLogoutRedirectUrl: `${env.baseUrl}`,
   };
 
   app.use(
