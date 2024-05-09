@@ -1,14 +1,14 @@
-import { Transaction } from '../../transactions/components/Transaction';
-import { type TransactionSchema } from '../../../../interface/types';
-import Members from './Members';
-import OwedGroup from './OwedGroup';
-import { type UserSchema } from '../../../../interface/types';
-import BudgetChart from './BudgetChart';
+import { Transaction } from "../../transactions/components/Transaction";
+import { type TransactionSchema } from "../../../../interface/types";
+import Members from "./Members";
+import OwedGroup from "./OwedGroup";
+import { type UserSchema } from "../../../../interface/types";
+import BudgetChart from "./BudgetChart";
 const iconColors = [
-  'bg-accent-red',
-  'bg-accent-blue',
-  'bg-accent-green',
-  'bg-accent-yellow',
+  "bg-accent-red",
+  "bg-accent-blue",
+  "bg-accent-green",
+  "bg-accent-yellow",
 ];
 
 interface groupBudget {
@@ -31,7 +31,7 @@ export const ViewGroups = ({
 }) => {
   return (
     <div class="p-6 animate-fade-in">
-      <div class="flex flex-row">
+      <div class="flex justify-between">
         <a
           hx-get={'/home/page'}
           hx-trigger="click"
@@ -51,11 +51,11 @@ export const ViewGroups = ({
           hx-trigger="click"
           hx-target="#app"
           hx-swap="innerHTML"
-          class="text-font-off-white text-4xl cursor-pointer w-full flex justify-end"
+          class="text-font-off-white text-4xl cursor-pointer flex "
           hx-push-url="true"
         >
           <img
-            src="/icons/threeDot.svg"
+            src="/icons/edit.svg"
             alt="More Icon"
             class="hover:-translate-y-0.5 transition-transform hover:opacity-80 h-6 justify-end"
           />

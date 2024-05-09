@@ -19,7 +19,7 @@ export const BudgetChart = ({
     <>
       {groupBudget.map((budgetItem, index) => (
         <div class="rounded-lg w-full bg-font-black my-2">
-          <div class="shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] rounded-lg w-full bg-font-black">
+          <div class="shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] rounded-lg w-full bg-font-black flex justify-around">
             <div class="flex justify-center items-center w-96 h-96 relative">
               <div class="rounded-full border-4 border-white w-72 h-72 flex flex-col justify-center items-center bg-card-black relative">
                 <p class="text-pure-white font-semibold text-5xl">
