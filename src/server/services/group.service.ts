@@ -145,12 +145,12 @@ export const createGroup = async (
   }
 };
 
-export const addMember = async (groupId: string, userId: string) => {
+export const addMember = async (groupId: string, userId: string, type: string) => {
   try {
     const invitedType = await db
       .select({ id: memberType.id })
       .from(memberType)
-      .where(eq(memberType.type, "Invited"));
+      .where(eq(memberType.type, type));
 
     if (invitedType.length === 0) {
       throw new Error("Member type 'Invited' not found.");

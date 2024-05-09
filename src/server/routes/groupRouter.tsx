@@ -133,11 +133,7 @@ router.get("/addMember", getUser, async (req, res) => {
     if (!member) {
       return res.status(400).send("User not found.");
     } else {
-      content = (
-        <AddedMember
-          user={member}
-        />
-      );
+      content = <AddedMember user={member} />;
     }
     let html = renderToHtml(content);
     res.send(html);
@@ -212,7 +208,11 @@ router.post("/create", getUser, async (req, res) => {
     for (const memberEmail of groupMembers) {
       const user = await getUserByEmail(memberEmail);
       if (user) {
-        await addMember(group.id, user.id);
+        if (user.id !== currentUser.id) {
+          await addMember(group.id, user.id, "Invited");
+        } else if (user.id === currentUser.id) {
+          await addMember(group.id, user.id, "Owner");
+        }
       }
     }
 
@@ -356,7 +356,7 @@ router.post("/edit/:groupId", getUser, async (req, res) => {
     for (const memberEmail of newMembers) {
       const user = await getUserByEmail(memberEmail);
       if (user) {
-        await addMember(currentGroup.id, user.id);
+        await addMember(currentGroup.id, user.id, "Invited");
       } else {
         return res.status(400).send(`User with email ${memberEmail} not found`);
       }

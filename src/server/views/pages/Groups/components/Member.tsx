@@ -3,8 +3,8 @@ import type { MemberTypeSchema } from "../../../../services/group.service";
 
 type UserProps = {
   user:
-    | { type: 'member'; id: string; firstName: string; email: string }
-    | { type: 'currentUser'; id: string; firstName: string; email: string };
+    | { type: "member"; id: string; firstName: string; email: string }
+    | { type: "currentUser"; id: string; firstName: string; email: string };
 };
 
 export const AddedMember = ({ user }: { user: UserSchema }) => {
@@ -24,16 +24,27 @@ export const AddedMember = ({ user }: { user: UserSchema }) => {
       />
       <div class="flex flex-col flex-grow">
         <span class="text-font-off-white text-sm">{user.firstName}</span>
-        {user.type === 'currentUser' && (
+        {user.type === "currentUser" && (
           <span class="text-font-grey text-xs">You</span>
         )}
       </div>
       <div class="flex-grow text-font-off-white text-sm">
         {formatEmail(user.email)}
       </div>
-      <button class="py-2 px-4 bg-accent-purple text-font-off-white rounded-lg text-sm">
-        {user.type === 'currentUser' ? 'Owner' : 'Member'}
-      </button>
+      {user.type === "Owner" ? (
+        <button class="py-2 px-4 bg-accent-purple text-font-off-white rounded-lg text-sm cursor-default">
+          {"Owner"}
+        </button>
+      ) : (
+        <>
+          <button class="py-2 px-4 bg-accent-purple text-font-off-white rounded-lg text-sm cursor-default">
+            {"Member"}
+          </button>
+          <button class="cursor-default">
+            <img src="/icons/delete.svg" />
+          </button>
+        </>
+      )}
       {/* <div class="w-10 h-1 bg-primary-grey rounded"></div> */}
     </div>
   );
