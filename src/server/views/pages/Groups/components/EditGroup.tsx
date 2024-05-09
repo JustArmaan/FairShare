@@ -162,7 +162,7 @@ export const EditGroupPage = ({
 
           <div
             id="addMemberForm"
-            class="rounded-md w-full h-14 bg-accent-blue flex justify-center items-center p-2 hidden"
+            class="rounded-md w-full h-14 bg-accent-blue flex justify-center items-center p-2 hidden mt-2"
           >
             <div class="flex w-full h-9">
               <input
