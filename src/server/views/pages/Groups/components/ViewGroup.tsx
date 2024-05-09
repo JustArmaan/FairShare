@@ -16,8 +16,8 @@ interface member {
 }
 
 interface groupBudget {
-  budgetGoal: string;
-  spending: string;
+  budgetGoal: number;
+  spending: number;
 }
 
 export const ViewGroups = ({

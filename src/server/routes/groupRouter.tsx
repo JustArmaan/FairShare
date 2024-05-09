@@ -2,11 +2,8 @@ import express from "express";
 import { renderToHtml } from "jsxte";
 import { env } from "../../../env";
 import { getTransactionsForUser } from "../services/transaction.service";
-import { Overview } from "../views/pages/Overview/Overview";
 import { getUser } from "@kinde-oss/kinde-node-express";
 import { createUser, findUser } from "../services/user.service";
-import { seedFakeTransactions } from "../database/seedFakeTransations";
-import { getBalance } from "../plaid/plaid";
 import { ViewGroups } from "../views/pages/Groups/components/ViewGroup";
 import Members from "../views/pages/Groups/components/Members";
 import { OwedGroup } from "../views/pages/Groups/components/OwedGroup";
@@ -36,8 +33,8 @@ const memberDetails = [
 
 const groupBudget = [
   {
-    budgetGoal: "4,000",
-    spending: "1175",
+    budgetGoal: 4000,
+    spending: 1175,
   },
 ];
 
