@@ -141,19 +141,11 @@ export const EditGroupPage = ({
           class="bg-primary-black w-full rounded-lg flex p-6 flex-col text-xs justify-center items-center"
         >
           <div class="flex-col w-full">
-            <AddedMember
-              user={{
-                type: "currentUser",
-                id: currentUser.id,
-                firstName: currentUser!.firstName,
-                email: currentUser!.email,
-              }}
-            />
             <div
               id="memberContainer"
-              class="bg-primary-black w-full rounded-lg flex p-2 flex-col text-xs justify-center items-center"
+              class="bg-primary-black w-full rounded-lg flex flex-col text-xs justify-center items-center"
             >
-              {group.members.slice(1).map((member) => {
+              {group.members.map((member) => {
                 return (
                   <AddedMember
                     user={{
@@ -234,7 +226,7 @@ export const EditGroupPage = ({
             hx-include="#selectedCategoryId, [name='groupName'], [name='temporaryGroup'], #memberEmails, #selectedColor"
             class="rounded-lg w-32 h-10 bg-accent-blue justify-center text-font-off-white text-sm mb-6"
           >
-            Create Group
+            Update Group
           </button>
         </div>
       </div>
