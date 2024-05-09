@@ -43,13 +43,29 @@ export const getCategory = async (categoryId: string) => {
   }
 };
 
+async function getMemberType(type: string) {
+  try {
+    const result = await db
+      .select()
+      .from(memberType)
+      .where(eq(memberType.type, type));
+    return result[0];
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
+}
+
+export type MemberTypeSchema = NonNullable<Awaited<ReturnType<typeof getMemberType>>>;
+
 export async function getGroupWithMembers(groupId: string) {
   try {
     const result = await db
-      .select({ group: groups, members: users })
+      .select({ group: groups, members: users, memberType })
       .from(groups)
       .innerJoin(usersToGroups, eq(usersToGroups.groupId, groupId))
       .innerJoin(users, eq(usersToGroups.userId, users.id))
+      .innerJoin(memberType, eq(usersToGroups.memberTypeId, memberType.id))
       .where(eq(groups.id, groupId));
 
     return result.reduce((groups, currentResult) => {
@@ -59,13 +75,14 @@ export async function getGroupWithMembers(groupId: string) {
       if (groupIndex === -1) {
         groups.push({
           ...currentResult.group,
-          members: [currentResult.members],
+          members: [{...currentResult.members, type: currentResult.memberType.type}],
+
         });
       } else {
-        groups[groupIndex].members.push(currentResult.members);
+        groups[groupIndex].members.push({ ...currentResult.members, type: currentResult.memberType.type });
       }
       return groups;
-    }, [] as (GroupSchema & { members: UserSchema[] })[])[0];
+    }, [] as (GroupSchema & { members: UserSchema[] } )[])[0];
   } catch (error) {
     console.error(error);
     return null;
@@ -95,7 +112,7 @@ export async function getGroupsForUserWithMembers(userId: string) {
         groups[groupIndex].members.push(currentResult.members);
       }
       return groups;
-    }, [] as (GroupSchema & { members: UserSchema[] })[]);
+    }, [] as (GroupSchema & { members: Omit<UserSchema, "type">[] })[]);
   } catch (error) {
     console.log(error);
     return null;

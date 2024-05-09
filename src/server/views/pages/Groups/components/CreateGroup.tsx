@@ -123,12 +123,7 @@ export const CreateGroup = ({
         >
           <div class="flex-col w-full">
             <AddedMember
-              user={{
-                type: 'currentUser',
-                id: currentUser.id,
-                firstName: currentUser!.firstName,
-                email: currentUser!.email,
-              }}
+              user={currentUser}
             />
             <div
               id="memberContainer"

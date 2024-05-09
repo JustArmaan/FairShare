@@ -1,10 +1,13 @@
+import type { UserSchema } from "../../../../interface/types";
+import type { MemberTypeSchema } from "../../../../services/group.service";
+
 type UserProps = {
   user:
     | { type: "member"; id: string; firstName: string; email: string }
     | { type: "currentUser"; id: string; firstName: string; email: string };
 };
 
-export const AddedMember = ({ user }: UserProps) => {
+export const AddedMember = ({ user }: { user: UserSchema }) => {
   function formatEmail(email: string) {
     return email.length > 10 ? `${email.substring(0, 15)}...` : email;
   }
