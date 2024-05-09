@@ -1,5 +1,5 @@
-import { type TransactionSchema } from "../../../interface/types";
-import { env } from "../../../../../env";
+import { type TransactionSchema } from '../../../interface/types';
+import { env } from '../../../../../env';
 
 export const TransactionDetailsPage = ({
   transaction,
@@ -10,12 +10,11 @@ export const TransactionDetailsPage = ({
     <div class="p-6 animate-fade-in">
       <div class="flex justify-start w-fit items-center mb-1">
         <a
-          hx-get={"/home/page"}
+          hx-get={'/home/page'}
           hx-trigger="click"
           hx-target="#app"
           hx-swap="innerHTML"
           class="text-font-off-white text-4xl cursor-pointer"
-          hx-push-url="true"
         >
           <img
             src="/icons/arrow_back_ios.svg"

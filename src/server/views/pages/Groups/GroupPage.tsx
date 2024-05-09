@@ -12,7 +12,12 @@ export const GroupPage = (props: { edit?: boolean; groups: Groups }) => {
       <div class="flex items-center justify-between">
         <h2 class="text-2xl text-font-off-white">Groups</h2>
         {props.edit ? (
-          <button hx-get="/groups/page" hx-target="#app" hx-trigger="click">
+          <button
+            hx-get="/groups/page"
+            hx-target="#app"
+            hx-trigger="click"
+            hx-swap="innerHTML"
+          >
             <div class="cursor-pointer h-full text-font-off-white">
               <svg
                 width="16"
@@ -32,6 +37,7 @@ export const GroupPage = (props: { edit?: boolean; groups: Groups }) => {
           <button
             hx-get="/groups/edit"
             hx-target="#app"
+            hx-swap="innerHTML"
             hx-trigger="click"
             class={props.groups.length === 0 ? 'hidden' : ''}
           >
@@ -47,8 +53,8 @@ export const GroupPage = (props: { edit?: boolean; groups: Groups }) => {
         )}
         {props.groups.map((group, index) => (
           <>
-            <GroupItem group={group} tailwindColorClass="accent-green" />
-            {index !== 0 && (
+            <GroupItem group={group} tailwindColorClass={group.color} />
+            {index !== props.groups.length - 1 && (
               <div class="mt-3 h-px rounded-full bg-primary-dark-grey" />
             )}
           </>
@@ -56,11 +62,10 @@ export const GroupPage = (props: { edit?: boolean; groups: Groups }) => {
       </div>
       <div class="flex justify-center mt-10">
         <button
-          class="rounded-2xl py-3 px-4 bg-accent-blue text-font-off-white"
+          class={`rounded-2xl py-3 px-4 bg-accent-blue text-font-off-white`}
           hx-get="/groups/create"
           hx-swap="innerHTML"
           hx-target="#app"
-          hx-push-url="true"
         >
           <span class="text-lg font-semibold">Create New Group</span>
         </button>

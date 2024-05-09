@@ -1,6 +1,6 @@
-import { type CategoriesSchema } from "../../../../services/group.service";
-import { type UserSchema } from "../../../../interface/types";
-import { AddedMember } from "./Member";
+import { type CategoriesSchema } from '../../../../services/group.service';
+import { type UserSchema } from '../../../../interface/types';
+import { AddedMember } from './Member';
 
 export const CreateGroup = ({
   categories,
@@ -18,7 +18,6 @@ export const CreateGroup = ({
           hx-target="#app"
           hx-swap="innerHTML"
           class="text-font-off-white text-4xl cursor-pointer"
-          hx-push-url="true"
         >
           <img
             src="/icons/arrow_back_ios.svg"
@@ -125,7 +124,7 @@ export const CreateGroup = ({
           <div class="flex-col w-full">
             <AddedMember
               user={{
-                type: "currentUser",
+                type: 'currentUser',
                 id: currentUser.id,
                 firstName: currentUser!.firstName,
                 email: currentUser!.email,
