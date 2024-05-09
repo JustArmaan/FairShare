@@ -87,17 +87,16 @@ function selectCategory(id: string): void {
   ) as HTMLInputElement;
   const categoriesContainer = document.getElementById("categoriesContainer");
   const selectedIcon = document.querySelectorAll("#selected-icon");
-  if (selectedIcon) {
-    selectedIcon.forEach((selectedIcon) => {
-      selectedIcon.innerHTML = "";
-    });
 
-    const clickedButton = document.querySelector(
-      `button[data-category-id='${id}']`
-    );
+  const clickedButton = document.querySelector(
+    `button[data-category-id='${id}']`
+  );
 
-    if (clickedButton) {
-      selectedIcon[0].innerHTML = "";
+  if (clickedButton) {
+    if (selectedIcon) {
+      selectedIcon.forEach((selectedIcon) => {
+        selectedIcon.innerHTML = "";
+      });
       const clonedButton = clickedButton.cloneNode(true);
       selectedIcon[0].appendChild(clonedButton);
     }
@@ -142,29 +141,37 @@ function isEmailDuplicated() {
 document.body.addEventListener("htmx:beforeSwap", function (evt) {
   const xhr = (evt as CustomEvent).detail.xhr;
   const status = xhr.status;
+  const errorContainer = document.getElementById("errorContainer");
+  const successContainer = document.getElementById("success-container");
+
+  if (errorContainer) {
+    errorContainer.classList.add("hidden");
+  }
+  if (successContainer) {
+    successContainer.classList.add("hidden");
+  }
 
   if (status === 400 || status === 500) {
     evt.preventDefault();
 
-    const errorContainer = document.getElementById("errorContainer");
     if (errorContainer) {
       if (status === 400) {
-        errorContainer.classList.remove("hidden");
         errorContainer.textContent = xhr.responseText;
-        setTimeout(() => {
-          errorContainer.classList.add("hidden");
-        }, 8000);
       } else if (status === 500) {
-        errorContainer.classList.remove("hidden");
         errorContainer.textContent =
           "An internal server error occurred. Please try again later.";
-        setTimeout(() => {
-          errorContainer.classList.add("hidden");
-        }, 8000);
-      } else if (status === 200) {
-        errorContainer.classList.add("hidden");
       }
+      errorContainer.classList.remove("hidden");
+      setTimeout(() => {
+        errorContainer.classList.add("hidden");
+      }, 8000);
     }
+  } else if (status === 200 && successContainer) {
+    successContainer.textContent = xhr.responseText;
+    successContainer.classList.remove("hidden");
+    setTimeout(() => {
+      successContainer.classList.add("hidden");
+    }, 8000);
   }
 });
 

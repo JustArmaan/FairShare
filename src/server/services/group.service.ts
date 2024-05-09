@@ -7,6 +7,7 @@ import { eq } from "drizzle-orm";
 import { v4 as uuidv4 } from "uuid";
 import { users } from "../database/schema/users";
 import type { UserSchema } from "../interface/types";
+import { group } from "console";
 
 const db = getDB();
 
@@ -144,11 +145,41 @@ export const addMember = async (groupId: string, userId: string) => {
 };
 
 export const updateGroup = async (
-  name: string,
-  color: string,
-  icon: string,
-  temporary: string
-) => {};
+  groupId: string,
+  name?: string,
+  color?: string,
+  icon?: string,
+  temporary?: string
+) => {
+  try {
+    const updateFields: {
+      name?: string;
+      color?: string;
+      icon?: string;
+      temporary?: string;
+    } = {};
+
+    if (name !== undefined) updateFields.name = name;
+    if (color !== undefined) updateFields.color = color;
+    if (icon !== undefined) updateFields.icon = icon;
+    if (temporary !== undefined) updateFields.temporary = temporary;
+
+    if (Object.keys(updateFields).length > 0) {
+      const group = await db
+        .update(groups)
+        .set(updateFields)
+        .where(eq(groups.id, groupId))
+        .returning();
+      return group[0];
+    } else {
+      console.log("No fields to update");
+      return null;
+    }
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
+};
 
 export type CategoriesSchema = NonNullable<
   Awaited<ReturnType<typeof getCategories>>

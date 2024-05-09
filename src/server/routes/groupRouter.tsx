@@ -2,7 +2,7 @@ import express from "express";
 import { GroupPage } from "../views/pages/Groups/GroupPage";
 import { renderToHtml } from "jsxte";
 import { getUser } from "@kinde-oss/kinde-node-express";
-import { getCategories } from "../services/group.service";
+import { getCategories, type GroupSchema } from "../services/group.service";
 import { createUser, findUser } from "../services/user.service.ts";
 import { AddedMember } from "../views/pages/Groups/components/Member.tsx";
 import {
@@ -10,6 +10,7 @@ import {
   addMember,
   getGroupWithMembers,
   getGroupsForUserWithMembers,
+  updateGroup,
 } from "../services/group.service.ts";
 import { getUserByEmail } from "../services/user.service.ts";
 import { seedFakeTransactions } from "../database/seedFakeTransations.ts";
@@ -186,12 +187,80 @@ router.get("/edit/:groupId", getUser, async (req, res) => {
 
 router.post("/update/:groupId", getUser, async (req, res) => {
   try {
-    const { groupName, selectedCategoryId, selectedColor, memberEmails, temporaryGroup } =
-      req.body;
-      console.log(req.body);
+    const {
+      groupName,
+      selectedCategoryId,
+      selectedColor,
+      memberEmails,
+      temporaryGroup,
+    } = req.body;
+
+    const isTemp = temporaryGroup === "on";
+    const currentGroup = await getGroupWithMembers(req.params.groupId);
+
+    if (!currentGroup) {
+      return res.status(404).send("Group not found");
+    }
+
+    const updates: {
+      name?: string;
+      color?: string;
+      icon?: string;
+      temporary?: string;
+    } = {};
+    if (groupName !== currentGroup.name && groupName !== "")
+      updates.name = groupName;
+    if (selectedColor !== currentGroup.color && selectedColor !== "")
+      updates.color = selectedColor;
+    if (selectedCategoryId !== currentGroup.icon && selectedCategoryId !== "")
+      updates.icon = selectedCategoryId;
+    if (
+      isTemp.toString() !== currentGroup.temporary &&
+      isTemp.toString() !== ""
+    )
+      updates.temporary = isTemp.toString();
+
+    const groupMembers = memberEmails
+      ? memberEmails.split(",").map((email: string) => email.trim())
+      : [];
+    const existingEmails = new Set(
+      currentGroup.members.map((member) => member.email)
+    );
+    const newMembers = groupMembers.filter(
+      (email: string) => !existingEmails.has(email)
+    );
+
+    if (Object.keys(updates).length === 0 && newMembers.length === 0) {
+      return res.status(400).send("No changes detected");
+    }
+
+    if (Object.keys(updates).length > 0) {
+      const updatedGroup = await updateGroup(
+        req.params.groupId,
+        updates.name,
+        updates.color,
+        updates.icon,
+        updates.temporary
+      );
+
+      if (!updatedGroup) {
+        return res.status(500).send("Failed to update group");
+      }
+    }
+
+    for (const memberEmail of newMembers) {
+      const user = await getUserByEmail(memberEmail);
+      if (user) {
+        await addMember(currentGroup.id, user.id);
+      } else {
+        return res.status(400).send(`User with email ${memberEmail} not found`);
+      }
+    }
+
+    res.send("Changes Saved");
   } catch (error) {
     console.error(error);
-    res.status(500).send("An error occurred while updating the group.");
+    res.status(500).send("An error occurred while updating the group");
   }
 });
 
