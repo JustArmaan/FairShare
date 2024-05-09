@@ -1,4 +1,7 @@
-import { type CategoriesSchema, type MemberTypeSchema } from '../../../../services/group.service';
+import {
+  type CategoriesSchema,
+  type MemberTypeSchema,
+} from '../../../../services/group.service';
 import { type UserSchema } from '../../../../interface/types';
 import { AddedMember } from './Member';
 import { getGroupWithMembers } from '../../../../services/group.service';
@@ -13,7 +16,7 @@ export const EditGroupPage = ({
   group,
 }: {
   categories: CategoriesSchema;
-  currentUser: Omit<UserSchema, "type">;
+  currentUser: Omit<UserSchema, 'type'>;
   group: UserGroupSchema;
 }) => {
   const colors = [
@@ -76,7 +79,7 @@ export const EditGroupPage = ({
       <div class="flex flex-col my-8">
         <label class="text-font-off-white justify-start bold">Group Name</label>
         <input
-          class="justify-center items-center text-font-grey bg-primary-black rounded-lg mt-2"
+          class="px-2 py-1 justify-center items-center text-font-grey bg-primary-black rounded-lg mt-2"
           type="text"
           name="groupName"
           value={group.name}
@@ -86,11 +89,11 @@ export const EditGroupPage = ({
         </label>
         <input
           id="select-icon"
-          class="justify-center items-center text-font-grey bg-primary-black rounded-lg mt-2"
+          class="px-2 py-1 justify-center items-center text-font-grey bg-primary-black rounded-lg mt-2"
           type="button"
           name="select-icon"
           value="Change Group Icon"
-          placeholder="  Select Group Icon"
+          placeholder="Select Group Icon"
         />
         {categories.map((category) => (
           <div>{findMatchedCategory(category.id, group.icon, categories)}</div>
@@ -145,11 +148,7 @@ export const EditGroupPage = ({
               class="bg-primary-black w-full rounded-lg flex flex-col text-xs justify-center items-center"
             >
               {group.members.map((member) => {
-                return (
-                  <AddedMember
-                    user={member}
-                  />
-                );
+                return <AddedMember user={member} />;
               })}
             </div>
           </div>

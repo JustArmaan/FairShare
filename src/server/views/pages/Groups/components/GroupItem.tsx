@@ -2,30 +2,28 @@ import type { Groups } from '../GroupPage';
 import type { ArrayElement } from '../../transactions/components/Transaction';
 
 export const GroupItem = (props: {
-  temp?: boolean;
-  tailwindColorClass: string;
   group: ArrayElement<Groups>;
   edit?: boolean;
 }) => {
   return (
-    <div
-      class="cursor-pointer hover:opacity-80 transition-all bg-primary-black my-4"
-      hx-get={`/groups/view/${props.group.id}`}
-      hx-target="#app"
-      hx-swap="innerHTML"
-    >
-      <div class="flex items-center">
+    <div class="cursor-pointer hover:opacity-80 transition-all bg-primary-black my-4">
+      <div
+        class="flex items-center"
+        hx-get={`/groups/view/${props.group.id}`}
+        hx-target="#app"
+        hx-swap="innerHTML"
+      >
         <div
           class={`${
-            props.temp
-              ? `border-[3px] border-dashed border-${props.tailwindColorClass} rounded-lg`
-              : `bg-${props.tailwindColorClass} rounded`
+            props.group.temporary === 'true'
+              ? `border-[3px] border-dashed border-${props.group.color} rounded-lg`
+              : `bg-${props.group.color} rounded`
           } w-14 h-14 aspect-square flex items-center justify-center`}
         >
           <div
             class={`${
-              props.temp
-                ? `text-${props.tailwindColorClass}`
+              props.group.temporary === 'true'
+                ? `text-${props.group.color}`
                 : 'text-card-black'
             } `}
           >
@@ -40,25 +38,36 @@ export const GroupItem = (props: {
             />
           </div>
         </div>
-        <div class="w-full flex justify-between items-center border">
-          <div class="flex flex-col ml-4 h-full border w-2/3">
-            <p class="min-[340px]:text-lg font-semibold text-font-off-white leading-6 mb-1  border text-sm truncate">
+        <div class="w-full flex justify-between items-center relative">
+          <div class="flex flex-col ml-4 h-full ">
+            <p class="min-[340px]:text-lg font-semibold text-font-off-white leading-6 mb-1 text-sm truncate">
               {props.group.name}
-              {props.temp && <span class="text-font-grey"> (TEMP)</span>}
+              {props.group.temporary === 'true' && (
+                <span class="text-font-grey"> (TEMP)</span>
+              )}
             </p>
             <p class="leading-3 text-xs text-font-off-white">
               {props.group.members.length} members
             </p>
-            {!props.temp && <p class="text-xs text-font-off-white">1 budget</p>}
+            {!(props.group.temporary === 'true') && (
+              <p class="text-xs text-font-off-white">1 budget</p>
+            )}
           </div>
           <div class="flex">
             {props.edit && (
-              <img class="" src="icons/delete.svg" alt="delete icon" />
+              <img
+                hx-get={`/groups/delete/${props.group.id}`}
+                hx-target="#app"
+                hx-swap="innerHTML"
+                class=""
+                src="icons/delete.svg"
+                alt="delete icon"
+              />
             )}
             {!props.edit &&
               props.group.members.slice(0, 4).map((member, index) => {
                 return index === 3 && props.group.members.length > 4 ? (
-                  <div class="-ml-4 rounded-full relative">
+                  <div class="-ml-4 rounded-full relative w-fit">
                     <div class="p-px flex items-center justify-center absolute w-full h-full rounded-full bg-card-black z-10 opacity-80">
                       <p class="text-font-off-white text-xs">
                         +{props.group.members.length - 4}
