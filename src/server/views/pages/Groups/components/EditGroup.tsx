@@ -219,7 +219,7 @@ export const EditGroupPage = ({
           <button
             type="button"
             hx-post={`/groups/edit/${group.id}`}
-            hx-target="#success-container"
+            hx-target="#app"
             hx-swap="innerHTML"
             hx-include="#selectedCategoryId, [name='groupName'], [name='temporaryGroup'], #memberEmails, #selectedColor"
             class="rounded-lg w-32 h-10 bg-accent-blue justify-center text-font-off-white text-sm"
