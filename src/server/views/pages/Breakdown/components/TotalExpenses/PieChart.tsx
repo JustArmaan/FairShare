@@ -4,7 +4,7 @@ export const PieChart = ({
   slices: { clipPathStyle: string; tailwindColorClass: string }[];
 }) => {
   return (
-    <div class="bg-primary-grey rounded-full w-3/5 max-w-60 min-w-20 aspect-square overflow-hidden relative">
+    <div class="bg-primary-grey rounded-full w-full max-w-60 min-w-20 aspect-square overflow-hidden relative">
       {/* the inner square is larger than the circle 
           it is then clipped by the circle overflow hidden
           we then define triangles using clip path and polygon to

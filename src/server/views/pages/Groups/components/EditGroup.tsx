@@ -1,7 +1,7 @@
-import { type CategoriesSchema } from "../../../../services/group.service";
-import { type UserSchema } from "../../../../interface/types";
-import { AddedMember } from "./Member";
-import { getGroupWithMembers } from "../../../../services/group.service";
+import { type CategoriesSchema } from '../../../../services/group.service';
+import { type UserSchema } from '../../../../interface/types';
+import { AddedMember } from './Member';
+import { getGroupWithMembers } from '../../../../services/group.service';
 
 export type UserGroupSchema = NonNullable<
   Awaited<ReturnType<typeof getGroupWithMembers>>
@@ -17,14 +17,14 @@ export const EditGroupPage = ({
   group: UserGroupSchema;
 }) => {
   const colors = [
-    { name: "accent-blue", bgClass: "bg-accent-blue" },
-    { name: "accent-purple", bgClass: "bg-accent-purple" },
-    { name: "accent-red", bgClass: "bg-accent-red" },
-    { name: "accent-yellow", bgClass: "bg-accent-yellow" },
-    { name: "accent-green", bgClass: "bg-accent-green" },
-    { name: "positive-number", bgClass: "bg-positive-number" },
-    { name: "negative-number", bgClass: "bg-negative-number" },
-    { name: "card-red", bgClass: "bg-card-red" },
+    { name: 'accent-blue', bgClass: 'bg-accent-blue' },
+    { name: 'accent-purple', bgClass: 'bg-accent-purple' },
+    { name: 'accent-red', bgClass: 'bg-accent-red' },
+    { name: 'accent-yellow', bgClass: 'bg-accent-yellow' },
+    { name: 'accent-green', bgClass: 'bg-accent-green' },
+    { name: 'positive-number', bgClass: 'bg-positive-number' },
+    { name: 'negative-number', bgClass: 'bg-negative-number' },
+    { name: 'card-red', bgClass: 'bg-card-red' },
   ];
 
   function findMatchedCategory(
@@ -65,7 +65,6 @@ export const EditGroupPage = ({
           hx-target="#app"
           hx-swap="innerHTML"
           class="text-font-off-white text-4xl cursor-pointer"
-          hx-push-url="true"
         >
           <img
             src="/icons/arrow_back_ios.svg"
@@ -126,8 +125,8 @@ export const EditGroupPage = ({
             <button
               class={`color-button h-10 w-10 rounded-full ${color.bgClass} ${
                 group.color === color.name
-                  ? "ring-2 ring-offset-2 ring-accent-blue"
-                  : ""
+                  ? 'ring-2 ring-offset-2 ring-accent-blue'
+                  : ''
               }`}
               data-color={color.name}
             ></button>
@@ -149,7 +148,7 @@ export const EditGroupPage = ({
                 return (
                   <AddedMember
                     user={{
-                      type: "member",
+                      type: 'member',
                       id: member.email,
                       firstName: member.firstName,
                       email: member.email,
@@ -201,7 +200,7 @@ export const EditGroupPage = ({
             name="temporaryGroup"
             id="temporaryGroup"
             class="ml-2 mt-2"
-            checked={group.temporary.toString() === "true"}
+            checked={group.temporary.toString() === 'true'}
           />
         </div>
 
@@ -219,8 +218,8 @@ export const EditGroupPage = ({
         <div class="flex justify-center items-center mt-3 mb-4">
           <button
             type="button"
-            hx-post={`/groups/update/${group.id}`}
-            hx-target="#app"
+            hx-post={`/groups/edit/${group.id}`}
+            hx-target="#success-container"
             hx-swap="innerHTML"
             hx-include="#selectedCategoryId, [name='groupName'], [name='temporaryGroup'], #memberEmails, #selectedColor"
             class="rounded-lg w-32 h-10 bg-accent-blue justify-center text-font-off-white text-sm"

@@ -81,13 +81,12 @@ export const Overview = ({
         <div class="mx-3 h-[3px] bg-primary-grey rounded"></div>
         <div class="p-6 text-font-off-white">
           <p class="text-xl font-semibold">Monthly Breakdown</p>
-          <Graph slices={pathStyles} />
+            <Graph slices={pathStyles} />
           <div class="flex flex-row justify-center mt-6">
             <button
               hx-swap="innerHTML"
               hx-get="/breakdown/page"
               hx-target="#app"
-              hx-push-url="true"
               // rotate 0.0001deg prevents strange subpixel snapping during animation when viewport is 430px wide. I spent 15 mins on this.
               // https://stackoverflow.com/questions/24854640/strange-pixel-shifting-jumping-in-firefox-with-css-transitions
               class="hover:-translate-y-0.5 rotate-[0.0001deg] transition-transform font-semibold px-12 py-2.5 bg-accent-blue rounded-xl w-2/3"
@@ -106,7 +105,6 @@ export const Overview = ({
             hx-target="#app"
             hx-swap="innerHTML"
             class="text-font-off-white cursor-pointer hover:opacity-90 hover:-translate-y-px transition-transform"
-            hx-push-url="true"
           >
             View All
           </a>
