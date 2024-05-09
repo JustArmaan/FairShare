@@ -161,8 +161,6 @@ document.body.addEventListener("htmx:beforeSwap", function (evt) {
         errorContainer.classList.add("hidden");
       }, 8000);
     }
-  } else if (status === 200 && successContainer) {
-    successContainer.classList.remove("hidden");
   }
 });
 

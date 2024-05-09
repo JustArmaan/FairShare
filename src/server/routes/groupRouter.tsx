@@ -5,6 +5,7 @@ import { getUser } from "@kinde-oss/kinde-node-express";
 import {
   checkUserInGroup,
   getCategories,
+  getCategory,
   type GroupSchema,
 } from "../services/group.service";
 import { createUser, findUser } from "../services/user.service.ts";
@@ -119,6 +120,12 @@ router.post("/create", getUser, async (req, res) => {
       return res.set("HX-Redirect", "/login").send();
     }
 
+    const currentUser = await findUser(id);
+
+    if (!currentUser) {
+      return res.status(500).send("Failed to get user");
+    }
+
     const {
       groupName,
       selectedCategoryId,
@@ -132,20 +139,28 @@ router.post("/create", getUser, async (req, res) => {
       groupName === "" ||
       !selectedCategoryId ||
       selectedCategoryId === "" ||
-      !memberEmails ||
-      memberEmails === "" ||
       !selectedColor ||
       selectedColor === ""
     ) {
-      res.status(400).send("Please fill out all fields.");
+      return res.status(400).send("Please fill out all fields.");
     }
 
-    const isTemp = temporaryGroup === "on";
+    let isTemp = temporaryGroup === "on";
+
+    if (!temporaryGroup || temporaryGroup === "") {
+      isTemp = false;
+    }
+
+    const category = await getCategory(selectedCategoryId);
+
+    if (!category) {
+      return res.status(400).send("Category not found.");
+    }
 
     const group = await createGroup(
       groupName,
       selectedColor,
-      selectedCategoryId,
+      category.icon,
       isTemp.toString()
     );
 
@@ -154,20 +169,33 @@ router.post("/create", getUser, async (req, res) => {
     }
 
     const groupMembers = memberEmails.split(",");
+    console.log(groupMembers, "groupMembersBefore");
+    if (groupMembers.includes("")) {
+      if (currentUser) {
+        groupMembers.push(currentUser.email);
+      }
+    }
+    console.log(groupMembers, "groupMembersAfter");
     for (const memberEmail of groupMembers) {
       const user = await getUserByEmail(memberEmail);
       if (user) {
         await addMember(group.id, user.id);
-      } else {
-        return res
-          .status(400)
-          .send(`User with email ${memberEmail} not found.`);
       }
     }
-    res.status(200);
+
+    const allGroupsForCurrentUser = await getGroupsForUserWithMembers(
+      currentUser.id
+    );
+
+    if (!allGroupsForCurrentUser) {
+      return res.status(500).send("Failed to get groups for user.");
+    }
+
+    const html = renderToHtml(<GroupPage groups={allGroupsForCurrentUser} />);
+    return res.status(200).send(html);
   } catch (error) {
     console.error(error);
-    res.status(500).send("An error occurred while creating the group.");
+    return res.status(500).send("An error occurred while creating the group.");
   }
 });
 

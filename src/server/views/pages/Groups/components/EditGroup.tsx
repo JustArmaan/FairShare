@@ -216,15 +216,11 @@ export const EditGroupPage = ({
           id="errorContainer"
           class="text-accent-red bg-opacity-10 border border-accent-red p-4 rounded shadow hidden text-center mt-4"
         ></div>
-        <div
-          id="success-container"
-          // class="text-positive-number bg-opacity-10 border border-positive-number p-4 rounded shadow hidden text-center mt-4"
-        ></div>
         <div class="flex justify-center items-center mt-3 mb-4">
           <button
             type="button"
             hx-post={`/groups/update/${group.id}`}
-            hx-target="#success-container"
+            hx-target="#app"
             hx-swap="innerHTML"
             hx-include="#selectedCategoryId, [name='groupName'], [name='temporaryGroup'], #memberEmails, #selectedColor"
             class="rounded-lg w-32 h-10 bg-accent-blue justify-center text-font-off-white text-sm"

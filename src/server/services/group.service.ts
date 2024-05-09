@@ -30,6 +30,19 @@ export const getCategories = async () => {
   }
 };
 
+export const getCategory = async (categoryId: string) => {
+  try {
+    const category = await db
+      .select()
+      .from(categories)
+      .where(eq(categories.id, categoryId));
+    return category[0];
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
+};
+
 export async function getGroupWithMembers(groupId: string) {
   try {
     const result = await db
