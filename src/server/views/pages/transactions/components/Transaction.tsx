@@ -27,7 +27,6 @@ export const Transaction = ({
       hx-trigger="click"
       hx-target="#app"
       hx-swap="innerHTML"
-      hx-push-url="true"
       data-id={transaction.id}
       data-company={transaction.company}
       class={`transaction rounded-xl w-full h-fit`}

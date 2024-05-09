@@ -42,7 +42,7 @@ export const GroupItem = (props: {
         </div>
         <div class="w-full flex justify-between items-center">
           <div class="flex flex-col ml-4 h-full">
-            <p class="text-lg font-semibold text-font-off-white">
+            <p class="text-lg font-semibold text-font-off-white leading-6 mb-1">
               {props.group.name}
               {props.temp && <span class="text-font-grey"> (TEMP)</span>}
             </p>

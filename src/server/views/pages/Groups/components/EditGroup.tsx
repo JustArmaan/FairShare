@@ -60,7 +60,7 @@ export const EditGroupPage = ({
     <div class="p-6 animate-fade-in">
       <div class="flex justify-start w-fit items-center mb-1">
         <a
-          hx-get="/home/page"
+          hx-get="/groups/page"
           hx-trigger="click"
           hx-target="#app"
           hx-swap="innerHTML"

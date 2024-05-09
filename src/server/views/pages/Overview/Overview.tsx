@@ -81,7 +81,7 @@ export const Overview = ({
         <div class="mx-3 h-[3px] bg-primary-grey rounded"></div>
         <div class="p-6 text-font-off-white">
           <p class="text-xl font-semibold">Monthly Breakdown</p>
-            <Graph slices={pathStyles} />
+          <Graph slices={pathStyles} />
           <div class="flex flex-row justify-center mt-6">
             <button
               hx-swap="innerHTML"

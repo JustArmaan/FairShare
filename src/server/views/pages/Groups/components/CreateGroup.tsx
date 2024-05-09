@@ -13,7 +13,7 @@ export const CreateGroup = ({
     <div class="p-6 animate-fade-in">
       <div class="flex justify-start w-fit items-center mb-1">
         <a
-          hx-get="/home/page"
+          hx-get="/groups/page"
           hx-trigger="click"
           hx-target="#app"
           hx-swap="innerHTML"
@@ -29,21 +29,21 @@ export const CreateGroup = ({
       <div class="flex flex-col my-8">
         <label class="text-font-off-white justify-start bold">Group Name</label>
         <input
-          class="justify-center items-center text-font-grey bg-primary-black rounded-lg mt-2"
+          class="py-1 px-4 justify-center items-center text-font-grey bg-primary-black rounded-lg mt-2"
           type="text"
           name="groupName"
-          placeholder="  Enter group name"
+          placeholder="Enter group name"
         />
         <label class="text-font-off-white justify-start bold mt-4 cursor-pointer">
           Select Icon
         </label>
         <input
           id="select-icon"
-          class="justify-center items-center text-font-grey bg-primary-black rounded-lg mt-2"
+          class="hover:opacity-80 pointer-cursor py-1 px-4 justify-center items-center text-font-grey bg-primary-black rounded-lg mt-2"
           type="button"
           name="select-icon"
           value="Select Group Icon"
-          placeholder="  Select Group Icon"
+          placeholder="Select Group Icon"
         />
         <div id="selected-icon" class=""></div>
         <div id="categoriesContainer" class="hidden">
@@ -127,7 +127,7 @@ export const CreateGroup = ({
             />
             <div
               id="memberContainer"
-              class="bg-primary-black w-full rounded-lg flex p-2 flex-col text-xs justify-center items-center"
+              class="bg-primary-black w-full rounded-lg flex flex-col text-xs justify-center items-center"
             ></div>
           </div>
 
@@ -163,9 +163,13 @@ export const CreateGroup = ({
           >
             Add
           </button>
-          <div class="flex text-font-off-white">
-            <p class="mr-2 mt-3">Temporary Group?</p>
-            <img src="/activeIcons/info.svg" alt="Hover for more info" />
+          <div class="flex text-font-off-white items-center justify-center">
+            <p class="mr-2 ">Temporary Group?</p>
+            <img
+              class="w-4 hidden"
+              src="/activeIcons/info.svg"
+              alt="Hover for more info"
+            />
           </div>
           <input
             type="checkbox"
