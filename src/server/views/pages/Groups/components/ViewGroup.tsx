@@ -38,7 +38,6 @@ export const ViewGroups = ({
           hx-target="#app"
           hx-swap="innerHTML"
           class="text-font-off-white text-4xl cursor-pointer w-fit"
-          hx-push-url="true"
         >
           <img
             src="/icons/arrow_back_ios.svg"

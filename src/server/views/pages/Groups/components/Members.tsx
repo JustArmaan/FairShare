@@ -8,9 +8,9 @@ export const Members = ({
   currentUser: UserSchema;
 }) => {
   return (
-    <div class="flex flex-wrap items-center">
+    <div class="flex flex-wrap items-center w-full">
       {memberDetails.map((member) => (
-        <div class="flex bg-primary-black h-16 md:w-full w-[11.4rem] rounded-lg m-1 items-center">
+        <div class="flex bg-primary-black h-16 md:w-[calc(100%_-_0.5rem)] w-[calc(50%_-_0.5rem)] rounded-lg m-1 items-center">
           <img
             src={member.picture || 'activeIcons/profile-pic-icon.svg'}
             class="h-12 w-12 rounded-full m-2 justify-between"

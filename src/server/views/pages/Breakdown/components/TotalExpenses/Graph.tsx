@@ -13,7 +13,7 @@ export const Graph = ({
   }[];
 }) => {
   return (
-    <div class="mt-6 flex items-center">
+    <div class="mt-6 flex items-center justify-center">
       <PieChart slices={slices} />
       <div class="ml-6 space-y-4 h-fit">
         {slices.map((slice) => (

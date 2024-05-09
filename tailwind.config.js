@@ -57,6 +57,11 @@ export default {
     'bg-accent-green',
     'bg-accent-yellow',
     'bg-accent-purple',
+    'border-b-blue',
+    'border-b-red',
+    'border-b-green',
+    'border-b-yellow',
+    'border-b-purple',
   ],
   plugins: [],
 };
