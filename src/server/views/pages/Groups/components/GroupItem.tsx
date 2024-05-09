@@ -8,7 +8,13 @@ export const GroupItem = (props: {
   edit?: boolean;
 }) => {
   return (
-    <div class="bg-primary-black my-4">
+    <div
+      class="bg-primary-black my-4"
+      hx-get={`/groups/view/${props.group.id}`}
+      hx-target="#app"
+      hx-swap="innerHTML"
+      hx-push-url="true"
+    >
       <div class="flex">
         <div
           class={`${

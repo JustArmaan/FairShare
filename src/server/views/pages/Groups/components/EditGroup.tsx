@@ -223,7 +223,7 @@ export const EditGroupPage = ({
         <div class="flex justify-center items-center mt-3 mb-4">
           <button
             type="button"
-            hx-post={`/groups/update/${group.id}`}
+            hx-post={`/groups/edit/${group.id}`}
             hx-target="#success-container"
             hx-swap="innerHTML"
             hx-include="#selectedCategoryId, [name='groupName'], [name='temporaryGroup'], #memberEmails, #selectedColor"
