@@ -4,7 +4,7 @@ import { env } from '../../../env';
 import { getTransactionsForUser } from '../services/transaction.service';
 import { Overview } from '../views/pages/Overview/Overview';
 import { getUser } from '@kinde-oss/kinde-node-express';
-import { createUser, findUser } from '../services/user.service';
+import { createUser, findUser, findUserOnly } from '../services/user.service';
 import { seedFakeTransactions } from '../database/seedFakeTransations';
 const router = express.Router();
 
@@ -15,7 +15,8 @@ router.get('/page', getUser, async (req, res) => {
     }
 
     const { id, given_name, family_name, email, picture } = req.user;
-    let databaseUser = await findUser(id);
+    let databaseUser = await findUserOnly(id);
+    console.log(databaseUser, id, 'here');
     if (!databaseUser) {
       await createUser({
         id,
@@ -25,7 +26,7 @@ router.get('/page', getUser, async (req, res) => {
         picture,
       });
       await seedFakeTransactions(id, 20);
-      databaseUser = await findUser(id);
+      databaseUser = await findUserOnly(id);
       if (!databaseUser) throw new Error('failed to create user');
     }
     const transactions = await getTransactionsForUser(req.user.id, 4);

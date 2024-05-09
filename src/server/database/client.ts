@@ -18,6 +18,7 @@ export const config = {
 const client = createClient(isDev ? { ...config, url: `file:${url}` } : config);
 
 let dbSingleton: LibSQLDatabase | undefined;
+console.log(config, isDev, 'AAAAAA');
 
 export const getDB = () => {
   return (dbSingleton ??= drizzle(client));

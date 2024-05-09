@@ -7,7 +7,12 @@ import {
   getCategories,
   getCategory,
 } from '../services/group.service';
-import { createUser, findUser } from '../services/user.service.ts';
+import {
+  createUser,
+  findUser,
+  findUserOnly,
+  getUserByEmailOnly,
+} from '../services/user.service.ts';
 import { AddedMember } from '../views/pages/Groups/components/Member.tsx';
 import {
   createGroup,
@@ -33,6 +38,7 @@ router.get('/page', getUser, async (req, res) => {
     }
 
     const groups = await getGroupsForUserWithMembers(req.user.id);
+    console.log(groups);
     const html = renderToHtml(<GroupPage groups={groups ? groups : []} />);
     res.send(html);
   } catch (err) {
@@ -84,17 +90,8 @@ router.get('/create', getUser, async (req, res) => {
 
     const { id, given_name, family_name } = req.user;
 
-    let databaseUser = await findUser(id);
-    if (!databaseUser) {
-      await createUser({
-        ...req.user,
-        firstName: given_name,
-        lastName: family_name,
-      });
-      await seedFakeTransactions(id, 20);
-      databaseUser = await findUser(id);
-      if (!databaseUser) throw new Error('failed to create user');
-    }
+    let databaseUser = await findUserOnly(id);
+    if (!databaseUser) throw new Error('failed to create user');
 
     const allCategories = (await getCategories()) || [];
 
@@ -110,7 +107,7 @@ router.get('/create', getUser, async (req, res) => {
 router.get('/addMember', getUser, async (req, res) => {
   try {
     const email = req.query.addEmail as string;
-    const member = await getUserByEmail(email);
+    const member = await getUserByEmailOnly(email);
 
     if (!member) {
       return res.status(400).send('User not found.');
@@ -132,7 +129,7 @@ router.get('/addMember', getUser, async (req, res) => {
     if (!member) {
       return res.status(400).send('User not found.');
     } else {
-      content = <AddedMember user={member} />;
+      content = <AddedMember user={{ ...member, type: 'Invited' }} />;
     }
     let html = renderToHtml(content);
     res.send(html);
@@ -148,7 +145,7 @@ router.post('/create', getUser, async (req, res) => {
       return res.set('HX-Redirect', '/login').send();
     }
 
-    const currentUser = await findUser(id);
+    const currentUser = await findUserOnly(id);
 
     if (!currentUser) {
       return res.status(500).send('Failed to get user');
@@ -205,12 +202,12 @@ router.post('/create', getUser, async (req, res) => {
     }
     console.log(groupMembers, 'groupMembersAfter');
     for (const memberEmail of groupMembers) {
-      const user = await getUserByEmail(memberEmail);
+      const user = await getUserByEmailOnly(memberEmail);
       if (user) {
         if (user.id !== currentUser.id) {
-          await addMember(group.id, user.id, "Invited");
+          await addMember(group.id, user.id, 'Invited');
         } else if (user.id === currentUser.id) {
-          await addMember(group.id, user.id, "Owner");
+          await addMember(group.id, user.id, 'Owner');
         }
       }
     }
@@ -353,9 +350,9 @@ router.post('/edit/:groupId', getUser, async (req, res) => {
     }
 
     for (const memberEmail of newMembers) {
-      const user = await getUserByEmail(memberEmail);
+      const user = await getUserByEmailOnly(memberEmail);
       if (user) {
-        await addMember(currentGroup.id, user.id, "Invited");
+        await addMember(currentGroup.id, user.id, 'Invited');
       } else {
         return res.status(400).send(`User with email ${memberEmail} not found`);
       }
