@@ -1,7 +1,10 @@
-import { type CategoriesSchema, type MemberTypeSchema } from '../../../../services/group.service';
-import { type UserSchema } from '../../../../interface/types';
-import { AddedMember } from './Member';
-import { getGroupWithMembers } from '../../../../services/group.service';
+import {
+  type CategoriesSchema,
+  type MemberTypeSchema,
+} from "../../../../services/group.service";
+import { type UserSchema } from "../../../../interface/types";
+import { AddedMember } from "./Member";
+import { getGroupWithMembers } from "../../../../services/group.service";
 
 export type UserGroupSchema = NonNullable<
   Awaited<ReturnType<typeof getGroupWithMembers>>
@@ -17,25 +20,34 @@ export const EditGroupPage = ({
   group: UserGroupSchema;
 }) => {
   const colors = [
-    { name: 'accent-blue', bgClass: 'bg-accent-blue' },
-    { name: 'accent-purple', bgClass: 'bg-accent-purple' },
-    { name: 'accent-red', bgClass: 'bg-accent-red' },
-    { name: 'accent-yellow', bgClass: 'bg-accent-yellow' },
-    { name: 'accent-green', bgClass: 'bg-accent-green' },
-    { name: 'positive-number', bgClass: 'bg-positive-number' },
-    { name: 'negative-number', bgClass: 'bg-negative-number' },
-    { name: 'card-red', bgClass: 'bg-card-red' },
+    { name: "accent-blue", bgClass: "bg-accent-blue" },
+    { name: "accent-purple", bgClass: "bg-accent-purple" },
+    { name: "accent-red", bgClass: "bg-accent-red" },
+    { name: "accent-yellow", bgClass: "bg-accent-yellow" },
+    { name: "accent-green", bgClass: "bg-accent-green" },
+    { name: "positive-number", bgClass: "bg-positive-number" },
+    { name: "negative-number", bgClass: "bg-negative-number" },
+    { name: "card-red", bgClass: "bg-card-red" },
   ];
 
   function findMatchedCategory(
-    categoryId: string,
+    categoryPath: string,
     groupIcon: string,
     categories: CategoriesSchema
   ) {
-    const selectedCategory = categories.find(
-      (category) => category.id === categoryId
+    console.log(
+      categoryPath,
+      "categoryPath",
+      groupIcon,
+      "groupIcon",
+      categories,
+      "categories"
     );
-    if (selectedCategory && selectedCategory.id === groupIcon) {
+    const selectedCategory = categories.find(
+      (category) => category.icon === categoryPath
+    );
+    if (selectedCategory && selectedCategory.icon === groupIcon) {
+      console.log(selectedCategory, "selectedCategory");
       return (
         <div id="selected-icon">
           <button
@@ -92,9 +104,16 @@ export const EditGroupPage = ({
           value="Change Group Icon"
           placeholder="  Select Group Icon"
         />
-        {categories.map((category) => (
-          <div>{findMatchedCategory(category.id, group.icon, categories)}</div>
-        ))}
+        {categories.map(
+          (category) => (
+            console.log(category, "category"),
+            (
+              <div>
+                {findMatchedCategory(category.icon, group.icon, categories)}
+              </div>
+            )
+          )
+        )}
         <div id="categoriesContainer" class="hidden">
           {categories.map((category) => (
             <div>
@@ -125,8 +144,8 @@ export const EditGroupPage = ({
             <button
               class={`color-button h-10 w-10 rounded-full ${color.bgClass} ${
                 group.color === color.name
-                  ? 'ring-2 ring-offset-2 ring-accent-blue'
-                  : ''
+                  ? "ring-2 ring-offset-2 ring-accent-blue"
+                  : ""
               }`}
               data-color={color.name}
             ></button>
@@ -145,11 +164,7 @@ export const EditGroupPage = ({
               class="bg-primary-black w-full rounded-lg flex flex-col text-xs justify-center items-center"
             >
               {group.members.map((member) => {
-                return (
-                  <AddedMember
-                    user={member}
-                  />
-                );
+                return <AddedMember user={member} />;
               })}
             </div>
           </div>
@@ -195,7 +210,7 @@ export const EditGroupPage = ({
             name="temporaryGroup"
             id="temporaryGroup"
             class="ml-2 mt-2"
-            checked={group.temporary.toString() === 'true'}
+            checked={group.temporary.toString() === "true"}
           />
         </div>
 
