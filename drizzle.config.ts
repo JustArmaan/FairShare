@@ -9,3 +9,4 @@ export default {
   driver: isDev ? 'better-sqlite' : 'turso',
   dbCredentials: config,
 } satisfies Config;
+console.log(config);
