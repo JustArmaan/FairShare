@@ -40,9 +40,9 @@ export const GroupItem = (props: {
             />
           </div>
         </div>
-        <div class="w-full flex justify-between items-center">
-          <div class="flex flex-col ml-4 h-full">
-            <p class="text-lg font-semibold text-font-off-white leading-6 mb-1">
+        <div class="w-full flex justify-between items-center border">
+          <div class="flex flex-col ml-4 h-full border w-2/3">
+            <p class="min-[340px]:text-lg font-semibold text-font-off-white leading-6 mb-1  border text-sm truncate">
               {props.group.name}
               {props.temp && <span class="text-font-grey"> (TEMP)</span>}
             </p>
