@@ -10,7 +10,6 @@ function setupEventListeners() {
 }
 
 function toggleCategories() {
-  console.log("Label button clicked");
   const categoriesContainer = document.getElementById("categoriesContainer");
   if (categoriesContainer) {
     categoriesContainer.classList.toggle("hidden");
@@ -47,18 +46,15 @@ function attachCategoryButtonListeners() {
   colorButtons.forEach((button) => {
     if (!button.dataset.listenerAttached) {
       button.addEventListener("click", function () {
-        console.log("Color button clicked");
         colorButtons.forEach((btn) =>
           btn.classList.remove("ring-2", "ring-offset-2", "ring-accent-blue")
         );
 
         this.classList.add("ring-2", "ring-offset-2", "ring-accent-blue");
-        console.log(this.classList);
 
         const selectedColor = document.getElementById(
           "selectedColor"
         ) as HTMLInputElement;
-        console.log(this.dataset.color);
         selectedColor.value = this.dataset.color!;
       });
       button.dataset.listenerAttached = "true";
@@ -116,7 +112,6 @@ function collectEmailsAndUpdateInput() {
   const emails = Array.from(emailDivs).map((div) =>
     div.getAttribute("data-email")
   );
-  console.log(emails);
   const memberEmailsInput = document.getElementById(
     "memberEmails"
   ) as HTMLInputElement;
@@ -167,11 +162,7 @@ document.body.addEventListener("htmx:beforeSwap", function (evt) {
       }, 8000);
     }
   } else if (status === 200 && successContainer) {
-    successContainer.textContent = xhr.responseText;
     successContainer.classList.remove("hidden");
-    setTimeout(() => {
-      successContainer.classList.add("hidden");
-    }, 8000);
   }
 });
 

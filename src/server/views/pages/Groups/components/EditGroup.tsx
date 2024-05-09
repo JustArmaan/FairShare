@@ -218,7 +218,7 @@ export const EditGroupPage = ({
         ></div>
         <div
           id="success-container"
-          class="text-positive-number bg-opacity-10 border border-positive-number p-4 rounded shadow hidden text-center mt-4"
+          // class="text-positive-number bg-opacity-10 border border-positive-number p-4 rounded shadow hidden text-center mt-4"
         ></div>
         <div class="flex justify-center items-center mt-3 mb-4">
           <button
