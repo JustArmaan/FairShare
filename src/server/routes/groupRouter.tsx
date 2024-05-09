@@ -127,6 +127,19 @@ router.post("/create", getUser, async (req, res) => {
       selectedColor,
     } = req.body;
 
+    if (
+      !groupName ||
+      groupName === "" ||
+      !selectedCategoryId ||
+      selectedCategoryId === "" ||
+      !memberEmails ||
+      memberEmails === "" ||
+      !selectedColor ||
+      selectedColor === ""
+    ) {
+      res.status(400).send("Please fill out all fields.");
+    }
+
     const isTemp = temporaryGroup === "on";
 
     const group = await createGroup(
