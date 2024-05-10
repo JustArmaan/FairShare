@@ -75,14 +75,14 @@ export async function getGroupWithMembers(groupId: string) {
       if (groupIndex === -1) {
         groups.push({
           ...currentResult.group,
-          members: [{...currentResult.members, type: currentResult.memberType.type}],
+          members: [{ ...currentResult.members, type: currentResult.memberType.type }],
 
         });
       } else {
         groups[groupIndex].members.push({ ...currentResult.members, type: currentResult.memberType.type });
       }
       return groups;
-    }, [] as (GroupSchema & { members: UserSchema[] } )[])[0];
+    }, [] as (GroupSchema & { members: UserSchema[] })[])[0];
   } catch (error) {
     console.error(error);
     return null;
@@ -95,7 +95,7 @@ export async function getGroupsForUserWithMembers(userId: string) {
       .select({ group: groups, members: users })
       .from(groups)
       .innerJoin(usersToGroups, eq(usersToGroups.groupId, groups.id))
-      .innerJoin(users, eq(usersToGroups.userId, users.id))
+      .innerJoin(users, eq(usersToGroups.userId, userId))
       .where(eq(usersToGroups.groupId, groups.id));
 
     // combine groups
