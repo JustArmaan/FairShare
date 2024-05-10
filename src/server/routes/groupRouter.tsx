@@ -314,7 +314,7 @@ router.post('/edit/:groupId', getUser, async (req, res) => {
     if (selectedColor !== currentGroup.color && selectedColor !== '')
       updates.color = selectedColor;
     if (selectedCategoryId !== currentGroup.icon && selectedCategoryId !== '')
-      updates.icon = selectedCategoryId;
+      updates.icon = (await getCategory(selectedCategoryId))!.icon;
     if (
       isTemp.toString() !== currentGroup.temporary &&
       isTemp.toString() !== ''
