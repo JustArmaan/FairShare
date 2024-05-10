@@ -244,8 +244,7 @@ export type CategoriesSchema = NonNullable<
 
 export async function deleteMemberByGroup(userId:string, groupId:string ) {
   try {
-    const memeber = await db.select()
-    .from(usersToGroups)
+    const memeber = await db.delete(usersToGroups)
     .where(
       and(
         eq(usersToGroups.groupId, groupId),

@@ -111,8 +111,8 @@ router.get('/create', getUser, async (req, res) => {
 router.get('/addMember', getUser, async (req, res) => {
   try {
     const email = req.query.addEmail as string;
+    console.log(email)
     const member = await getUserByEmail(email);
-
     if (!member) {
       return res.status(400).send('User not found.');
     }
