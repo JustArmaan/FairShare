@@ -38,7 +38,8 @@ router.get('/page', getUser, async (req, res) => {
     }
 
     const groups = await getGroupsForUserWithMembers(req.user.id);
-    console.log(groups);
+    if (!groups) throw new Error("aa")
+    console.log(groups[0], "here")
     const html = renderToHtml(<GroupPage groups={groups ? groups : []} />);
     res.send(html);
   } catch (err) {
@@ -66,6 +67,7 @@ router.get('/view/:groupId', getUser, async (req, res) => {
     ]);
     if (!currentUser) throw new Error('No such user');
     if (!group) return res.status(404).send('No such group');
+    console.log(group.members, 'working for what reaon???');
 
     const html = renderToHtml(
       <ViewGroups

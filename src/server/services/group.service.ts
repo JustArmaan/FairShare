@@ -102,10 +102,12 @@ export async function getGroupsForUserWithMembers(userId: string) {
   try {
     const result = await db
       .select({ group: groups, members: users })
-      .from(groups)
-      .innerJoin(usersToGroups, eq(usersToGroups.groupId, groups.id))
-      .innerJoin(users, eq(usersToGroups.userId, userId))
-      .where(eq(usersToGroups.groupId, groups.id));
+      .from(users)
+      .innerJoin(usersToGroups, eq(usersToGroups.userId, userId))
+      .where(eq(usersToGroups.userId, userId))
+      .innerJoin(groups, eq(groups.id, usersToGroups.groupId));
+
+    console.log(result);
 
     // combine groups
     return result.reduce(

@@ -38,7 +38,6 @@ export const createUser = async (
   user: Omit<Omit<Omit<User, 'type'>, 'createdAt'>, 'plaidAccessToken'>
 ) => {
   try {
-    console.log(user.id, 'thihs is the id');
     const newUser = await db.insert(users).values({
       ...user,
     });
@@ -60,7 +59,6 @@ export const updateUser = async (
   id: string,
   newFields: Partial<Omit<User, 'id'>>
 ) => {
-  console.log(newFields);
   try {
     await db.update(users).set(newFields).where(eq(users.id, id));
   } catch (err) {
