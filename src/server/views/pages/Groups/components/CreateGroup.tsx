@@ -7,7 +7,7 @@ export const CreateGroup = ({
   currentUser,
 }: {
   categories: CategoriesSchema;
-  currentUser: UserSchema;
+  currentUser: Omit<UserSchema, 'type'>;
 }) => {
   return (
     <div class="p-6 animate-fade-in">

@@ -6,6 +6,16 @@ import { usersToGroups } from '../database/schema/usersToGroups';
 
 const db = getDB();
 
+export const findUserOnly = async (id: string) => {
+  try {
+    const results = await db.select().from(users).where(eq(users.id, id));
+    return results[0];
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
+};
+
 export const findUser = async (id: string) => {
   try {
     const results = await db.select().from(users).where(eq(users.id, id));
@@ -20,11 +30,13 @@ export const createUser = async (
   user: Omit<Omit<User, 'createdAt'>, 'plaidAccessToken'>
 ) => {
   try {
+    console.log(user.id, 'thihs is the id');
     const newUser = await db.insert(users).values({
       ...user,
     });
     return newUser;
   } catch (err) {
+    console.log('failed to create user');
     console.error(err);
   }
 };
@@ -48,7 +60,7 @@ export const updateUser = async (
   }
 };
 
-export const getUserByEmail = async (email: string) => {
+export const getUserByEmailOnly = async (email: string) => {
   try {
     const results = await db.select().from(users).where(eq(users.email, email));
     return results[0];

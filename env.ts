@@ -2,7 +2,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 export const env = {
-  isDev: process.env.VITE_IS_DEV,
+  isDev: process.env.VITE_IS_DEV ? true : false,
   dbUrl: process.env.VITE_DB_URL,
   authToken: process.env.VITE_AUTH_TOKEN,
   localDb: process.env.VITE_LOCAL_DB_URL,
@@ -15,5 +15,6 @@ export const env = {
 };
 
 Object.entries(env).forEach(([key, value]) => {
-  if (!value) throw new Error(`Missing env variable for ${key}`);
+  if (!value && key !== 'isDev')
+    throw new Error(`Missing env variable for ${key}`);
 });
