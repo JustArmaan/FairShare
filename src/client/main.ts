@@ -1,4 +1,8 @@
-document.body.addEventListener('htmx:afterSwap', () => {
+import { main } from "./group";
+
+main();
+
+document.body.addEventListener("htmx:afterSwap", () => {
   window.scrollTo({ top: 0 });
 });
 
@@ -19,7 +23,7 @@ async function getToken() {
         resolve(public_token);
       },
       onLoad: () => {
-        console.log('loaded');
+        console.log("loaded");
       },
       onExit: (err: any | null, metadata: any) => {
         if (err) reject(err);

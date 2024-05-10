@@ -18,6 +18,7 @@ export async function seedFakeTransactions(
       .select({ id: categories.id })
       .from(categories);
 
+    console.log('ttempting to seed transaction for ', userId);
     for (let i = 0; i < numberOfTransactions; i++) {
       const transactionData: Omit<Transaction, 'id'> = {
         userId: userId,

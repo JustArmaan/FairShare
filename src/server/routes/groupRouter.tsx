@@ -8,7 +8,12 @@ import {
   getCategory,
   getGroupsAndAllMembersForUser,
 } from '../services/group.service';
-import { createUser, findUser } from '../services/user.service.ts';
+import {
+  createUser,
+  findUser,
+  findUserOnly,
+  getUserByEmailOnly,
+} from '../services/user.service.ts';
 import { AddedMember } from '../views/pages/Groups/components/Member.tsx';
 import {
   createGroup,
@@ -84,17 +89,8 @@ router.get('/create', getUser, async (req, res) => {
 
     const { id, given_name, family_name } = req.user;
 
-    let databaseUser = await findUser(id);
-    if (!databaseUser) {
-      await createUser({
-        ...req.user,
-        firstName: given_name,
-        lastName: family_name,
-      });
-      await seedFakeTransactions(id, 20);
-      databaseUser = await findUser(id);
-      if (!databaseUser) throw new Error('failed to create user');
-    }
+    let databaseUser = await findUserOnly(id);
+    if (!databaseUser) throw new Error('failed to create user');
 
     const allCategories = (await getCategories()) || [];
 
@@ -110,7 +106,7 @@ router.get('/create', getUser, async (req, res) => {
 router.get('/addMember', getUser, async (req, res) => {
   try {
     const email = req.query.addEmail as string;
-    const member = await getUserByEmail(email);
+    const member = await getUserByEmailOnly(email);
 
     if (!member) {
       return res.status(400).send('User not found.');
@@ -146,7 +142,7 @@ router.post('/create', getUser, async (req, res) => {
       return res.set('HX-Redirect', '/login').send();
     }
 
-    const currentUser = await findUser(id);
+    const currentUser = await findUserOnly(id);
 
     if (!currentUser) {
       return res.status(500).send('Failed to get user');
@@ -201,7 +197,7 @@ router.post('/create', getUser, async (req, res) => {
       }
     }
     for (const memberEmail of groupMembers) {
-      const user = await getUserByEmail(memberEmail);
+      const user = await getUserByEmailOnly(memberEmail);
       if (user) {
         if (user.id !== currentUser.id) {
           await addMember(group.id, user.id, 'Invited');
@@ -285,6 +281,8 @@ router.post('/edit/:groupId', getUser, async (req, res) => {
       temporaryGroup,
     } = req.body;
 
+    console.log(selectedCategoryId, 'selectedCategoryId');
+
     const isTemp = temporaryGroup === 'on';
     const currentGroup = await getGroupWithMembers(req.params.groupId);
 
@@ -313,7 +311,7 @@ router.post('/edit/:groupId', getUser, async (req, res) => {
     if (selectedColor !== currentGroup.color && selectedColor !== '')
       updates.color = selectedColor;
     if (selectedCategoryId !== currentGroup.icon && selectedCategoryId !== '')
-      updates.icon = selectedCategoryId;
+      updates.icon = (await getCategory(selectedCategoryId))!.icon;
     if (
       isTemp.toString() !== currentGroup.temporary &&
       isTemp.toString() !== ''
@@ -349,7 +347,7 @@ router.post('/edit/:groupId', getUser, async (req, res) => {
     }
 
     for (const memberEmail of newMembers) {
-      const user = await getUserByEmail(memberEmail);
+      const user = await getUserByEmailOnly(memberEmail);
       if (user) {
         await addMember(currentGroup.id, user.id, 'Invited');
       } else {
