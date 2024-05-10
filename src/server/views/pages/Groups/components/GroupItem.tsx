@@ -74,19 +74,23 @@ export const GroupItem = (props: {
                       </p>
                     </div>
                     <img
-                      class="h-8 rounded-full z-0"
+                      class="h-8 w-8 rounded-full z-0"
                       src={
                         member.picture
                           ? member.picture
                           : 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Default_pfp.svg/2048px-Default_pfp.svg.png'
                       }
-                      alt="member icon"
+                      alt=""
                     />
                   </div>
                 ) : (
                   <img
                     class={`${index > 0 && '-ml-4'} h-8 w-8 rounded-full`}
-                    src={member!.picture!}
+                    src={
+                      member.picture
+                        ? member.picture
+                        : 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Default_pfp.svg/2048px-Default_pfp.svg.png'
+                    }
                     alt="member icon"
                   />
                 );
