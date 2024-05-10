@@ -2,8 +2,8 @@ import express, { type Express } from 'express';
 import session from 'express-session';
 import { env } from '../../../env';
 import { GrantType } from '@kinde-oss/kinde-typescript-sdk';
-import { setupKinde } from '@kinde-oss/kinde-node-express';
-import cors from 'cors';
+import { getUser, setupKinde } from '@kinde-oss/kinde-node-express';
+import ViteExpress from 'vite-express';
 
 interface RequestUser {
   id: string;
@@ -22,7 +22,6 @@ export const configureApp = (app: Express) => {
   app.use(express.json());
   app.use(express.urlencoded({ extended: false }));
   app.use(express.static('~/public'));
-  app.use(cors())
 
   const kindeConfig = {
     clientId: env.kindeClientId as string,
@@ -50,4 +49,11 @@ export const configureApp = (app: Express) => {
   );
 
   setupKinde(kindeConfig, app);
+
+  app.use('/', getUser, (req, res, next) => {
+    if (!req.user) {
+      console.log('redirect');
+      return res.redirect(`${env.baseUrl}/login`);
+    } else next();
+  });
 };
