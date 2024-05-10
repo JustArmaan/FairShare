@@ -1,15 +1,9 @@
 import type { UserSchema } from "../../../../interface/types";
-import type { MemberTypeSchema } from "../../../../services/group.service";
+import type { GroupSchema, MemberTypeSchema } from "../../../../services/group.service";
 
-type UserProps = {
-  user:
-    | { type: "member"; id: string; firstName: string; email: string }
-    | { type: "currentUser"; id: string; firstName: string; email: string };
-};
-
-export const AddedMember = ({ user }: { user: UserSchema }) => {
+export const AddedMember = ({ user, group }: { user: UserSchema, group: GroupSchema }) => {
   function formatEmail(email: string) {
-    return email.length > 10 ? `${email.substring(0, 15)}...` : email;
+    return email.length > 10 ? `${email.substring(0, 8)}...` : email;
   }
 
   return (
@@ -23,7 +17,7 @@ export const AddedMember = ({ user }: { user: UserSchema }) => {
         class="w-6 h-6 rounded-full bg-font-off-white"
       />
       <div class="flex flex-col flex-grow">
-        <span class="text-font-off-white text-sm">{user.firstName}</span>
+        <span class="text-font-off-white text-sm w-fit">{user.firstName}</span>
         {user.type === "currentUser" && (
           <span class="text-font-grey text-xs">You</span>
         )}
@@ -40,8 +34,11 @@ export const AddedMember = ({ user }: { user: UserSchema }) => {
           <button class="py-2 px-4 bg-accent-purple text-font-off-white rounded-lg text-sm cursor-default">
             {"Member"}
           </button>
-          <button class="cursor-default">
-            <img src="/icons/delete.svg" />
+          <button class="cursor-pointer">
+            <img
+              src="/icons/delete.svg"
+              hx-post={`/groups/deleteMember/${user.id}/${group.id}`}
+            />
           </button>
         </>
       )}

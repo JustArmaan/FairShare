@@ -10,6 +10,7 @@
     "drizzle-generate": "drizzle-kit generate:sqlite",
     "drizzle-seed": "bun run src/server/database/seed.ts",
     "drizzle-push": "drizzle-kit push:sqlite",
+    "drizzle-studio": "drizzle-kit studio",
     "postinstall": "bunx patch-package"
   },
   "typings": "/index.d.ts",

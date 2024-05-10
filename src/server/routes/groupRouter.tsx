@@ -4,6 +4,7 @@ import { renderToHtml } from 'jsxte';
 import { getUser } from '@kinde-oss/kinde-node-express';
 import {
   checkUserInGroup,
+  deleteMemberByGroup,
   getCategories,
   getCategory,
 } from '../services/group.service';
@@ -128,11 +129,14 @@ router.get('/addMember', getUser, async (req, res) => {
     if (inGroup) {
       return res.status(400).send('User is already in the group.');
     }
+        const group = await getGroupWithMembers(req.params.groupId);
+
+    if (!group) return res.status(404).send('No such group');
 
     if (!member) {
       return res.status(400).send('User not found.');
     } else {
-      content = <AddedMember user={member} />;
+      content = <AddedMember user={member} group={group} />;
     }
     let html = renderToHtml(content);
     res.send(html);
@@ -376,6 +380,22 @@ router.post('/edit/:groupId', getUser, async (req, res) => {
     res.status(500).send('An error occurred while updating the group');
   }
 });
+
+router.post('/deleteMember/:userID/:groupID', async (req, res) => {
+  try{
+    const userID = req.params.userID;
+    const groupID = req.params.groupID;
+    const deleteMembersByGroup = await deleteMemberByGroup(userID, groupID);
+
+    if (!deleteMembersByGroup) {
+      return res.status(500).send('Failed to delete member from group.');
+    }
+    console.log(userID, groupID)
+
+  } catch (error){
+    res.status(500).send('An error occured when removing a member')
+  } 
+})
 
 /*
 router.get('/transactions/:groupId', getUser, async (req, res) => {

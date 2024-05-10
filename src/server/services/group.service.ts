@@ -234,3 +234,22 @@ export const checkUserInGroup = async (groupId: string, userId: string) => {
 export type CategoriesSchema = NonNullable<
   Awaited<ReturnType<typeof getCategories>>
 >;
+
+export async function deleteMemberByGroup(userId:string, groupId:string ) {
+  try {
+    const memeber = await db.select()
+    .from(usersToGroups)
+    .where(
+      and(
+        eq(usersToGroups.groupId, groupId),
+        eq(usersToGroups.userId, userId)
+      )
+    );
+    console.log(memeber)
+
+  } catch (error) {
+    console.error(error)
+    return false;
+  }
+
+}
