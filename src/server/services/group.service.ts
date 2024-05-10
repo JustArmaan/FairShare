@@ -95,7 +95,7 @@ export async function getGroupsForUserWithMembers(userId: string) {
       .select({ group: groups, members: users })
       .from(groups)
       .innerJoin(usersToGroups, eq(usersToGroups.groupId, groups.id))
-      .innerJoin(users, eq(usersToGroups.userId, users.id))
+      .innerJoin(users, eq(usersToGroups.userId, userId))
       .where(eq(usersToGroups.groupId, groups.id));
 
     // combine groups
