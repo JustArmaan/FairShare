@@ -1,5 +1,5 @@
-import { type TransactionSchema } from '../../../interface/types';
-import { env } from '../../../../../env';
+import { type TransactionSchema } from "../../../interface/types";
+import { env } from "../../../../../env";
 
 export const TransactionDetailsPage = ({
   transaction,
@@ -10,7 +10,7 @@ export const TransactionDetailsPage = ({
     <div class="p-6 animate-fade-in">
       <div class="flex justify-start w-fit items-center mb-1">
         <a
-          hx-get={'/home/page'}
+          hx-get={"/home/page"}
           hx-trigger="click"
           hx-target="#app"
           hx-swap="innerHTML"
@@ -30,7 +30,7 @@ export const TransactionDetailsPage = ({
         <div class="text-font-grey text-md mb-3">{transaction.address}</div>
         <div class="bg-primary-black rounded-lg shadow-lg px-4 py-2 w-full">
           <div class="text-font-off-white text-lg font-semibold">
-            Status: <span class="text-green-600">Approved</span>
+            Status: <span class="text-green-600">Approved</span>``
           </div>
           <div class="text-font-off-white mb-2">Scotiabank Interac debit</div>
           <div class="flex text-font-off-white justify-between bg-primary-black">
@@ -40,7 +40,7 @@ export const TransactionDetailsPage = ({
         </div>
         <div class="mt-6 w-full h-auto rounded-lg bg-primary-black">
           <div id="map" class="h-48 w-full"></div>
-          <script defer type="module" src="/src/client/map/index.ts"></script>
+          <script defer type="module" src="/src/client/main.ts"></script>
           <script
             defer
             src={`https://maps.googleapis.com/maps/api/js?key=${env.googleMapsApiKey}&callback=initMap`}
@@ -57,6 +57,7 @@ export const TransactionDetailsPage = ({
           contact Scotiabank.
         </p>
       </div>
+      <div id="transaction-id" data-transactionId={transaction.id}></div>
       <div class="h-20" />
     </div>
   );
