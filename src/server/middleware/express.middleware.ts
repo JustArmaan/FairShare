@@ -3,6 +3,7 @@ import session from 'express-session';
 import { env } from '../../../env';
 import { GrantType } from '@kinde-oss/kinde-typescript-sdk';
 import { setupKinde } from '@kinde-oss/kinde-node-express';
+import cors from 'cors';
 
 interface RequestUser {
   id: string;
@@ -21,6 +22,7 @@ export const configureApp = (app: Express) => {
   app.use(express.json());
   app.use(express.urlencoded({ extended: false }));
   app.use(express.static('~/public'));
+  app.use(cors())
 
   const kindeConfig = {
     clientId: env.kindeClientId as string,
