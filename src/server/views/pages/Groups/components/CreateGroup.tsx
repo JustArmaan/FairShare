@@ -1,6 +1,6 @@
-import { type CategoriesSchema } from '../../../../services/group.service';
-import { type UserSchema } from '../../../../interface/types';
-import { AddedMember } from './Member';
+import { type CategoriesSchema } from "../../../../services/group.service";
+import { type UserSchema } from "../../../../interface/types";
+import { AddedMember } from "./Member";
 
 export const CreateGroup = ({
   categories,
@@ -122,9 +122,7 @@ export const CreateGroup = ({
           class="bg-primary-black w-full rounded-lg flex p-6 flex-col text-xs justify-center items-center"
         >
           <div class="flex-col w-full">
-            <AddedMember
-              user={currentUser}
-            />
+            <AddedMember user={currentUser} />
             <div
               id="memberContainer"
               class="bg-primary-black w-full rounded-lg flex flex-col text-xs justify-center items-center"
