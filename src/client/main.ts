@@ -1,3 +1,8 @@
+
+import { main } from "./group";
+
+main();
+
 document.body.addEventListener('htmx:afterSwap', () => {
   window.scrollTo({ top: 0 });
 });
@@ -64,3 +69,4 @@ try {
 } catch (error) {
   console.log(error);
 }
+
