@@ -52,8 +52,7 @@ export const configureApp = (app: Express) => {
 
   app.use('/', getUser, (req, res, next) => {
     if (!req.user) {
-      console.log('redirect');
-      return res.redirect(`${env.baseUrl}/login`);
+      return res.redirect(`/login`);
     } else next();
   });
 };

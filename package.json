@@ -9,8 +9,7 @@
     "tailwind-build": "bun x tailwindcss -i ./src/server/views/tailwind.css -o ./public/output.css",
     "drizzle-generate": "drizzle-kit generate:sqlite",
     "drizzle-seed": "bun run src/server/database/seed.ts",
-    "drizzle-push": "drizzle-kit push:sqlite",
-    "postinstall": "bunx patch-package"
+    "drizzle-push": "drizzle-kit push:sqlite"
   },
   "typings": "/index.d.ts",
   "dependencies": {
