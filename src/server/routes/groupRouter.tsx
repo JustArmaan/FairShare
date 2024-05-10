@@ -121,8 +121,6 @@ router.get("/addMember", getUser, async (req, res) => {
       req.query.groupId as string
     );
 
-    console.log(inGroup, "inGroup");
-
     let content;
 
     if (inGroup) {
@@ -132,7 +130,7 @@ router.get("/addMember", getUser, async (req, res) => {
     if (!member) {
       return res.status(400).send("User not found.");
     } else {
-      content = <AddedMember user={member} />;
+      content = <AddedMember user={member} type={member.type}  />;
     }
     let html = renderToHtml(content);
     res.send(html);
@@ -197,13 +195,11 @@ router.post("/create", getUser, async (req, res) => {
     }
 
     const groupMembers = memberEmails.split(",");
-    console.log(groupMembers, "groupMembersBefore");
     if (groupMembers.includes("")) {
       if (currentUser) {
         groupMembers.push(currentUser.email);
       }
     }
-    console.log(groupMembers, "groupMembersAfter");
     for (const memberEmail of groupMembers) {
       const user = await getUserByEmail(memberEmail);
       if (user) {
@@ -288,8 +284,6 @@ router.post("/edit/:groupId", getUser, async (req, res) => {
       memberEmails,
       temporaryGroup,
     } = req.body;
-
-    console.log(selectedCategoryId, "selectedCategoryId");
 
     const isTemp = temporaryGroup === "on";
     const currentGroup = await getGroupWithMembers(req.params.groupId);
