@@ -16,18 +16,18 @@ export const EditGroupPage = ({
   group,
 }: {
   categories: CategoriesSchema;
-  currentUser: Omit<UserSchema, 'type'>;
+  currentUser: UserSchema;
   group: UserGroupSchema;
 }) => {
   const colors = [
-    { name: "accent-blue", bgClass: "bg-accent-blue" },
-    { name: "accent-purple", bgClass: "bg-accent-purple" },
-    { name: "accent-red", bgClass: "bg-accent-red" },
-    { name: "accent-yellow", bgClass: "bg-accent-yellow" },
-    { name: "accent-green", bgClass: "bg-accent-green" },
-    { name: "positive-number", bgClass: "bg-positive-number" },
-    { name: "negative-number", bgClass: "bg-negative-number" },
-    { name: "card-red", bgClass: "bg-card-red" },
+    { name: 'accent-blue', bgClass: 'bg-accent-blue' },
+    { name: 'accent-purple', bgClass: 'bg-accent-purple' },
+    { name: 'accent-red', bgClass: 'bg-accent-red' },
+    { name: 'accent-yellow', bgClass: 'bg-accent-yellow' },
+    { name: 'accent-green', bgClass: 'bg-accent-green' },
+    { name: 'positive-number', bgClass: 'bg-positive-number' },
+    { name: 'negative-number', bgClass: 'bg-negative-number' },
+    { name: 'card-red', bgClass: 'bg-card-red' },
   ];
 
   function findMatchedCategory(
@@ -37,17 +37,17 @@ export const EditGroupPage = ({
   ) {
     console.log(
       categoryPath,
-      "categoryPath",
+      'categoryPath',
       groupIcon,
-      "groupIcon",
+      'groupIcon',
       categories,
-      "categories"
+      'categories'
     );
     const selectedCategory = categories.find(
       (category) => category.icon === categoryPath
     );
     if (selectedCategory && selectedCategory.icon === groupIcon) {
-      console.log(selectedCategory, "selectedCategory");
+      console.log(selectedCategory, 'selectedCategory');
       return (
         <div id="selected-icon">
           <button
@@ -106,7 +106,7 @@ export const EditGroupPage = ({
         />
         {categories.map(
           (category) => (
-            console.log(category, "category"),
+            console.log(category, 'category'),
             (
               <div>
                 {findMatchedCategory(category.icon, group.icon, categories)}
@@ -144,8 +144,8 @@ export const EditGroupPage = ({
             <button
               class={`color-button h-10 w-10 rounded-full ${color.bgClass} ${
                 group.color === color.name
-                  ? "ring-2 ring-offset-2 ring-accent-blue"
-                  : ""
+                  ? 'ring-2 ring-offset-2 ring-accent-blue'
+                  : ''
               }`}
               data-color={color.name}
             ></button>
@@ -210,7 +210,7 @@ export const EditGroupPage = ({
             name="temporaryGroup"
             id="temporaryGroup"
             class="ml-2 mt-2"
-            checked={group.temporary.toString() === "true"}
+            checked={group.temporary.toString() === 'true'}
           />
         </div>
 

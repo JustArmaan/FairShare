@@ -1,7 +1,6 @@
-import type { UserSchema } from "../../../../interface/types";
-import type { GroupSchema, MemberTypeSchema } from "../../../../services/group.service";
+import type { UserSchemaWithMemberType } from '../../../../interface/types';
 
-export const AddedMember = ({ user, group }: { user: UserSchema, group: GroupSchema }) => {
+export const AddedMember = ({ user }: { user: UserSchemaWithMemberType }) => {
   function formatEmail(email: string) {
     return email.length > 10 ? `${email.substring(0, 8)}...` : email;
   }
@@ -17,22 +16,22 @@ export const AddedMember = ({ user, group }: { user: UserSchema, group: GroupSch
         class="w-6 h-6 rounded-full bg-font-off-white"
       />
       <div class="flex flex-col flex-grow">
-        <span class="text-font-off-white text-sm w-fit">{user.firstName}</span>
-        {user.type === "currentUser" && (
+        <span class="text-font-off-white text-sm">{user.firstName}</span>
+        {user.type === 'currentUser' && (
           <span class="text-font-grey text-xs">You</span>
         )}
       </div>
       <div class="flex-grow text-font-off-white text-sm">
         {formatEmail(user.email)}
       </div>
-      {user.type === "Owner" ? (
+      {user.type === 'Owner' ? (
         <button class="py-2 px-4 bg-accent-purple text-font-off-white rounded-lg text-sm cursor-default">
-          {"Owner"}
+          {'Owner'}
         </button>
       ) : (
         <>
           <button class="py-2 px-4 bg-accent-purple text-font-off-white rounded-lg text-sm cursor-default">
-            {"Member"}
+            {'Member'}
           </button>
           <button class="cursor-pointer">
             <img

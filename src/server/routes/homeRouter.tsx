@@ -31,7 +31,7 @@ router.get('/page', getUser, async (req, res) => {
     const transactions = await getTransactionsForUser(req.user.id, 4);
 
     const userDetails = {
-      userName: 'John Doe',
+      userName: databaseUser.firstName,
       totalAmount: '8,987.34',
       cardsAmount: ['3,411.12', '5,223.52'],
     };
