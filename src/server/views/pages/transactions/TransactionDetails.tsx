@@ -1,5 +1,8 @@
-import { type TransactionSchema } from "../../../interface/types";
 import { env } from "../../../../../env";
+
+interface TransactionData {
+  
+}
 
 export const TransactionDetailsPage = ({
   transaction,
