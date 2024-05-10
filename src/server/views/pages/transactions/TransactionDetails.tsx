@@ -1,8 +1,5 @@
 import { env } from "../../../../../env";
 
-interface TransactionData {
-  
-}
 
 export const TransactionDetailsPage = ({
   transaction,
