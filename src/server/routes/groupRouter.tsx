@@ -286,6 +286,8 @@ router.post('/edit/:groupId', getUser, async (req, res) => {
       temporaryGroup,
     } = req.body;
 
+    console.log(selectedCategoryId, 'selectedCategoryId');
+
     const isTemp = temporaryGroup === 'on';
     const currentGroup = await getGroupWithMembers(req.params.groupId);
 
