@@ -12,7 +12,6 @@ export const env = {
   plaidClientId: process.env.VITE_PLAID_CLIENT_ID,
   plaidSecret: process.env.VITE_PLAID_SECRET,
   googleMapsApiKey: process.env.VITE_GOOGLE_MAPS_API_KEY,
-  cookieSecret: process.env.VITE_COOKIE_SECRET,
 };
 
 Object.entries(env).forEach(([key, value]) => {
