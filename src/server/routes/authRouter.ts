@@ -71,7 +71,7 @@ router.get('/login', async (req, res) => {
   return res.redirect(loginUrl.toString());
 });
 
-router.get('/register', async (_, res) => {
+router.get('/register', async (req, res) => {
   const registerUrl = await kindeClient.register(sessionManager(req, res));
   return res.redirect(registerUrl.toString());
 });
