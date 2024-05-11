@@ -7,9 +7,9 @@
     "build": "vite build",
     "tailwind-watch": "bun x tailwindcss -i ./src/server/views/tailwind.css -o ./public/output.css --watch",
     "tailwind-build": "bun x tailwindcss -i ./src/server/views/tailwind.css -o ./public/output.css",
-    "drizzle-generate": "drizzle-kit generate:sqlite",
+    "drizzle-generate": "drizzle-kit generate",
     "drizzle-seed": "bun run src/server/database/seed.ts",
-    "drizzle-push": "drizzle-kit push:sqlite"
+    "drizzle-push": "drizzle-kit push"
   },
   "typings": "/index.d.ts",
   "dependencies": {
@@ -24,7 +24,7 @@
     "@types/uuid": "^9.0.8",
     "@vitejs/plugin-react": "^4.2.1",
     "dotenv": "^16.4.5",
-    "drizzle-kit": "^0.20.17",
+    "drizzle-kit": "^0.21.1",
     "drizzle-orm": "^0.30.6",
     "express": "^4.19.2",
     "express-session": "^1.18.0",

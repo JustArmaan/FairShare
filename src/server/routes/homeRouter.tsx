@@ -1,38 +1,17 @@
 import express from 'express';
 import { renderToHtml } from 'jsxte';
-import { env } from '../../../env';
 import { getTransactionsForUser } from '../services/transaction.service';
 import { Overview } from '../views/pages/Overview/Overview';
-import { getUser } from '@kinde-oss/kinde-node-express';
-import { createUser, findUser, findUserOnly } from '../services/user.service';
-import { seedFakeTransactions } from '../database/seedFakeTransations';
+import { getUser } from './authRouters';
 const router = express.Router();
 
 router.get('/page', getUser, async (req, res) => {
   try {
-    if (!req.user) {
-      return res.set('HX-Redirect', `${env.baseUrl}/login`).send();
-    }
-
-    const { id, given_name, family_name, email, picture } = req.user;
-    let databaseUser = await findUserOnly(id);
-    console.log(databaseUser, id, 'here');
-    if (!databaseUser) {
-      await createUser({
-        id,
-        firstName: given_name,
-        lastName: family_name,
-        email,
-        picture,
-      });
-      await seedFakeTransactions(id, 20);
-      databaseUser = await findUserOnly(id);
-      if (!databaseUser) throw new Error('failed to create user');
-    }
-    const transactions = await getTransactionsForUser(req.user.id, 4);
+    const user = req.user!;
+    const transactions = await getTransactionsForUser(user.id, 4);
 
     const userDetails = {
-      userName: databaseUser.firstName,
+      userName: user.firstName,
       totalAmount: '8,987.34',
       cardsAmount: ['3,411.12', '5,223.52'],
     };

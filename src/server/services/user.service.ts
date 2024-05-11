@@ -1,20 +1,8 @@
 import { getDB } from '../database/client';
-import { memberType } from '../database/schema/memberType';
 import { users } from '../database/schema/users';
 import { eq } from 'drizzle-orm';
-import { usersToGroups } from '../database/schema/usersToGroups';
 
 const db = getDB();
-
-export const findUserOnly = async (id: string) => {
-  try {
-    const results = await db.select().from(users).where(eq(users.id, id));
-    return results[0];
-  } catch (error) {
-    console.error(error);
-    return null;
-  }
-};
 
 export const findUser = async (id: string) => {
   try {
