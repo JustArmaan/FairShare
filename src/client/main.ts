@@ -100,7 +100,6 @@ async function initMap() {
     const transactionId = document
       .getElementById("transaction-id")
       ?.getAttribute("data-transactionId");
-    console.log(transactionId, "transactionId");
 
     const response = await fetch(`/transactions/location/${transactionId}`);
     if (!response.ok) {

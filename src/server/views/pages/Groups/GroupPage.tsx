@@ -1,9 +1,9 @@
-import { getGroupsForUserWithMembers } from '../../../services/group.service';
+import { getGroupsAndAllMembersForUser } from '../../../services/group.service';
 import type { ExtractFunctionReturnType } from '../../../services/user.service';
 import { GroupItem } from './components/GroupItem';
 
 export type Groups = ExtractFunctionReturnType<
-  typeof getGroupsForUserWithMembers
+  typeof getGroupsAndAllMembersForUser
 >;
 
 export const GroupPage = (props: { edit?: boolean; groups: Groups }) => {

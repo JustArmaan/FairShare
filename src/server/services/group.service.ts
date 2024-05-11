@@ -1,12 +1,13 @@
-import { getDB } from "../database/client";
-import { groups } from "../database/schema/group";
-import { categories } from "../database/schema/category";
-import { usersToGroups } from "../database/schema/usersToGroups";
-import { memberType } from "../database/schema/memberType";
-import { eq, and } from "drizzle-orm";
-import { v4 as uuidv4 } from "uuid";
-import { users } from "../database/schema/users";
-import type { UserSchema } from "../interface/types";
+import { getDB } from '../database/client';
+import { groups } from '../database/schema/group';
+import { categories } from '../database/schema/category';
+import { usersToGroups } from '../database/schema/usersToGroups';
+import { memberType } from '../database/schema/memberType';
+import { eq, and } from 'drizzle-orm';
+import { v4 as uuidv4 } from 'uuid';
+import { users } from '../database/schema/users';
+import type { UserSchema, UserSchemaWithMemberType } from '../interface/types';
+import type { ExtractFunctionReturnType } from './user.service';
 
 const db = getDB();
 
@@ -70,150 +71,66 @@ export async function getGroupWithMembers(groupId: string) {
       .innerJoin(memberType, eq(usersToGroups.memberTypeId, memberType.id))
       .where(eq(groups.id, groupId));
 
-    return result.reduce((groups, currentResult) => {
-      const groupIndex = groups.findIndex(
-        (group) => group.id === currentResult.group.id
-      );
-      if (groupIndex === -1) {
-        groups.push({
-          ...currentResult.group,
-          members: [
-            { ...currentResult.members, type: currentResult.memberType.type },
-          ],
-        });
-      } else {
-        groups[groupIndex].members.push({
-          ...currentResult.members,
-          type: currentResult.memberType.type,
-        });
-      }
-      return groups;
-    }, [] as (GroupSchema & { members: UserSchema[] })[])[0];
+    return result.reduce(
+      (groups, currentResult) => {
+        const groupIndex = groups.findIndex(
+          (group) => group.id === currentResult.group.id
+        );
+        if (groupIndex === -1) {
+          groups.push({
+            ...currentResult.group,
+            members: [
+              { ...currentResult.members, type: currentResult.memberType.type },
+            ],
+          });
+        } else {
+          groups[groupIndex].members.push({
+            ...currentResult.members,
+            type: currentResult.memberType.type,
+          });
+        }
+        return groups;
+      },
+      [] as (GroupSchema & { members: UserSchemaWithMemberType[] })[]
+    )[0];
   } catch (error) {
     console.error(error);
     return null;
   }
 }
 
-export async function getGroupsForUserWithMembers(userId: string) {
+export const getGroupsAndAllMembersForUser = async (userId: string) => {
   try {
-    const result = await db
-      .select({ group: groups, members: users })
-      .from(users)
-      .innerJoin(usersToGroups, eq(usersToGroups.userId, userId))
+    const userGroups = await db
+      .select({ groupId: usersToGroups.groupId })
+      .from(usersToGroups)
       .where(eq(usersToGroups.userId, userId))
-      .innerJoin(groups, eq(groups.id, usersToGroups.groupId));
+      .all();
 
-    console.log(result);
+    if (userGroups.length === 0) {
+      console.log('No groups found for this user.');
+      return [];
+    }
 
-    // combine groups
-    return result.reduce((groups, currentResult) => {
-      const groupIndex = groups.findIndex(
-        (group) => group.id === currentResult.group.id
-      );
-      if (groupIndex === -1) {
-        groups.push({
-          ...currentResult.group,
-          members: [currentResult.members],
-        });
-      } else {
-        groups[groupIndex].members.push(currentResult.members);
-      }
-      return groups;
-    }, [] as (GroupSchema & { members: Omit<UserSchema, "type">[] })[]);
+    const groupIds = userGroups.map((group) => group.groupId);
+    return (await Promise.all(groupIds.map(getGroupWithMembers))).filter(
+      (result) => result !== null
+    ) as ExtractFunctionReturnType<typeof getGroupWithMembers>[];
   } catch (error) {
-    console.log(error);
-    return null;
+    console.error('Error fetching groups and members for user:', error);
+    return [];
   }
-}
+};
 
-// Uncomment this code to try to new selection function 🫠
+await getGroupsAndAllMembersForUser('kp_71b002c357c74585af8a0e067381697f').then(
+  (result) => {
+    if (result !== null) {
+      console.log(result);
+    }
+  }
+);
 
-// export const getGroupsAndAllMembersForUser = async (userId: string) => { 
-//   try {
-//     const userGroups = await db
-//       .select({ groupId: usersToGroups.groupId })
-//       .from(usersToGroups)
-//       .where(eq(usersToGroups.userId, userId))
-//       .all();
-
-//     if (userGroups.length === 0) {
-//       console.log("No groups found for this user.");
-//       return [];
-//     }
-
-//     const groupIds = userGroups.map((group) => group.groupId);
-//     const groupDetails = [];
-
-//     for (const groupId of groupIds) {
-//       const members = await db
-//         .select({
-//           groupId: groups.id,
-//           groupName: groups.name,
-//           groupIcon: groups.icon,
-//           groupColor: groups.color,
-//           groupTemporary: groups.temporary,
-//           memberId: users.id,
-//           firstName: users.firstName,
-//           memberEmail: users.email,
-//           memberPicture: users.picture,
-//           memberTypeId: memberType.id,
-//           memberType: memberType.type,
-//         })
-//         .from(usersToGroups)
-//         .innerJoin(groups, eq(groups.id, usersToGroups.groupId))
-//         .innerJoin(users, eq(users.id, usersToGroups.userId))
-//         .innerJoin(memberType, eq(memberType.id, usersToGroups.memberTypeId))
-//         .where(eq(usersToGroups.groupId, groupId))
-//         .all();
-//       groupDetails.push(...members);
-//     }
-
-//     return formatGroupDetails(groupDetails);
-//   } catch (error) {
-//     console.error("Error fetching groups and members for user:", error);
-//     return null;
-//   }
-// };
-
-// const formatGroupDetails = (groupDetails: any[]) => {
-//   // Gross type stuff happening here
-//   return groupDetails.reduce((acc, item) => {
-//     let group = acc.find((g: { groupId: any }) => g.groupId === item.groupId);
-//     if (!group) {
-//       group = {
-//         groupId: item.groupId,
-//         groupName: item.groupName,
-//         groupIcon: item.groupIcon,
-//         groupColor: item.groupColor,
-//         groupTemporary: item.groupTemporary,
-//         members: [],
-//       };
-//       acc.push(group);
-//     }
-//     group.members.push({
-//       memberId: item.memberId,
-//       firstName: item.firstName,
-//       email: item.memberEmail,
-//       picture: item.memberPicture,
-//       memberTypeId: item.memberTypeId,
-//       memberType: item.memberType,
-//     });
-
-//     return acc;
-//   }, []);
-// };
-
-// await getGroupsAndAllMembersForUser("kp_71b002c357c74585af8a0e067381697f").then(
-//   (result) => {
-//     if (result !== null) {
-//       console.log(result[0].members[1]);
-//     }
-//   }
-// );
-
-type GroupSchema = NonNullable<Awaited<ReturnType<typeof getGroup>>>;
-export default GroupSchema;
+export type GroupSchema = NonNullable<Awaited<ReturnType<typeof getGroup>>>;
 
 export const createGroup = async (
   name: string,
@@ -263,10 +180,10 @@ export const addMember = async (
       memberTypeId: memberTypeId,
     });
 
-    console.log("Member added successfully.");
+    console.log('Member added successfully.');
     return true;
   } catch (error) {
-    console.error("Failed to add member:", error);
+    console.error('Failed to add member:', error);
     return false;
   }
 };
@@ -299,7 +216,7 @@ export const updateGroup = async (
         .returning();
       return group[0];
     } else {
-      console.log("No fields to update");
+      console.log('No fields to update');
       return null;
     }
   } catch (error) {

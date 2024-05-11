@@ -59,6 +59,7 @@ export const TransactionDetailsPage = ({
       </div>
       <div id="transaction-id" data-transactionId={transaction.id}></div>
       <div class="h-20" />
+      <div id="transaction-id" data-transactionId={transaction.id}></div>
     </div>
   );
 };

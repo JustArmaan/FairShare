@@ -1,6 +1,6 @@
-import { type CategoriesSchema } from '../../../../services/group.service';
-import { type UserSchema } from '../../../../interface/types';
-import { AddedMember } from './Member';
+import { type CategoriesSchema } from "../../../../services/group.service";
+import { type UserSchema } from "../../../../interface/types";
+import { AddedMember } from "./Member";
 
 export const CreateGroup = ({
   categories,
