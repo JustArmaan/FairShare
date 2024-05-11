@@ -7,7 +7,7 @@ import { homeRouter } from './routes/homeRouter';
 import { transactionRouter } from './routes/transactionRouter';
 import { groupRouter } from './routes/groupRouter';
 import { apiRouterV0 } from './routes/api/v0/apiRouter';
-import { authRouter } from './routes/authRouters';
+import { authRouter } from './routes/authRouter';
 const PORT = process.env.PORT || 3000;
 
 const app = express();

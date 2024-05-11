@@ -19,53 +19,80 @@ const kindeClient = createKindeServerClient(GrantType.AUTHORIZATION_CODE, {
   clientId: env.kindeClientId!,
   clientSecret: env.kindeSecret!,
   redirectURL: `${env.baseUrl}/auth/callback`,
-  logoutRedirectURL: 'http://localhost:3000',
+  logoutRedirectURL: env.baseUrl!,
 });
 
-let store: Record<string, unknown> = {};
+const cookieOptions = {
+  maxAge: 24 * 60 * 60 * 1000,
+  httpOnly: true,
+  secure: true,
+  sameSite: 'lax',
+} as const;
 
-const sessionManager: SessionManager = {
+const sessionManager = (req: Request, res: Response): SessionManager => ({
   async getSessionItem(key: string) {
-    return store[key];
+    return req.cookies[key];
   },
   async setSessionItem(key: string, value: unknown) {
-    store[key] = value;
+    if (typeof value === 'string') {
+      res.cookie(key, value, cookieOptions);
+    } else {
+      res.cookie(key, JSON.stringify(value), cookieOptions);
+    }
   },
   async removeSessionItem(key: string) {
-    delete store[key];
+    res.clearCookie(key, cookieOptions);
   },
   async destroySession() {
-    store = {};
+    ['id_token', 'access_token', 'user', 'refresh_token'].forEach((key) => {
+      res.clearCookie(key, cookieOptions);
+    });
   },
-};
+});
 
-router.get('/login', async (_, res) => {
-  const loginUrl = await kindeClient.login(sessionManager);
-  console.log(loginUrl.toString(), '/login route hit');
+// const sessionManager: SessionManager = {
+//   async getSessionItem(key: string) {
+//     return store[key];
+//   },
+//   async setSessionItem(key: string, value: unknown) {
+//     console.log(value, 'value here');
+//     store[key] = value;
+//   },
+//   async removeSessionItem(key: string) {
+//     delete store[key];
+//   },
+//   async destroySession() {
+//     store = {};
+//   },
+// };
+
+router.get('/login', async (req, res) => {
+  const loginUrl = await kindeClient.login(sessionManager(req, res));
   return res.redirect(loginUrl.toString());
 });
 
 router.get('/register', async (_, res) => {
-  const registerUrl = await kindeClient.register(sessionManager);
+  const registerUrl = await kindeClient.register(sessionManager(req, res));
   return res.redirect(registerUrl.toString());
 });
 
 router.get('/callback', async (req, res) => {
   const url = new URL(`${req.protocol}://${req.get('host')}${req.url}`);
-  console.log(url.toString(), '/callback hit');
-  await kindeClient.handleRedirectToApp(sessionManager, url);
+  await kindeClient.handleRedirectToApp(sessionManager(req, res), url);
   return res.redirect('/');
 });
 
-router.get('/logout', async (_, res) => {
-  const logoutUrl = await kindeClient.logout(sessionManager);
+router.get('/logout', async (req, res) => {
+  const logoutUrl = await kindeClient.logout(sessionManager(req, res));
   return res.redirect(logoutUrl.toString());
 });
 
 export async function getUser(req: Request, res: Response, next: NextFunction) {
-  const isAuthenticated = await kindeClient.isAuthenticated(sessionManager);
+  const isAuthenticated = await kindeClient.isAuthenticated(
+    sessionManager(req, res)
+  );
   if (isAuthenticated) {
-    const profile = await kindeClient.getUserProfile(sessionManager);
+    const profile = await kindeClient.getUserProfile(sessionManager(req, res));
     const user = await findUser(profile.id);
     if (!user) {
       const { id, given_name, family_name, email, picture } = profile;
@@ -84,7 +111,6 @@ export async function getUser(req: Request, res: Response, next: NextFunction) {
       next();
     }
   } else {
-    console.log(req.url, 'req url');
     if (req.url.includes('auth')) return next();
     res.redirect('/auth/login');
   }

@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { getAccessToken, getLinkToken } from '../../../plaid/plaid';
 import { findUser, updateUser } from '../../../services/user.service';
-import { getUser } from '../../authRouters';
+import { getUser } from '../../authRouter';
 
 const router = Router();
 

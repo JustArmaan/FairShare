@@ -2,7 +2,7 @@ import express from 'express';
 import { renderToHtml } from 'jsxte';
 import { getTransactionsForUser } from '../services/transaction.service';
 import { Overview } from '../views/pages/Overview/Overview';
-import { getUser } from './authRouters';
+import { getUser } from './authRouter';
 const router = express.Router();
 
 router.get('/page', getUser, async (req, res) => {
