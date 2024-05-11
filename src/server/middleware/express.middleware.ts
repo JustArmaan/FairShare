@@ -27,7 +27,7 @@ export const configureApp = (app: Express) => {
       },
     })
   );
-  app.use(cookieParser(env.cookieSecret!));
+  app.use(cookieParser());
 
   app.use('/', getUser, (_, __, next) => {
     next();
