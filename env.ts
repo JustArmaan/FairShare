@@ -8,6 +8,7 @@ export const env = {
   localDb: process.env.VITE_LOCAL_DB_URL,
   kindeClientId: process.env.VITE_KINDE_CLIENT_ID,
   kindeSecret: process.env.VITE_KINDE_SECRET,
+  kindeAuthDomain: process.env.VITE_KINDE_AUTH_DOMAIN,
   baseUrl: process.env.VITE_BASE_URL,
   plaidClientId: process.env.VITE_PLAID_CLIENT_ID,
   plaidSecret: process.env.VITE_PLAID_SECRET,

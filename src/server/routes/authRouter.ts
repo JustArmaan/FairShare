@@ -15,7 +15,7 @@ import { seedFakeTransactions } from '../database/seedFakeTransations';
 const router = express.Router();
 
 const kindeClient = createKindeServerClient(GrantType.AUTHORIZATION_CODE, {
-  authDomain: 'https://idsp1expensetracker.kinde.com',
+  authDomain: env.kindeAuthDomain!,
   clientId: env.kindeClientId!,
   clientSecret: env.kindeSecret!,
   redirectURL: `${env.baseUrl}/auth/callback`,
