@@ -119,7 +119,7 @@ export const getGroupsAndAllMembersForUser = async (userId: string) => {
   }
 };
 
-await getGroupsAndAllMembersForUser("kp_71b002c357c74585af8a0e067381697f").then(
+await getGroupsAndAllMembersForUser('kp_71b002c357c74585af8a0e067381697f').then(
   (result) => {
     if (result !== null) {
       console.log(result);

@@ -1,39 +1,20 @@
-import express, { type Express } from "express";
-import session from "express-session";
-import { env } from "../../../env";
-import { GrantType } from "@kinde-oss/kinde-typescript-sdk";
-import { getUser, setupKinde } from "@kinde-oss/kinde-node-express";
+import express, { type Express } from 'express';
+import session from 'express-session';
+import cookieParser from 'cookie-parser';
+import type { UserSchema } from '../interface/types';
+import { getUser } from '../routes/authRouter';
+import { env } from '../../../env';
 
-interface RequestUser {
-  id: string;
-  given_name: string;
-  family_name: string;
-  email: string;
-  picture: string;
-}
-declare module "express-serve-static-core" {
+declare module 'express-serve-static-core' {
   interface Request {
-    user?: RequestUser;
+    user?: UserSchema;
   }
 }
 
 export const configureApp = (app: Express) => {
   app.use(express.json());
   app.use(express.urlencoded({ extended: false }));
-  app.use(express.static("~/public"));
-
-  const kindeConfig = {
-    clientId: env.kindeClientId as string,
-    secret: env.kindeSecret as string,
-    issuerBaseUrl: "https://idsp1expensetracker.kinde.com",
-    siteUrl: env.baseUrl as string,
-    redirectUrl: `${env.baseUrl}/callback`,
-    scope: "openid profile email",
-    grantType: GrantType.AUTHORIZATION_CODE,
-    unAuthorisedUrl: `${env.baseUrl}/login`,
-    postLogoutRedirectUrl: `${env.baseUrl}`,
-  };
-
+  app.use(express.static('~/public'));
   app.use(
     session({
       secret: "secret",
@@ -41,17 +22,14 @@ export const configureApp = (app: Express) => {
       saveUninitialized: false,
       cookie: {
         httpOnly: true,
-        secure: false,
+        secure: true,
         maxAge: 24 * 60 * 60 * 1000,
       },
     })
   );
+  app.use(cookieParser());
 
-  setupKinde(kindeConfig, app);
-
-  app.use("/", getUser, (req, res, next) => {
-    if (!req.user) {
-      return res.redirect(`/login`);
-    } else next();
+  app.use('/', getUser, (_, __, next) => {
+    next();
   });
 };

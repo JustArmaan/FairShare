@@ -1,19 +1,14 @@
 import express from 'express';
 import { GroupPage } from '../views/pages/Groups/GroupPage';
 import { renderToHtml } from 'jsxte';
-import { getUser } from '@kinde-oss/kinde-node-express';
+import { getUser } from './authRouter.ts';
 import {
   checkUserInGroup,
   getCategories,
   getCategory,
   getGroupsAndAllMembersForUser,
 } from '../services/group.service';
-import {
-  createUser,
-  findUser,
-  findUserOnly,
-  getUserByEmailOnly,
-} from '../services/user.service.ts';
+import { findUser, getUserByEmailOnly } from '../services/user.service.ts';
 import { AddedMember } from '../views/pages/Groups/components/Member.tsx';
 import {
   createGroup,
@@ -21,7 +16,6 @@ import {
   getGroupWithMembers,
   updateGroup,
 } from '../services/group.service.ts';
-import { seedFakeTransactions } from '../database/seedFakeTransations.ts';
 import { env } from '../../../env.ts';
 import CreateGroup from '../views/pages/Groups/components/CreateGroup.tsx';
 import { EditGroupPage } from '../views/pages/Groups/components/EditGroup.tsx';
@@ -32,11 +26,7 @@ const router = express.Router();
 
 router.get('/page', getUser, async (req, res) => {
   try {
-    if (!req.user) {
-      return res.set('HX-Redirect', `${env.baseUrl}/login`).send();
-    }
-
-    const groups = await getGroupsAndAllMembersForUser(req.user.id);
+    const groups = await getGroupsAndAllMembersForUser(req.user!.id);
     const html = renderToHtml(<GroupPage groups={groups ? groups : []} />);
     res.send(html);
   } catch (err) {
@@ -53,17 +43,15 @@ const groupBudget = [
 
 router.get('/view/:groupId', getUser, async (req, res) => {
   try {
-    if (!req.user) {
-      return res.set('HX-Redirect', `${env.baseUrl}/login`).send();
-    }
-    const userId = req.user.id;
+    const userId = req.user!.id;
     const [currentUser, transactions, group] = await Promise.all([
       findUser(userId),
-      getTransactionsForUser(req.user.id, 4),
+      getTransactionsForUser(req.user!.id, 4),
       getGroupWithMembers(req.params.groupId),
     ]);
     if (!currentUser) throw new Error('No such user');
     if (!group) return res.status(404).send('No such group');
+    console.log(group.members, 'working for what reaon???');
 
     const html = renderToHtml(
       <ViewGroups
@@ -82,13 +70,9 @@ router.get('/view/:groupId', getUser, async (req, res) => {
 
 router.get('/create', getUser, async (req, res) => {
   try {
-    if (!req.user) {
-      return res.set('HX-Redirect', `${env.baseUrl}/login`).send();
-    }
+    const { id } = req.user!;
 
-    const { id, given_name, family_name } = req.user;
-
-    let databaseUser = await findUserOnly(id);
+    let databaseUser = await findUser(id);
     if (!databaseUser) throw new Error('failed to create user');
 
     const allCategories = (await getCategories()) || [];
@@ -127,7 +111,7 @@ router.get('/addMember', getUser, async (req, res) => {
     } else {
       content = <AddedMember user={{ ...member, type: 'Invited' }} />;
     }
-    let html = renderToHtml(content);
+    const html = renderToHtml(content);
     res.send(html);
   } catch (error) {
     console.error(error);
@@ -136,12 +120,12 @@ router.get('/addMember', getUser, async (req, res) => {
 
 router.post('/create', getUser, async (req, res) => {
   try {
-    const id = req.user?.id;
+    const { id } = req.user!;
     if (!id) {
       return res.set('HX-Redirect', '/login').send();
     }
 
-    const currentUser = await findUserOnly(id);
+    const currentUser = await findUser(id);
 
     if (!currentUser) {
       return res.status(500).send('Failed to get user');
