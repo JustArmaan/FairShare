@@ -90,6 +90,15 @@ async function initMap() {
   }
 }
 
+document.addEventListener("htmx:afterSwap", () => {
+  const dateSelectorForm = document.getElementById("date-selector-form");
+  const filterSelector = document.getElementById("filter-selector");
+
+  filterSelector?.addEventListener("click", () => {
+    dateSelectorForm?.classList.toggle("hidden");
+  });
+});
+
 declare global {
   interface Window {
     initMap: () => Promise<void>;
