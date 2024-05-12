@@ -10,7 +10,7 @@ import {
 } from '../services/transaction.service';
 import Transaction from '../views/pages/transactions/components/Transaction';
 import TransactionsPage from '../views/pages/transactions/TransactionList';
-import { getUser } from '@kinde-oss/kinde-node-express';
+import { getUser } from './authRouter';
 import { env } from '../../../env';
 
 const router = express.Router();
@@ -39,7 +39,7 @@ router.get('/page', getUser, async (req, res) => {
     return res.set('HX-Redirect', `${env.baseUrl}/login`).send();
   }
   try {
-    const transactions = await getTransactionsForUser(req.user!.id, 999999); 
+    const transactions = await getTransactionsForUser(req.user!.id, 999999);
 
     const html = renderToHtml(
       <TransactionsPage transactions={transactions} cardDetails={cardHtml} />

@@ -2,7 +2,7 @@ import express from 'express';
 import { renderToHtml } from 'jsxte';
 import { BreakdownPage } from '../views/pages/Breakdown/BreakdownPage';
 import { getTransactionsForUser } from '../services/transaction.service';
-import { getUser } from '@kinde-oss/kinde-node-express';
+import { getUser } from './authRouter';
 
 const router = express.Router();
 
