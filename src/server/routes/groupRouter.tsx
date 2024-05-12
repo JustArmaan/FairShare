@@ -21,7 +21,6 @@ import {
   getGroupWithMembers,
   updateGroup,
 } from '../services/group.service.ts';
-import { getUserByEmail } from '../services/user.service.ts';
 import { seedFakeTransactions } from '../database/seedFakeTransations.ts';
 import { env } from '../../../env.ts';
 import CreateGroup from '../views/pages/Groups/components/CreateGroup.tsx';
