@@ -5,7 +5,6 @@ import { getUser } from "./authRouter.ts";
 import {
   checkUserInGroup,
   deleteMemberByGroup,
-  getCategories,
   getCategory,
   getGroupsAndAllMembersForUser,
 } from "../services/group.service";
@@ -388,7 +387,6 @@ router.post("/edit/:groupId", getUser, async (req, res) => {
   }
 });
 
-<<<<<<< HEAD
 router.post('/deleteMember/:userID/:groupID', async (req, res) => {
   try{
     const userID = req.params.userID;
@@ -417,6 +415,4 @@ router.get('/transactions/:groupId', getUser, async (req, res) => {
 });
 */
 
-=======
->>>>>>> 7d39054a631de1dc3039f0de9fb06121b3923764
 export const groupRouter = router;

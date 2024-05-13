@@ -1,12 +1,13 @@
 import { getCategoryIdByName } from '../services/category.service';
 import {
-  createTransaction,
+  createTransactions,
+  deleteTransactions,
   updateTransaction,
 } from '../services/transaction.service';
 import { getItemsForUser, type Item } from '../services/user.service';
 import { plaidRequest } from './link';
 
-export async function syncTransactions(userId: string) {
+export async function syncTransactionsForUser(userId: string) {
   const items = await getItemsForUser(userId);
   items.forEach(syncTransaction);
 }
@@ -16,14 +17,23 @@ async function syncTransaction({ item }: { item: Item }) {
   let cursor: string | undefined = undefined;
 
   while (true) {
-    const response = await plaidRequest('/transactions/sync', {
+    const response = (await plaidRequest('/transactions/sync', {
       access_token: item.plaidAccessToken,
       cursor: cursor,
       count,
-    });
-    const { added } = response;
-    const addPromises = added.map(addTransaction);
-    await Promise.all(addPromises);
+    })) as {
+      added: AddedPlaidTransaction[];
+      removed: { transaction_id: string }[];
+      modified: ModifiedPlaidTransaction[];
+      next_cursor: string;
+      has_more: boolean;
+    };
+    const { added, modified, removed, next_cursor, has_more } = response;
+    await addTransactions(added);
+    await Promise.all(modified.map(modifyTransaction));
+    await deleteTransactions(removed.map((removed) => removed.transaction_id));
+    if (!has_more) break;
+    cursor = next_cursor;
   }
 }
 
@@ -62,21 +72,26 @@ function locationToAddress(location: Location) {
   return `${location.address},  ${location.city}, ${location.region}, ${location.country}`;
 }
 
-async function addTransaction(transaction: AddedPlaidTransaction) {
-  const categoryId = await getCategoryIdByName(
-    transaction.personal_finance_category.primary
+async function addTransactions(transactions: AddedPlaidTransaction[]) {
+  const newTransactions = await Promise.all(
+    transactions.map(async (transaction) => {
+      const categoryId = await getCategoryIdByName(
+        transaction.personal_finance_category.primary
+      );
+      if (!categoryId) throw new Error('No such category!');
+      return {
+        address: locationToAddress(transaction.location),
+        accountId: transaction.account_id,
+        categoryId: categoryId.id,
+        company: transaction.merchant_name,
+        amount: transaction.amount,
+        timestamp: transaction.datetime,
+        latitude: transaction.location.lat,
+        longitude: transaction.location.lon,
+      };
+    })
   );
-  if (!categoryId) throw new Error('No such category!');
-  createTransaction({
-    address: locationToAddress(transaction.location),
-    accountId: transaction.account_id,
-    categoryId: categoryId.id,
-    company: transaction.merchant_name,
-    amount: transaction.amount,
-    timestamp: transaction.datetime,
-    latitude: transaction.location.lat,
-    longitude: transaction.location.lon,
-  });
+  createTransactions(newTransactions);
 }
 
 async function modifyTransaction(transaction: ModifiedPlaidTransaction) {
@@ -99,5 +114,3 @@ async function modifyTransaction(transaction: ModifiedPlaidTransaction) {
     longitude: transaction.location.lon ? transaction.location.lon : undefined,
   });
 }
-
-async function deleteTransaction(transaction: { transaction_id: string }) { }

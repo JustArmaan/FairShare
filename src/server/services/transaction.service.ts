@@ -2,9 +2,9 @@ import { getDB } from '../database/client';
 import { users } from '../database/schema/users';
 import { categories } from '../database/schema/category';
 import { transactions } from '../database/schema/transaction';
-import { eq, desc, like, and, or, gte, lt } from 'drizzle-orm';
+import { eq, desc, like, and, or, gte, lt, inArray } from 'drizzle-orm';
 import { findUser } from './user.service';
-import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuid } from 'uuid';
 import type { ExtractFunctionReturnType } from './user.service';
 
 const db = getDB();
@@ -72,10 +72,24 @@ export type Transaction = ExtractFunctionReturnType<
   typeof getTransactionNoJoins
 >;
 
+export async function createTransactions(
+  newTransactions: Omit<Transaction, 'id'>[]
+) {
+  try {
+    await db
+      .insert(transactions)
+      .values(
+        newTransactions.map((transaction) => ({ ...transaction, id: uuid() }))
+      );
+  } catch (error) {
+    console.error(error);
+  }
+}
+
 export async function createTransaction(transaction: Omit<Transaction, 'id'>) {
   try {
     const newTransaction = await db.insert(transactions).values({
-      id: uuidv4(),
+      id: uuid(),
       ...transaction,
     });
     return newTransaction;
@@ -84,7 +98,9 @@ export async function createTransaction(transaction: Omit<Transaction, 'id'>) {
   }
 }
 
-export async function updateTransaction(transaction: Partial<Omit<Transaction, 'id'>>) {
+export async function updateTransaction(
+  transaction: Partial<Omit<Transaction, 'id'>>
+) {
   try {
     const newTransaction = await db.update(transactions).set({
       ...transaction,
@@ -108,13 +124,12 @@ export async function getTransactionLocation(transactionId: string) {
   }
 }
 
-export async function deleteTransaction(transactionId: string ) {
-  try {   
-    const newTransaction = await db.delete(transactions)
-    .where(
-      eq(transactions.id, transactionId )
-    );
-    console.log(newTransaction)
+export async function deleteTransactions(transactionIds: string[]) {
+  try {
+    const newTransaction = await db
+      .delete(transactions)
+      .where(inArray(transactions.id, transactionIds));
+    console.log(newTransaction);
   } catch (error) {
     console.error(error);
   }

@@ -2,7 +2,6 @@ import { getDB } from '../database/client';
 import { items } from '../database/schema/items';
 import { users } from '../database/schema/users';
 import { eq } from 'drizzle-orm';
-import { v4 as uuid } from 'uuid';
 import { type ArrayElement } from '../interface/types';
 import { institutions } from '../database/schema/institutions';
 
@@ -73,7 +72,7 @@ export const getItemsForUser = async (userId: string) => {
   }
 };
 
-type Item = ArrayElement<
+export type Item = ArrayElement<
   ExtractFunctionReturnType<typeof getItemsForUser>
 >['item'];
 

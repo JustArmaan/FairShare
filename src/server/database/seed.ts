@@ -12,6 +12,9 @@ interface InsertedIdResult {
   insertedId: string;
 }
 
+const newCategoriesList = [
+];
+
 const categoriesList = [
   { name: 'Groceries', icon: '/icons/groceries.svg' },
   { name: 'Rent', icon: '/icons/rent.svg' },
