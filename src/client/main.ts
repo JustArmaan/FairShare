@@ -1,9 +1,9 @@
-import { main } from "./group";
-import { CustomizeMap } from "./map/customizeMap";
+import { main } from './group';
+import { CustomizeMap } from './map/customizeMap';
 
 main();
 
-document.body.addEventListener("htmx:afterSwap", () => {
+document.body.addEventListener('htmx:afterSwap', () => {
   window.scrollTo({ top: 0 });
 });
 
@@ -24,7 +24,7 @@ async function getToken() {
         resolve(public_token);
       },
       onLoad: () => {
-        console.log("loaded");
+        console.log('loaded');
       },
       onExit: (err: any | null, metadata: any) => {
         if (err) reject(err);
@@ -50,9 +50,8 @@ async function isConnectedToPlaid(): Promise<boolean> {
 }
 
 try {
-  /*
   const connected = await isConnectedToPlaid();
-  if (false && !connected) {
+  if (!connected) {
     const publicToken = await getToken();
     const response = await fetch(`/api/v${apiVersion}/plaid-public-token`, {
       method: 'POST',
@@ -65,7 +64,6 @@ try {
       console.log('Token pushed succesfully');
     }
   }
-  */
 } catch (error) {
   console.log(error);
 }
@@ -73,29 +71,29 @@ try {
 async function initMap() {
   try {
     const transactionId = document
-      .getElementById("transaction-id")
-      ?.getAttribute("data-transactionId");
+      .getElementById('transaction-id')
+      ?.getAttribute('data-transactionId');
 
     const response = await fetch(`/transactions/location/${transactionId}`);
     if (!response.ok) {
-      throw new Error("Failed to fetch transaction location");
+      throw new Error('Failed to fetch transaction location');
     }
 
     const { lat, lng } = await response.json();
 
-    let customMap = new CustomizeMap("map", new google.maps.LatLng(lat, lng));
+    let customMap = new CustomizeMap('map', new google.maps.LatLng(lat, lng));
     customMap.addTransactionMarker();
   } catch (error) {
-    console.error("Error initializing map:", error);
+    console.error('Error initializing map:', error);
   }
 }
 
-document.addEventListener("htmx:afterSwap", () => {
-  const dateSelectorForm = document.getElementById("date-selector-form");
-  const filterSelector = document.getElementById("filter-selector");
+document.addEventListener('htmx:afterSwap', () => {
+  const dateSelectorForm = document.getElementById('date-selector-form');
+  const filterSelector = document.getElementById('filter-selector');
 
-  filterSelector?.addEventListener("click", () => {
-    dateSelectorForm?.classList.toggle("hidden");
+  filterSelector?.addEventListener('click', () => {
+    dateSelectorForm?.classList.toggle('hidden');
   });
 });
 

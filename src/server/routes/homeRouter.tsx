@@ -3,6 +3,7 @@ import { renderToHtml } from 'jsxte';
 import { getTransactionsForUser } from '../services/transaction.service';
 import { Overview } from '../views/pages/Overview/Overview';
 import { getUser } from './authRouter';
+import { getBalance } from '../plaid/plaid';
 const router = express.Router();
 
 router.get('/page', getUser, async (req, res) => {
@@ -15,6 +16,13 @@ router.get('/page', getUser, async (req, res) => {
       totalAmount: '8,987.34',
       cardsAmount: ['3,411.12', '5,223.52'],
     };
+
+    if (user.plaidAccessToken) {
+      getBalance(user.plaidAccessToken).then(result => {
+        console.log(result)
+        console.log(result.accounts[0].balances)
+        });
+    }
 
     const html = renderToHtml(
       <Overview transactions={transactions} userDetails={userDetails} />
