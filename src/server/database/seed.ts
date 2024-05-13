@@ -13,6 +13,15 @@ interface InsertedIdResult {
 }
 
 const newCategoriesList = [
+  { name: 'INCOME', displayName: 'Income', icon: '' },
+  { name: 'TRANSFER_IN', displayName: 'Transfer In', icon: '' },
+  { name: 'TRANSFER_OUT', displayName: 'Transfer Out', icon: '' },
+  { name: 'LOAN_PAYMENTS', displayName: 'Loan Payments', icon: '' },
+  { name: 'BANK_FEES', displayName: 'Bank Fees', icon: '' },
+  { name: 'ENTERTAINMENT', displayName: 'Entertainment', icon: '' },
+  { name: 'FOOD_AND_DRINK', displayName: 'Food and Drink', icon: '' },
+  { name: 'GENERAL_MERCHANDISE', displayName: 'General Merchandise', icon: '' },
+  { name: 'HOME_IMPROVEMENT', displayName: 'Home Improvement', icon: '' },
 ];
 
 const categoriesList = [
