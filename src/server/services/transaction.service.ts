@@ -84,7 +84,7 @@ export async function createTransaction(transaction: Omit<Transaction, 'id'>) {
   }
 }
 
-export async function updateTransaction(transaction: Omit<Transaction, 'id'>) {
+export async function updateTransaction(transaction: Partial<Omit<Transaction, 'id'>>) {
   try {
     const newTransaction = await db.update(transactions).set({
       ...transaction,
@@ -194,5 +194,3 @@ export async function getTransactionsByMonth(
     return [];
   }
 }
-
-

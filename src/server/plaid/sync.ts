@@ -1,4 +1,8 @@
-import { createTransaction } from '../services/transaction.service';
+import { getCategoryIdByName } from '../services/category.service';
+import {
+  createTransaction,
+  updateTransaction,
+} from '../services/transaction.service';
 import { getItemsForUser, type Item } from '../services/user.service';
 import { plaidRequest } from './link';
 
@@ -33,7 +37,7 @@ interface Location {
 }
 
 interface PlaidTransactionGeneral {
-  category: string[];
+  personal_finance_category: { primary: string };
   account_id: string;
   amount: number;
   datetime: string;
@@ -51,23 +55,49 @@ interface AddedPlaidTransaction extends PlaidTransactionGeneral {
 }
 
 interface ModifiedPlaidTransaction extends Nullable<PlaidTransactionGeneral> {
-  location: Nullable<Location>
+  location: Nullable<Location>;
 }
 
 function locationToAddress(location: Location) {
-
+  return `${location.address},  ${location.city}, ${location.region}, ${location.country}`;
 }
 
 async function addTransaction(transaction: AddedPlaidTransaction) {
+  const categoryId = await getCategoryIdByName(
+    transaction.personal_finance_category.primary
+  );
+  if (!categoryId) throw new Error('No such category!');
   createTransaction({
-    address: transaction.location
+    address: locationToAddress(transaction.location),
     accountId: transaction.account_id,
-
-  })
+    categoryId: categoryId.id,
+    company: transaction.merchant_name,
+    amount: transaction.amount,
+    timestamp: transaction.datetime,
+    latitude: transaction.location.lat,
+    longitude: transaction.location.lon,
+  });
 }
 
 async function modifyTransaction(transaction: ModifiedPlaidTransaction) {
+  let categoryId: { id: string } | undefined | null = undefined;
+  if (transaction.personal_finance_category) {
+    categoryId = await getCategoryIdByName(
+      transaction.personal_finance_category.primary
+    );
+    if (!categoryId) throw new Error('No such category!');
+  }
+
+  updateTransaction({
+    // address: transaction.location ? locationToAddress(transaction.location) : undefined,
+    accountId: transaction.account_id ? transaction.account_id : undefined,
+    categoryId: categoryId ? categoryId.id : undefined,
+    company: transaction.merchant_name ? transaction.merchant_name : undefined,
+    amount: transaction.amount ? transaction.amount : undefined,
+    timestamp: transaction.datetime ? transaction.datetime : undefined,
+    latitude: transaction.location.lat ? transaction.location.lat : undefined,
+    longitude: transaction.location.lon ? transaction.location.lon : undefined,
+  });
 }
 
-async function deleteTransaction(transaction: { transaction_id: string }) {
-}
+async function deleteTransaction(transaction: { transaction_id: string }) { }
