@@ -1,3 +1,4 @@
+import { createTransaction } from '../services/transaction.service';
 import { getItemsForUser, type Item } from '../services/user.service';
 import { plaidRequest } from './link';
 
@@ -31,20 +32,42 @@ interface Location {
   lon: number;
 }
 
-interface PlaidTransaction {
+interface PlaidTransactionGeneral {
   category: string[];
   account_id: string;
   amount: number;
   datetime: string;
-  location: {
-  };
   merchant_name: string;
   logo_url: string;
   pending: boolean;
 }
 
-async function addTransaction(transaction: PlaidTransaction) {
+type Nullable<T> = {
+  [P in keyof T]: T[P] | null;
+};
+
+interface AddedPlaidTransaction extends PlaidTransactionGeneral {
+  location: Location;
+}
+
+interface ModifiedPlaidTransaction extends Nullable<PlaidTransactionGeneral> {
+  location: Nullable<Location>
+}
+
+function locationToAddress(location: Location) {
 
 }
 
-async function modifyTransaction(transaction: Partial<PlaidTransaction>)
+async function addTransaction(transaction: AddedPlaidTransaction) {
+  createTransaction({
+    address: transaction.location
+    accountId: transaction.account_id,
+
+  })
+}
+
+async function modifyTransaction(transaction: ModifiedPlaidTransaction) {
+}
+
+async function deleteTransaction(transaction: { transaction_id: string }) {
+}
