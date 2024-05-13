@@ -1,8 +1,8 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "9d17a192-56a5-4fe3-b8c2-759e0ec24aa1",
-  "prevId": "654c7668-eac3-4bd6-8dcb-c8404a8f0639",
+  "id": "b2b7d532-cc7c-4d2c-8c8c-022bca098943",
+  "prevId": "3c417e33-65d5-4aa2-ba3d-dde7ac35cf90",
   "tables": {
     "accounts": {
       "name": "accounts",
@@ -229,6 +229,29 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
+    "institutions": {
+      "name": "institutions",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
     "items": {
       "name": "items",
       "columns": {
@@ -250,7 +273,7 @@
           "name": "institution_id",
           "type": "text",
           "primaryKey": false,
-          "notNull": true,
+          "notNull": false,
           "autoincrement": false
         },
         "user_id": {
@@ -259,10 +282,30 @@
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
+        },
+        "balance": {
+          "name": "balance",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
         }
       },
       "indexes": {},
       "foreignKeys": {
+        "items_institution_id_institutions_id_fk": {
+          "name": "items_institution_id_institutions_id_fk",
+          "tableFrom": "items",
+          "tableTo": "institutions",
+          "columnsFrom": [
+            "institution_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
         "items_user_id_users_id_fk": {
           "name": "items_user_id_users_id_fk",
           "tableFrom": "items",
@@ -504,13 +547,6 @@
           "notNull": false,
           "autoincrement": false,
           "default": "(current_timestamp)"
-        },
-        "plaid_access_token": {
-          "name": "plaid_access_token",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
         }
       },
       "indexes": {},
