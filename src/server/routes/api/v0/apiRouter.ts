@@ -1,11 +1,7 @@
-import { getUser } from '@kinde-oss/kinde-node-express';
 import { Router } from 'express';
 import { getAccessToken, getLinkToken } from '../../../plaid/plaid';
-import {
-  findUser,
-  findUserOnly,
-  updateUser,
-} from '../../../services/user.service';
+import { findUser, updateUser } from '../../../services/user.service';
+import { getUser } from '../../authRouter';
 
 const router = Router();
 
@@ -17,7 +13,7 @@ router.get('/connected', getUser, async (req, res) => {
     });
   }
 
-  const databaseUser = await findUserOnly(req.user.id);
+  const databaseUser = await findUser(req.user.id);
   return res.json({
     error: null,
     data: { connected: databaseUser?.plaidAccessToken !== null },

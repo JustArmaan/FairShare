@@ -1,4 +1,5 @@
 import { main } from "./group";
+import { CustomizeMap } from "./map/customizeMap";
 
 main();
 
@@ -69,32 +70,6 @@ try {
   console.log(error);
 }
 
-export class CustomizeMap {
-  private _googleMap: google.maps.Map;
-  private _transactionLocation: google.maps.LatLng;
-
-  constructor(mapDivId: string, transactionLocation: google.maps.LatLng) {
-    this._googleMap = new google.maps.Map(
-      document.getElementById(mapDivId) as HTMLElement,
-      {
-        center: transactionLocation,
-        zoom: 8,
-        fullscreenControl: false,
-        streetViewControl: false,
-        mapTypeControl: false,
-      }
-    );
-    this._transactionLocation = transactionLocation;
-  }
-
-  public addTransactionMarker() {
-    new google.maps.Marker({
-      position: this._transactionLocation,
-      map: this._googleMap,
-    });
-  }
-}
-
 async function initMap() {
   try {
     const transactionId = document
@@ -114,6 +89,15 @@ async function initMap() {
     console.error("Error initializing map:", error);
   }
 }
+
+document.addEventListener("htmx:afterSwap", () => {
+  const dateSelectorForm = document.getElementById("date-selector-form");
+  const filterSelector = document.getElementById("filter-selector");
+
+  filterSelector?.addEventListener("click", () => {
+    dateSelectorForm?.classList.toggle("hidden");
+  });
+});
 
 declare global {
   interface Window {

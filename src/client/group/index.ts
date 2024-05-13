@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 export function main() {
   function setupEventListeners() {
     const labelButton = document.getElementById('select-icon');
@@ -30,9 +32,6 @@ export function main() {
 
     categoryButtons.forEach((button) => {
       const categoryId = button.getAttribute('data-category-id');
-      const selectedCategoryId = document.getElementById(
-        'selectedCategoryId'
-      ) as HTMLInputElement;
 
       if (!button.dataset.listenerAttached) {
         button.addEventListener('click', () => {

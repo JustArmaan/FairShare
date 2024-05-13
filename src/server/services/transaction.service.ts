@@ -3,7 +3,7 @@ import { users } from '../database/schema/users';
 import { categories } from '../database/schema/category';
 import { transactions } from '../database/schema/transaction';
 import { eq, desc, like, and, or, gte, lt } from 'drizzle-orm';
-import { findUser, findUserOnly } from './user.service';
+import { findUser } from './user.service';
 import { v4 as uuidv4 } from 'uuid';
 import type { ExtractFunctionReturnType } from './user.service';
 
@@ -22,7 +22,7 @@ export async function getTransactionsForUser(
   limit: number = 9999
 ) {
   try {
-    const user = await findUserOnly(userId);
+    const user = await findUser(userId);
     if (!user) {
       return [];
     }

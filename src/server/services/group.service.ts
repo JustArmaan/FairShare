@@ -1,13 +1,13 @@
-import { getDB } from '../database/client';
-import { groups } from '../database/schema/group';
-import { categories } from '../database/schema/category';
-import { usersToGroups } from '../database/schema/usersToGroups';
-import { memberType } from '../database/schema/memberType';
-import { eq, and } from 'drizzle-orm';
-import { v4 as uuidv4 } from 'uuid';
-import { users } from '../database/schema/users';
-import type { UserSchema, UserSchemaWithMemberType } from '../interface/types';
-import type { ExtractFunctionReturnType } from './user.service';
+import { getDB } from "../database/client";
+import { groups } from "../database/schema/group";
+import { categories } from "../database/schema/category";
+import { usersToGroups } from "../database/schema/usersToGroups";
+import { memberType } from "../database/schema/memberType";
+import { eq, and } from "drizzle-orm";
+import { v4 as uuidv4 } from "uuid";
+import { users } from "../database/schema/users";
+import type { UserSchema, UserSchemaWithMemberType } from "../interface/types";
+import type { ExtractFunctionReturnType } from "./user.service";
 
 const db = getDB();
 
@@ -71,28 +71,25 @@ export async function getGroupWithMembers(groupId: string) {
       .innerJoin(memberType, eq(usersToGroups.memberTypeId, memberType.id))
       .where(eq(groups.id, groupId));
 
-    return result.reduce(
-      (groups, currentResult) => {
-        const groupIndex = groups.findIndex(
-          (group) => group.id === currentResult.group.id
-        );
-        if (groupIndex === -1) {
-          groups.push({
-            ...currentResult.group,
-            members: [
-              { ...currentResult.members, type: currentResult.memberType.type },
-            ],
-          });
-        } else {
-          groups[groupIndex].members.push({
-            ...currentResult.members,
-            type: currentResult.memberType.type,
-          });
-        }
-        return groups;
-      },
-      [] as (GroupSchema & { members: UserSchemaWithMemberType[] })[]
-    )[0];
+    return result.reduce((groups, currentResult) => {
+      const groupIndex = groups.findIndex(
+        (group) => group.id === currentResult.group.id
+      );
+      if (groupIndex === -1) {
+        groups.push({
+          ...currentResult.group,
+          members: [
+            { ...currentResult.members, type: currentResult.memberType.type },
+          ],
+        });
+      } else {
+        groups[groupIndex].members.push({
+          ...currentResult.members,
+          type: currentResult.memberType.type,
+        });
+      }
+      return groups;
+    }, [] as (GroupSchema & { members: UserSchemaWithMemberType[] })[])[0];
   } catch (error) {
     console.error(error);
     return null;
@@ -108,7 +105,7 @@ export const getGroupsAndAllMembersForUser = async (userId: string) => {
       .all();
 
     if (userGroups.length === 0) {
-      console.log('No groups found for this user.');
+      console.log("No groups found for this user.");
       return [];
     }
 
@@ -117,12 +114,12 @@ export const getGroupsAndAllMembersForUser = async (userId: string) => {
       (result) => result !== null
     ) as ExtractFunctionReturnType<typeof getGroupWithMembers>[];
   } catch (error) {
-    console.error('Error fetching groups and members for user:', error);
+    console.error("Error fetching groups and members for user:", error);
     return [];
   }
 };
 
-await getGroupsAndAllMembersForUser("kp_71b002c357c74585af8a0e067381697f").then(
+await getGroupsAndAllMembersForUser('kp_71b002c357c74585af8a0e067381697f').then(
   (result) => {
     if (result !== null) {
       console.log(result);
@@ -180,10 +177,10 @@ export const addMember = async (
       memberTypeId: memberTypeId,
     });
 
-    console.log('Member added successfully.');
+    console.log("Member added successfully.");
     return true;
   } catch (error) {
-    console.error('Failed to add member:', error);
+    console.error("Failed to add member:", error);
     return false;
   }
 };
@@ -216,7 +213,7 @@ export const updateGroup = async (
         .returning();
       return group[0];
     } else {
-      console.log('No fields to update');
+      console.log("No fields to update");
       return null;
     }
   } catch (error) {

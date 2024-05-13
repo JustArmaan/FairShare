@@ -7,7 +7,7 @@ export const CreateGroup = ({
   currentUser,
 }: {
   categories: CategoriesSchema;
-  currentUser: Omit<UserSchema, 'type'>;
+  currentUser: UserSchema;
 }) => {
   return (
     <div class="p-6 animate-fade-in">
@@ -122,7 +122,7 @@ export const CreateGroup = ({
           class="bg-primary-black w-full rounded-lg flex p-6 flex-col text-xs justify-center items-center"
         >
           <div class="flex-col w-full">
-            <AddedMember user={currentUser} />
+            <AddedMember user={{...currentUser, type: "Owner"}} />
             <div
               id="memberContainer"
               class="bg-primary-black w-full rounded-lg flex flex-col text-xs justify-center items-center"
