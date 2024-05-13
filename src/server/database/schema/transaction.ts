@@ -1,12 +1,11 @@
-import { sql } from "drizzle-orm";
-import { sqliteTable, text, integer, real } from "drizzle-orm/sqlite-core";
+import { sqliteTable, text, real } from "drizzle-orm/sqlite-core";
 import { categories } from "../schema/category";
-import { users } from "../schema/users";
+import { accounts } from "./accounts";
 
 export const transactions = sqliteTable("transactions", {
   id: text("id").primaryKey(),
-  userId: text("user_id")
-    .references(() => users.id, { onDelete: "cascade" })
+  accountId: text("account_id")
+    .references(() => accounts.id, { onDelete: "cascade" })
     .notNull(),
   categoryId: text("category_id")
     .references(() => categories.id, { onDelete: "cascade" })

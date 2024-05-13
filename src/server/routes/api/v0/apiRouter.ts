@@ -1,9 +1,8 @@
 import { Router } from 'express';
-import { getAccessToken, getLinkToken } from '../../../plaid/plaid';
+import { getAccessToken, getLinkToken } from '../../../plaid/link';
 import {
   addItemToUser,
   getItemsForUser,
-  updateUser,
 } from '../../../services/user.service';
 import { getUser } from '../../authRouter';
 

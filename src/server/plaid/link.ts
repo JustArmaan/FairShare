@@ -36,9 +36,3 @@ export async function getAccessToken(publicToken: string) {
     public_token: publicToken,
   });
 }
-
-export async function getBalance(accessToken: string) {
-  return await plaidRequest('/accounts/balance/get', {
-    access_token: accessToken,
-  });
-}
