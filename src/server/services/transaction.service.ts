@@ -108,6 +108,18 @@ export async function getTransactionLocation(transactionId: string) {
   }
 }
 
+export async function deleteTransaction(transactionId: string ) {
+  try {   
+    const newTransaction = await db.delete(transactions)
+    .where(
+      eq(transactions.id, transactionId )
+    );
+    console.log(newTransaction)
+  } catch (error) {
+    console.error(error);
+  }
+}
+
 export async function searchTransactions(
   accountId: string,
   query: string,
