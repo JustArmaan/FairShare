@@ -27,7 +27,6 @@
     "drizzle-kit": "^0.21.1",
     "drizzle-orm": "^0.30.6",
     "express": "^4.19.2",
-    "express-session": "^1.18.0",
     "jsxte": "^3.3.1",
     "nodemon": "^3.1.0",
     "open": "^10.1.0",
