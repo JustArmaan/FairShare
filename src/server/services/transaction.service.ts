@@ -10,11 +10,11 @@ import type { ExtractFunctionReturnType } from './user.service';
 const db = getDB();
 
 export async function getTransactionsForUser(
-  userId: string,
+  accountId: string,
   limit: number = 9999
 ) {
   try {
-    const user = await findUser(userId);
+    const user = await findUser(accountId);
     if (!user) {
       return [];
     }
@@ -24,7 +24,7 @@ export async function getTransactionsForUser(
       .from(transactions)
       .orderBy(desc(transactions.timestamp))
       .innerJoin(categories, eq(transactions.categoryId, categories.id))
-      .where(eq(transactions.userId, userId))
+      .where(eq(transactions.accountId, accountId))
       .limit(limit);
 
     const joined = result.map((result) => {
@@ -109,7 +109,7 @@ export async function getTransactionLocation(transactionId: string) {
 }
 
 export async function searchTransactions(
-  userId: string,
+  accountId: string,
   query: string,
   limit: number = 9999
 ) {
@@ -120,7 +120,7 @@ export async function searchTransactions(
       .innerJoin(categories, eq(categories.id, transactions.categoryId))
       .where(
         and(
-          eq(transactions.userId, userId),
+          eq(transactions.accountId, accountId),
           or(
             like(transactions.company, `%${query}%`),
             like(categories.name, `%${query}%`),
@@ -158,7 +158,7 @@ function getNextMonthYear(year: string, month: string) {
   };
 }
 export async function getTransactionsByMonth(
-  userId: string,
+  accountId: string,
   year: string,
   month: string
 ) {
@@ -174,7 +174,7 @@ export async function getTransactionsByMonth(
       .innerJoin(categories, eq(categories.id, transactions.categoryId))
       .where(
         and(
-          eq(transactions.userId, userId),
+          eq(transactions.accountId, accountId),
           gte(transactions.timestamp, startDate),
           lt(transactions.timestamp, endDate)
         )
