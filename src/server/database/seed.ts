@@ -13,6 +13,14 @@ interface InsertedIdResult {
 }
 
 const newCategoriesList = [
+  { name: 'RENT_AND_UTILITIES', displayName: 'Rent and Utilities' icon: '' },
+  { name: 'TRAVEL', displayName: 'Travel ' icon: '' },
+  { name: 'TRANSPORTATION', displayName: 'Transportation' icon: '' },
+  { name: 'GOVERNMENT_AND_NON_PROFIT', displayName: 'Government and Non Profit' icon: '' },
+  { name: 'GENERAL_SERVICES', displayName: 'General Services' icon: '' },
+  { name: 'PERSONAL_CARE', displayName: 'Personal Care' icon: '' },
+  { name: 'MEDICAL', displayName: 'Medical' icon: '' },
+
 ];
 
 const categoriesList = [
