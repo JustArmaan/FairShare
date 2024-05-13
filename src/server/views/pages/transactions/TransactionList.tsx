@@ -47,16 +47,23 @@ export const TransactionsPage = ({
   ];
   return (
     <div class="p-6 animate-fade-in">
-      <a
+      {/* <a
         hx-get="/home/page"
         hx-trigger="click"
         hx-target="#app"
         hx-swap="innerHTML"
         class="mb-2 flex justify-start w-fit items-center hover:-translate-y-0.5 transition-transform cursor-pointer"
-      >
-        <p class="text-font-off-white mr-3 text-xl">Card</p>
-        <img class="h-3" src="/images/right-triangle.svg" alt="triangle icon" />
-      </a>
+      > */}
+      <div class="mb-2 flex justify-start w-fit items-center hover:-translate-y-0.5 transition-transform cursor-pointer">
+      <p class="text-font-off-white mr-3 text-xl">Card</p>
+      <img
+        class="h-3"
+        src="/images/right-triangle.svg"
+        alt="triangle icon"
+        id="account-select"
+      />
+      </div>
+      {/* </a> */}
       <Card cardDetails={cardDetails} />
       <div class="h-px bg-primary-black mb-2" />
       <div class="relative w-full max-w-xs my-4 flex items-center">
@@ -85,7 +92,6 @@ export const TransactionsPage = ({
             hx-trigger="input changed delay:500ms, search"
             hx-target="#transactionsContainer"
             hx-include="[name='search']"
-            hx-indicator=".htmx-indicator" //   ⚠️ change this to the animation we will use 🎬
           />
           <div class="relative w-full max-w-xs my-4 flex items-center"></div>
         </div>
@@ -134,6 +140,12 @@ export const TransactionsPage = ({
           />
         ))}
       </div>
+      <form id="account-selector-form" class="hidden text-font-off-white">
+        <div>
+          <input type="radio" id="option1" name="options" value="option1" />
+          <label for="option1">Option 1</label>
+        </div>
+      </form>
       <div class="h-20"></div>
     </div>
   );
