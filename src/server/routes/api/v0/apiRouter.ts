@@ -1,6 +1,10 @@
 import { Router } from 'express';
 import { getAccessToken, getLinkToken } from '../../../plaid/plaid';
-import { findUser, updateUser } from '../../../services/user.service';
+import {
+  addItemToUser,
+  getItemsForUser,
+  updateUser,
+} from '../../../services/user.service';
 import { getUser } from '../../authRouter';
 
 const router = Router();
@@ -13,10 +17,13 @@ router.get('/connected', getUser, async (req, res) => {
     });
   }
 
-  const databaseUser = await findUser(req.user.id);
+  const items = await getItemsForUser(req.user.id);
+  console.log(items, 'items');
+  const connected = items.length > 0;
+  console.log(connected);
   return res.json({
     error: null,
-    data: { connected: databaseUser?.plaidAccessToken !== null },
+    data: { connected },
   });
 });
 
@@ -51,8 +58,15 @@ router.post('/plaid-public-token', getUser, async (req, res) => {
   }
 
   try {
-    const { access_token } = await getAccessToken(publicToken as string);
-    await updateUser(req.user.id, { plaidAccessToken: access_token });
+    const { access_token, item_id } = await getAccessToken(
+      publicToken as string
+    );
+    console.log('running add code');
+    await addItemToUser(req.user.id, {
+      id: item_id as string,
+      plaidAccessToken: access_token,
+    });
+    console.log('added!');
     res.status(200).send();
   } catch (error) {
     return res.json({ error: error, data: null });

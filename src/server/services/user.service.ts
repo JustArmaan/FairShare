@@ -1,6 +1,10 @@
 import { getDB } from '../database/client';
+import { items } from '../database/schema/items';
 import { users } from '../database/schema/users';
 import { eq } from 'drizzle-orm';
+import { v4 as uuid } from 'uuid';
+import { type ArrayElement } from '../interface/types';
+import { institutions } from '../database/schema/institutions';
 
 const db = getDB();
 
@@ -14,9 +18,7 @@ export const findUser = async (id: string) => {
   }
 };
 
-export const createUser = async (
-  user: Omit<Omit<User, 'createdAt'>, 'plaidAccessToken'>
-) => {
+export const createUser = async (user: Omit<User, 'createdAt'>) => {
   try {
     const newUser = await db.insert(users).values({
       ...user,
@@ -52,6 +54,56 @@ export const getUserByEmailOnly = async (email: string) => {
     return results[0];
   } catch (err) {
     console.error(err);
+    return null;
+  }
+};
+
+export const getItemsForUser = async (userId: string) => {
+  try {
+    const results = await db
+      .select({ item: items })
+      .from(users)
+      .innerJoin(items, eq(users.id, items.userId))
+      .where(eq(users.id, userId));
+
+    return results;
+  } catch (err) {
+    console.log(err);
+    return [];
+  }
+};
+
+type Item = ArrayElement<
+  ExtractFunctionReturnType<typeof getItemsForUser>
+>['item'];
+
+export const addItemToUser = async (
+  userId: string,
+  item: Omit<Omit<Item, 'userId'>, 'institutionId'>
+) => {
+  console.log('adding item', item, userId);
+  const newItem = await db.insert(items).values({
+    userId: userId,
+    ...item,
+  });
+  console.log(newItem, 'new item?');
+};
+
+const addInstitution = async (institution: Institution) => {
+  await db.insert(institutions).values(institution);
+};
+
+type Institution = ExtractFunctionReturnType<typeof getInstitution>;
+
+const getInstitution = async (id: string) => {
+  try {
+    const results = await db
+      .select()
+      .from(institutions)
+      .where(eq(institutions.id, id));
+    return results[0];
+  } catch (error) {
+    console.error(error);
     return null;
   }
 };
