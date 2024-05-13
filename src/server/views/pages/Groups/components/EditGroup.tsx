@@ -1,53 +1,57 @@
 import {
   type CategoriesSchema,
   type MemberTypeSchema,
-} from '../../../../services/group.service';
-import { type UserSchema } from '../../../../interface/types';
-import { AddedMember } from './Member';
-import { getGroupWithMembers } from '../../../../services/group.service';
+} from "../../../../services/group.service";
+import { type UserSchema } from "../../../../interface/types";
+import { AddedMember } from "./Member";
+import { getGroupWithMembers } from "../../../../services/group.service";
 
 export type UserGroupSchema = NonNullable<
   Awaited<ReturnType<typeof getGroupWithMembers>>
 >;
 
+interface Icon {
+  id: string;
+  icon: string;
+  name: string;
+}
+
 export const EditGroupPage = ({
-  categories,
+  icons,
   currentUser,
   group,
 }: {
-  categories: CategoriesSchema;
+  icons: Icon[];
   currentUser: UserSchema;
   group: UserGroupSchema;
 }) => {
   const colors = [
-    { name: 'accent-blue', bgClass: 'bg-accent-blue' },
-    { name: 'accent-purple', bgClass: 'bg-accent-purple' },
-    { name: 'accent-red', bgClass: 'bg-accent-red' },
-    { name: 'accent-yellow', bgClass: 'bg-accent-yellow' },
-    { name: 'accent-green', bgClass: 'bg-accent-green' },
-    { name: 'positive-number', bgClass: 'bg-positive-number' },
-    { name: 'negative-number', bgClass: 'bg-negative-number' },
-    { name: 'card-red', bgClass: 'bg-card-red' },
+    { name: "accent-blue", bgClass: "bg-accent-blue" },
+    { name: "accent-purple", bgClass: "bg-accent-purple" },
+    { name: "accent-red", bgClass: "bg-accent-red" },
+    { name: "accent-yellow", bgClass: "bg-accent-yellow" },
+    { name: "accent-green", bgClass: "bg-accent-green" },
+    { name: "positive-number", bgClass: "bg-positive-number" },
+    { name: "negative-number", bgClass: "bg-negative-number" },
+    { name: "card-red", bgClass: "bg-card-red" },
   ];
 
   function findMatchedCategory(
     categoryPath: string,
     groupIcon: string,
-    categories: CategoriesSchema
+    icons: Icon[]
   ) {
     console.log(
       categoryPath,
-      'categoryPath',
+      "categoryPath",
       groupIcon,
-      'groupIcon',
-      categories,
-      'categories'
+      "groupIcon",
+      icons,
+      "categories"
     );
-    const selectedCategory = categories.find(
-      (category) => category.icon === categoryPath
-    );
+    const selectedCategory = icons.find((icon) => icon.icon === categoryPath);
     if (selectedCategory && selectedCategory.icon === groupIcon) {
-      console.log(selectedCategory, 'selectedCategory');
+      console.log(selectedCategory, "selectedCategory");
       return (
         <div id="selected-icon">
           <button
@@ -104,30 +108,26 @@ export const EditGroupPage = ({
           value="Change Group Icon"
           placeholder="Select Group Icon"
         />
-        {categories.map(
-          (category) => (
-            console.log(category, 'category'),
-            (
-              <div>
-                {findMatchedCategory(category.icon, group.icon, categories)}
-              </div>
-            )
+        {icons.map(
+          (icon) => (
+            console.log(icon, "icon"),
+            (<div>{findMatchedCategory(icon.icon, group.icon, icons)}</div>)
           )
         )}
         <div id="categoriesContainer" class="hidden">
-          {categories.map((category) => (
+          {icons.map((icon) => (
             <div>
               <button
                 type="button"
-                data-category-id={category.id}
+                data-category-id={icon.icon}
                 class="category-button flex items-center p-2 mt-2 bg-card-black rounded-lg hover:bg-primary-faded-black focus:outline-none focus:ring-2 focus:ring-accent-blue w-full animation-fade-in"
               >
                 <img
-                  src={category.icon}
-                  alt={`${category.name} icon`}
+                  src={icon.icon}
+                  alt={`${icon.name} icon`}
                   class="h-6 w-6 mr-2"
                 />
-                <span class="text-font-off-white">{category.name}</span>
+                <span class="text-font-off-white">{icon.name}</span>
               </button>
             </div>
           ))}
@@ -144,8 +144,8 @@ export const EditGroupPage = ({
             <button
               class={`color-button h-10 w-10 rounded-full ${color.bgClass} ${
                 group.color === color.name
-                  ? 'ring-2 ring-offset-2 ring-accent-blue'
-                  : ''
+                  ? "ring-2 ring-offset-2 ring-accent-blue"
+                  : ""
               }`}
               data-color={color.name}
             ></button>
@@ -210,7 +210,7 @@ export const EditGroupPage = ({
             name="temporaryGroup"
             id="temporaryGroup"
             class="ml-2 mt-2"
-            checked={group.temporary.toString() === 'true'}
+            checked={group.temporary.toString() === "true"}
           />
         </div>
 

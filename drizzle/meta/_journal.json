@@ -1,12 +1,26 @@
 {
-  "version": "5",
+  "version": "6",
   "dialect": "sqlite",
   "entries": [
     {
       "idx": 0,
-      "version": "5",
-      "when": 1715296020422,
-      "tag": "0000_overjoyed_pepper_potts",
+      "version": "6",
+      "when": 1715628863515,
+      "tag": "0000_puzzling_shape",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1715632470396,
+      "tag": "0001_confused_dagger",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1715633343191,
+      "tag": "0002_safe_marvex",
       "breakpoints": true
     }
   ]

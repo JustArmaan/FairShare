@@ -9,14 +9,6 @@ import type { ExtractFunctionReturnType } from './user.service';
 
 const db = getDB();
 
-export async function debug_getTransactionsForAnyUser(limit: number = 9999) {
-  const firstUser = (await db.select().from(users).limit(1))[0];
-  if (!firstUser) {
-    return;
-  }
-  return await getTransactionsForUser(firstUser.id, limit);
-}
-
 export async function getTransactionsForUser(
   userId: string,
   limit: number = 9999
@@ -84,6 +76,17 @@ export async function createTransaction(transaction: Omit<Transaction, 'id'>) {
   try {
     const newTransaction = await db.insert(transactions).values({
       id: uuidv4(),
+      ...transaction,
+    });
+    return newTransaction;
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+export async function updateTransaction(transaction: Omit<Transaction, 'id'>) {
+  try {
+    const newTransaction = await db.update(transactions).set({
       ...transaction,
     });
     return newTransaction;
@@ -192,8 +195,4 @@ export async function getTransactionsByMonth(
   }
 }
 
-// const monthlyTransactions = await getTransactionsByMonth(
-//   "kp_1f69766a544b4f1e8ab2e4c795757fd9",
-//   "2024",
-//   "04
-// console.log(monthlyTransactions, "monthly transactions for April 2024");
+
