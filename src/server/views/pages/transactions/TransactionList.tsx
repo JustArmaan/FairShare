@@ -1,52 +1,33 @@
-import { Transaction } from "./components/Transaction";
-import { type TransactionSchema } from "../../../interface/types";
-import { Card } from "./components/Card";
-import { type AccountSchema } from "../../../services/plaid.service";
-
-interface CardDetails {
-  primaryColor: string;
-  textColor: string;
-  accentColor1: string;
-  accentColor2: string;
-  bankLogo: string;
-  bankName: string;
-  cardNumber: string;
-  cardHolder: string;
-  expiryDate: string;
-}
-
-interface TransactionsPageProps {
-  transactions: TransactionSchema[];
-  cardDetails: CardDetails;
-  accounts: AccountSchema[];
-}
+import { Transaction } from './components/Transaction';
+import { Card } from './components/Card';
+import { getAccountWithTransactions } from '../../../services/plaid.service';
+import type { ExtractFunctionReturnType } from '../../../services/user.service';
 
 const iconColors = [
-  "bg-accent-red",
-  "bg-accent-blue",
-  "bg-accent-green",
-  "bg-accent-yellow",
-  "bg-accent-purple",
+  'bg-accent-red',
+  'bg-accent-blue',
+  'bg-accent-green',
+  'bg-accent-yellow',
+  'bg-accent-purple',
 ];
 
-export const TransactionsPage = ({
-  transactions,
-  cardDetails,
-  accounts,
-}: TransactionsPageProps) => {
+export const TransactionsPage = (props: {
+  accounts: ExtractFunctionReturnType<typeof getAccountWithTransactions>[];
+  selectedAccountId: string;
+}) => {
   const months = [
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December',
   ];
   return (
     <div class="p-6 animate-fade-in">
@@ -55,16 +36,25 @@ export const TransactionsPage = ({
         class="fixed inset-0 bg-primary-black bg-opacity-40 z-10 hidden"
       ></div>
       <div class="hidden rotate-90"></div>
-      <div class="mb-2 flex justify-start w-fit items-center hover:-translate-y-0.5 transition-transform cursor-pointer">
-        <p class="text-font-off-white mr-3 text-xl">Card</p>
+      <div
+        class=" mb-2 flex justify-start w-fit items-center hover:-translate-y-0.5 transition-transform cursor-pointer"
+        id="account-select"
+      >
+        <p class="text-font-off-white mr-3 text-xl">Change Account</p>
         <img
           class="h-3"
           src="/images/right-triangle.svg"
           alt="triangle icon"
-          id="account-select"
+          id="account-select-image"
         />
       </div>
-      <Card cardDetails={cardDetails} />
+      <Card
+        account={
+          props.accounts.find(
+            (account) => account.id === props.selectedAccountId
+          )!
+        }
+      />
       <div class="h-px bg-primary-black mb-2" />
       <div class="relative w-full max-w-xs my-4 flex items-center">
         <div class="flex items-center bg-primary-black w-full border-2 border-primary-grey rounded-full">
@@ -147,45 +137,51 @@ export const TransactionsPage = ({
 
       <p class="text-xl text-font-off-white font-medium">Transaction History</p>
       <div id="transactionsContainer" class="mt-2">
-        {transactions.map((transaction, categoryIndex) => (
-          <Transaction
-            transaction={transaction}
-            tailwindColorClass={iconColors[categoryIndex % iconColors.length]}
-          />
-        ))}
+        {props.accounts
+          .find((account) => account.id === props.selectedAccountId)!
+          .transactions.map((transaction, categoryIndex) => (
+            <Transaction
+              transaction={transaction}
+              tailwindColorClass={iconColors[categoryIndex % iconColors.length]}
+            />
+          ))}
       </div>
       {/* <div class="account-selector-form fixed inset-x-0 bottom-0 z-20 p-32 bg-card-black rounded-t-lg shadow-lg hidden"> */}
-      <div class="account-selector-form fixed bottom-0 left-0 right-0 z-20 p-5 rounded-lg shadow-lg hidden">
+      <div class="account-selector-form fixed bottom-0 left-0 right-0 z-20 p-5 rounded-t-2xl shadow-lg hidden bg-card-black">
         <form
           id="account-selector-form"
-          class="account-selector-form hidden flex flex-col mb-0 mt-3 justify-center text-font-off-white bg-primary-black border-b-primary-dark-grey rounded-lg"
+          class="account-selector-form hidden flex flex-col mb-0 mt-3 justify-center text-font-off-white  border-b-primary-dark-grey"
         >
-          {accounts.map((account) => (
-            <div>
-              <div class="w-full flex justify-between p-3">
-                <label class="" for={account.name}>
-                  {account.name}
-                </label>
-                <input
-                  type="radio"
-                  id={account.name}
-                  name="selectedAccount"
-                  value={account.name}
-                  class="w-6 h-6 cursor-pointer"
-                />
-              </div>
-              <div class="w-full h-1 bg-primary-dark-grey rounded mb-2 opacity-75"></div>
-            </div>
-          ))}
+          <div class="bg-primary-black rounded-xl">
+            {props.accounts.map((account, index) => (
+              <>
+                <div class="w-full flex justify-between p-4 hover:opacity-80 cursor-pointer">
+                  <label class="" for={account.name}>
+                    {account.name}
+                  </label>
+                  <input
+                    type="radio"
+                    id={account.name}
+                    name="selectedAccount"
+                    value={account.name}
+                    class="w-10 h-10 cursor-pointer border"
+                    checked={account.id === props.selectedAccountId}
+                  />
+                </div>
+                {index !== props.accounts.length - 1 && (
+                  <div class="w-full h-px bg-primary-dark-grey rounded mb-2 opacity-75"></div>
+                )}
+              </>
+            ))}
+          </div>
           <input
             type="submit"
             value="Cancel"
             id="cancel-account-change"
-            class="text-accent-blue my-2 cursor-pointer"
+            class="text-accent-blue mt-4  py-2 cursor-pointer bg-primary-black rounded-xl font-semibold text-lg"
           />
         </form>
       </div>
-      {/* </div> */}
       <div class="h-20"></div>
     </div>
   );

@@ -7,6 +7,9 @@ import { users } from '../database/schema/users.ts';
 import { currencyCode } from '../database/schema/currencyCode.ts';
 import { type ArrayElement } from '../interface/types.ts';
 import { type ExtractFunctionReturnType } from './user.service.ts';
+import { transactions } from '../database/schema/transaction.ts';
+import { accounts } from '../database/schema/accounts.ts';
+import { categories } from '../database/schema/category.ts';
 
 const db = getDB();
 
@@ -69,7 +72,7 @@ export const getInstitution = async (id: string) => {
       .where(eq(institutions.id, id));
     return results[0];
   } catch (error) {
-    console.error(error);
+    console.error(error, 'in getInstitution');
     return null;
   }
 };
@@ -98,5 +101,51 @@ export async function getCurrencyCode(id: string) {
     return result[0];
   } catch (error) {
     console.error(error);
+  }
+}
+
+export type AccountSchema = ArrayElement<
+  ExtractFunctionReturnType<typeof getAccountsForUser>
+>;
+
+export async function getAccountsForUser(userId: string) {
+  try {
+    const results = await db
+      .select({ accounts })
+      .from(accounts)
+      .innerJoin(items, eq(accounts.itemId, items.id))
+      .where(eq(items.userId, userId));
+    return results.map((result) => result.accounts);
+  } catch (e) {
+    console.error(e, 'at getAccountsForUser');
+    return null;
+  }
+}
+
+export async function getAccountWithTransactions(accountId: string) {
+  try {
+    const result = await db
+      .select({
+        account: accounts,
+        transaction: transactions,
+        categories: categories,
+        // bankName: items.,
+      })
+      .from(accounts)
+      .innerJoin(transactions, eq(accounts.id, transactions.accountId))
+      .innerJoin(categories, eq(transactions.categoryId, categories.id))
+      // .innerJoin(items, eq(accounts.itemId, items.id))
+      .where(eq(accounts.id, accountId));
+
+    return {
+      ...result[0].account,
+      transactions: result.map((result) => ({
+        ...result.transaction,
+        category: { ...result.categories },
+      })),
+    };
+  } catch (e) {
+    console.error(e, 'at getAccountWithTransactions');
+    return null;
   }
 }
