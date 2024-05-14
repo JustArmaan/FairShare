@@ -1,15 +1,16 @@
-import { getDB } from '../database/client.ts';
-import { v4 as uuidv4 } from 'uuid';
-import { eq } from 'drizzle-orm';
-import { items } from '../database/schema/items.ts';
-import { institutions } from '../database/schema/institutions.ts';
-import { users } from '../database/schema/users.ts';
-import { currencyCode } from '../database/schema/currencyCode.ts';
-import { type ArrayElement } from '../interface/types.ts';
-import { type ExtractFunctionReturnType } from './user.service.ts';
-import { transactions } from '../database/schema/transaction.ts';
-import { accounts } from '../database/schema/accounts.ts';
-import { categories } from '../database/schema/category.ts';
+import { getDB } from "../database/client.ts";
+import { v4 as uuidv4 } from "uuid";
+import { eq } from "drizzle-orm";
+import { items } from "../database/schema/items.ts";
+import { institutions } from "../database/schema/institutions.ts";
+import { users } from "../database/schema/users.ts";
+import { currencyCode } from "../database/schema/currencyCode.ts";
+import { type ArrayElement } from "../interface/types.ts";
+import { type ExtractFunctionReturnType } from "./user.service.ts";
+import { transactions } from "../database/schema/transaction.ts";
+import { accounts } from "../database/schema/accounts.ts";
+import { categories } from "../database/schema/category.ts";
+import { getAccountTypeById } from "./accountType.service.ts";
 
 const db = getDB();
 
@@ -30,11 +31,11 @@ export const getItemsForUser = async (userId: string) => {
 
 export type Item = ArrayElement<
   ExtractFunctionReturnType<typeof getItemsForUser>
->['item'];
+>["item"];
 
 export const addItemToUser = async (
   userId: string,
-  item: Omit<Omit<Item, 'userId'>, 'institutionId'>
+  item: Omit<Omit<Item, "userId">, "institutionId">
 ) => {
   await db.insert(items).values({
     userId: userId,
@@ -72,7 +73,7 @@ export const getInstitution = async (id: string) => {
       .where(eq(institutions.id, id));
     return results[0];
   } catch (error) {
-    console.error(error, 'in getInstitution');
+    console.error(error, "in getInstitution");
     return null;
   }
 };
@@ -87,7 +88,7 @@ export async function createCurrencyCode(code: string) {
 
 export async function updateItem(
   itemId: string,
-  item: Partial<Omit<Item, 'id'>>
+  item: Partial<Omit<Item, "id">>
 ) {
   await db.update(items).set(item).where(eq(items.id, itemId));
 }
@@ -117,10 +118,14 @@ export async function getAccountsForUser(userId: string) {
       .where(eq(items.userId, userId));
     return results.map((result) => result.accounts);
   } catch (e) {
-    console.error(e, 'at getAccountsForUser');
+    console.error(e, "at getAccountsForUser");
     return null;
   }
 }
+
+export type AccountWithTransactions = ExtractFunctionReturnType<
+  typeof getAccountWithTransactions
+>;
 
 export async function getAccountWithTransactions(accountId: string) {
   try {
@@ -137,15 +142,22 @@ export async function getAccountWithTransactions(accountId: string) {
       // .innerJoin(items, eq(accounts.itemId, items.id))
       .where(eq(accounts.id, accountId));
 
+    if (!result[0] || !result[0].account) return null;
+
+    const accountType = result[0].account.accountTypeId
+      ? await getAccountTypeById(result[0].account.accountTypeId)
+      : result[0].account.accountTypeId;
+
     return {
       ...result[0].account,
+      accountTypeId: accountType,
       transactions: result.map((result) => ({
         ...result.transaction,
         category: { ...result.categories },
       })),
     };
   } catch (e) {
-    console.error(e, 'at getAccountWithTransactions');
+    console.error(e, "at getAccountWithTransactions");
     return null;
   }
 }
