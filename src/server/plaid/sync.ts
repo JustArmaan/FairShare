@@ -1,17 +1,17 @@
-import { addAccount, getAccount } from '../services/account.service';
-import { getAccountTypeIdByName } from '../services/accountType.service';
-import { getCategoryIdByName } from '../services/category.service';
+import { addAccount, getAccount } from "../services/account.service";
+import { getAccountTypeIdByName } from "../services/accountType.service";
+import { getCategoryIdByName } from "../services/category.service";
 import {
   createTransactions,
   deleteTransactions,
   updateTransaction,
-} from '../services/transaction.service';
+} from "../services/transaction.service";
 import {
   getItemsForUser,
   updateItem,
   type Item,
-} from '../services/plaid.service';
-import { plaidRequest } from './link';
+} from "../services/plaid.service";
+import { plaidRequest } from "./link";
 
 export async function syncTransactionsForUser(userId: string) {
   const items = await getItemsForUser(userId);
@@ -26,7 +26,7 @@ async function syncTransaction({ item }: { item: Item }) {
 
   let accountsAdded = false;
   while (true) {
-    const response = (await plaidRequest('/transactions/sync', {
+    const response = (await plaidRequest("/transactions/sync", {
       access_token: item.plaidAccessToken,
       cursor,
       count,
@@ -125,7 +125,10 @@ async function addTransactions(transactions: AddedPlaidTransaction[]) {
       const categoryId = await getCategoryIdByName(
         transaction.personal_finance_category.primary
       );
-      if (!categoryId) throw new Error('No such category!');
+      if (!categoryId) {
+        console.log(categoryId, transaction.personal_finance_category.primary, transaction, "No such category!");
+        throw new Error("No such category!");
+      }
       const locationIsNull = Object.values(transaction.location).some(
         (value) => value === null
       );
@@ -133,7 +136,7 @@ async function addTransactions(transactions: AddedPlaidTransaction[]) {
         address: locationIsNull
           ? null
           : `${transaction.location.address!},  ${transaction.location
-            .city!}, ${transaction.location.region!}, ${transaction.location
+              .city!}, ${transaction.location.region!}, ${transaction.location
               .country!}`,
         accountId: transaction.account_id,
         categoryId: categoryId.id,
@@ -155,7 +158,7 @@ async function modifyTransaction(transaction: ModifiedPlaidTransaction) {
     categoryId = await getCategoryIdByName(
       transaction.personal_finance_category.primary
     );
-    if (!categoryId) throw new Error('No such category!');
+    if (!categoryId) throw new Error("No such category!");
   }
 
   updateTransaction({

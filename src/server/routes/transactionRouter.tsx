@@ -10,8 +10,11 @@ import {
 } from "../services/transaction.service";
 import Transaction from "../views/pages/transactions/components/Transaction";
 import TransactionsPage from "../views/pages/transactions/TransactionList";
+import MyAccountsPage from "../views/pages/transactions/MyAccounts";
 import { getUser } from "./authRouter";
 import { env } from "../../../env";
+import { items } from "../database/schema/items";
+import { getItemsForUser } from "../services/plaid.service";
 
 const router = express.Router();
 
@@ -78,6 +81,28 @@ router.get("/page", getUser, async (req, res) => {
         accounts={fakeAccounts}
       />
     );
+    res.send(html);
+  } catch (error) {
+    console.error(error);
+  }
+});
+
+router.get("/accounts", getUser,  async (req, res) => {
+  try {
+    const userId = req.user!.id;
+    const transactions = await getTransactionsForUser(userId, 999999);
+    const items = await getItemsForUser(userId);
+
+    if (!transactions || !items) return res.status(400).send("Nothing to show");
+
+    const html = renderToHtml(
+      <MyAccountsPage
+        transactions={transactions}
+        accounts={fakeAccounts}
+        items={items.map(item => item.item)}
+      />
+    );
+      
     res.send(html);
   } catch (error) {
     console.error(error);

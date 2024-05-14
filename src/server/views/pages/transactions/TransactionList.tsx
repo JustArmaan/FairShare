@@ -87,11 +87,7 @@ export const TransactionsPage = ({
             type="search"
             name="search"
             placeholder="Search"
-<<<<<<< HEAD
-            class="bg-primary-black outline-none w-max pl-2 pr-3 py-2 rounded-full text-font-grey placeholder-font-grey"
-=======
             class="bg-primary-black outline-none w-max pl-2 py-2 rounded-full text-font-grey placeholder-font-grey"
->>>>>>> 46b964cee010ae6d4fa66baa0264c6f21967546f
             hx-post="/transactions/search"
             hx-trigger="input changed delay:500ms, search"
             hx-target="#transactionsContainer"
@@ -107,36 +103,6 @@ export const TransactionsPage = ({
           class="ml-3 h-6 w-6"
         />
       </div>
-<<<<<<< HEAD
-      <form
-        id="date-selector-form"
-        hx-post="/transactions/date"
-        hx-trigger="change"
-        hx-target="#transactionsContainer"
-        hx-include="[name='month'], [name='year']"
-        class="hidden mb-2"
-      >
-        <select
-          name="year"
-          id="yearSelect"
-          class="bg-primary-black text-font-off-white outline-none mx-2 rounded"
-        >
-          {[2022, 2023, 2024].map((year) => (
-            <option value={String(year)}>{year}</option>
-          ))}
-        </select>
-        <select
-          name="month"
-          id="monthSelect"
-          class="bg-primary-black text-font-off-white outline-none mx-2 rounded"
-        >
-          {months.map((month, index) => (
-            <option value={String(index + 1)}>{month}</option>
-          ))}
-        </select>
-        <input type="submit" value="Load Transactions" class="hidden" />{" "}
-      </form>
-=======
       <div
         id="date-selector-form"
         class="bg-primary-black py-1 px-1 my-2 shadow-lg flex items-center justify-evenly w-fit hidden border-2 border-primary-grey rounded-full"
@@ -179,7 +145,6 @@ export const TransactionsPage = ({
         </form>
       </div>
 
->>>>>>> 46b964cee010ae6d4fa66baa0264c6f21967546f
       <p class="text-xl text-font-off-white font-medium">Transaction History</p>
       <div id="transactionsContainer" class="mt-2">
         {transactions.map((transaction, categoryIndex) => (
