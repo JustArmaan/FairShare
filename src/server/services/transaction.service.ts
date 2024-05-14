@@ -192,8 +192,3 @@ export async function getTransactionsByMonth(
   }
 }
 
-// const monthlyTransactions = await getTransactionsByMonth(
-//   "kp_1f69766a544b4f1e8ab2e4c795757fd9",
-//   "2024",
-//   "04
-// console.log(monthlyTransactions, "monthly transactions for April 2024");

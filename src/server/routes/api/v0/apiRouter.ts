@@ -1,24 +1,24 @@
-import { Router } from 'express';
-import { getAccessToken, getLinkToken } from '../../../plaid/plaid';
+import { Router } from "express";
+import { getAccessToken, getLinkToken } from "../../../plaid/plaid";
 import {
   addItemToUser,
   getItemsForUser,
-  updateUser,
-} from '../../../services/user.service';
-import { getUser } from '../../authRouter';
+} from "../../../services/plaid.service";
+import { updateUser } from "../../../services/user.service";
+import { getUser } from "../../authRouter";
 
 const router = Router();
 
-router.get('/connected', getUser, async (req, res) => {
+router.get("/connected", getUser, async (req, res) => {
   if (!req.user) {
     return res.json({
-      error: 'Not logged in.',
+      error: "Not logged in.",
       data: null,
     });
   }
 
   const items = await getItemsForUser(req.user.id);
-  console.log(items, 'items');
+  console.log(items, "items");
   const connected = items.length > 0;
   console.log(connected);
   return res.json({
@@ -27,10 +27,10 @@ router.get('/connected', getUser, async (req, res) => {
   });
 });
 
-router.get('/plaid-token', getUser, async (req, res) => {
+router.get("/plaid-token", getUser, async (req, res) => {
   if (!req.user) {
     return res.json({
-      error: 'Not logged in.',
+      error: "Not logged in.",
       data: null,
     });
   }
@@ -42,31 +42,31 @@ router.get('/plaid-token', getUser, async (req, res) => {
   });
 });
 
-router.post('/plaid-public-token', getUser, async (req, res) => {
+router.post("/plaid-public-token", getUser, async (req, res) => {
   if (!req.user) {
     return res.json({
-      error: 'Not logged in.',
+      error: "Not logged in.",
       data: null,
     });
   }
 
   const { publicToken } = req.body;
-  console.log(req.body, 'body');
+  console.log(req.body, "body");
 
   if (!publicToken) {
-    return res.json({ error: 'Missing public token.', data: null });
+    return res.json({ error: "Missing public token.", data: null });
   }
 
   try {
     const { access_token, item_id } = await getAccessToken(
       publicToken as string
     );
-    console.log('running add code');
+    console.log("running add code");
     await addItemToUser(req.user.id, {
       id: item_id as string,
       plaidAccessToken: access_token,
     });
-    console.log('added!');
+    console.log("added!");
     res.status(200).send();
   } catch (error) {
     return res.json({ error: error, data: null });
