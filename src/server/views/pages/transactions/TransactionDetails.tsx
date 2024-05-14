@@ -30,7 +30,7 @@ export const TransactionDetailsPage = ({
         <div class="text-font-grey text-md mb-3">{transaction.address}</div>
         <div class="bg-primary-black rounded-lg shadow-lg px-4 py-2 w-full">
           <div class="text-font-off-white text-lg font-semibold">
-            Status: <span class="text-green-600">Approved</span>``
+            Status: <span class="text-green-600">Approved</span>
           </div>
           <div class="text-font-off-white mb-2">Scotiabank Interac debit</div>
           <div class="flex text-font-off-white justify-between bg-primary-black">
