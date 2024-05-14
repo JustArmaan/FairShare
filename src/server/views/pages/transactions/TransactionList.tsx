@@ -50,16 +50,9 @@ export const TransactionsPage = ({
   ];
   return (
     <div class="p-6 animate-fade-in">
-      {/* <a
-        hx-get="/home/page"
-        hx-trigger="click"
-        hx-target="#app"
-        hx-swap="innerHTML"
-        class="mb-2 flex justify-start w-fit items-center hover:-translate-y-0.5 transition-transform cursor-pointer"
-      > */}
       <div
         id="modal-bg"
-        class="fixed inset-0 bg-primary-dark-grey bg-opacity-30 z-10 hidden"
+        class="fixed inset-0 bg-primary-black bg-opacity-40 z-10 hidden"
       ></div>
       <div class="hidden rotate-90"></div>
       <div class="mb-2 flex justify-start w-fit items-center hover:-translate-y-0.5 transition-transform cursor-pointer">
@@ -71,7 +64,6 @@ export const TransactionsPage = ({
           id="account-select"
         />
       </div>
-      {/* </a> */}
       <Card cardDetails={cardDetails} />
       <div class="h-px bg-primary-black mb-2" />
       <div class="relative w-full max-w-xs my-4 flex items-center">
@@ -111,42 +103,48 @@ export const TransactionsPage = ({
           class="ml-3 h-6 w-6"
         />
       </div>
-      <form
+      <div
         id="date-selector-form"
-        hx-post="/transactions/date"
-        hx-trigger="change"
-        hx-target="#transactionsContainer"
-        hx-include="[name='month'], [name='year']"
-        class="hidden mb-2"
+        class="bg-primary-black py-1 px-1 my-2 shadow-lg flex items-center justify-evenly w-fit hidden border-2 border-primary-grey rounded-full"
       >
-        <select
-          name="year"
-          id="yearSelect"
-          class="bg-primary-black text-font-off-white outline-none mx-2 rounded"
+        <form
+          hx-post="/transactions/date"
+          hx-trigger="change"
+          hx-target="#transactionsContainer"
+          hx-include="[name='month'], [name='year']"
+          class="flex items-center w-fit justify-between"
         >
-          {[2022, 2023, 2024].map((year) => (
-            <option value={String(year)}>{year}</option>
-          ))}
-        </select>
-        <select
-          name="month"
-          id="monthSelect"
-          class="bg-primary-black text-font-off-white outline-none mx-2 rounded"
-        >
-          {months.map((month, index) => (
-            <option value={String(index + 1)}>{month}</option>
-          ))}
-        </select>
-        <input
-          class="text-font-off-white cursor-pointer bg-primary-black rounded-lg w-fit px-2"
-          type="button"
-          value="Reset"
-          hx-get="/transactions/page"
-          hx-trigger="click"
-          hx-target="#app"
-        />
-        <input type="submit" value="Load Transactions" class="hidden" />{" "}
-      </form>
+          <select
+            name="year"
+            id="yearSelect"
+            class="bg-primary-black text-font-grey outline-none rounded cursor-pointer mx-4"
+          >
+            {[2022, 2023, 2024].map((year) => (
+              <option value={String(year)}>{year}</option>
+            ))}
+          </select>
+
+          <select
+            name="month"
+            id="monthSelect"
+            class="bg-primary-black text-font-grey outline-none rounded cursor-pointer mx-4 w-fit"
+          >
+            {months.map((month, index) => (
+              <option value={String(index + 1)}>{month}</option>
+            ))}
+          </select>
+
+          <input
+            type="button"
+            value="Reset"
+            class="bg-primary-black text-font-grey cursor-pointer rounded-lg px-4 py-2 mx-4"
+            hx-get="/transactions/page"
+            hx-trigger="click"
+            hx-target="#app"
+          />
+        </form>
+      </div>
+
       <p class="text-xl text-font-off-white font-medium">Transaction History</p>
       <div id="transactionsContainer" class="mt-2">
         {transactions.map((transaction, categoryIndex) => (
@@ -156,10 +154,11 @@ export const TransactionsPage = ({
           />
         ))}
       </div>
-      <div class="fixed bottom-0 left-0 right-0 z-20 p-5 rounded-lg shadow-lg">
+      {/* <div class="account-selector-form fixed inset-x-0 bottom-0 z-20 p-32 bg-card-black rounded-t-lg shadow-lg hidden"> */}
+      <div class="account-selector-form fixed bottom-0 left-0 right-0 z-20 p-5 rounded-lg shadow-lg hidden">
         <form
           id="account-selector-form"
-          class="hidden flex flex-col mb-0 mt-3 justify-center text-font-off-white bg-primary-black border-b-primary-dark-grey rounded-lg"
+          class="account-selector-form hidden flex flex-col mb-0 mt-3 justify-center text-font-off-white bg-primary-black border-b-primary-dark-grey rounded-lg"
         >
           {accounts.map((account) => (
             <div>
@@ -186,6 +185,7 @@ export const TransactionsPage = ({
           />
         </form>
       </div>
+      {/* </div> */}
       <div class="h-20"></div>
     </div>
   );

@@ -1,8 +1,8 @@
 export function transactionList() {
   document.addEventListener("htmx:afterSwap", () => {
     const accountSelector = document.getElementById("account-select");
-    const accountSelectorForm = document.getElementById(
-      "account-selector-form"
+    const accountSelectorForm = document.querySelectorAll(
+      ".account-selector-form"
     );
     const modalBg = document.getElementById("modal-bg");
     const cancelButton = document.getElementById("cancel-account-change");
@@ -11,14 +11,18 @@ export function transactionList() {
 
     accountSelector?.addEventListener("click", () => {
       accountSelector?.classList.toggle("rotate-90");
-      accountSelectorForm?.classList.toggle("hidden");
+      accountSelectorForm?.forEach((form) => {
+        form?.classList.toggle("hidden");
+      });
       modalBg?.classList.toggle("hidden");
     });
 
     cancelButton?.addEventListener("click", () => {
       event?.preventDefault();
       accountSelector?.classList.toggle("rotate-90");
-      accountSelectorForm?.classList.toggle("hidden");
+      accountSelectorForm?.forEach((form) => {
+        form?.classList.toggle("hidden");
+      });
       modalBg?.classList.toggle("hidden");
     });
 
