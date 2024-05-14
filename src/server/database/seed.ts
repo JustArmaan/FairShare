@@ -5,6 +5,7 @@ import { memberType } from './schema/memberType';
 import { categories } from './schema/category';
 import { v4 as uuid } from 'uuid';
 import { items } from './schema/items';
+import { accountType } from './schema/accountType';
 
 let db = getDB();
 
@@ -22,6 +23,17 @@ const newCategoriesList = [
   { name: 'FOOD_AND_DRINK', displayName: 'Food and Drink', icon: '' },
   { name: 'GENERAL_MERCHANDISE', displayName: 'General Merchandise', icon: '' },
   { name: 'HOME_IMPROVEMENT', displayName: 'Home Improvement', icon: '' },
+  { name: 'RENT_AND_UTILITIES', displayName: 'Rent and Utilities', icon: '' },
+  { name: 'TRAVEL', displayName: 'Travel', icon: '' },
+  { name: 'TRANSPORTATION', displayName: 'Transportation', icon: '' },
+  {
+    name: 'GOVERNMENT_AND_NON_PROFIT',
+    displayName: 'Government and Non Profit',
+    icon: '',
+  },
+  { name: 'GENERAL_SERVICES', displayName: 'General Services', icon: '' },
+  { name: 'PERSONAL_CARE', displayName: 'Personal Care', icon: '' },
+  { name: 'MEDICAL', displayName: 'Medical', icon: '' },
 ];
 
 const categoriesList = [
@@ -52,6 +64,13 @@ const memberTypes = [
   { type: 'Invited' },
   { type: 'Member' },
   { type: 'Admin' },
+];
+
+const accountTypes = [
+  { type: 'credit' },
+  { type: 'depository' },
+  { type: 'loan' },
+  { type: 'other' },
 ];
 
 await db.delete(transactions);
@@ -90,7 +109,7 @@ try {
      */
 
     const categoryIds = [];
-    for (const cat of categoriesList) {
+    for (const cat of newCategoriesList) {
       const results = (await trx
         .insert(categories)
         .values({ ...cat, id: uuid() })
@@ -100,6 +119,13 @@ try {
     }
     console.log(`Inserted categories`);
 
+    for (const type of accountTypes) {
+      const typeId = uuid();
+      await trx.insert(accountType).values({
+        id: typeId,
+        type: type.type,
+      });
+    }
     for (const type of memberTypes) {
       const typeId = uuid();
       await trx.insert(memberType).values({

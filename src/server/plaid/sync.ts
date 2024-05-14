@@ -1,3 +1,5 @@
+import { addAccount } from '../services/account.service';
+import { getAccountTypeIdByName } from '../services/accountType.service';
 import { getCategoryIdByName } from '../services/category.service';
 import {
   createTransactions,
@@ -16,42 +18,68 @@ async function syncTransaction({ item }: { item: Item }) {
   const count = 500;
   let cursor: string | undefined = undefined;
 
+  let accountsAdded = false;
   while (true) {
     const response = (await plaidRequest('/transactions/sync', {
       access_token: item.plaidAccessToken,
       cursor: cursor,
       count,
     })) as {
+      accounts: {
+        account_id: string;
+        balances: {
+          available: number | null;
+          current: number | null;
+          iso_currency_code: string | null;
+          limit: number | null;
+        };
+        name: string;
+        type: string;
+      }[];
       added: AddedPlaidTransaction[];
       removed: { transaction_id: string }[];
       modified: ModifiedPlaidTransaction[];
       next_cursor: string;
       has_more: boolean;
     };
+    const { accounts } = response;
+    if (!accountsAdded) {
+      await Promise.all(
+        accounts.map(async (account) => {
+          const accountTypeId = await getAccountTypeIdByName(account.type);
+          if (!accountTypeId) return;
+          await addAccount({
+            id: account.account_id,
+            name: account.name,
+            accountTypeId: accountTypeId.id,
+            balance: '0',
+            currencyCodeId: null, // account.balances.iso_currency_code,
+            itemId: item.id,
+          });
+        })
+      );
+      accountsAdded = true;
+    }
     const { added, modified, removed, next_cursor, has_more } = response;
+    console.log(added, modified, removed, 'response');
     await addTransactions(added);
     await Promise.all(modified.map(modifyTransaction));
-    await deleteTransactions(removed.map((removed) => removed.transaction_id));
+    if (removed.length > 0) {
+      await deleteTransactions(
+        removed.map((removed) => removed.transaction_id)
+      );
+    }
     if (!has_more) break;
     cursor = next_cursor;
   }
-}
-
-interface Location {
-  address: string;
-  city: string;
-  region: string;
-  country: string;
-  lat: number;
-  lon: number;
 }
 
 interface PlaidTransactionGeneral {
   personal_finance_category: { primary: string };
   account_id: string;
   amount: number;
-  datetime: string;
-  merchant_name: string;
+  datetime: string | null;
+  merchant_name: string | null;
   logo_url: string;
   pending: boolean;
 }
@@ -68,8 +96,13 @@ interface ModifiedPlaidTransaction extends Nullable<PlaidTransactionGeneral> {
   location: Nullable<Location>;
 }
 
-function locationToAddress(location: Location) {
-  return `${location.address},  ${location.city}, ${location.region}, ${location.country}`;
+interface Location {
+  address: string;
+  city: string;
+  region: string;
+  country: string;
+  lat: number;
+  lon: number;
 }
 
 async function addTransactions(transactions: AddedPlaidTransaction[]) {
@@ -79,8 +112,15 @@ async function addTransactions(transactions: AddedPlaidTransaction[]) {
         transaction.personal_finance_category.primary
       );
       if (!categoryId) throw new Error('No such category!');
+      const locationIsNull = Object.values(transaction.location).some(
+        (value) => value === null
+      );
       return {
-        address: locationToAddress(transaction.location),
+        address: locationIsNull
+          ? null
+          : `${transaction.location.address!},  ${transaction.location
+            .city!}, ${transaction.location.region!}, ${transaction.location
+              .country!}`,
         accountId: transaction.account_id,
         categoryId: categoryId.id,
         company: transaction.merchant_name,
@@ -88,6 +128,7 @@ async function addTransactions(transactions: AddedPlaidTransaction[]) {
         timestamp: transaction.datetime,
         latitude: transaction.location.lat,
         longitude: transaction.location.lon,
+        pending: transaction.pending,
       };
     })
   );
@@ -105,7 +146,7 @@ async function modifyTransaction(transaction: ModifiedPlaidTransaction) {
 
   updateTransaction({
     // address: transaction.location ? locationToAddress(transaction.location) : undefined,
-    accountId: transaction.account_id ? transaction.account_id : undefined,
+    accountId: transaction.account_id!,
     categoryId: categoryId ? categoryId.id : undefined,
     company: transaction.merchant_name ? transaction.merchant_name : undefined,
     amount: transaction.amount ? transaction.amount : undefined,

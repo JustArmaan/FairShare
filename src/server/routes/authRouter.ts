@@ -10,7 +10,7 @@ import express, {
   type NextFunction,
 } from 'express';
 import { createUser, findUser } from '../services/user.service';
-import { seedFakeTransactions } from '../database/seedFakeTransations';
+// import { seedFakeTransactions } from '../database/seedFakeTransations';
 
 const router = express.Router();
 
@@ -103,7 +103,7 @@ export async function getUser(req: Request, res: Response, next: NextFunction) {
         email,
         picture,
       });
-      await seedFakeTransactions(id, 20);
+      // await seedFakeTransactions(id, 20);
       if (!(await findUser(id))) throw new Error('failed to create user');
       next();
     } else {

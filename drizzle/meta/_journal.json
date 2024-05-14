@@ -22,6 +22,41 @@
       "when": 1715633343191,
       "tag": "0002_safe_marvex",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1715644333485,
+      "tag": "0003_burly_nextwave",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
+      "when": 1715644527477,
+      "tag": "0004_nosy_skrulls",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "6",
+      "when": 1715645245806,
+      "tag": "0005_magenta_zaran",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
+      "when": 1715646764485,
+      "tag": "0006_swift_pepper_potts",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "6",
+      "when": 1715647234467,
+      "tag": "0007_flaky_lord_tyger",
+      "breakpoints": true
     }
   ]
 }
