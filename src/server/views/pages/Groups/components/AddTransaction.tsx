@@ -1,15 +1,22 @@
-import { type UserSchema } from "../../../../interface/types";
-import { AddedMember } from "./Member";
-import { getGroupWithMembers } from "../../../../services/group.service";
+import type { UserSchema } from '../../../../interface/types';
+import { getAccountWithTransactions } from '../../../../services/plaid.service';
+import type { ExtractFunctionReturnType } from '../../../../services/user.service';
+import { Transaction } from '../../transactions/components/Transaction';
 
 
+const iconColors = [
+    'bg-accent-red',
+    'bg-accent-blue',
+    'bg-accent-green',
+    'bg-accent-yellow',
+    'bg-accent-purple',
+  ];  
 
-export const AddTransaction = ({
-    currentUser,
-    groupId,
-  }: {
-    currentUser: UserSchema;
-    groupId: string;
+export const AddTransaction =  (props: {
+    currentUser: UserSchema
+    groupId: string
+    accounts: ExtractFunctionReturnType<typeof getAccountWithTransactions>[];
+    selectedAccountId: string;
   }) => {
     return (
         <div class="p-6 animate-fade-in">
@@ -28,6 +35,17 @@ export const AddTransaction = ({
             />
           </a>
         </div>
+          <div id="transactionsContainer" class="mt-2">
+        {props.accounts
+          .find((account) => account.id === props.selectedAccountId)!
+          .transactions.map((transaction, categoryIndex) => (
+            <Transaction
+              transaction={transaction}
+              tailwindColorClass={iconColors[categoryIndex % iconColors.length]}
+              route='AddTransaction'
+            />
+          ))}
+      </div>
         </div>
     )
   };

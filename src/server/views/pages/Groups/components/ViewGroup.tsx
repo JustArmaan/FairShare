@@ -77,7 +77,7 @@ export const ViewGroups = ({
         ))}
       </div>
       <button
-       hx-get={`/groups/addTransaction/${groupId}`}
+       hx-get={`/groups/addTransaction/${groupId}/debug`}
        hx-trigger="click"
        hx-target="#app"
        hx-swap="innerHTML"

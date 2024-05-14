@@ -1,12 +1,12 @@
-import { type TransactionSchema } from '../../../../interface/types';
+import { type TransactionSchema } from "../../../../interface/types";
 
 function formatDate(timestamp: string) {
   const date = new Date(timestamp);
 
-  return date.toLocaleString('default', {
-    month: 'long',
-    day: 'numeric',
-    year: 'numeric',
+  return date.toLocaleString("default", {
+    month: "long",
+    day: "numeric",
+    year: "numeric",
   });
 }
 
@@ -16,23 +16,32 @@ export type ArrayElement<ArrayType extends readonly unknown[]> =
 export const Transaction = ({
   transaction,
   tailwindColorClass,
+  route,
 }: {
   transaction: TransactionSchema;
   tailwindColorClass: string;
+  route?: string;
 }) => {
-  if (!transaction) throw new Error('404');
+  if (!transaction) throw new Error("404");
   return (
     <button
-      hx-get={`/transactions/details/${transaction.id}`}
+      hx-get={`${
+        route === "AddTransaction"
+          ? `/transactions/addButton?added=true`
+          : `/transactions/details/${transaction.id}`
+      }`}
       hx-trigger="click"
-      hx-target="#app"
+      hx-target={`${
+        route === "AddTransaction" ? `#addButtonContainer-${transaction.id}` : "#app"
+      }`}
       hx-swap="innerHTML"
       data-id={transaction.id}
       data-company={transaction.company}
       class={`transaction rounded-xl w-full h-fit`}
     >
       <div class={`${tailwindColorClass} rounded-2xl mt-2`}>
-        <div class="hover:-translate-y-0.5 cursor-pointer transition-all mt-4 bg-primary-black p-2 rounded-xl shadow-md mb-1 flex items-center justify-between">
+        <div class="hover:-translate-y-0.5 cursor-pointer transition-all mt-4 bg-primary-black p-2 rounded-xl shadow-md mb-1 flex items-center justify-between relative">
+            <div id={`addButtonContainer-${transaction.id}`} class="absolute w-full h-full"></div>
           <div class="flex items-center">
             <div class={`p-3 pl-4 pr-4 mr-4 ${tailwindColorClass} rounded-xl`}>
               <div class="flex items-center justify-center w-10 h-10">

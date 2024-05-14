@@ -22,6 +22,12 @@ import { EditGroupPage } from '../views/pages/Groups/components/EditGroup.tsx';
 import { ViewGroups } from '../views/pages/Groups/components/ViewGroup.tsx';
 import { getTransactionsForUser } from '../services/transaction.service.ts';
 import { AddTransaction } from '../views/pages/Groups/components/AddTransaction.tsx';
+import {
+  getAccountWithTransactions,
+  getAccountsForUser,
+} from '../services/plaid.service';
+import type { ExtractFunctionReturnType } from '../services/user.service';
+
 
 const router = express.Router();
 
@@ -288,21 +294,29 @@ router.get('/edit/:groupId', getUser, async (req, res) => {
   }
 });
 
-router.get("/addTransaction/:groupId", getUser, async (req, res,) => {
+router.get("/addTransaction/:groupId/:selectedAccountId", getUser, async (req, res,) => {
   try {
-    if (!req.user) {
-      return res.set('HX-Redirect', `${env.baseUrl}/login`).send();
-    }
-    const currentUser = await findUser(req.user.id);
+    const accounts = await getAccountsForUser(req.user!.id);
+    if (!accounts) throw new Error('no accounts for user!');
 
-    if (!currentUser) {
-      return res.status(500).send('Failed to get user');
-    }
+    const accountsWithTransactions = (await Promise.all(
+      accounts.map(
+        async (account) => await getAccountWithTransactions(account.id)
+      )
+    )) as ExtractFunctionReturnType<typeof getAccountWithTransactions>[];
+    const currentUser = req.user;
+    console.log(accountsWithTransactions[0].id)
 
     const html = renderToHtml(
       <AddTransaction
-        currentUser={currentUser}
+        currentUser={currentUser!}
         groupId={req.params.groupId}
+        accounts={accountsWithTransactions ? accountsWithTransactions : []}
+        selectedAccountId={
+          req.params.selectedAccountId !== 'debug'
+            ? req.params.selectedAccountId
+            : accountsWithTransactions[0].id
+        }
       />
     );
     res.send(html);

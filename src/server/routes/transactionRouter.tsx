@@ -17,6 +17,8 @@ import {
   getAccountsForUser,
 } from '../services/plaid.service';
 import type { ExtractFunctionReturnType } from '../services/user.service';
+import AddButton from '../views/pages/transactions/components/AddButton';
+import CheckButton from '../views/pages/transactions/components/CheckButton';
 
 const router = express.Router();
 
@@ -188,5 +190,29 @@ router.get('/location/:transactionId', async (req, res) => {
     console.error(error);
   }
 });
+
+router.get('/addButton', async (req, res) => {
+  const value = req.query.added as string;
+  if(value === undefined) {
+    return res.status(404).send('add button value is undefined');
+  }
+  console.log(value);
+  const html = renderToHtml(
+    <AddButton/>
+  );
+  res.send(html);
+})
+
+router.get('/checkedButton', async (req, res) => {
+  const value = req.query.added as string;
+  if(value === undefined) {
+    return res.status(404).send('add button value is undefined');
+  }
+  console.log(value);
+  const html = renderToHtml(
+    <CheckButton/>
+  );
+  res.send(html);
+})
 
 export const transactionRouter = router;
