@@ -5,4 +5,5 @@ export const categories = sqliteTable('categories', {
   name: text('name').notNull(),
   displayName: text('display_name').notNull(),
   icon: text('icon').notNull(),
+  color: text('color').notNull(),
 });

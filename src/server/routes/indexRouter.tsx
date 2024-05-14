@@ -22,4 +22,8 @@ router.get('/nav', (_, res) => {
   }
 });
 
+router.get('/empty', (req, res) => {
+  res.send('');
+});
+
 export const indexRouter = router;

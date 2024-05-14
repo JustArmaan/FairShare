@@ -1,6 +1,9 @@
 import { Transaction } from './components/Transaction';
 import { Card } from './components/Card';
-import { getAccountWithTransactions } from '../../../services/plaid.service';
+import {
+  getAccountWithTransactions,
+  getAccountsForUser,
+} from '../../../services/plaid.service';
 import type { ExtractFunctionReturnType } from '../../../services/user.service';
 
 const iconColors = [
@@ -12,7 +15,7 @@ const iconColors = [
 ];
 
 export const TransactionsPage = (props: {
-  accounts: ExtractFunctionReturnType<typeof getAccountWithTransactions>[];
+  accounts: ExtractFunctionReturnType<typeof getAccountsForUser>;
   selectedAccountId: string;
 }) => {
   const months = [
@@ -37,8 +40,10 @@ export const TransactionsPage = (props: {
       ></div>
       <div class="hidden rotate-90"></div>
       <div
-        class=" mb-2 flex justify-start w-fit items-center hover:-translate-y-0.5 transition-transform cursor-pointer"
-        id="account-select"
+        hx-get={`/transactions/accountPicker/${props.selectedAccountId}`}
+        hx-target=".account-selector-form"
+        hx-swap="innerHTML"
+        class="mb-2 flex justify-start w-fit items-center hover:-translate-y-0.5 transition-transform cursor-pointer"
       >
         <p class="text-font-off-white mr-3 text-xl">Change Account</p>
         <img
@@ -128,60 +133,23 @@ export const TransactionsPage = (props: {
             type="button"
             value="Reset"
             class="bg-primary-black text-font-grey cursor-pointer rounded-lg px-4 py-2 mx-4"
-            hx-get="/transactions/page"
+            hx-get={`/transactions/page/${props.selectedAccountId}`}
             hx-trigger="click"
             hx-target="#app"
+            hx-swap="innerHTML"
           />
         </form>
       </div>
 
       <p class="text-xl text-font-off-white font-medium">Transaction History</p>
-      <div id="transactionsContainer" class="mt-2">
-        {props.accounts
-          .find((account) => account.id === props.selectedAccountId)!
-          .transactions.map((transaction, categoryIndex) => (
-            <Transaction
-              transaction={transaction}
-              tailwindColorClass={iconColors[categoryIndex % iconColors.length]}
-            />
-          ))}
-      </div>
-      {/* <div class="account-selector-form fixed inset-x-0 bottom-0 z-20 p-32 bg-card-black rounded-t-lg shadow-lg hidden"> */}
-      <div class="account-selector-form fixed bottom-0 left-0 right-0 z-20 p-5 rounded-t-2xl shadow-lg hidden bg-card-black">
-        <form
-          id="account-selector-form"
-          class="account-selector-form hidden flex flex-col mb-0 mt-3 justify-center text-font-off-white  border-b-primary-dark-grey"
-        >
-          <div class="bg-primary-black rounded-xl">
-            {props.accounts.map((account, index) => (
-              <>
-                <div class="w-full flex justify-between p-4 hover:opacity-80 cursor-pointer">
-                  <label class="" for={account.name}>
-                    {account.name}
-                  </label>
-                  <input
-                    type="radio"
-                    id={account.name}
-                    name="selectedAccount"
-                    value={account.name}
-                    class="w-10 h-10 cursor-pointer border"
-                    checked={account.id === props.selectedAccountId}
-                  />
-                </div>
-                {index !== props.accounts.length - 1 && (
-                  <div class="w-full h-px bg-primary-dark-grey rounded mb-2 opacity-75"></div>
-                )}
-              </>
-            ))}
-          </div>
-          <input
-            type="submit"
-            value="Cancel"
-            id="cancel-account-change"
-            class="text-accent-blue mt-4  py-2 cursor-pointer bg-primary-black rounded-xl font-semibold text-lg"
-          />
-        </form>
-      </div>
+      <div
+        id="transactionsContainer"
+        class="mt-2"
+        hx-get={`/transactions/transactionList/${props.selectedAccountId}`}
+        hx-swap="innerHTML"
+        hx-trigger="load"
+      ></div>
+      <div class="account-selector-form" />
       <div class="h-20"></div>
     </div>
   );

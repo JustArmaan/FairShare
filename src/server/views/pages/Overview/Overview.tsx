@@ -109,10 +109,10 @@ export const Overview = ({
             View All
           </a>
         </div>
-        {transactions.map((transaction, categoryIndex) => (
+        {transactions.map((transaction) => (
           <Transaction
             transaction={transaction}
-            tailwindColorClass={iconColors[categoryIndex % iconColors.length]}
+            tailwindColorClass={transaction.category.color}
           />
         ))}
       </div>
