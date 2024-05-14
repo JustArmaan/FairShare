@@ -43,6 +43,7 @@ export const AddTransaction =  (props: {
               transaction={transaction}
               tailwindColorClass={iconColors[categoryIndex % iconColors.length]}
               route='AddTransaction'
+              checked={false}
             />
           ))}
       </div>

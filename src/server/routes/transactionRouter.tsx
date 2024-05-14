@@ -192,27 +192,29 @@ router.get('/location/:transactionId', async (req, res) => {
 });
 
 router.get('/addButton', async (req, res) => {
-  const value = req.query.added as string;
-  if(value === undefined) {
-    return res.status(404).send('add button value is undefined');
-  }
-  console.log(value);
+  const { checked, transactionId } = req.query;
+
+  const transaction = await getTransaction(transactionId as string);
+  // add/remove the transaction to group relationship
   const html = renderToHtml(
-    <AddButton/>
+    <Transaction
+      tailwindColorClass={iconColors[1 % iconColors.length]}
+      transaction={transaction}
+      checked={!(checked === 'true')}
+      route="AddTransaction"
+    />
   );
   res.send(html);
-})
+});
 
 router.get('/checkedButton', async (req, res) => {
   const value = req.query.added as string;
-  if(value === undefined) {
+  if (value === undefined) {
     return res.status(404).send('add button value is undefined');
   }
   console.log(value);
-  const html = renderToHtml(
-    <CheckButton/>
-  );
+  const html = renderToHtml(<CheckButton />);
   res.send(html);
-})
+});
 
 export const transactionRouter = router;
