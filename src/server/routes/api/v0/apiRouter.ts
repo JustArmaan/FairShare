@@ -1,6 +1,9 @@
 import { Router } from 'express';
 import { getAccessToken, getLinkToken } from '../../../plaid/link';
-import { addItemToUser, getItemsForUser } from '../../../services/user.service';
+import {
+  addItemToUser,
+  getItemsForUser,
+} from '../../../services/plaid.service';
 import { getUser } from '../../authRouter';
 
 const router = Router();
@@ -14,7 +17,6 @@ router.get('/connected', getUser, async (req, res) => {
   }
 
   const items = await getItemsForUser(req.user.id);
-  console.log(items, 'all items for user');
   const connected = items.length > 0;
   return res.json({
     error: null,

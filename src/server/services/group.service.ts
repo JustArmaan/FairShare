@@ -6,7 +6,7 @@ import { memberType } from "../database/schema/memberType";
 import { eq, and } from "drizzle-orm";
 import { v4 as uuidv4 } from "uuid";
 import { users } from "../database/schema/users";
-import type { UserSchema, UserSchemaWithMemberType } from "../interface/types";
+import type { UserSchemaWithMemberType } from "../interface/types";
 import type { ExtractFunctionReturnType } from "./user.service";
 
 const db = getDB();
@@ -105,7 +105,7 @@ export const getGroupsAndAllMembersForUser = async (userId: string) => {
       .all();
 
     if (userGroups.length === 0) {
-      console.log("No groups found for this user.");
+      console.log('No groups found for this user.');
       return [];
     }
 
@@ -114,18 +114,10 @@ export const getGroupsAndAllMembersForUser = async (userId: string) => {
       (result) => result !== null
     ) as ExtractFunctionReturnType<typeof getGroupWithMembers>[];
   } catch (error) {
-    console.error("Error fetching groups and members for user:", error);
+    console.error('Error fetching groups and members for user:', error);
     return [];
   }
 };
-
-await getGroupsAndAllMembersForUser('kp_71b002c357c74585af8a0e067381697f').then(
-  (result) => {
-    if (result !== null) {
-      console.log(result);
-    }
-  }
-);
 
 export type GroupSchema = NonNullable<Awaited<ReturnType<typeof getGroup>>>;
 

@@ -1,6 +1,7 @@
 import { Transaction } from "./components/Transaction";
 import { type TransactionSchema } from "../../../interface/types";
 import { Card } from "./components/Card";
+import { type AccountSchema } from "../../../services/plaid.service";
 
 interface CardDetails {
   primaryColor: string;
@@ -17,6 +18,7 @@ interface CardDetails {
 interface TransactionsPageProps {
   transactions: TransactionSchema[];
   cardDetails: CardDetails;
+  accounts: AccountSchema[];
 }
 
 const iconColors = [
@@ -30,6 +32,7 @@ const iconColors = [
 export const TransactionsPage = ({
   transactions,
   cardDetails,
+  accounts,
 }: TransactionsPageProps) => {
   const months = [
     "January",
@@ -47,23 +50,35 @@ export const TransactionsPage = ({
   ];
   return (
     <div class="p-6 animate-fade-in">
-      <a
+      {/* <a
         hx-get="/home/page"
         hx-trigger="click"
         hx-target="#app"
         hx-swap="innerHTML"
         class="mb-2 flex justify-start w-fit items-center hover:-translate-y-0.5 transition-transform cursor-pointer"
-      >
+      > */}
+      <div
+        id="modal-bg"
+        class="fixed inset-0 bg-primary-dark-grey bg-opacity-30 z-10 hidden"
+      ></div>
+      <div class="hidden rotate-90"></div>
+      <div class="mb-2 flex justify-start w-fit items-center hover:-translate-y-0.5 transition-transform cursor-pointer">
         <p class="text-font-off-white mr-3 text-xl">Card</p>
-        <img class="h-3" src="/images/right-triangle.svg" alt="triangle icon" />
-      </a>
+        <img
+          class="h-3"
+          src="/images/right-triangle.svg"
+          alt="triangle icon"
+          id="account-select"
+        />
+      </div>
+      {/* </a> */}
       <Card cardDetails={cardDetails} />
       <div class="h-px bg-primary-black mb-2" />
       <div class="relative w-full max-w-xs my-4 flex items-center">
         <div class="flex items-center bg-primary-black w-full border-2 border-primary-grey rounded-full">
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            class="h-6 w-6 text-font-off-white ml-3"
+            class="text-font-off-white ml-3"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -80,12 +95,11 @@ export const TransactionsPage = ({
             type="search"
             name="search"
             placeholder="Search"
-            class="bg-primary-black outline-none w-max pl-2 pr-3 py-2 rounded-full text-font-grey placeholder-font-grey"
+            class="bg-primary-black outline-none w-max pl-2 py-2 rounded-full text-font-grey placeholder-font-grey"
             hx-post="/transactions/search"
             hx-trigger="input changed delay:500ms, search"
             hx-target="#transactionsContainer"
             hx-include="[name='search']"
-            hx-indicator=".htmx-indicator" //   ⚠️ change this to the animation we will use 🎬
           />
           <div class="relative w-full max-w-xs my-4 flex items-center"></div>
         </div>
@@ -123,6 +137,14 @@ export const TransactionsPage = ({
             <option value={String(index + 1)}>{month}</option>
           ))}
         </select>
+        <input
+          class="text-font-off-white cursor-pointer bg-primary-black rounded-lg w-fit px-2"
+          type="button"
+          value="Reset"
+          hx-get="/transactions/page"
+          hx-trigger="click"
+          hx-target="#app"
+        />
         <input type="submit" value="Load Transactions" class="hidden" />{" "}
       </form>
       <p class="text-xl text-font-off-white font-medium">Transaction History</p>
@@ -133,6 +155,36 @@ export const TransactionsPage = ({
             tailwindColorClass={iconColors[categoryIndex % iconColors.length]}
           />
         ))}
+      </div>
+      <div class="fixed bottom-0 left-0 right-0 z-20 p-5 rounded-lg shadow-lg">
+        <form
+          id="account-selector-form"
+          class="hidden flex flex-col mb-0 mt-3 justify-center text-font-off-white bg-primary-black border-b-primary-dark-grey rounded-lg"
+        >
+          {accounts.map((account) => (
+            <div>
+              <div class="w-full flex justify-between p-3">
+                <label class="" for={account.name}>
+                  {account.name}
+                </label>
+                <input
+                  type="radio"
+                  id={account.name}
+                  name="selectedAccount"
+                  value={account.name}
+                  class="w-6 h-6 cursor-pointer"
+                />
+              </div>
+              <div class="w-full h-1 bg-primary-dark-grey rounded mb-2 opacity-75"></div>
+            </div>
+          ))}
+          <input
+            type="submit"
+            value="Cancel"
+            id="cancel-account-change"
+            class="text-accent-blue my-2 cursor-pointer"
+          />
+        </form>
       </div>
       <div class="h-20"></div>
     </div>

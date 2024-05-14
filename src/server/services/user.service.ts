@@ -3,7 +3,6 @@ import { items } from '../database/schema/items';
 import { users } from '../database/schema/users';
 import { eq } from 'drizzle-orm';
 import { type ArrayElement } from '../interface/types';
-import { institutions } from '../database/schema/institutions';
 
 const db = getDB();
 
@@ -56,39 +55,3 @@ export const getUserByEmailOnly = async (email: string) => {
     return null;
   }
 };
-
-export const getItemsForUser = async (userId: string) => {
-  try {
-    const results = await db
-      .select({ item: items })
-      .from(users)
-      .innerJoin(items, eq(users.id, items.userId))
-      .where(eq(users.id, userId));
-
-    return results;
-  } catch (err) {
-    console.log(err);
-    return [];
-  }
-};
-
-export type Item = ArrayElement<
-  ExtractFunctionReturnType<typeof getItemsForUser>
->['item'];
-
-export const addItemToUser = async (
-  userId: string,
-  item: Omit<Omit<Item, 'userId'>, 'institutionId'>
-) => {
-  await db.insert(items).values({
-    userId: userId,
-    ...item,
-  });
-};
-
-export async function updateItem(
-  itemId: string,
-  item: Partial<Omit<Item, 'id'>>
-) {
-  await db.update(items).set(item).where(eq(items.id, itemId));
-}

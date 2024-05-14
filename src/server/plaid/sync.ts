@@ -10,7 +10,7 @@ import {
   getItemsForUser,
   updateItem,
   type Item,
-} from '../services/user.service';
+} from '../services/plaid.service';
 import { plaidRequest } from './link';
 
 export async function syncTransactionsForUser(userId: string) {

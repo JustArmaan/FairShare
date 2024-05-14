@@ -28,43 +28,44 @@ const icons = [
   {
     id: '2707335e-ad80-458a-a1e6-fb25300e5621',
     name: 'Heart',
-    icon: './groupIcons/heart.svg ',
+    icon: './groupIcons/heart.svg',
   },
   {
     id: '2707335e-ad80-458a-a1e6-fb25300e5622',
     name: 'Star',
-    icon: './groupIcons/star.svg ',
+    icon: './groupIcons/star.svg',
   },
   {
     id: '2707335e-ad80-458a-a1e6-fb25300e5623',
     name: 'Drink',
-    icon: './groupIcons/drink.svg ',
+    icon: './groupIcons/drink.svg',
   },
   {
     id: '2707335e-ad80-458a-a1e6-fb25300e5624',
     name: 'Diamond',
-    icon: './groupIcons/diamond.svg ',
+    icon: './groupIcons/diamond.svg',
   },
   {
     id: '2707335e-ad80-458a-a1e6-fb25300e5625',
     name: 'Food',
-    icon: './groupIcons/food.svg ',
+    icon: './groupIcons/food.svg',
   },
   {
     id: '2707335e-ad80-458a-a1e6-fb25300e5626',
     name: 'Crown',
-    icon: './groupIcons/crown.svg ',
+    icon: './groupIcons/crown.svg',
   },
   {
     id: '2707335e-ad80-458a-a1e6-fb25300e5627',
     name: 'Gift',
-    icon: './groupIcons/gift.svg ',
+    icon: './groupIcons/gift.svg',
   },
 ];
 
 router.get('/page', getUser, async (req, res) => {
   try {
     const groups = await getGroupsAndAllMembersForUser(req.user!.id);
+    console.log(groups, 'groups');
     const html = renderToHtml(<GroupPage groups={groups ? groups : []} />);
     res.send(html);
   } catch (err) {
