@@ -73,19 +73,23 @@ const accountTypes = [
   { type: 'other' },
 ];
 
-await db.delete(transactions);
+console.log('Starting deletions');
+(await db.select().from(transactions)).length > 0 &&
+  (await db.delete(transactions));
 console.log('Deleted all records from the transactions table.');
 
-await db.delete(categories);
+(await db.select().from(categories)).length > 0 &&
+  (await db.delete(categories));
 console.log('Deleted all records from the categories table.');
 
-await db.delete(users);
+(await db.select().from(users)).length > 0 && (await db.delete(users));
 console.log('Deleted all records from the users table.');
 
-await db.delete(memberType);
+(await db.select().from(memberType)).length > 0 &&
+  (await db.delete(memberType));
 console.log('Deleted all records from the memberTypes table.');
 
-await db.delete(items);
+(await db.select().from(items)).length > 0 && (await db.delete(items));
 console.log('Deleted all items');
 
 try {

@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "3c417e33-65d5-4aa2-ba3d-dde7ac35cf90",
+  "id": "8a69680e-6da4-486e-9264-d648718257c6",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "accounts": {
@@ -16,13 +16,6 @@
         },
         "name": {
           "name": "name",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "institution_id": {
-          "name": "institution_id",
           "type": "text",
           "primaryKey": false,
           "notNull": true,
@@ -46,7 +39,7 @@
           "name": "balance",
           "type": "numeric",
           "primaryKey": false,
-          "notNull": true,
+          "notNull": false,
           "autoincrement": false
         },
         "currency_code_id": {
@@ -118,13 +111,6 @@
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
-        },
-        "subtype": {
-          "name": "subtype",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
         }
       },
       "indexes": {},
@@ -144,6 +130,13 @@
         },
         "name": {
           "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "display_name": {
+          "name": "display_name",
           "type": "text",
           "primaryKey": false,
           "notNull": true,
@@ -229,6 +222,29 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
+    "institutions": {
+      "name": "institutions",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
     "items": {
       "name": "items",
       "columns": {
@@ -250,7 +266,7 @@
           "name": "institution_id",
           "type": "text",
           "primaryKey": false,
-          "notNull": true,
+          "notNull": false,
           "autoincrement": false
         },
         "user_id": {
@@ -263,6 +279,19 @@
       },
       "indexes": {},
       "foreignKeys": {
+        "items_institution_id_institutions_id_fk": {
+          "name": "items_institution_id_institutions_id_fk",
+          "tableFrom": "items",
+          "tableTo": "institutions",
+          "columnsFrom": [
+            "institution_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
         "items_user_id_users_id_fk": {
           "name": "items_user_id_users_id_fk",
           "tableFrom": "items",
@@ -308,13 +337,13 @@
       "columns": {
         "id": {
           "name": "id",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true,
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
           "autoincrement": false
         },
-        "user_id": {
-          "name": "user_id",
+        "account_id": {
+          "name": "account_id",
           "type": "text",
           "primaryKey": false,
           "notNull": true,
@@ -331,7 +360,7 @@
           "name": "company",
           "type": "text",
           "primaryKey": false,
-          "notNull": true,
+          "notNull": false,
           "autoincrement": false
         },
         "amount": {
@@ -345,39 +374,39 @@
           "name": "timestamp",
           "type": "text",
           "primaryKey": false,
-          "notNull": true,
+          "notNull": false,
           "autoincrement": false
         },
         "address": {
           "name": "address",
           "type": "text",
           "primaryKey": false,
-          "notNull": true,
+          "notNull": false,
           "autoincrement": false
         },
         "latitude": {
           "name": "latitude",
           "type": "real",
           "primaryKey": false,
-          "notNull": true,
+          "notNull": false,
           "autoincrement": false
         },
         "longitude": {
           "name": "longitude",
           "type": "real",
           "primaryKey": false,
-          "notNull": true,
+          "notNull": false,
           "autoincrement": false
         }
       },
       "indexes": {},
       "foreignKeys": {
-        "transactions_user_id_users_id_fk": {
-          "name": "transactions_user_id_users_id_fk",
+        "transactions_account_id_accounts_id_fk": {
+          "name": "transactions_account_id_accounts_id_fk",
           "tableFrom": "transactions",
-          "tableTo": "users",
+          "tableTo": "accounts",
           "columnsFrom": [
-            "user_id"
+            "account_id"
           ],
           "columnsTo": [
             "id"

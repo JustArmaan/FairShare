@@ -1,10 +1,9 @@
 CREATE TABLE `accounts` (
 	`id` text PRIMARY KEY NOT NULL,
 	`name` text NOT NULL,
-	`institution_id` text NOT NULL,
 	`item_id` text NOT NULL,
 	`account_type_id` text,
-	`balance` numeric NOT NULL,
+	`balance` numeric,
 	`currency_code_id` text,
 	FOREIGN KEY (`item_id`) REFERENCES `items`(`id`) ON UPDATE no action ON DELETE cascade,
 	FOREIGN KEY (`account_type_id`) REFERENCES `account_type`(`id`) ON UPDATE no action ON DELETE no action,
@@ -13,13 +12,13 @@ CREATE TABLE `accounts` (
 --> statement-breakpoint
 CREATE TABLE `account_type` (
 	`id` text PRIMARY KEY NOT NULL,
-	`type` text NOT NULL,
-	`subtype` text NOT NULL
+	`type` text NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE `categories` (
 	`id` text PRIMARY KEY NOT NULL,
 	`name` text NOT NULL,
+	`display_name` text NOT NULL,
 	`icon` text NOT NULL
 );
 --> statement-breakpoint
@@ -36,11 +35,17 @@ CREATE TABLE `groups` (
 	`temporary` text NOT NULL
 );
 --> statement-breakpoint
+CREATE TABLE `institutions` (
+	`id` text PRIMARY KEY NOT NULL,
+	`name` text NOT NULL
+);
+--> statement-breakpoint
 CREATE TABLE `items` (
 	`id` text PRIMARY KEY NOT NULL,
 	`plaid_access_token` text NOT NULL,
-	`institution_id` text NOT NULL,
+	`institution_id` text,
 	`user_id` text NOT NULL,
+	FOREIGN KEY (`institution_id`) REFERENCES `institutions`(`id`) ON UPDATE no action ON DELETE no action,
 	FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON UPDATE no action ON DELETE cascade
 );
 --> statement-breakpoint
@@ -50,16 +55,16 @@ CREATE TABLE `memberType` (
 );
 --> statement-breakpoint
 CREATE TABLE `transactions` (
-	`id` text PRIMARY KEY NOT NULL,
-	`user_id` text NOT NULL,
+	`id` integer,
+	`account_id` text NOT NULL,
 	`category_id` text NOT NULL,
-	`company` text NOT NULL,
+	`company` text,
 	`amount` real NOT NULL,
-	`timestamp` text NOT NULL,
-	`address` text NOT NULL,
-	`latitude` real NOT NULL,
-	`longitude` real NOT NULL,
-	FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON UPDATE no action ON DELETE cascade,
+	`timestamp` text,
+	`address` text,
+	`latitude` real,
+	`longitude` real,
+	FOREIGN KEY (`account_id`) REFERENCES `accounts`(`id`) ON UPDATE no action ON DELETE cascade,
 	FOREIGN KEY (`category_id`) REFERENCES `categories`(`id`) ON UPDATE no action ON DELETE cascade
 );
 --> statement-breakpoint

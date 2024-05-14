@@ -1,8 +1,8 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "b2b7d532-cc7c-4d2c-8c8c-022bca098943",
-  "prevId": "3c417e33-65d5-4aa2-ba3d-dde7ac35cf90",
+  "id": "45b6ebe4-e68e-4313-beb7-a63a52dc7c2c",
+  "prevId": "8a69680e-6da4-486e-9264-d648718257c6",
   "tables": {
     "accounts": {
       "name": "accounts",
@@ -16,13 +16,6 @@
         },
         "name": {
           "name": "name",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "institution_id": {
-          "name": "institution_id",
           "type": "text",
           "primaryKey": false,
           "notNull": true,
@@ -46,7 +39,7 @@
           "name": "balance",
           "type": "numeric",
           "primaryKey": false,
-          "notNull": true,
+          "notNull": false,
           "autoincrement": false
         },
         "currency_code_id": {
@@ -118,13 +111,6 @@
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
-        },
-        "subtype": {
-          "name": "subtype",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
         }
       },
       "indexes": {},
@@ -144,6 +130,13 @@
         },
         "name": {
           "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "display_name": {
+          "name": "display_name",
           "type": "text",
           "primaryKey": false,
           "notNull": true,
@@ -282,13 +275,6 @@
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
-        },
-        "balance": {
-          "name": "balance",
-          "type": "numeric",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
         }
       },
       "indexes": {},
@@ -351,13 +337,13 @@
       "columns": {
         "id": {
           "name": "id",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true,
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
           "autoincrement": false
         },
-        "user_id": {
-          "name": "user_id",
+        "account_id": {
+          "name": "account_id",
           "type": "text",
           "primaryKey": false,
           "notNull": true,
@@ -374,7 +360,7 @@
           "name": "company",
           "type": "text",
           "primaryKey": false,
-          "notNull": true,
+          "notNull": false,
           "autoincrement": false
         },
         "amount": {
@@ -388,39 +374,39 @@
           "name": "timestamp",
           "type": "text",
           "primaryKey": false,
-          "notNull": true,
+          "notNull": false,
           "autoincrement": false
         },
         "address": {
           "name": "address",
           "type": "text",
           "primaryKey": false,
-          "notNull": true,
+          "notNull": false,
           "autoincrement": false
         },
         "latitude": {
           "name": "latitude",
           "type": "real",
           "primaryKey": false,
-          "notNull": true,
+          "notNull": false,
           "autoincrement": false
         },
         "longitude": {
           "name": "longitude",
           "type": "real",
           "primaryKey": false,
-          "notNull": true,
+          "notNull": false,
           "autoincrement": false
         }
       },
       "indexes": {},
       "foreignKeys": {
-        "transactions_user_id_users_id_fk": {
-          "name": "transactions_user_id_users_id_fk",
+        "transactions_account_id_accounts_id_fk": {
+          "name": "transactions_account_id_accounts_id_fk",
           "tableFrom": "transactions",
-          "tableTo": "users",
+          "tableTo": "accounts",
           "columnsFrom": [
-            "user_id"
+            "account_id"
           ],
           "columnsTo": [
             "id"
@@ -461,13 +447,6 @@
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
-        },
-        "transaction_id": {
-          "name": "transaction_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
         }
       },
       "indexes": {},
@@ -478,19 +457,6 @@
           "tableTo": "groups",
           "columnsFrom": [
             "group_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "transactionsToGroups_transaction_id_transactions_id_fk": {
-          "name": "transactionsToGroups_transaction_id_transactions_id_fk",
-          "tableFrom": "transactionsToGroups",
-          "tableTo": "transactions",
-          "columnsFrom": [
-            "transaction_id"
           ],
           "columnsTo": [
             "id"
