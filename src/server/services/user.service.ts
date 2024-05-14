@@ -80,29 +80,15 @@ export const addItemToUser = async (
   userId: string,
   item: Omit<Omit<Item, 'userId'>, 'institutionId'>
 ) => {
-  console.log('adding item', item, userId);
-  const newItem = await db.insert(items).values({
+  await db.insert(items).values({
     userId: userId,
     ...item,
   });
-  console.log(newItem, 'new item?');
 };
 
-const addInstitution = async (institution: Institution) => {
-  await db.insert(institutions).values(institution);
-};
-
-type Institution = ExtractFunctionReturnType<typeof getInstitution>;
-
-const getInstitution = async (id: string) => {
-  try {
-    const results = await db
-      .select()
-      .from(institutions)
-      .where(eq(institutions.id, id));
-    return results[0];
-  } catch (error) {
-    console.error(error);
-    return null;
-  }
-};
+export async function updateItem(
+  itemId: string,
+  item: Partial<Omit<Item, 'id'>>
+) {
+  await db.update(items).set(item).where(eq(items.id, itemId));
+}

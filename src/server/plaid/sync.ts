@@ -1,4 +1,4 @@
-import { addAccount } from '../services/account.service';
+import { addAccount, getAccount } from '../services/account.service';
 import { getAccountTypeIdByName } from '../services/accountType.service';
 import { getCategoryIdByName } from '../services/category.service';
 import {
@@ -6,7 +6,11 @@ import {
   deleteTransactions,
   updateTransaction,
 } from '../services/transaction.service';
-import { getItemsForUser, type Item } from '../services/user.service';
+import {
+  getItemsForUser,
+  updateItem,
+  type Item,
+} from '../services/user.service';
 import { plaidRequest } from './link';
 
 export async function syncTransactionsForUser(userId: string) {
@@ -16,13 +20,15 @@ export async function syncTransactionsForUser(userId: string) {
 
 async function syncTransaction({ item }: { item: Item }) {
   const count = 500;
-  let cursor: string | undefined = undefined;
+  let cursor: string | undefined = item.nextCursor
+    ? item.nextCursor
+    : undefined;
 
   let accountsAdded = false;
   while (true) {
     const response = (await plaidRequest('/transactions/sync', {
       access_token: item.plaidAccessToken,
-      cursor: cursor,
+      cursor,
       count,
     })) as {
       accounts: {
@@ -48,20 +54,32 @@ async function syncTransaction({ item }: { item: Item }) {
         accounts.map(async (account) => {
           const accountTypeId = await getAccountTypeIdByName(account.type);
           if (!accountTypeId) return;
-          await addAccount({
-            id: account.account_id,
-            name: account.name,
-            accountTypeId: accountTypeId.id,
-            balance: '0',
-            currencyCodeId: null, // account.balances.iso_currency_code,
-            itemId: item.id,
-          });
+          const acc = await getAccount(account.account_id);
+          if (!acc) {
+            await addAccount({
+              id: account.account_id,
+              name: account.name,
+              accountTypeId: accountTypeId.id,
+              balance: '0',
+              currencyCodeId: null, // account.balances.iso_currency_code,
+              itemId: item.id,
+            });
+          }
         })
       );
       accountsAdded = true;
     }
     const { added, modified, removed, next_cursor, has_more } = response;
-    console.log(added, modified, removed, 'response');
+    /*
+    console.log(
+      added.length,
+      modified.length,
+      removed.length,
+      next_cursor,
+      has_more
+    );
+    */
+    // console.log(added, modified, removed, 'response');
     await addTransactions(added);
     await Promise.all(modified.map(modifyTransaction));
     if (removed.length > 0) {
@@ -69,7 +87,12 @@ async function syncTransaction({ item }: { item: Item }) {
         removed.map((removed) => removed.transaction_id)
       );
     }
-    if (!has_more) break;
+    if (!has_more) {
+      updateItem(item.id, {
+        nextCursor: next_cursor,
+      });
+      break;
+    }
     cursor = next_cursor;
   }
 }
@@ -132,7 +155,7 @@ async function addTransactions(transactions: AddedPlaidTransaction[]) {
       };
     })
   );
-  createTransactions(newTransactions);
+  newTransactions.length > 0 && createTransactions(newTransactions);
 }
 
 async function modifyTransaction(transaction: ModifiedPlaidTransaction) {

@@ -1,9 +1,6 @@
 import { Router } from 'express';
 import { getAccessToken, getLinkToken } from '../../../plaid/link';
-import {
-  addItemToUser,
-  getItemsForUser,
-} from '../../../services/user.service';
+import { addItemToUser, getItemsForUser } from '../../../services/user.service';
 import { getUser } from '../../authRouter';
 
 const router = Router();
@@ -17,9 +14,8 @@ router.get('/connected', getUser, async (req, res) => {
   }
 
   const items = await getItemsForUser(req.user.id);
-  console.log(items, 'items');
+  console.log(items, 'all items for user');
   const connected = items.length > 0;
-  console.log(connected);
   return res.json({
     error: null,
     data: { connected },
@@ -64,6 +60,7 @@ router.post('/plaid-public-token', getUser, async (req, res) => {
     await addItemToUser(req.user.id, {
       id: item_id as string,
       plaidAccessToken: access_token,
+      nextCursor: null,
     });
     console.log('added!');
     res.status(200).send();

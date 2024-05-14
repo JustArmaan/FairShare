@@ -74,13 +74,13 @@ const accountTypes = [
 ];
 
 console.log('Starting deletions');
-(await db.select().from(transactions)).length > 0 &&
-  (await db.delete(transactions));
-console.log('Deleted all records from the transactions table.');
-
 (await db.select().from(categories)).length > 0 &&
   (await db.delete(categories));
 console.log('Deleted all records from the categories table.');
+
+(await db.select().from(transactions)).length > 0 &&
+  (await db.delete(transactions));
+console.log('Deleted all records from the transactions table.');
 
 (await db.select().from(users)).length > 0 && (await db.delete(users));
 console.log('Deleted all records from the users table.');

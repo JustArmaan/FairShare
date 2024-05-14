@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "8a69680e-6da4-486e-9264-d648718257c6",
+  "id": "6a3441a2-8d71-4818-be46-1b28cd0d2305",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "accounts": {
@@ -275,6 +275,13 @@
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
+        },
+        "next_cursor": {
+          "name": "next_cursor",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
         }
       },
       "indexes": {},
@@ -337,9 +344,9 @@
       "columns": {
         "id": {
           "name": "id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false,
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
           "autoincrement": false
         },
         "account_id": {
@@ -397,6 +404,13 @@
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
+        },
+        "pending": {
+          "name": "pending",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
         }
       },
       "indexes": {},
@@ -448,8 +462,8 @@
           "notNull": true,
           "autoincrement": false
         },
-        "transaction_id": {
-          "name": "transaction_id",
+        "fk_transaction_id": {
+          "name": "fk_transaction_id",
           "type": "text",
           "primaryKey": false,
           "notNull": true,
@@ -471,12 +485,12 @@
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
-        "transactionsToGroups_transaction_id_transactions_id_fk": {
-          "name": "transactionsToGroups_transaction_id_transactions_id_fk",
+        "transactionsToGroups_fk_transaction_id_transactions_id_fk": {
+          "name": "transactionsToGroups_fk_transaction_id_transactions_id_fk",
           "tableFrom": "transactionsToGroups",
           "tableTo": "transactions",
           "columnsFrom": [
-            "transaction_id"
+            "fk_transaction_id"
           ],
           "columnsTo": [
             "id"

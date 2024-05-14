@@ -45,6 +45,7 @@ CREATE TABLE `items` (
 	`plaid_access_token` text NOT NULL,
 	`institution_id` text,
 	`user_id` text NOT NULL,
+	`next_cursor` text,
 	FOREIGN KEY (`institution_id`) REFERENCES `institutions`(`id`) ON UPDATE no action ON DELETE no action,
 	FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON UPDATE no action ON DELETE cascade
 );
@@ -55,7 +56,7 @@ CREATE TABLE `memberType` (
 );
 --> statement-breakpoint
 CREATE TABLE `transactions` (
-	`id` integer,
+	`id` text PRIMARY KEY NOT NULL,
 	`account_id` text NOT NULL,
 	`category_id` text NOT NULL,
 	`company` text,
@@ -64,6 +65,7 @@ CREATE TABLE `transactions` (
 	`address` text,
 	`latitude` real,
 	`longitude` real,
+	`pending` integer,
 	FOREIGN KEY (`account_id`) REFERENCES `accounts`(`id`) ON UPDATE no action ON DELETE cascade,
 	FOREIGN KEY (`category_id`) REFERENCES `categories`(`id`) ON UPDATE no action ON DELETE cascade
 );
@@ -71,9 +73,9 @@ CREATE TABLE `transactions` (
 CREATE TABLE `transactionsToGroups` (
 	`id` text PRIMARY KEY NOT NULL,
 	`group_id` text NOT NULL,
-	`transaction_id` text NOT NULL,
+	`fk_transaction_id` text NOT NULL,
 	FOREIGN KEY (`group_id`) REFERENCES `groups`(`id`) ON UPDATE no action ON DELETE cascade,
-	FOREIGN KEY (`transaction_id`) REFERENCES `transactions`(`id`) ON UPDATE no action ON DELETE cascade
+	FOREIGN KEY (`fk_transaction_id`) REFERENCES `transactions`(`id`) ON UPDATE no action ON DELETE cascade
 );
 --> statement-breakpoint
 CREATE TABLE `users` (

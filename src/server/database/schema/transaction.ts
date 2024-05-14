@@ -16,5 +16,5 @@ export const transactions = sqliteTable('transactions', {
   address: text('address'),
   latitude: real('latitude'),
   longitude: real('longitude'),
-  pending: integer('id', { mode: 'boolean' }),
+  pending: integer('pending', { mode: 'boolean' }),
 });

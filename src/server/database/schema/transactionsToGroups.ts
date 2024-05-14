@@ -7,7 +7,7 @@ export const transactionsToGroups = sqliteTable('transactionsToGroups', {
   groupsId: text('group_id')
     .references(() => groups.id, { onDelete: 'cascade' })
     .notNull(),
-  transactionId: text('transaction_id')
+  transactionId: text('fk_transaction_id')
     .references(() => transactions.id, { onDelete: 'cascade' })
     .notNull(),
 });
