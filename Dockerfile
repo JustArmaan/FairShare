@@ -6,8 +6,7 @@ WORKDIR /usr/src/app
 # Copy package files
 COPY package*.json bun.lockb ./
 
-# Run your build command# Install NVM, Node.js, and use it in one command to ensure the environment is preserved
-RUN bun i
+RUN bun i 
 
 # RUN bun x tailwindcss -i src/server/views/tailwind.css -o public/output.css
 
