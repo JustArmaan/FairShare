@@ -2,27 +2,19 @@ import { getDB } from '../database/client';
 import { users } from '../database/schema/users';
 import { categories } from '../database/schema/category';
 import { transactions } from '../database/schema/transaction';
-import { eq, desc, like, and, or, gte, lt } from 'drizzle-orm';
+import { eq, desc, like, and, or, gte, lt, inArray } from 'drizzle-orm';
 import { findUser } from './user.service';
-import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuid } from 'uuid';
 import type { ExtractFunctionReturnType } from './user.service';
 
 const db = getDB();
 
-export async function debug_getTransactionsForAnyUser(limit: number = 9999) {
-  const firstUser = (await db.select().from(users).limit(1))[0];
-  if (!firstUser) {
-    return;
-  }
-  return await getTransactionsForUser(firstUser.id, limit);
-}
-
 export async function getTransactionsForUser(
-  userId: string,
+  accountId: string,
   limit: number = 9999
 ) {
   try {
-    const user = await findUser(userId);
+    const user = await findUser(accountId);
     if (!user) {
       return [];
     }
@@ -32,7 +24,7 @@ export async function getTransactionsForUser(
       .from(transactions)
       .orderBy(desc(transactions.timestamp))
       .innerJoin(categories, eq(transactions.categoryId, categories.id))
-      .where(eq(transactions.userId, userId))
+      .where(eq(transactions.accountId, accountId))
       .limit(limit);
 
     const joined = result.map((result) => {
@@ -80,10 +72,37 @@ export type Transaction = ExtractFunctionReturnType<
   typeof getTransactionNoJoins
 >;
 
+export async function createTransactions(
+  newTransactions: Omit<Transaction, 'id'>[]
+) {
+  try {
+    await db
+      .insert(transactions)
+      .values(
+        newTransactions.map((transaction) => ({ ...transaction, id: uuid() }))
+      );
+  } catch (error) {
+    console.error(error);
+  }
+}
+
 export async function createTransaction(transaction: Omit<Transaction, 'id'>) {
   try {
     const newTransaction = await db.insert(transactions).values({
-      id: uuidv4(),
+      id: uuid(),
+      ...transaction,
+    });
+    return newTransaction;
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+export async function updateTransaction(
+  transaction: Partial<Omit<Transaction, 'id'>>
+) {
+  try {
+    const newTransaction = await db.update(transactions).set({
       ...transaction,
     });
     return newTransaction;
@@ -105,8 +124,19 @@ export async function getTransactionLocation(transactionId: string) {
   }
 }
 
+export async function deleteTransactions(transactionIds: string[]) {
+  try {
+    const newTransaction = await db
+      .delete(transactions)
+      .where(inArray(transactions.id, transactionIds));
+    console.log(newTransaction);
+  } catch (error) {
+    console.error(error);
+  }
+}
+
 export async function searchTransactions(
-  userId: string,
+  accountId: string,
   query: string,
   limit: number = 9999
 ) {
@@ -117,7 +147,7 @@ export async function searchTransactions(
       .innerJoin(categories, eq(categories.id, transactions.categoryId))
       .where(
         and(
-          eq(transactions.userId, userId),
+          eq(transactions.accountId, accountId),
           or(
             like(transactions.company, `%${query}%`),
             like(categories.name, `%${query}%`),
@@ -155,7 +185,7 @@ function getNextMonthYear(year: string, month: string) {
   };
 }
 export async function getTransactionsByMonth(
-  userId: string,
+  accountId: string,
   year: string,
   month: string
 ) {
@@ -171,7 +201,7 @@ export async function getTransactionsByMonth(
       .innerJoin(categories, eq(categories.id, transactions.categoryId))
       .where(
         and(
-          eq(transactions.userId, userId),
+          eq(transactions.accountId, accountId),
           gte(transactions.timestamp, startDate),
           lt(transactions.timestamp, endDate)
         )
@@ -191,9 +221,3 @@ export async function getTransactionsByMonth(
     return [];
   }
 }
-
-// const monthlyTransactions = await getTransactionsByMonth(
-//   "kp_1f69766a544b4f1e8ab2e4c795757fd9",
-//   "2024",
-//   "04
-// console.log(monthlyTransactions, "monthly transactions for April 2024");

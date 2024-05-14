@@ -9,5 +9,4 @@ export const users = sqliteTable('users', {
   email: text('email').notNull(),
   picture: text('picture'),
   createdAt: text('created_at').default(sql`(current_timestamp)`),
-  plaidAccessToken: text('plaid_access_token'),
 });

@@ -1,8 +1,8 @@
 import type { UserSchemaWithMemberType } from '../../../../interface/types';
 
-export const AddedMember = ({ user }: { user: UserSchemaWithMemberType }) => {
+export const AddedMember = ({ user, groupId }: { user: UserSchemaWithMemberType, groupId?: string }) => {
   function formatEmail(email: string) {
-    return email.length > 10 ? `${email.substring(0, 15)}...` : email;
+    return email.length > 10 ? `${email.substring(0, 8)}...` : email;
   }
 
   return (
@@ -24,7 +24,7 @@ export const AddedMember = ({ user }: { user: UserSchemaWithMemberType }) => {
       <div class="flex-grow text-font-off-white text-sm">
         {formatEmail(user.email)}
       </div>
-      {user.type === 'Owner' ? (
+      {user.type === 'Owner' || !groupId  ? (
         <button class="py-2 px-4 bg-accent-purple text-font-off-white rounded-lg text-sm cursor-default">
           {'Owner'}
         </button>
@@ -33,8 +33,11 @@ export const AddedMember = ({ user }: { user: UserSchemaWithMemberType }) => {
           <button class="py-2 px-4 bg-accent-purple text-font-off-white rounded-lg text-sm cursor-default">
             {'Member'}
           </button>
-          <button class="cursor-default">
-            <img src="/icons/delete.svg" />
+          <button class="cursor-pointer">
+            <img
+              src="/icons/delete.svg"
+              hx-post={`/groups/deleteMember/${user.id}/${groupId}`}
+            />
           </button>
         </>
       )}

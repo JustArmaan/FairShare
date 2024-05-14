@@ -4,7 +4,7 @@ import { renderToHtml } from "jsxte";
 import { getUser } from "./authRouter.ts";
 import {
   checkUserInGroup,
-  getCategories,
+  deleteMemberByGroup,
   getCategory,
   getGroupsAndAllMembersForUser,
 } from "../services/group.service";
@@ -26,45 +26,46 @@ const router = express.Router();
 
 const icons = [
   {
-    id: "2707335e-ad80-458a-a1e6-fb25300e5621",
-    name: "Heart",
-    icon: "./groupIcons/heart.svg ",
+    id: '2707335e-ad80-458a-a1e6-fb25300e5621',
+    name: 'Heart',
+    icon: './groupIcons/heart.svg',
   },
   {
-    id: "2707335e-ad80-458a-a1e6-fb25300e5622",
-    name: "Star",
-    icon: "./groupIcons/star.svg ",
+    id: '2707335e-ad80-458a-a1e6-fb25300e5622',
+    name: 'Star',
+    icon: './groupIcons/star.svg',
   },
   {
-    id: "2707335e-ad80-458a-a1e6-fb25300e5623",
-    name: "Drink",
-    icon: "./groupIcons/drink.svg ",
+    id: '2707335e-ad80-458a-a1e6-fb25300e5623',
+    name: 'Drink',
+    icon: './groupIcons/drink.svg',
   },
   {
-    id: "2707335e-ad80-458a-a1e6-fb25300e5624",
-    name: "Diamond",
-    icon: "./groupIcons/diamond.svg ",
+    id: '2707335e-ad80-458a-a1e6-fb25300e5624',
+    name: 'Diamond',
+    icon: './groupIcons/diamond.svg',
   },
   {
-    id: "2707335e-ad80-458a-a1e6-fb25300e5625",
-    name: "Food",
-    icon: "./groupIcons/food.svg ",
+    id: '2707335e-ad80-458a-a1e6-fb25300e5625',
+    name: 'Food',
+    icon: './groupIcons/food.svg',
   },
   {
-    id: "2707335e-ad80-458a-a1e6-fb25300e5626",
-    name: "Crown",
-    icon: "./groupIcons/crown.svg ",
+    id: '2707335e-ad80-458a-a1e6-fb25300e5626',
+    name: 'Crown',
+    icon: './groupIcons/crown.svg',
   },
   {
-    id: "2707335e-ad80-458a-a1e6-fb25300e5627",
-    name: "Gift",
-    icon: "./groupIcons/gift.svg ",
+    id: '2707335e-ad80-458a-a1e6-fb25300e5627',
+    name: 'Gift',
+    icon: './groupIcons/gift.svg',
   },
 ];
 
-router.get("/page", getUser, async (req, res) => {
+router.get('/page', getUser, async (req, res) => {
   try {
     const groups = await getGroupsAndAllMembersForUser(req.user!.id);
+    console.log(groups, 'groups');
     const html = renderToHtml(<GroupPage groups={groups ? groups : []} />);
     res.send(html);
   } catch (err) {
@@ -111,12 +112,20 @@ router.get("/create", getUser, async (req, res) => {
     const { id } = req.user!;
 
     let databaseUser = await findUser(id);
+<<<<<<< HEAD
     if (!databaseUser) throw new Error("failed to create user");
+=======
+    if (!databaseUser) throw new Error('failed to create user');
+>>>>>>> 46b964cee010ae6d4fa66baa0264c6f21967546f
 
     const html = renderToHtml(
       <CreateGroup
         icons={icons}
+<<<<<<< HEAD
         currentUser={{ ...databaseUser, type: "Owner" }}
+=======
+        currentUser={{ ...databaseUser, type: 'Owner' }}
+>>>>>>> 46b964cee010ae6d4fa66baa0264c6f21967546f
       />
     );
     res.send(html);
@@ -144,6 +153,9 @@ router.get("/addMember", getUser, async (req, res) => {
     if (inGroup) {
       return res.status(400).send("User is already in the group.");
     }
+    const group = await getGroupWithMembers(req.params.groupId);
+
+    if (!group) return res.status(404).send('No such group');
 
     if (!member) {
       return res.status(400).send("User not found.");
@@ -196,7 +208,11 @@ router.post("/create", getUser, async (req, res) => {
     }
 
     if (!selectedCategoryId) {
+<<<<<<< HEAD
       return res.status(400).send("Category not found.");
+=======
+      return res.status(400).send('Category not found.');
+>>>>>>> 46b964cee010ae6d4fa66baa0264c6f21967546f
     }
 
     const group = await createGroup(
@@ -384,4 +400,34 @@ router.post("/edit/:groupId", getUser, async (req, res) => {
   }
 });
 
+<<<<<<< HEAD
+=======
+router.post('/deleteMember/:userID/:groupID', async (req, res) => {
+  try {
+    const userID = req.params.userID;
+    const groupID = req.params.groupID;
+    const deleteMembersByGroup = await deleteMemberByGroup(userID, groupID);
+
+    if (!deleteMembersByGroup) {
+      return res.status(500).send('Failed to delete member from group.');
+    }
+    console.log(userID, groupID);
+  } catch (error) {
+    res.status(500).send('An error occured when removing a member');
+  }
+});
+
+/*
+router.get('/transactions/:groupId', getUser, async (req, res) => {
+  // unfinished
+  if (!req.user) {
+    return res.set('HX-Redirect', `${env.baseUrl}/login`).send();
+  }
+  const group = await getGroupWithMembers(req.params.groupId);
+  if (!group) return res.status(404).send('No such group');
+  const { id } = req.user;
+});
+*/
+
+>>>>>>> 46b964cee010ae6d4fa66baa0264c6f21967546f
 export const groupRouter = router;

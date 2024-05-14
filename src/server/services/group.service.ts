@@ -6,7 +6,7 @@ import { memberType } from "../database/schema/memberType";
 import { eq, and } from "drizzle-orm";
 import { v4 as uuidv4 } from "uuid";
 import { users } from "../database/schema/users";
-import type { UserSchema, UserSchemaWithMemberType } from "../interface/types";
+import type { UserSchemaWithMemberType } from "../interface/types";
 import type { ExtractFunctionReturnType } from "./user.service";
 
 const db = getDB();
@@ -118,14 +118,6 @@ export const getGroupsAndAllMembersForUser = async (userId: string) => {
     return [];
   }
 };
-
-await getGroupsAndAllMembersForUser('kp_71b002c357c74585af8a0e067381697f').then(
-  (result) => {
-    if (result !== null) {
-      console.log(result);
-    }
-  }
-);
 
 export type GroupSchema = NonNullable<Awaited<ReturnType<typeof getGroup>>>;
 
@@ -246,3 +238,21 @@ export const checkUserInGroup = async (groupId: string, userId: string) => {
 export type CategoriesSchema = NonNullable<
   Awaited<ReturnType<typeof getCategories>>
 >;
+
+export async function deleteMemberByGroup(userId:string, groupId:string ) {
+  try {
+    const memeber = await db.delete(usersToGroups)
+    .where(
+      and(
+        eq(usersToGroups.groupId, groupId),
+        eq(usersToGroups.userId, userId)
+      )
+    );
+    console.log(memeber)
+
+  } catch (error) {
+    console.error(error)
+    return false;
+  }
+
+}

@@ -3,11 +3,13 @@ import { renderToHtml } from 'jsxte';
 import { getTransactionsForUser } from '../services/transaction.service';
 import { Overview } from '../views/pages/Overview/Overview';
 import { getUser } from './authRouter';
+import { syncTransactionsForUser } from '../plaid/sync';
 const router = express.Router();
 
 router.get('/page', getUser, async (req, res) => {
   try {
     const user = req.user!;
+    syncTransactionsForUser(user.id).then(() => console.log('we did it'));
     const transactions = await getTransactionsForUser(user.id, 4);
 
     const userDetails = {

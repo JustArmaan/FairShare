@@ -1,7 +1,9 @@
 import { main } from "./group";
 import { CustomizeMap } from "./map/customizeMap";
+import { transactionList } from "./transactionList/transactionList";
 
 main();
+transactionList();
 
 document.body.addEventListener("htmx:afterSwap", () => {
   window.scrollTo({ top: 0 });
@@ -50,22 +52,20 @@ async function isConnectedToPlaid(): Promise<boolean> {
 }
 
 try {
-  /*
   const connected = await isConnectedToPlaid();
-  if (false && !connected) {
+  if (!connected) {
     const publicToken = await getToken();
     const response = await fetch(`/api/v${apiVersion}/plaid-public-token`, {
-      method: 'POST',
+      method: "POST",
       body: JSON.stringify({ publicToken }),
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
     });
     if (response.status === 200) {
-      console.log('Token pushed succesfully');
+      console.log("Token pushed succesfully");
     }
   }
-  */
 } catch (error) {
   console.log(error);
 }

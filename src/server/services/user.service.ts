@@ -1,6 +1,8 @@
 import { getDB } from '../database/client';
+import { items } from '../database/schema/items';
 import { users } from '../database/schema/users';
 import { eq } from 'drizzle-orm';
+import { type ArrayElement } from '../interface/types';
 
 const db = getDB();
 
@@ -14,9 +16,7 @@ export const findUser = async (id: string) => {
   }
 };
 
-export const createUser = async (
-  user: Omit<Omit<User, 'createdAt'>, 'plaidAccessToken'>
-) => {
+export const createUser = async (user: Omit<User, 'createdAt'>) => {
   try {
     const newUser = await db.insert(users).values({
       ...user,

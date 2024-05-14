@@ -16,33 +16,22 @@ interface CardProps {
 
 export const Card = ({ cardDetails }: CardProps) => {
   return (
-    <div
-      class={`bg-${cardDetails.primaryColor} text-font-off-white rounded-xl shadow-lg py-4 px-2 relative h-48 overflow-hidden mb-3 w-full`}
-    >
-      <div class="hidden bg-card-red"></div>
-      {/* This will send the color down to client in the output.css */}
-      <div class="flex justify-between items-center mb-1">
-        <div class="flex items-center mb-2">
-          <img src="/cardAssets/scotiabank.svg" class="h-9 w-9 mr-1" />{" "}
-          <h2 class="text-xl font-medium">{cardDetails.bankName}</h2>
-        </div>
+    <div class="bg-card-black text-pure-white p-5 rounded-lg border-2 border-primary-dark-grey shadow-lg max-w-md mx-auto my-4">
+      <div class="flex justify-between items-center mb-2">
+        <span class="text-sm text-font-grey">Card Holder:</span>
+        <span class="text-lg">{cardDetails.cardHolder}</span>
       </div>
-      <div class="ml-10 mr-4 text-xl font-semibold">
-        <p>{cardDetails.cardNumber}</p>
-        <div class="flex justify-between items-center mt-6 mr-2">
-          <div>
-            <p class="text-sm">Card Holder</p>
-            <p class="font-medium text-sm">{cardDetails.cardHolder}</p>
-          </div>
-          <div>
-            <p class="text-sm">Expiry Date</p>
-            <p class="font-medium text-sm">{cardDetails.expiryDate}</p>
-          </div>
-          <div class="flex items-center">
-            <div class="bg-accent-red h-8 w-8 rounded-full"></div>
-            <div class="bg-accent-yellow h-8 w-8 rounded-full -ml-2"></div>
-          </div>
-        </div>
+      <div class="flex justify-between items-center mb-2">
+        <span class="text-sm text-font-grey">Card Number:</span>
+        <span class="text-lg">{cardDetails.cardNumber}</span>
+      </div>
+      <div class="flex justify-between items-center mb-2">
+        <span class="text-sm text-font-grey">Expiry Date:</span>
+        <span class="text-lg">{cardDetails.expiryDate}</span>
+      </div>
+      <div class="flex justify-between items-center">
+        <span class="text-sm text-font-grey">Bank Name:</span>
+        <span class="text-lg">{cardDetails.bankName}</span>
       </div>
     </div>
   );

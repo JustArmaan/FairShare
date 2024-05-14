@@ -164,7 +164,7 @@ export const EditGroupPage = ({
               class="bg-primary-black w-full rounded-lg flex flex-col text-xs justify-center items-center"
             >
               {group.members.map((member) => {
-                return <AddedMember user={member} />;
+                return <AddedMember user={member} groupId={group.id} />;
               })}
             </div>
           </div>
