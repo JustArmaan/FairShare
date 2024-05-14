@@ -1,33 +1,38 @@
 export function transactionList() {
-  document.addEventListener("htmx:afterSwap", () => {
-    const accountSelector = document.getElementById("account-select");
-    const accountSelectorForm = document.querySelectorAll(
-      ".account-selector-form"
+  document.addEventListener('htmx:afterSwap', () => {
+    const accountSelector = document.getElementById('account-select');
+    const accountSelectorImage = document.getElementById(
+      'account-select-image'
     );
-    const modalBg = document.getElementById("modal-bg");
-    const cancelButton = document.getElementById("cancel-account-change");
-    const dateSelectorForm = document.getElementById("date-selector-form");
-    const filterSelector = document.getElementById("filter-selector");
+    const accountSelectorForm = document.querySelectorAll(
+      '.account-selector-form'
+    );
+    const modalBg = document.getElementById('modal-bg');
+    const cancelButton = document.getElementById('cancel-account-change');
+    const dateSelectorForm = document.getElementById('date-selector-form');
+    const filterSelector = document.getElementById('filter-selector');
 
-    accountSelector?.addEventListener("click", () => {
-      accountSelector?.classList.toggle("rotate-90");
+    console.log(accountSelector);
+    accountSelector?.addEventListener('click', (event) => {
+      console.log('click');
+      accountSelectorImage?.classList.toggle('rotate-90');
       accountSelectorForm?.forEach((form) => {
-        form?.classList.toggle("hidden");
+        form?.classList.toggle('hidden');
       });
-      modalBg?.classList.toggle("hidden");
+      modalBg?.classList.toggle('hidden');
     });
 
-    cancelButton?.addEventListener("click", () => {
+    cancelButton?.addEventListener('click', (event) => {
       event?.preventDefault();
-      accountSelector?.classList.toggle("rotate-90");
+      accountSelectorImage?.classList.toggle('rotate-90');
       accountSelectorForm?.forEach((form) => {
-        form?.classList.toggle("hidden");
+        form?.classList.toggle('hidden');
       });
-      modalBg?.classList.toggle("hidden");
+      modalBg?.classList.toggle('hidden');
     });
 
-    filterSelector?.addEventListener("click", () => {
-      dateSelectorForm?.classList.toggle("hidden");
+    filterSelector?.addEventListener('click', () => {
+      dateSelectorForm?.classList.toggle('hidden');
     });
   });
 }

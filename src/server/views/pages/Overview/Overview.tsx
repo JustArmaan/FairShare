@@ -100,7 +100,7 @@ export const Overview = ({
         <div class="flex flex-row justify-between text-center items-center mb-0 mt-3">
           <p class="text-xl text-font-off-white">Transaction History</p>
           <a
-            hx-get="/transactions/page"
+            hx-get="/transactions/page/debug"
             hx-trigger="click"
             hx-target="#app"
             hx-swap="innerHTML"
