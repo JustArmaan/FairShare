@@ -20,7 +20,6 @@ async function getToken() {
     const handler = Plaid.create({
       token: link_token,
       onSuccess: (public_token: string, metadata: any) => {
-        console.log(public_token, metadata);
         resolve(public_token);
       },
       onLoad: () => {

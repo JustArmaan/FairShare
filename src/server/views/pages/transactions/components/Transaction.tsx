@@ -40,16 +40,19 @@ export const Transaction = ({
               </div>
             </div>
             <div>
-              <h4 class="text-font-off-white font-semibold">
-                {transaction.company && transaction.company}
+              <h4 class="text-font-off-white font-semibold w-fit">
+                {transaction.company &&
+                  (transaction.company.length > 24
+                    ? transaction.company.slice(0, 23) + '...'
+                    : transaction.company)}
               </h4>
-              <p class="text-gray-400 text-sm text-font-off-white">
+              <p class="text-gray-400 text-sm text-font-off-white w-fit">
                 {transaction.timestamp && formatDate(transaction.timestamp)}
               </p>
             </div>
           </div>
           <div class="text-font-off-white text-lg font-semibold mr-4">
-            {(transaction.amount > 0 ? '-$' : '$') +
+            {(transaction.amount > 0 ? '-$' : '+$') +
               Math.abs(transaction.amount).toFixed(2)}
           </div>
         </div>

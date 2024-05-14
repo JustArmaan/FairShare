@@ -43,7 +43,7 @@ export const TransactionsPage = (props: {
         hx-get={`/transactions/accountPicker/${props.selectedAccountId}`}
         hx-target=".account-selector-form"
         hx-swap="innerHTML"
-        class=" mb-2 flex justify-start w-fit items-center hover:-translate-y-0.5 transition-transform cursor-pointer"
+        class="mb-2 flex justify-start w-fit items-center hover:-translate-y-0.5 transition-transform cursor-pointer"
       >
         <p class="text-font-off-white mr-3 text-xl">Change Account</p>
         <img
@@ -150,7 +150,6 @@ export const TransactionsPage = (props: {
         hx-trigger="load"
       ></div>
       <div class="account-selector-form" />
-      {/* <div class="account-selector-form fixed inset-x-0 bottom-0 z-20 p-32 bg-card-black rounded-t-lg shadow-lg hidden"> */}
       <div class="h-20"></div>
     </div>
   );

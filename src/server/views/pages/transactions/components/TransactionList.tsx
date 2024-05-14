@@ -14,10 +14,10 @@ export const TransactionList = (props: {
 }) => {
   return (
     <div class="animate-fade-in">
-      {props.transactions.map((transaction, categoryIndex) => (
+      {props.transactions.map((transaction) => (
         <Transaction
           transaction={transaction}
-          tailwindColorClass={iconColors[categoryIndex % iconColors.length]}
+          tailwindColorClass={transaction.category.color}
         />
       ))}
     </div>

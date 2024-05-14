@@ -9,7 +9,7 @@ const router = express.Router();
 router.get('/page', getUser, async (req, res) => {
   try {
     const user = req.user!;
-    syncTransactionsForUser(user.id).then(() => console.log('we did it'));
+    syncTransactionsForUser(user.id);
     const transactions = await getTransactionsForUser(user.id, 4);
 
     const userDetails = {
@@ -25,10 +25,6 @@ router.get('/page', getUser, async (req, res) => {
   } catch (error) {
     console.error(error);
   }
-});
-
-router.get('/empty', (req, res) => {
-  res.send('');
 });
 
 export const homeRouter = router;

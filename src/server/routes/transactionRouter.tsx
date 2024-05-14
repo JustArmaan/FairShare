@@ -137,10 +137,10 @@ router.post('/search', getUser, async (req, res) => {
 
     const html = renderToHtml(
       <div>
-        {transactions.map((transaction, categoryIndex) => (
+        {transactions.map((transaction) => (
           <Transaction
             transaction={transaction}
-            tailwindColorClass={iconColors[categoryIndex % iconColors.length]}
+            tailwindColorClass={transaction.category.color}
           />
         ))}
       </div>
@@ -173,10 +173,10 @@ router.post('/date', getUser, async (req, res) => {
 
     const html = renderToHtml(
       <div>
-        {transactions.map((transaction, categoryIndex) => (
+        {transactions.map((transaction) => (
           <Transaction
             transaction={transaction}
-            tailwindColorClass={iconColors[categoryIndex % iconColors.length]}
+            tailwindColorClass={transaction.category.color}
           />
         ))}
       </div>
