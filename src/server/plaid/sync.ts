@@ -60,7 +60,8 @@ async function syncTransaction({ item }: { item: Item }) {
               id: account.account_id,
               name: account.name,
               accountTypeId: accountTypeId.id,
-              balance: '0',
+              balance: (account.balances.available ||
+                account.balances.current)!.toString(),
               currencyCodeId: null, // account.balances.iso_currency_code,
               itemId: item.id,
             });
@@ -70,16 +71,6 @@ async function syncTransaction({ item }: { item: Item }) {
       accountsAdded = true;
     }
     const { added, modified, removed, next_cursor, has_more } = response;
-    /*
-    console.log(
-      added.length,
-      modified.length,
-      removed.length,
-      next_cursor,
-      has_more
-    );
-    */
-    // console.log(added, modified, removed, 'response');
     await addTransactions(added);
     await Promise.all(modified.map(modifyTransaction));
     if (removed.length > 0) {
