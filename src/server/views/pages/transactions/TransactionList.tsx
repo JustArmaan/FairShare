@@ -154,38 +154,38 @@ export const TransactionsPage = ({
           />
         ))}
       </div>
-      <div class="account-selector-form fixed inset-x-0 bottom-0 z-20 p-32 bg-card-black rounded-t-lg shadow-lg hidden">
-        <div class="account-selector-form fixed bottom-0 left-0 right-0 z-20 p-5 rounded-lg shadow-lg hidden">
-          <form
-            id="account-selector-form"
-            class="account-selector-form hidden flex flex-col mb-0 mt-3 justify-center text-font-off-white bg-primary-black border-b-primary-dark-grey rounded-lg"
-          >
-            {accounts.map((account) => (
-              <div>
-                <div class="w-full flex justify-between p-3">
-                  <label class="" for={account.name}>
-                    {account.name}
-                  </label>
-                  <input
-                    type="radio"
-                    id={account.name}
-                    name="selectedAccount"
-                    value={account.name}
-                    class="w-6 h-6 cursor-pointer"
-                  />
-                </div>
-                <div class="w-full h-1 bg-primary-dark-grey rounded mb-2 opacity-75"></div>
+      {/* <div class="account-selector-form fixed inset-x-0 bottom-0 z-20 p-32 bg-card-black rounded-t-lg shadow-lg hidden"> */}
+      <div class="account-selector-form fixed bottom-0 left-0 right-0 z-20 p-5 rounded-lg shadow-lg hidden">
+        <form
+          id="account-selector-form"
+          class="account-selector-form hidden flex flex-col mb-0 mt-3 justify-center text-font-off-white bg-primary-black border-b-primary-dark-grey rounded-lg"
+        >
+          {accounts.map((account) => (
+            <div>
+              <div class="w-full flex justify-between p-3">
+                <label class="" for={account.name}>
+                  {account.name}
+                </label>
+                <input
+                  type="radio"
+                  id={account.name}
+                  name="selectedAccount"
+                  value={account.name}
+                  class="w-6 h-6 cursor-pointer"
+                />
               </div>
-            ))}
-            <input
-              type="submit"
-              value="Cancel"
-              id="cancel-account-change"
-              class="text-accent-blue my-2 cursor-pointer"
-            />
-          </form>
-        </div>
+              <div class="w-full h-1 bg-primary-dark-grey rounded mb-2 opacity-75"></div>
+            </div>
+          ))}
+          <input
+            type="submit"
+            value="Cancel"
+            id="cancel-account-change"
+            class="text-accent-blue my-2 cursor-pointer"
+          />
+        </form>
       </div>
+      {/* </div> */}
       <div class="h-20"></div>
     </div>
   );
