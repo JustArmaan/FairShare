@@ -21,6 +21,7 @@ import CreateGroup from '../views/pages/Groups/components/CreateGroup.tsx';
 import { EditGroupPage } from '../views/pages/Groups/components/EditGroup.tsx';
 import { ViewGroups } from '../views/pages/Groups/components/ViewGroup.tsx';
 import { getTransactionsForUser } from '../services/transaction.service.ts';
+import { AddTransaction } from '../views/pages/Groups/components/AddTransaction.tsx';
 
 const router = express.Router();
 
@@ -286,6 +287,29 @@ router.get('/edit/:groupId', getUser, async (req, res) => {
   } catch (err) {
     console.error(err);
   }
+});
+
+router.get("/addTransaction/:groupId", getUser, async (req, res,) => {
+  try {
+    if (!req.user) {
+      return res.set('HX-Redirect', `${env.baseUrl}/login`).send();
+    }
+    const currentUser = await findUser(req.user.id);
+
+    if (!currentUser) {
+      return res.status(500).send('Failed to get user');
+    }
+
+    const html = renderToHtml(
+      <AddTransaction
+        currentUser={currentUser}
+        groupId={req.params.groupId}
+      />
+    );
+    res.send(html);
+} catch (err) {
+  console.error(err);
+}
 });
 
 router.post('/edit/:groupId', getUser, async (req, res) => {

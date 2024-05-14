@@ -76,6 +76,21 @@ export const ViewGroups = ({
           />
         ))}
       </div>
+      <button
+       hx-get={`/groups/addTransaction/${groupId}`}
+       hx-trigger="click"
+       hx-target="#app"
+       hx-swap="innerHTML"
+       class="fixed bottom-24 right-6 hover:-translate-y-0.5 transition-transform bg-[#F9F9F9] text-font-grey px-6 py-3 rounded-full shadow-lg hover:bg-blue-600 flex flex-row justify-center"
+       >
+        <p>Add Expense</p>
+        <img
+          src="/icons/addExpenseCircle.svg"
+          alt="Add Expense Icon"
+          class=" hover:opacity-80 h-6 justify-end pl-0.5"
+        />
+      </button>
+      <div class='h-16'></div>
     </div>
   );
 };
