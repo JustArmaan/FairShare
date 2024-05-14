@@ -27,4 +27,8 @@ router.get('/page', getUser, async (req, res) => {
   }
 });
 
+router.get('/empty', (req, res) => {
+  res.send('');
+});
+
 export const homeRouter = router;

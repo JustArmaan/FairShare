@@ -9,7 +9,7 @@ import {
   getTransactionsByMonth,
 } from '../services/transaction.service';
 import Transaction from '../views/pages/transactions/components/Transaction';
-import TransactionsPage from '../views/pages/transactions/TransactionList';
+import TransactionsPage from '../views/pages/transactions/TransactionPage';
 import { getUser } from './authRouter';
 import { env } from '../../../env';
 import {
@@ -17,6 +17,8 @@ import {
   getAccountsForUser,
 } from '../services/plaid.service';
 import type { ExtractFunctionReturnType } from '../services/user.service';
+import { TransactionList } from '../views/pages/transactions/components/TransactionList';
+import { AccountPickerForm } from '../views/pages/transactions/components/AccountPickerForm';
 
 const router = express.Router();
 
@@ -69,23 +71,39 @@ const fakeAccounts = [
   },
 ];
 
+router.get('/accountPicker/:accountId', getUser, async (req, res) => {
+  const accounts = await getAccountsForUser(req.user!.id);
+  if (!accounts) throw new Error('Missing accounts for user');
+  const html = renderToHtml(
+    <AccountPickerForm
+      accounts={accounts}
+      selectedAccountId={req.params.accountId}
+    />
+  );
+  res.send(html);
+});
+
+router.get('/transactionList/:accountId', getUser, async (req, res) => {
+  const account = await getAccountWithTransactions(req.params.accountId);
+  if (!account) throw new Error('404');
+  const html = renderToHtml(
+    <TransactionList transactions={account.transactions} />
+  );
+  res.send(html);
+});
+
 router.get('/page/:selectedAccountId', getUser, async (req, res) => {
   try {
     const accounts = await getAccountsForUser(req.user!.id);
     if (!accounts) throw new Error('no accounts for user!');
-    const accountsWithTransactions = (await Promise.all(
-      accounts.map(
-        async (account) => await getAccountWithTransactions(account.id)
-      )
-    )) as ExtractFunctionReturnType<typeof getAccountWithTransactions>[];
 
     const html = renderToHtml(
       <TransactionsPage
-        accounts={accountsWithTransactions ? accountsWithTransactions : []}
+        accounts={accounts}
         selectedAccountId={
           req.params.selectedAccountId !== 'debug'
             ? req.params.selectedAccountId
-            : accountsWithTransactions[0].id
+            : accounts[0].id
         }
       />
     );
