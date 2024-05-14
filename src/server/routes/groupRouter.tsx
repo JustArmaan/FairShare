@@ -24,6 +24,44 @@ import { getTransactionsForUser } from "../services/transaction.service.ts";
 
 const router = express.Router();
 
+const icons = [
+  {
+    id: "2707335e-ad80-458a-a1e6-fb25300e5621",
+    name: "Heart",
+    icon: "./groupIcons/heart.svg ",
+  },
+  {
+    id: "2707335e-ad80-458a-a1e6-fb25300e5622",
+    name: "Star",
+    icon: "./groupIcons/star.svg ",
+  },
+  {
+    id: "2707335e-ad80-458a-a1e6-fb25300e5623",
+    name: "Drink",
+    icon: "./groupIcons/drink.svg ",
+  },
+  {
+    id: "2707335e-ad80-458a-a1e6-fb25300e5624",
+    name: "Diamond",
+    icon: "./groupIcons/diamond.svg ",
+  },
+  {
+    id: "2707335e-ad80-458a-a1e6-fb25300e5625",
+    name: "Food",
+    icon: "./groupIcons/food.svg ",
+  },
+  {
+    id: "2707335e-ad80-458a-a1e6-fb25300e5626",
+    name: "Crown",
+    icon: "./groupIcons/crown.svg ",
+  },
+  {
+    id: "2707335e-ad80-458a-a1e6-fb25300e5627",
+    name: "Gift",
+    icon: "./groupIcons/gift.svg ",
+  },
+];
+
 router.get("/page", getUser, async (req, res) => {
   try {
     const groups = await getGroupsAndAllMembersForUser(req.user!.id);
@@ -75,10 +113,11 @@ router.get("/create", getUser, async (req, res) => {
     let databaseUser = await findUser(id);
     if (!databaseUser) throw new Error("failed to create user");
 
-    const allCategories = (await getCategories()) || [];
-
     const html = renderToHtml(
-      <CreateGroup categories={allCategories} currentUser={databaseUser} />
+      <CreateGroup
+        icons={icons}
+        currentUser={{ ...databaseUser, type: "Owner" }}
+      />
     );
     res.send(html);
   } catch (error) {
@@ -156,16 +195,14 @@ router.post("/create", getUser, async (req, res) => {
       isTemp = false;
     }
 
-    const category = await getCategory(selectedCategoryId);
-
-    if (!category) {
+    if (!selectedCategoryId) {
       return res.status(400).send("Category not found.");
     }
 
     const group = await createGroup(
       groupName,
       selectedColor,
-      category.icon,
+      selectedCategoryId,
       isTemp.toString()
     );
 
@@ -235,18 +272,11 @@ router.get("/edit/:groupId", getUser, async (req, res) => {
       return res.status(500).send("Failed to get user");
     }
 
-    const categories = await getCategories();
-    if (!categories) return res.status(500).send("Failed to get categories");
-
     const group = await getGroupWithMembers(req.params.groupId);
 
     if (!group) return res.status(404).send("No such group");
     const html = renderToHtml(
-      <EditGroupPage
-        categories={categories}
-        currentUser={currentUser}
-        group={group}
-      />
+      <EditGroupPage icons={icons} currentUser={currentUser} group={group} />
     );
     res.send(html);
   } catch (err) {
@@ -353,17 +383,5 @@ router.post("/edit/:groupId", getUser, async (req, res) => {
     res.status(500).send("An error occurred while updating the group");
   }
 });
-
-/*
-router.get('/transactions/:groupId', getUser, async (req, res) => {
-  // unfinished
-  if (!req.user) {
-    return res.set('HX-Redirect', `${env.baseUrl}/login`).send();
-  }
-  const group = await getGroupWithMembers(req.params.groupId);
-  if (!group) return res.status(404).send('No such group');
-  const { id } = req.user;
-});
-*/
 
 export const groupRouter = router;

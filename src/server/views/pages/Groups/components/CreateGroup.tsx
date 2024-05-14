@@ -1,13 +1,18 @@
-import { type CategoriesSchema } from "../../../../services/group.service";
-import { type UserSchema } from "../../../../interface/types";
+import { type UserSchemaWithMemberType } from "../../../../interface/types";
 import { AddedMember } from "./Member";
 
+interface Icon {
+  id: string;
+  icon: string;
+  name: string;
+}
+
 export const CreateGroup = ({
-  categories,
+  icons,
   currentUser,
 }: {
-  categories: CategoriesSchema;
-  currentUser: Omit<UserSchema, 'type'>;
+  icons: Icon[];
+  currentUser: UserSchemaWithMemberType;
 }) => {
   return (
     <div class="p-6 animate-fade-in">
@@ -47,18 +52,18 @@ export const CreateGroup = ({
         />
         <div id="selected-icon" class=""></div>
         <div id="categoriesContainer" class="hidden">
-          {categories.map((category) => (
+          {icons.map((icon) => (
             <button
               type="button"
-              data-category-id={category.id}
+              data-category-id={icon.icon}
               class="category-button flex items-center p-2 mt-2 bg-card-black rounded-lg hover:bg-primary-faded-black focus:outline-none focus:ring-2 focus:ring-accent-blue w-full animation-fade-in"
             >
               <img
-                src={category.icon}
-                alt={`${category.name} icon`}
+                src={icon.icon}
+                alt={`${icon.name} icon`}
                 class="h-6 w-6 mr-2"
               />
-              <span class="text-font-off-white">{category.name}</span>
+              <span class="text-font-off-white">{icon.name}</span>
             </button>
           ))}
         </div>
@@ -103,17 +108,6 @@ export const CreateGroup = ({
           ></button>
           <div class="ring-2 ring-offset-2 ring-accent-blue hidden"></div>
         </div>
-        {/* <label class="text-font-off-white justify-start bold mt-4">
-          Select Tag
-        </label>
-        <input
-          id="select-tag"
-          class="justify-center items-center text-font-grey bg-primary-black rounded-lg mt-2"
-          type="button"
-          name="select-tag"
-          value="Select Group Tag"
-          placeholder="  Select Group Tag"
-        /> */}
         <h1 class="text-font-off-white justify-start bold text-lg mt-4">
           Add Members
         </h1>
