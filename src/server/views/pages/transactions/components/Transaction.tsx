@@ -18,11 +18,13 @@ export const Transaction = ({
   tailwindColorClass,
   route,
   checked,
+  displayDate, // New prop to determine whether to display the date
 }: {
   transaction: TransactionSchema;
   tailwindColorClass: string;
   route?: string;
   checked?: boolean;
+  displayDate?: boolean; // New prop
 }) => {
   if (!transaction) throw new Error('404');
   return (
@@ -44,6 +46,11 @@ export const Transaction = ({
       data-company={transaction.company}
       class={`transaction rounded-xl w-full h-fit`}
     >
+      {displayDate && (
+        <div class="text-font-off-white font-semibold mb-2">
+          {transaction.timestamp && formatDate(transaction.timestamp)}
+        </div>
+      )}
       <div class={`${tailwindColorClass} rounded-2xl mt-2`}>
         <div class="hover:-translate-y-0.5 cursor-pointer transition-all mt-4 bg-primary-black p-2 rounded-xl shadow-md mb-1 flex items-center justify-between relative">
           <div class="flex items-center">

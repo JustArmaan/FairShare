@@ -213,6 +213,23 @@ router.get('/checkedButton', async (req, res) => {
     return res.status(404).send('add button value is undefined');
   }
   console.log(value);
+  // Here after server works, I need to either call addTransactionsToGroup or deleteTransactionFromGroup, pass transactionId and groupId!!!
+  
+  // if (value === "true") {
+  //   const added = await addTransactionsToGroup(transactionId, groupId);
+  //   if (added) {
+  //     console.log('Transaction added to group successfully.');
+  //   } else {
+  //     console.log('Failed to add transaction to group.');
+  //   }
+  // } else if (value === "false") {
+  //   const deleted = await deleteTransactionsFromGroup(transactionId, groupId);
+  //   if (deleted) {
+  //     console.log("Transaction deleted from group");
+  //   } else {
+  //     console.log("Failed to delete transaction");
+  //   }
+  // }
   const html = renderToHtml(<CheckButton />);
   res.send(html);
 });
