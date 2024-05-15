@@ -6,14 +6,6 @@ import {
 } from '../../../services/plaid.service';
 import type { ExtractFunctionReturnType } from '../../../services/user.service';
 
-const iconColors = [
-  'bg-accent-red',
-  'bg-accent-blue',
-  'bg-accent-green',
-  'bg-accent-yellow',
-  'bg-accent-purple',
-];
-
 export const TransactionsPage = (props: {
   accounts: ExtractFunctionReturnType<typeof getAccountsForUser>;
   selectedAccountId: string;

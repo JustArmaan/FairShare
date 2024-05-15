@@ -87,13 +87,17 @@ async function initMap() {
   }
 }
 
-document.addEventListener("htmx:afterSwap", () => {
-  const dateSelectorForm = document.getElementById("date-selector-form");
-  const filterSelector = document.getElementById("filter-selector");
+document.addEventListener('htmx:afterSwap', () => {
+  const dateSelectorForm = document.getElementById('date-selector-form');
+  const filterSelector = document.getElementById('filter-selector');
 
-  filterSelector?.addEventListener("click", () => {
-    dateSelectorForm?.classList.toggle("hidden");
-  });
+  if (filterSelector && !filterSelector.dataset.listenerAttached) {
+    filterSelector?.addEventListener('click', () => {
+      console.log('clicked');
+      dateSelectorForm?.classList.toggle('hidden');
+    });
+    filterSelector.dataset.listenerAttached = 'true';
+  }
 });
 
 declare global {

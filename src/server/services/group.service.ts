@@ -8,6 +8,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { users } from '../database/schema/users';
 import type { UserSchemaWithMemberType } from '../interface/types';
 import type { ExtractFunctionReturnType } from './user.service';
+import { transactionsToGroups } from '../database/schema/transactionsToGroups';
 
 const db = getDB();
 
@@ -71,30 +72,40 @@ export async function getGroupWithMembers(groupId: string) {
       .innerJoin(memberType, eq(usersToGroups.memberTypeId, memberType.id))
       .where(eq(groups.id, groupId));
 
-    return result.reduce(
-      (groups, currentResult) => {
-        const groupIndex = groups.findIndex(
-          (group) => group.id === currentResult.group.id
-        );
-        if (groupIndex === -1) {
-          groups.push({
-            ...currentResult.group,
-            members: [
-              { ...currentResult.members, type: currentResult.memberType.type },
-            ],
-          });
-        } else {
-          groups[groupIndex].members.push({
-            ...currentResult.members,
-            type: currentResult.memberType.type,
-          });
-        }
-        return groups;
-      },
-      [] as (GroupSchema & { members: UserSchemaWithMemberType[] })[]
-    )[0];
+    return result.reduce((groups, currentResult) => {
+      const groupIndex = groups.findIndex(
+        (group) => group.id === currentResult.group.id
+      );
+      if (groupIndex === -1) {
+        groups.push({
+          ...currentResult.group,
+          members: [
+            { ...currentResult.members, type: currentResult.memberType.type },
+          ],
+        });
+      } else {
+        groups[groupIndex].members.push({
+          ...currentResult.members,
+          type: currentResult.memberType.type,
+        });
+      }
+      return groups;
+    }, [] as (GroupSchema & { members: UserSchemaWithMemberType[] })[])[0];
   } catch (error) {
     console.error(error);
+    return null;
+  }
+}
+
+export async function getTransactionsForGroup(groupId: string) {
+  try {
+    const transactions = await db
+      .select({ transaction: transactionsToGroups })
+      .from(transactionsToGroups)
+      .where(eq(transactionsToGroups.groupsId, groupId));
+    return transactions;
+  } catch (error) {
+    console.error(error, 'getTraansactionsForGroup');
     return null;
   }
 }
@@ -108,7 +119,7 @@ export const getGroupsAndAllMembersForUser = async (userId: string) => {
       .all();
 
     if (userGroups.length === 0) {
-      console.log("No groups found for this user.");
+      console.log('No groups found for this user.');
       return [];
     }
 
@@ -117,12 +128,35 @@ export const getGroupsAndAllMembersForUser = async (userId: string) => {
       (result) => result !== null
     ) as ExtractFunctionReturnType<typeof getGroupWithMembers>[];
   } catch (error) {
-    console.error("Error fetching groups and members for user:", error);
+    console.error('Error fetching groups and members for user:', error);
     return [];
   }
 };
 
 export type GroupSchema = NonNullable<Awaited<ReturnType<typeof getGroup>>>;
+
+export async function getGroupWithMembersAndTransactions(groupId: string) {
+  try {
+    const groupWithMembers = await getGroupWithMembers(groupId);
+
+    if (!groupWithMembers) {
+      console.error('Group with members not found.');
+      return null;
+    }
+
+    const transactions = await getTransactionsForGroup(groupId);
+
+    return {
+      ...groupWithMembers,
+      transactions,
+    };
+  } catch (error) {
+    console.error(error, 'Groups with Members and Transactions not found.');
+    return null;
+  }
+}
+
+export type GroupMembersTransactionsSchema = NonNullable<Awaited<ReturnType<typeof getGroupWithMembersAndTransactions>>>;
 
 export const createGroup = async (
   name: string,

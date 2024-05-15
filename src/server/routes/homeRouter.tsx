@@ -16,20 +16,20 @@ import { ItemPickerForm } from '../views/pages/transactions/components/ItemPicke
 const router = express.Router();
 
 router.get('/page', getUser, async (req, res) => {
-    const userId = req.user!.id;
-    await syncTransactionsForUser(userId);
-    const accounts = await getAccountsForUser(userId);
+  const userId = req.user!.id;
+  await syncTransactionsForUser(userId);
+  const accounts = await getAccountsForUser(userId);
 
-    if (!accounts) throw new Error('no accounts for user!');
+  if (!accounts) throw new Error('no accounts for user!');
 
-    const html = renderToHtml(
-      <MyAccountsPage
-        accountIds={accounts.map((account) => account.id)}
-        selectedAccountId={accounts[0].id ? accounts[0].id : ''}
-      />
-    );
+  const html = renderToHtml(
+    <MyAccountsPage
+      accountIds={accounts.map((account) => account.id)}
+      selectedAccountId={accounts[0].id ? accounts[0].id : ''}
+    />
+  );
 
-    res.send(html);
+  res.send(html);
 });
 
 router.get('/itemPicker/:itemId', getUser, async (req, res) => {

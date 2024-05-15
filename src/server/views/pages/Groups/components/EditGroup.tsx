@@ -51,7 +51,6 @@ export const EditGroupPage = ({
     );
     const selectedCategory = icons.find((icon) => icon.icon === categoryPath);
     if (selectedCategory && selectedCategory.icon === groupIcon) {
-      console.log(selectedCategory, "selectedCategory");
       return (
         <div id="selected-icon">
           <button

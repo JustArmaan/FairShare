@@ -45,7 +45,7 @@ export const Nav = () => {
         <div class="rounded-full bg-accent-blue size-12">
           <li class="flex justify-center items-center">
             <a
-              href="#"
+              href=""
               class="flex flex-col items-center text-font-off-white dark:text-white"
             >
               <img
@@ -58,7 +58,7 @@ export const Nav = () => {
         </div>
         <li class="group w-1/6">
           <a
-            href="#"
+            href=""
             class="parent hover:child-hidden flex flex-col items-center text-font-off-white dark:text-white text-sm group-hover:text-accent-green"
           >
             <img
@@ -77,7 +77,7 @@ export const Nav = () => {
         </li>
         <li class="group w-1/6">
           <a
-            href="#"
+            href=""
             class="parent hover:child-hidden flex flex-col items-center text-font-off-white dark:text-white group-hover:text-accent-red"
             hx-get="/menu"
             hx-target=".menu"
