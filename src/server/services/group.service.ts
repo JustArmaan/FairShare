@@ -3,6 +3,7 @@ import { groups } from '../database/schema/group';
 import { categories } from '../database/schema/category';
 import { usersToGroups } from '../database/schema/usersToGroups';
 import { memberType } from '../database/schema/memberType';
+import { transactionsToGroups } from '../database/schema/transactionsToGroups';
 import { eq, and } from 'drizzle-orm';
 import { v4 as uuidv4 } from 'uuid';
 import { users } from '../database/schema/users';
@@ -288,6 +289,42 @@ export async function deleteMemberByGroup(userId: string, groupId: string) {
       );
   } catch (error) {
     console.error(error);
+    return false;
+  }
+}
+export async function addTransactionsToGroup(transactionId: string, groupId: string) {
+  try {
+    await db
+      .insert(transactionsToGroups)
+      .values({
+        id: uuidv4(),
+        groupsId: groupId,
+        transactionId: transactionId,
+      })
+      .returning();
+
+    console.log("Transaction added to group");
+    return true;
+  } catch (error) {
+    console.error(error, "Failed to add transaction");
+    return false;
+  }
+}
+
+export async function deleteTransactionFromGroup(transactionId: string, groupId: string) {
+    try {
+      await db
+        .delete(transactionsToGroups)
+        .where(
+          and(
+            eq(transactionsToGroups.transactionId, transactionId),
+            eq(transactionsToGroups.groupsId, groupId)
+          )
+        );
+      console.log("Transaction deleted from group");
+      return true;
+  } catch (error) {
+    console.error(error, "Failed to delete transaction");
     return false;
   }
 }

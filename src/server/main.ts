@@ -15,10 +15,10 @@ const app = express();
 configureApp(app);
 
 app.use(indexRouter);
+app.use('/api/v0', apiRouterV0);
 app.use('/breakdown', breakdownRouter);
 app.use('/home', homeRouter);
 app.use('/transactions', transactionRouter);
-app.use('/api/v0', apiRouterV0);
 app.use('/groups', groupRouter);
 app.use('/auth', authRouter);
 

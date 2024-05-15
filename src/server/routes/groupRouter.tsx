@@ -15,58 +15,63 @@ import {
   addMember,
   getGroupWithMembers,
   updateGroup,
-} from '../services/group.service.ts';
-import { env } from '../../../env.ts';
-import CreateGroup from '../views/pages/Groups/components/CreateGroup.tsx';
-import { EditGroupPage } from '../views/pages/Groups/components/EditGroup.tsx';
-import { ViewGroups } from '../views/pages/Groups/components/ViewGroup.tsx';
-import { getTransactionsForUser } from '../services/transaction.service.ts';
-import { AddTransaction } from '../views/pages/Groups/components/AddTransaction.tsx';
+} from "../services/group.service.ts";
+import { env } from "../../../env.ts";
+import CreateGroup from "../views/pages/Groups/components/CreateGroup.tsx";
+import { EditGroupPage } from "../views/pages/Groups/components/EditGroup.tsx";
+import { ViewGroups } from "../views/pages/Groups/components/ViewGroup.tsx";
+import { getTransactionsForUser } from "../services/transaction.service.ts";
+import { AddTransaction } from "../views/pages/Groups/components/AddTransaction.tsx";
+import {
+  getAccountWithTransactions,
+  getAccountsForUser,
+} from "../services/plaid.service";
+import type { ExtractFunctionReturnType } from "../services/user.service";
 
 const router = express.Router();
 
 const icons = [
   {
-    id: '2707335e-ad80-458a-a1e6-fb25300e5621',
-    name: 'Heart',
-    icon: './groupIcons/heart.svg',
+    id: "2707335e-ad80-458a-a1e6-fb25300e5621",
+    name: "Heart",
+    icon: "./groupIcons/heart.svg",
   },
   {
-    id: '2707335e-ad80-458a-a1e6-fb25300e5622',
-    name: 'Star',
-    icon: './groupIcons/star.svg',
+    id: "2707335e-ad80-458a-a1e6-fb25300e5622",
+    name: "Star",
+    icon: "./groupIcons/star.svg",
   },
   {
-    id: '2707335e-ad80-458a-a1e6-fb25300e5623',
-    name: 'Drink',
-    icon: './groupIcons/drink.svg',
+    id: "2707335e-ad80-458a-a1e6-fb25300e5623",
+    name: "Drink",
+    icon: "./groupIcons/drink.svg",
   },
   {
-    id: '2707335e-ad80-458a-a1e6-fb25300e5624',
-    name: 'Diamond',
-    icon: './groupIcons/diamond.svg',
+    id: "2707335e-ad80-458a-a1e6-fb25300e5624",
+    name: "Diamond",
+    icon: "./groupIcons/diamond.svg",
   },
   {
-    id: '2707335e-ad80-458a-a1e6-fb25300e5625',
-    name: 'Food',
-    icon: './groupIcons/food.svg',
+    id: "2707335e-ad80-458a-a1e6-fb25300e5625",
+    name: "Food",
+    icon: "./groupIcons/food.svg",
   },
   {
-    id: '2707335e-ad80-458a-a1e6-fb25300e5626',
-    name: 'Crown',
-    icon: './groupIcons/crown.svg',
+    id: "2707335e-ad80-458a-a1e6-fb25300e5626",
+    name: "Crown",
+    icon: "./groupIcons/crown.svg",
   },
   {
-    id: '2707335e-ad80-458a-a1e6-fb25300e5627',
-    name: 'Gift',
-    icon: './groupIcons/gift.svg',
+    id: "2707335e-ad80-458a-a1e6-fb25300e5627",
+    name: "Gift",
+    icon: "./groupIcons/gift.svg",
   },
 ];
 
-router.get('/page', getUser, async (req, res) => {
+router.get("/page", getUser, async (req, res) => {
   try {
     const groups = await getGroupsAndAllMembersForUser(req.user!.id);
-    console.log(groups, 'groups');
+    console.log(groups, "groups");
     const html = renderToHtml(<GroupPage groups={groups ? groups : []} />);
     res.send(html);
   } catch (err) {
@@ -89,8 +94,8 @@ router.get("/view/:groupId", getUser, async (req, res) => {
       getTransactionsForUser(req.user!.id, 4),
       getGroupWithMembers(req.params.groupId),
     ]);
-    if (!currentUser) throw new Error('No such user');
-    if (!group) return res.status(404).send('No such group');
+    if (!currentUser) throw new Error("No such user");
+    if (!group) return res.status(404).send("No such group");
 
     const html = renderToHtml(
       <ViewGroups
@@ -113,12 +118,12 @@ router.get("/create", getUser, async (req, res) => {
 
     let databaseUser = await findUser(id);
 
-    if (!databaseUser) throw new Error('failed to create user');
+    if (!databaseUser) throw new Error("failed to create user");
 
     const html = renderToHtml(
       <CreateGroup
         icons={icons}
-        currentUser={{ ...databaseUser, type: 'Owner' }}
+        currentUser={{ ...databaseUser, type: "Owner" }}
       />
     );
     res.send(html);
@@ -148,7 +153,7 @@ router.get("/addMember", getUser, async (req, res) => {
     }
     const group = await getGroupWithMembers(req.params.groupId);
 
-    if (!group) return res.status(404).send('No such group');
+    if (!group) return res.status(404).send("No such group");
 
     if (!member) {
       return res.status(400).send("User not found.");
@@ -201,7 +206,7 @@ router.post("/create", getUser, async (req, res) => {
     }
 
     if (!selectedCategoryId) {
-      return res.status(400).send('Category not found.');
+      return res.status(400).send("Category not found.");
     }
 
     const group = await createGroup(
@@ -289,27 +294,36 @@ router.get("/edit/:groupId", getUser, async (req, res) => {
   }
 });
 
-router.get('/addTransaction/:groupId', getUser, async (req, res) => {
-  try {
-    if (!req.user) {
-      return res.set('HX-Redirect', `${env.baseUrl}/login`).send();
-    }
-    const currentUser = await findUser(req.user.id);
+router.get(
+  "/addTransaction/:groupId",
+  getUser,
+  async (req, res) => {
+    try {
+      const accounts = await getAccountsForUser(req.user!.id);
+      if (!accounts) throw new Error("no accounts for user!");
 
-    if (!currentUser) {
-      return res.status(500).send('Failed to get user');
+      const accountsWithTransactions = (await Promise.all(
+        accounts.map(
+          async (account) => await getAccountWithTransactions(account.id)
+        )
+      )) as ExtractFunctionReturnType<typeof getAccountWithTransactions>[];
+      const currentUser = req.user;
+      const html = renderToHtml(
+        <AddTransaction
+          currentUser={currentUser!}
+          groupId={req.params.groupId}
+          accounts={accountsWithTransactions ? accountsWithTransactions : []}
+          selectedAccountId={accountsWithTransactions[0].id}
+        />
+      );
+      res.send(html);
+    } catch (err) {
+      console.error(err);
     }
-
-    const html = renderToHtml(
-      <AddTransaction currentUser={currentUser} groupId={req.params.groupId} />
-    );
-    res.send(html);
-  } catch (err) {
-    console.error(err);
   }
-});
+);
 
-router.post('/edit/:groupId', getUser, async (req, res) => {
+router.post("/edit/:groupId", getUser, async (req, res) => {
   try {
     const {
       groupName,
@@ -409,17 +423,17 @@ router.post('/edit/:groupId', getUser, async (req, res) => {
   }
 });
 
-router.post('/deleteMember/:userID/:groupID', async (req, res) => {
+router.post("/deleteMember/:userID/:groupID", async (req, res) => {
   try {
     const userID = req.params.userID;
     const groupID = req.params.groupID;
     const deleteMembersByGroup = await deleteMemberByGroup(userID, groupID);
 
     if (!deleteMembersByGroup) {
-      return res.status(500).send('Failed to delete member from group.');
+      return res.status(500).send("Failed to delete member from group.");
     }
   } catch (error) {
-    res.status(500).send('An error occured when removing a member');
+    res.status(500).send("An error occured when removing a member");
   }
 });
 

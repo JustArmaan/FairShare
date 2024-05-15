@@ -23,6 +23,9 @@ import {
 import type { ExtractFunctionReturnType } from '../services/user.service';
 import { TransactionList } from '../views/pages/transactions/components/TransactionList';
 import { AccountPickerForm } from '../views/pages/transactions/components/AccountPickerForm';
+import AddButton from '../views/pages/transactions/components/AddButton';
+import CheckButton from '../views/pages/transactions/components/CheckButton';
+import { addTransactionsToGroup, deleteTransactionFromGroup } from '../services/group.service';
 
 const router = express.Router();
 
@@ -161,5 +164,43 @@ router.get('/location/:transactionId', async (req, res) => {
     console.error(error);
   }
 });
+
+router.get('/addButton', async (req, res) => {
+  const { checked, transactionId, groupId } = req.query;
+  console.log(checked)
+  console.log(transactionId)
+  console.log(groupId)
+
+  const transaction = await getTransaction(transactionId as string);
+  // add/remove the transaction to group relationship
+
+  if (checked === "false") {
+    const added = await addTransactionsToGroup(transaction.id, groupId as string);
+    if (added) {
+      console.log('Transaction added to group successfully.');
+    } else {
+      console.log('Failed to add transaction to group.');
+    }
+  } else if (checked === "true") {
+    const deleted = await deleteTransactionFromGroup(transaction.id, groupId as string);
+    if (deleted) {
+      console.log("Transaction deleted from group");
+    } else {
+      console.log("Failed to delete transaction");
+    }
+  }
+
+  const html = renderToHtml(
+    <Transaction
+      tailwindColorClass={transaction.category.color}
+      transaction={transaction}
+      checked={!(checked === 'true')}
+      route="AddTransaction"
+      groupId={groupId as string}
+    />
+  );
+  res.send(html);
+});
+
 
 export const transactionRouter = router;
