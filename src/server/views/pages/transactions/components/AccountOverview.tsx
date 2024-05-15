@@ -27,7 +27,7 @@ export const AccountOverview = ({
             {account.name} <span class="font-normal">(1111)</span>
           </p>
           <div class="flex">
-            <p class="font-semibold mr-2">Account Type: </p>
+            <p class="font-semibold mr-2">Account Type:</p>
             <p>
               {account.accountTypeId
                 ? firstLetterCapital(account.accountTypeId)

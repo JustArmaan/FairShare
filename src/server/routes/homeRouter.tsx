@@ -16,9 +16,8 @@ import { ItemPickerForm } from '../views/pages/transactions/components/ItemPicke
 const router = express.Router();
 
 router.get('/page', getUser, async (req, res) => {
-  try {
     const userId = req.user!.id;
-    syncTransactionsForUser(userId);
+    await syncTransactionsForUser(userId);
     const accounts = await getAccountsForUser(userId);
 
     if (!accounts) throw new Error('no accounts for user!');
@@ -31,9 +30,6 @@ router.get('/page', getUser, async (req, res) => {
     );
 
     res.send(html);
-  } catch (error) {
-    console.error(error);
-  }
 });
 
 router.get('/itemPicker/:itemId', getUser, async (req, res) => {
