@@ -3,7 +3,6 @@ import { groups } from '../database/schema/group';
 import { categories } from '../database/schema/category';
 import { usersToGroups } from '../database/schema/usersToGroups';
 import { memberType } from '../database/schema/memberType';
-import { transactionsToGroups } from '../database/schema/transactionsToGroups';
 import { eq, and } from 'drizzle-orm';
 import { v4 as uuidv4 } from 'uuid';
 import { users } from '../database/schema/users';
@@ -157,7 +156,26 @@ export async function getGroupWithMembersAndTransactions(groupId: string) {
   }
 }
 
-export type GroupMembersTransactionsSchema = NonNullable<Awaited<ReturnType<typeof getGroupWithMembersAndTransactions>>>;
+export type GroupMembersTransactionsSchema = NonNullable<
+  Awaited<ReturnType<typeof getGroupWithMembersAndTransactions>>
+>;
+
+export async function getGroupTransactions(groupId: string) {
+  try {
+    const results = await db
+      .select()
+      .from(transactionsToGroups)
+      .where(eq(transactionsToGroups.groupsId, groupId));
+    return results;
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
+}
+
+export type GroupTransactions = NonNullable<
+  Awaited<ReturnType<typeof getGroupTransactions>>
+>;
 
 export const createGroup = async (
   name: string,
@@ -292,7 +310,10 @@ export async function deleteMemberByGroup(userId: string, groupId: string) {
     return false;
   }
 }
-export async function addTransactionsToGroup(transactionId: string, groupId: string) {
+export async function addTransactionsToGroup(
+  transactionId: string,
+  groupId: string
+) {
   try {
     await db
       .insert(transactionsToGroups)
@@ -303,28 +324,31 @@ export async function addTransactionsToGroup(transactionId: string, groupId: str
       })
       .returning();
 
-    console.log("Transaction added to group");
+    console.log('Transaction added to group');
     return true;
   } catch (error) {
-    console.error(error, "Failed to add transaction");
+    console.error(error, 'Failed to add transaction');
     return false;
   }
 }
 
-export async function deleteTransactionFromGroup(transactionId: string, groupId: string) {
-    try {
-      await db
-        .delete(transactionsToGroups)
-        .where(
-          and(
-            eq(transactionsToGroups.transactionId, transactionId),
-            eq(transactionsToGroups.groupsId, groupId)
-          )
-        );
-      console.log("Transaction deleted from group");
-      return true;
+export async function deleteTransactionFromGroup(
+  transactionId: string,
+  groupId: string
+) {
+  try {
+    await db
+      .delete(transactionsToGroups)
+      .where(
+        and(
+          eq(transactionsToGroups.transactionId, transactionId),
+          eq(transactionsToGroups.groupsId, groupId)
+        )
+      );
+    console.log('Transaction deleted from group');
+    return true;
   } catch (error) {
-    console.error(error, "Failed to delete transaction");
+    console.error(error, 'Failed to delete transaction');
     return false;
   }
 }
