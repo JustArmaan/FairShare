@@ -115,28 +115,6 @@ router.get('/page/:selectedAccountId', getUser, async (req, res) => {
   }
 });
 
-router.get('/accounts', getUser, async (req, res) => {
-  try {
-    const userId = req.user!.id;
-    const accounts = await getAccountsForUser(userId);
-
-    if (!accounts) throw new Error('no accounts for user!');
-
-    const accountsWithTransactions = (await Promise.all(
-      accounts.map(
-        async (account) => await getAccountWithTransactions(account.id)
-      )
-    )) as ExtractFunctionReturnType<typeof getAccountWithTransactions>[];
-
-    const html = renderToHtml(
-      <MyAccountsPage accounts={accountsWithTransactions} />
-    );
-
-    res.send(html);
-  } catch (error) {
-    console.error(error);
-  }
-});
 
 router.get('/details/:transactionId', async (req, res) => {
   try {

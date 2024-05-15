@@ -2,7 +2,6 @@ import { getDB } from "../database/client.ts";
 import { v4 as uuidv4 } from "uuid";
 import { eq } from "drizzle-orm";
 import { items } from "../database/schema/items.ts";
-import { institutions } from "../database/schema/institutions.ts";
 import { users } from "../database/schema/users.ts";
 import { currencyCode } from "../database/schema/currencyCode.ts";
 import { type ArrayElement } from "../interface/types.ts";
