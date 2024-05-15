@@ -289,7 +289,7 @@ router.get("/edit/:groupId", getUser, async (req, res) => {
   }
 });
 
-router.get("/addTransaction/:groupId", getUser, async (req, res,) => {
+router.get('/addTransaction/:groupId', getUser, async (req, res) => {
   try {
     if (!req.user) {
       return res.set('HX-Redirect', `${env.baseUrl}/login`).send();
@@ -301,15 +301,12 @@ router.get("/addTransaction/:groupId", getUser, async (req, res,) => {
     }
 
     const html = renderToHtml(
-      <AddTransaction
-        currentUser={currentUser}
-        groupId={req.params.groupId}
-      />
+      <AddTransaction currentUser={currentUser} groupId={req.params.groupId} />
     );
     res.send(html);
-} catch (err) {
-  console.error(err);
-}
+  } catch (err) {
+    console.error(err);
+  }
 });
 
 router.post('/edit/:groupId', getUser, async (req, res) => {
@@ -421,7 +418,6 @@ router.post('/deleteMember/:userID/:groupID', async (req, res) => {
     if (!deleteMembersByGroup) {
       return res.status(500).send('Failed to delete member from group.');
     }
-    console.log(userID, groupID);
   } catch (error) {
     res.status(500).send('An error occured when removing a member');
   }

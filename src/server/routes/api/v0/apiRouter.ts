@@ -63,6 +63,7 @@ router.post('/plaid-public-token', getUser, async (req, res) => {
       id: item_id as string,
       plaidAccessToken: access_token,
       nextCursor: null,
+      institutionName: null,
     });
     console.log('added!');
     res.status(200).send();

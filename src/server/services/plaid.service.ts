@@ -2,7 +2,6 @@ import { getDB } from "../database/client.ts";
 import { v4 as uuidv4 } from "uuid";
 import { eq } from "drizzle-orm";
 import { items } from "../database/schema/items.ts";
-import { institutions } from "../database/schema/institutions.ts";
 import { users } from "../database/schema/users.ts";
 import { currencyCode } from "../database/schema/currencyCode.ts";
 import { type ArrayElement } from "../interface/types.ts";
@@ -51,32 +50,6 @@ export async function getItem(id: string) {
     console.error(error);
   }
 }
-
-export async function addInstitution(id: string, name: string) {
-  try {
-    const newInstitution = await db
-      .insert(institutions)
-      .values({ id, name })
-      .returning();
-    return newInstitution;
-  } catch (error) {
-    console.error(error);
-    return null;
-  }
-}
-
-export const getInstitution = async (id: string) => {
-  try {
-    const results = await db
-      .select()
-      .from(institutions)
-      .where(eq(institutions.id, id));
-    return results[0];
-  } catch (error) {
-    console.error(error, "in getInstitution");
-    return null;
-  }
-};
 
 export async function createCurrencyCode(code: string) {
   try {

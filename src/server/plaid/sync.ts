@@ -1,17 +1,17 @@
-import { addAccount, getAccount } from "../services/account.service";
-import { getAccountTypeIdByName } from "../services/accountType.service";
-import { getCategoryIdByName } from "../services/category.service";
+import { addAccount, getAccount } from '../services/account.service';
+import { getAccountTypeIdByName } from '../services/accountType.service';
+import { getCategoryIdByName } from '../services/category.service';
 import {
   createTransactions,
   deleteTransactions,
   updateTransaction,
-} from "../services/transaction.service";
+} from '../services/transaction.service';
 import {
   getItemsForUser,
   updateItem,
   type Item,
-} from "../services/plaid.service";
-import { plaidRequest } from "./link";
+} from '../services/plaid.service';
+import { plaidRequest } from './link';
 
 export async function syncTransactionsForUser(userId: string) {
   const items = await getItemsForUser(userId);
@@ -26,7 +26,7 @@ async function syncTransaction({ item }: { item: Item }) {
 
   let accountsAdded = false;
   while (true) {
-    const response = (await plaidRequest("/transactions/sync", {
+    const response = (await plaidRequest('/transactions/sync', {
       access_token: item.plaidAccessToken,
       cursor,
       count,
@@ -92,8 +92,10 @@ interface PlaidTransactionGeneral {
   personal_finance_category: { primary: string };
   account_id: string;
   amount: number;
+  date: string;
   datetime: string | null;
   merchant_name: string | null;
+  name: string;
   logo_url: string;
   pending: boolean;
 }
@@ -126,8 +128,13 @@ async function addTransactions(transactions: AddedPlaidTransaction[]) {
         transaction.personal_finance_category.primary
       );
       if (!categoryId) {
-        console.log(categoryId, transaction.personal_finance_category.primary, transaction, "No such category!");
-        throw new Error("No such category!");
+        console.log(
+          categoryId,
+          transaction.personal_finance_category.primary,
+          transaction,
+          'No such category!'
+        );
+        throw new Error('No such category!');
       }
       const locationIsNull = Object.values(transaction.location).some(
         (value) => value === null
@@ -140,9 +147,13 @@ async function addTransactions(transactions: AddedPlaidTransaction[]) {
               .country!}`,
         accountId: transaction.account_id,
         categoryId: categoryId.id,
-        company: transaction.merchant_name,
+        company: transaction.merchant_name
+          ? transaction.merchant_name
+          : transaction.name,
         amount: transaction.amount,
-        timestamp: transaction.datetime,
+        timestamp: transaction.datetime
+          ? transaction.datetime
+          : transaction.date,
         latitude: transaction.location.lat,
         longitude: transaction.location.lon,
         pending: transaction.pending,
@@ -158,16 +169,24 @@ async function modifyTransaction(transaction: ModifiedPlaidTransaction) {
     categoryId = await getCategoryIdByName(
       transaction.personal_finance_category.primary
     );
-    if (!categoryId) throw new Error("No such category!");
+    if (!categoryId) throw new Error('No such category!');
   }
 
   updateTransaction({
     // address: transaction.location ? locationToAddress(transaction.location) : undefined,
     accountId: transaction.account_id!,
     categoryId: categoryId ? categoryId.id : undefined,
-    company: transaction.merchant_name ? transaction.merchant_name : undefined,
+    company: transaction.merchant_name
+      ? transaction.merchant_name
+      : transaction.name
+      ? transaction.name
+      : undefined,
     amount: transaction.amount ? transaction.amount : undefined,
-    timestamp: transaction.datetime ? transaction.datetime : undefined,
+    timestamp: transaction.datetime
+      ? transaction.datetime
+      : transaction.date
+      ? transaction.date
+      : undefined,
     latitude: transaction.location.lat ? transaction.location.lat : undefined,
     longitude: transaction.location.lon ? transaction.location.lon : undefined,
   });

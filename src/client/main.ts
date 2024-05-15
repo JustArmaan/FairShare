@@ -1,11 +1,9 @@
-import { main } from "./group";
-import { CustomizeMap } from "./map/customizeMap";
-import { transactionList } from "./transactionList/transactionList";
+import { main } from './group';
+import { CustomizeMap } from './map/customizeMap';
 
 main();
-transactionList();
 
-document.body.addEventListener("htmx:afterSwap", () => {
+document.body.addEventListener('htmx:afterSwap', () => {
   window.scrollTo({ top: 0 });
 });
 
@@ -22,11 +20,10 @@ async function getToken() {
     const handler = Plaid.create({
       token: link_token,
       onSuccess: (public_token: string, metadata: any) => {
-        console.log(public_token, metadata);
         resolve(public_token);
       },
       onLoad: () => {
-        console.log("loaded");
+        console.log('loaded');
       },
       onExit: (err: any | null, metadata: any) => {
         if (err) reject(err);
@@ -56,14 +53,14 @@ try {
   if (!connected) {
     const publicToken = await getToken();
     const response = await fetch(`/api/v${apiVersion}/plaid-public-token`, {
-      method: "POST",
+      method: 'POST',
       body: JSON.stringify({ publicToken }),
       headers: {
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
       },
     });
     if (response.status === 200) {
-      console.log("Token pushed succesfully");
+      console.log('Token pushed succesfully');
     }
   }
 } catch (error) {
@@ -73,20 +70,20 @@ try {
 async function initMap() {
   try {
     const transactionId = document
-      .getElementById("transaction-id")
-      ?.getAttribute("data-transactionId");
+      .getElementById('transaction-id')
+      ?.getAttribute('data-transactionId');
 
     const response = await fetch(`/transactions/location/${transactionId}`);
     if (!response.ok) {
-      throw new Error("Failed to fetch transaction location");
+      throw new Error('Failed to fetch transaction location');
     }
 
     const { lat, lng } = await response.json();
 
-    let customMap = new CustomizeMap("map", new google.maps.LatLng(lat, lng));
+    let customMap = new CustomizeMap('map', new google.maps.LatLng(lat, lng));
     customMap.addTransactionMarker();
   } catch (error) {
-    console.error("Error initializing map:", error);
+    console.error('Error initializing map:', error);
   }
 }
 
