@@ -23,6 +23,9 @@ import {
 import type { ExtractFunctionReturnType } from '../services/user.service';
 import { TransactionList } from '../views/pages/transactions/components/TransactionList';
 import { AccountPickerForm } from '../views/pages/transactions/components/AccountPickerForm';
+import AddButton from '../views/pages/transactions/components/AddButton';
+import CheckButton from '../views/pages/transactions/components/CheckButton';
+import { addTransactionsToGroup, deleteTransactionFromGroup } from '../services/group.service';
 
 const router = express.Router();
 
@@ -160,6 +163,49 @@ router.get('/location/:transactionId', async (req, res) => {
   } catch (error) {
     console.error(error);
   }
+});
+
+router.get('/addButton', async (req, res) => {
+  const { checked, transactionId } = req.query;
+
+  const transaction = await getTransaction(transactionId as string);
+  // add/remove the transaction to group relationship
+  const html = renderToHtml(
+    <Transaction
+      tailwindColorClass={transaction.category.color}
+      transaction={transaction}
+      checked={!(checked === 'true')}
+      route="AddTransaction"
+    />
+  );
+  res.send(html);
+});
+
+router.get('/checkedButton', async (req, res) => {
+  const value = req.query.added as string;
+  if (value === undefined) {
+    return res.status(404).send('add button value is undefined');
+  }
+  console.log(value);
+  // Here after server works, I need to either call addTransactionsToGroup or deleteTransactionFromGroup, pass transactionId and groupId!!!
+  
+  if (value === "true") {
+    const added = await addTransactionsToGroup(transactionId, groupId);
+    if (added) {
+      console.log('Transaction added to group successfully.');
+    } else {
+      console.log('Failed to add transaction to group.');
+    }
+  } else if (value === "false") {
+    const deleted = await deleteTransactionFromGroup(transactionId, groupId);
+    if (deleted) {
+      console.log("Transaction deleted from group");
+    } else {
+      console.log("Failed to delete transaction");
+    }
+  }
+  const html = renderToHtml(<CheckButton />);
+  res.send(html);
 });
 
 export const transactionRouter = router;
