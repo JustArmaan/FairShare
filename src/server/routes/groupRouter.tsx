@@ -7,7 +7,11 @@ import {
   deleteMemberByGroup,
   getCategory,
   getGroupTransactions,
+  getGroupWithMembersAndTransactions,
   getGroupsAndAllMembersForUser,
+  getTransactionsForGroup,
+  transactionSumForGroup,
+  type GroupMembersTransactions,
 } from '../services/group.service';
 import { findUser, getUserByEmailOnly } from '../services/user.service.ts';
 import { AddedMember } from '../views/pages/Groups/components/Member.tsx';
@@ -28,6 +32,7 @@ import {
   getAccountsForUser,
 } from '../services/plaid.service';
 import type { ExtractFunctionReturnType } from '../services/user.service';
+import { GroupTransactionsListPage } from '../views/pages/Groups/TransactionsListGroupsPage.tsx';
 
 const router = express.Router();
 
@@ -72,7 +77,6 @@ const icons = [
 router.get('/page', getUser, async (req, res) => {
   try {
     const groups = await getGroupsAndAllMembersForUser(req.user!.id);
-    console.log(groups, 'groups');
     const html = renderToHtml(<GroupPage groups={groups ? groups : []} />);
     res.send(html);
   } catch (err) {
@@ -90,13 +94,16 @@ const groupBudget = [
 router.get('/view/:groupId', getUser, async (req, res) => {
   try {
     const userId = req.user!.id;
-    const [currentUser, transactions, group] = await Promise.all([
-      findUser(userId),
-      getTransactionsForUser(req.user!.id, 4),
-      getGroupWithMembers(req.params.groupId),
-    ]);
+    const currentUser = await findUser(userId);
+
     if (!currentUser) throw new Error('No such user');
+
+    const group = await getGroupWithMembers(req.params.groupId);
+
     if (!group) return res.status(404).send('No such group');
+
+    const transactions = await getTransactionsForGroup(group.id);
+    const sum = await transactionSumForGroup(group.id);
 
     const html = renderToHtml(
       <ViewGroups
@@ -105,6 +112,7 @@ router.get('/view/:groupId', getUser, async (req, res) => {
         members={group.members}
         currentUser={currentUser}
         groupBudget={groupBudget}
+        transactionSum={sum}
       />
     );
     res.send(html);
@@ -133,10 +141,11 @@ router.get('/create', getUser, async (req, res) => {
   }
 });
 
-router.get('/addMember', getUser, async (req, res) => {
+router.get('/addMember/:groupId', getUser, async (req, res) => {
   try {
     const email = req.query.addEmail as string;
     const member = await getUserByEmailOnly(email);
+    console.log(member, email, req.params.groupId, 'hello');
 
     if (!member) {
       return res.status(400).send('User not found.');
@@ -144,7 +153,7 @@ router.get('/addMember', getUser, async (req, res) => {
 
     const inGroup = await checkUserInGroup(
       member.id,
-      req.query.groupId as string
+      req.params.groupId as string
     );
 
     let content;
@@ -336,7 +345,7 @@ router.post('/edit/:groupId', getUser, async (req, res) => {
       temporaryGroup,
     } = req.body;
 
-    console.log(selectedCategoryId, 'selectedCategoryId');
+    console.log(req.body, 'body');
 
     const isTemp = temporaryGroup === 'on';
     const currentGroup = await getGroupWithMembers(req.params.groupId);
@@ -366,7 +375,7 @@ router.post('/edit/:groupId', getUser, async (req, res) => {
     if (selectedColor !== currentGroup.color && selectedColor !== '')
       updates.color = selectedColor;
     if (selectedCategoryId !== currentGroup.icon && selectedCategoryId !== '')
-      updates.icon = (await getCategory(selectedCategoryId))!.icon;
+      updates.icon = selectedCategoryId;
     if (
       isTemp.toString() !== currentGroup.temporary &&
       isTemp.toString() !== ''
@@ -440,16 +449,17 @@ router.post('/deleteMember/:userID/:groupID', async (req, res) => {
   }
 });
 
-/*
 router.get('/transactions/:groupId', getUser, async (req, res) => {
-  // unfinished
-  if (!req.user) {
-    return res.set('HX-Redirect', `${env.baseUrl}/login`).send();
-  }
-  const group = await getGroupWithMembers(req.params.groupId);
-  if (!group) return res.status(404).send('No such group');
-  const { id } = req.user;
+  const groupId = req.params.groupId;
+  const groupWithTransactions = await getGroupWithMembersAndTransactions(
+    groupId
+  );
+  const html = renderToHtml(
+    <GroupTransactionsListPage
+      group={groupWithTransactions as GroupMembersTransactions}
+    />
+  );
+  res.send(html);
 });
-*/
 
 export const groupRouter = router;

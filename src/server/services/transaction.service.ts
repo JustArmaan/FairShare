@@ -129,7 +129,6 @@ export async function deleteTransactions(transactionIds: string[]) {
     const newTransaction = await db
       .delete(transactions)
       .where(inArray(transactions.id, transactionIds));
-    console.log(newTransaction);
   } catch (error) {
     console.error(error);
   }

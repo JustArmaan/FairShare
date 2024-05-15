@@ -9,6 +9,8 @@ import { users } from '../database/schema/users';
 import type { UserSchemaWithMemberType } from '../interface/types';
 import type { ExtractFunctionReturnType } from './user.service';
 import { transactionsToGroups } from '../database/schema/transactionsToGroups';
+import { transactions } from '../database/schema/transaction';
+import { tr } from '@faker-js/faker';
 
 const db = getDB();
 
@@ -99,16 +101,59 @@ export async function getGroupWithMembers(groupId: string) {
 
 export async function getTransactionsForGroup(groupId: string) {
   try {
-    const transactions = await db
-      .select({ transaction: transactionsToGroups })
+    const results = await db
+      .select({
+        id: transactions.id,
+        accountId: transactions.accountId,
+        categoryId: transactions.categoryId,
+        company: transactions.company,
+        amount: transactions.amount,
+        timestamp: transactions.timestamp,
+        address: transactions.address,
+        latitude: transactions.latitude,
+        longitude: transactions.longitude,
+        pending: transactions.pending,
+        name: categories.name,
+        color: categories.color,
+        icon: categories.icon,
+      })
       .from(transactionsToGroups)
-      .where(eq(transactionsToGroups.groupsId, groupId));
-    return transactions;
+      .where(eq(transactionsToGroups.groupsId, groupId))
+      .innerJoin(
+        transactions,
+        eq(transactions.id, transactionsToGroups.transactionId)
+      )
+      .innerJoin(categories, eq(categories.id, transactions.categoryId))
+      .all();
+
+    return results.map((transaction) => ({
+      id: transaction.id,
+      accountId: transaction.accountId,
+      categoryId: transaction.categoryId,
+      company: transaction.company,
+      amount: transaction.amount,
+      timestamp: transaction.timestamp,
+      address: transaction.address,
+      latitude: transaction.latitude,
+      longitude: transaction.longitude,
+      pending: transaction.pending,
+      category: {
+        id: transaction.categoryId,
+        name: transaction.name,
+        color: transaction.color,
+        icon: transaction.icon,
+        displayName: transaction.name,
+      },
+    }));
   } catch (error) {
-    console.error(error, 'getTraansactionsForGroup');
-    return null;
+    console.error(error, 'getTransactionsForGroup');
+    return [];
   }
 }
+
+export type GroupWithTransactions = NonNullable<
+  Awaited<ReturnType<typeof getTransactionsForGroup>>
+>;
 
 export const getGroupsAndAllMembersForUser = async (userId: string) => {
   try {
@@ -138,25 +183,60 @@ export type GroupSchema = NonNullable<Awaited<ReturnType<typeof getGroup>>>;
 export async function getGroupWithMembersAndTransactions(groupId: string) {
   try {
     const groupWithMembers = await getGroupWithMembers(groupId);
-
     if (!groupWithMembers) {
       console.error('Group with members not found.');
-      return null;
+      return [];
     }
 
     const transactions = await getTransactionsForGroup(groupId);
 
     return {
-      ...groupWithMembers,
-      transactions,
+      id: groupWithMembers.id,
+      name: groupWithMembers.name,
+      color: groupWithMembers.color,
+      icon: groupWithMembers.icon,
+      temporary: groupWithMembers.temporary,
+      members: groupWithMembers.members,
+      transactions: transactions.map((transaction) => ({
+        id: transaction.id,
+        accountId: transaction.accountId,
+        categoryId: transaction.categoryId,
+        company: transaction.company,
+        amount: transaction.amount,
+        timestamp: transaction.timestamp,
+        address: transaction.address,
+        latitude: transaction.latitude,
+        longitude: transaction.longitude,
+        pending: transaction.pending,
+        category: {
+          id: transaction.categoryId,
+          name: transaction.category.name,
+          color: transaction.category.color,
+          icon: transaction.category.icon,
+          displayName: transaction.category.name,
+        },
+      })),
     };
   } catch (error) {
     console.error(error, 'Groups with Members and Transactions not found.');
-    return null;
+    return [];
   }
 }
 
-export type GroupMembersTransactionsSchema = NonNullable<
+export async function transactionSumForGroup(groupId: string) {
+  try {
+    const transactions = await getTransactionsForGroup(groupId);
+    return transactions.reduce(
+      (sum, transaction) => sum + transaction.amount,
+      0
+    );
+  } catch (error) {
+    console.error(error, 'transactionSumForGroup');
+    return 0;
+  }
+}
+
+export type GroupMembersTransactions = NonNullable<
   Awaited<ReturnType<typeof getGroupWithMembersAndTransactions>>
 >;
 

@@ -117,7 +117,6 @@ router.post('/date', getUser, async (req, res) => {
     let month = req.body.month;
     const year = req.body.year;
     const reset = req.body.reset;
-    console.log(reset, 'reset');
 
     let transactions;
 
@@ -167,9 +166,6 @@ router.get('/location/:transactionId', async (req, res) => {
 
 router.get('/addButton', async (req, res) => {
   const { checked, transactionId, groupId } = req.query;
-  console.log(checked)
-  console.log(transactionId)
-  console.log(groupId)
 
   const transaction = await getTransaction(transactionId as string);
   // add/remove the transaction to group relationship

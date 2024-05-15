@@ -1,5 +1,5 @@
 import { Transaction } from '../../transactions/components/Transaction';
-import { type TransactionSchema } from '../../../../interface/types';
+import { type GroupWithTransactions } from '../../../../services/group.service';
 import Members from './Members';
 import OwedGroup from './OwedGroup';
 import { type UserSchema } from '../../../../interface/types';
@@ -22,12 +22,14 @@ export const ViewGroups = ({
   currentUser,
   groupBudget,
   groupId,
+  transactionSum
 }: {
   groupId: string;
-  transactions: TransactionSchema[];
+  transactions: GroupWithTransactions;
   members: UserSchema[];
   currentUser: UserSchema;
   groupBudget: groupBudget[];
+  transactionSum: number;
 }) => {
   return (
     <div class="p-6 animate-fade-in">
@@ -62,14 +64,25 @@ export const ViewGroups = ({
       <div class="mt-4 mb-24">
         <h1 class="text-2xl text-font-off-white pt-3 pb-1"> Members</h1>{' '}
         <div class="flex flex-wrap items-center">
-          <Members memberDetails={members} currentUser={currentUser} />
+          <Members memberDetails={members} currentUser={currentUser} transactionSum={transactionSum}/>
         </div>
         <p class="text-font-off-white text-2xl pt-3">Owing</p>
         <OwedGroup memberDetails={members} currentUser={currentUser} />
         <p class="text-font-off-white text-2xl pt-3 pb-1">Budget</p>
         <BudgetChart groupBudget={groupBudget} />
-        <p class="text-font-off-white text-2xl pt-3">Recent Expenses</p>
-        {transactions.map((transaction) => (
+        <div class="flex justify-between align-center text-center pt-3">
+          <p class="text-font-off-white text-2xl">Recent Expenses</p>
+          <p
+            hx-get={`/groups/transactions/${groupId}`}
+            hx-trigger="click"
+            hx-target="#app"
+            hx-swap="innerHTML"
+            class="text-font-off-white cursor-pointer"
+          >
+            View All
+          </p>
+        </div>
+        {transactions.slice(0, 4).map((transaction) => (
           <Transaction
             transaction={transaction}
             tailwindColorClass={transaction.category.color}

@@ -41,14 +41,6 @@ export const EditGroupPage = ({
     groupIcon: string,
     icons: Icon[]
   ) {
-    console.log(
-      categoryPath,
-      "categoryPath",
-      groupIcon,
-      "groupIcon",
-      icons,
-      "categories"
-    );
     const selectedCategory = icons.find((icon) => icon.icon === categoryPath);
     if (selectedCategory && selectedCategory.icon === groupIcon) {
       return (
@@ -109,7 +101,6 @@ export const EditGroupPage = ({
         />
         {icons.map(
           (icon) => (
-            console.log(icon, "icon"),
             (<div>{findMatchedCategory(icon.icon, group.icon, icons)}</div>)
           )
         )}
@@ -182,7 +173,7 @@ export const EditGroupPage = ({
               <button
                 id="enterEmailButton"
                 class="text-accent-blue bg-pure-white rounded-lg flex justify-center mx-1 items-center w-16"
-                hx-get="/groups/addMember"
+                  hx-get={`/groups/addMember/${group.id}`}
                 hx-trigger="click"
                 hx-include="[name='addEmail']"
                 hx-swap="beforeend"
