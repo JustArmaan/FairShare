@@ -18,14 +18,16 @@ import { env } from '../../../env';
 import {
   getAccountWithTransactions,
   getAccountsForUser,
-
 } from '../services/plaid.service';
 import type { ExtractFunctionReturnType } from '../services/user.service';
 import { TransactionList } from '../views/pages/transactions/components/TransactionList';
 import { AccountPickerForm } from '../views/pages/transactions/components/AccountPickerForm';
 import AddButton from '../views/pages/transactions/components/AddButton';
 import CheckButton from '../views/pages/transactions/components/CheckButton';
-import { addTransactionsToGroup, deleteTransactionFromGroup } from '../services/group.service';
+import {
+  addTransactionsToGroup,
+  deleteTransactionFromGroup,
+} from '../services/group.service';
 
 const router = express.Router();
 
@@ -87,11 +89,12 @@ router.get('/details/:transactionId', async (req, res) => {
   }
 });
 
-router.post('/search', getUser, async (req, res) => {
+router.post('/search/:selectedAccountId', getUser, async (req, res) => {
   try {
-    const userId = req.user!.id;
     const query = req.body.search;
-    const transactions = await searchTransactions(userId, query);
+    const accountId = req.params.selectedAccountId;
+    const transactions = await searchTransactions(accountId, query);
+    console.log(transactions, 'transactions');
 
     const html = renderToHtml(
       <div>
@@ -111,9 +114,10 @@ router.post('/search', getUser, async (req, res) => {
   }
 });
 
-router.post('/date', getUser, async (req, res) => {
+router.post('/date/:selectedAcoountId', getUser, async (req, res) => {
   try {
     const userId = req.user!.id;
+    const accountId = req.params.selectedAcoountId;
     let month = req.body.month;
     const year = req.body.year;
     const reset = req.body.reset;
@@ -126,7 +130,7 @@ router.post('/date', getUser, async (req, res) => {
 
     month = month.padStart(2, '0');
 
-    transactions = await getTransactionsByMonth(userId, year, month);
+    transactions = await getTransactionsByMonth(accountId, year, month);
 
     const html = renderToHtml(
       <div>
@@ -170,19 +174,25 @@ router.get('/addButton', async (req, res) => {
   const transaction = await getTransaction(transactionId as string);
   // add/remove the transaction to group relationship
 
-  if (checked === "false") {
-    const added = await addTransactionsToGroup(transaction.id, groupId as string);
+  if (checked === 'false') {
+    const added = await addTransactionsToGroup(
+      transaction.id,
+      groupId as string
+    );
     if (added) {
       console.log('Transaction added to group successfully.');
     } else {
       console.log('Failed to add transaction to group.');
     }
-  } else if (checked === "true") {
-    const deleted = await deleteTransactionFromGroup(transaction.id, groupId as string);
+  } else if (checked === 'true') {
+    const deleted = await deleteTransactionFromGroup(
+      transaction.id,
+      groupId as string
+    );
     if (deleted) {
-      console.log("Transaction deleted from group");
+      console.log('Transaction deleted from group');
     } else {
-      console.log("Failed to delete transaction");
+      console.log('Failed to delete transaction');
     }
   }
 
@@ -197,6 +207,5 @@ router.get('/addButton', async (req, res) => {
   );
   res.send(html);
 });
-
 
 export const transactionRouter = router;

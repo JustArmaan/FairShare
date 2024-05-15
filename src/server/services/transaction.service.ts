@@ -6,6 +6,7 @@ import { eq, desc, like, and, or, gte, lt, inArray } from 'drizzle-orm';
 import { findUser } from './user.service';
 import { v4 as uuid } from 'uuid';
 import type { ExtractFunctionReturnType } from './user.service';
+import { accounts } from '../database/schema/accounts';
 
 const db = getDB();
 
@@ -143,6 +144,7 @@ export async function searchTransactions(
     const result = await db
       .select()
       .from(transactions)
+      .innerJoin(accounts, eq(accounts.id, transactions.accountId))
       .innerJoin(categories, eq(categories.id, transactions.categoryId))
       .where(
         and(

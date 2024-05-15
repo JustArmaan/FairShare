@@ -22,7 +22,7 @@ export const ViewGroups = ({
   currentUser,
   groupBudget,
   groupId,
-  transactionSum
+  transactionSum,
 }: {
   groupId: string;
   transactions: GroupWithTransactions;
@@ -64,10 +64,18 @@ export const ViewGroups = ({
       <div class="mt-4 mb-24">
         <h1 class="text-2xl text-font-off-white pt-3 pb-1"> Members</h1>{' '}
         <div class="flex flex-wrap items-center">
-          <Members memberDetails={members} currentUser={currentUser} transactionSum={transactionSum}/>
+          <Members
+            memberDetails={members}
+            currentUser={currentUser}
+            transactionSum={transactionSum}
+          />
         </div>
         <p class="text-font-off-white text-2xl pt-3">Owing</p>
-        <OwedGroup memberDetails={members} currentUser={currentUser} />
+        <OwedGroup
+          memberDetails={members}
+          currentUser={currentUser}
+          transactions={transactions}
+        />
         <p class="text-font-off-white text-2xl pt-3 pb-1">Budget</p>
         <BudgetChart groupBudget={groupBudget} />
         <div class="flex justify-between align-center text-center pt-3">

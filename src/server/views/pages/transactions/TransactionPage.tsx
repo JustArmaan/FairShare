@@ -75,7 +75,7 @@ export const TransactionsPage = (props: {
             name="search"
             placeholder="Search"
             class="bg-primary-black outline-none w-max pl-2 py-2 rounded-full text-font-grey placeholder-font-grey"
-            hx-post="/transactions/search"
+            hx-post={`/transactions/search/${props.selectedAccountId}`}
             hx-trigger="input changed delay:500ms, search"
             hx-target="#transactionsContainer"
             hx-include="[name='search']"
@@ -95,7 +95,7 @@ export const TransactionsPage = (props: {
         class="bg-primary-black py-1 px-1 my-2 shadow-lg flex items-center justify-evenly w-fit hidden border-2 border-primary-grey rounded-full"
       >
         <form
-          hx-post="/transactions/date"
+          hx-post={`/transactions/date/${props.selectedAccountId}`}
           hx-trigger="change"
           hx-target="#transactionsContainer"
           hx-include="[name='month'], [name='year']"
