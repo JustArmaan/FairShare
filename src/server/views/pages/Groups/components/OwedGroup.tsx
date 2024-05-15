@@ -14,10 +14,10 @@ export const OwedGroup = ({
     return str.length > max ? str.substring(0, max - 3) + '...' : str;
   }
   return (
-    <div class="flex-col w-full justify-evenly rounded-lg py-1.5 px-1 mt-3 flex items-center bg-primary-black relative">
+    <div class="flex-col w-full justify-evenly rounded-lg py-1.5 px-4 mt-3 flex items-center bg-primary-black relative">
       {transactions.map((transaction, index) => (
         <>
-          <div class="my-2">
+          <div class="my-2 w-full">
             <div class="flex justify-between w-full">
               <p class="text-font-off-white self-start w-fit font-semibold text-lg">
                 {maxCompanyNameLength(transaction.company ?? '', 20)}

@@ -1,6 +1,9 @@
 import express from 'express';
 import { renderToHtml } from 'jsxte';
-import { getTransactionsForUser } from '../services/transaction.service';
+import {
+  getTransactionsForUser,
+  getAccountForUserWithMostTransactions,
+} from '../services/transaction.service';
 import { Overview } from '../views/pages/Overview/Overview';
 import { getUser } from './authRouter';
 import { syncTransactionsForUser } from '../plaid/sync';
@@ -17,15 +20,39 @@ const router = express.Router();
 
 router.get('/page', getUser, async (req, res) => {
   const userId = req.user!.id;
+
   await syncTransactionsForUser(userId);
+
   const accounts = await getAccountsForUser(userId);
 
-  if (!accounts) throw new Error('no accounts for user!');
+  if (!accounts || accounts.length === 0) {
+    const html = renderToHtml(
+      <MyAccountsPage accountIds={[]} selectedAccountId="" />
+    );
+    res.send(html);
+    return;
+  }
 
+  const accountsWithTransactions = await Promise.all(
+    accounts.map(async (account) => {
+      return {
+        ...account,
+        transactions: await getTransactionsForUser(account.id),
+      };
+    })
+  );
+
+  const sortedAccounts = accountsWithTransactions.sort((a, b) => {
+    return (b.transactions?.length || 0) - (a.transactions?.length || 0);
+  });
+
+  const mostTransactionsAccountId = sortedAccounts[0]?.id || '';
+
+  // This will now get the account with the most transactions first to display nicer graphs
   const html = renderToHtml(
     <MyAccountsPage
-      accountIds={accounts.map((account) => account.id)}
-      selectedAccountId={accounts[0].id ? accounts[0].id : ''}
+      accountIds={sortedAccounts.map((account) => account.id)}
+      selectedAccountId={mostTransactionsAccountId}
     />
   );
 
@@ -74,7 +101,5 @@ router.get('/accountOverview/:accountId', async (req, res) => {
 //     console.error(error);
 //   }
 // });
-
-
 
 export const homeRouter = router;

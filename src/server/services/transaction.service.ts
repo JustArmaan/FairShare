@@ -2,24 +2,21 @@ import { getDB } from '../database/client';
 import { users } from '../database/schema/users';
 import { categories } from '../database/schema/category';
 import { transactions } from '../database/schema/transaction';
-import { eq, desc, like, and, or, gte, lt, inArray } from 'drizzle-orm';
+import { eq, desc, like, and, or, gte, lt, inArray, count } from 'drizzle-orm';
 import { findUser } from './user.service';
 import { v4 as uuid } from 'uuid';
 import type { ExtractFunctionReturnType } from './user.service';
 import { accounts } from '../database/schema/accounts';
+import { items } from '../database/schema/items';
 
 const db = getDB();
 
 export async function getTransactionsForUser(
   accountId: string,
+
   limit: number = 9999
 ) {
   try {
-    const user = await findUser(accountId);
-    if (!user) {
-      return [];
-    }
-
     const result = await db
       .select()
       .from(transactions)
@@ -222,3 +219,34 @@ export async function getTransactionsByMonth(
     return [];
   }
 }
+
+export async function getAccountForUserWithMostTransactions(userId: string) {
+  try {
+    const allUserTransactions = await db
+      .select()
+      .from(transactions)
+      .innerJoin(accounts, eq(accounts.id, transactions.accountId))
+      .innerJoin(items, eq(items.id, accounts.itemId))
+      .where(eq(items.userId, userId));
+
+    const grouped = allUserTransactions.reduce((acc, transaction) => {
+      const accountId = transaction.transactions.accountId;
+      if (!acc[accountId]) {
+        acc[accountId] = 0;
+      }
+      acc[accountId]++;
+      return acc;
+    }, {} as Record<string, number>);
+    const accountIds = Object.keys(grouped);
+    const maxTransactions = Math.max(...Object.values(grouped));
+    const accountId = accountIds.find(
+      (accountId) => grouped[accountId] === maxTransactions
+    );
+
+    return accountId;
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
+}
+
