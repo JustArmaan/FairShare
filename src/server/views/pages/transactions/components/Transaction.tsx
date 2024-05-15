@@ -19,12 +19,14 @@ export const Transaction = ({
   route,
   checked,
   displayDate, // New prop to determine whether to display the date
+  groupId,
 }: {
   transaction: TransactionSchema;
   tailwindColorClass: string;
   route?: string;
   checked?: boolean;
   displayDate?: boolean; // New prop
+  groupId?: string;
 }) => {
   if (!transaction) throw new Error('404');
   return (
@@ -32,7 +34,7 @@ export const Transaction = ({
       id={`transactionContainer-${transaction.id}`}
       hx-get={`${
         route === 'AddTransaction'
-          ? `/transactions/addButton?checked=${checked}&transactionId=${transaction.id}`
+          ? `/transactions/addButton?checked=${checked}&transactionId=${transaction.id}&groupId=${groupId}`
           : `/transactions/details/${transaction.id}`
       }`}
       hx-trigger="click"

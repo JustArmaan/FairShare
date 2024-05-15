@@ -44,6 +44,7 @@ export const AddTransaction =  (props: {
               tailwindColorClass={iconColors[categoryIndex % iconColors.length]}
               route='AddTransaction'
               checked={false}
+              groupId={props.groupId}
             />
           ))}
       </div>
