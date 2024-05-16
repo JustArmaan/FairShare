@@ -47,7 +47,7 @@ router.get('/transactionList/:accountId', getUser, async (req, res) => {
   const account = await getAccountWithTransactions(req.params.accountId);
   if (!account) throw new Error('404');
   const html = renderToHtml(
-    <TransactionList transactions={account.transactions} />
+    <TransactionList account={account} />
   );
   res.send(html);
 });

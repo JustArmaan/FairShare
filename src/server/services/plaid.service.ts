@@ -10,6 +10,7 @@ import { transactions } from "../database/schema/transaction.ts";
 import { accounts } from "../database/schema/accounts.ts";
 import { categories } from "../database/schema/category.ts";
 import { getAccountTypeById } from "./accountType.service.ts";
+import { getAccount } from "./account.service.ts";
 
 const db = getDB();
 
@@ -110,26 +111,27 @@ export async function getAccountWithTransactions(accountId: string) {
         // bankName: items.,
       })
       .from(accounts)
-      .leftJoin(transactions, eq(accounts.id, transactions.accountId))
-      .leftJoin(categories, eq(transactions.categoryId, categories.id))
+      .innerJoin(transactions, eq(accounts.id, transactions.accountId))
+      .innerJoin(categories, eq(transactions.categoryId, categories.id))
       // .innerJoin(items, eq(accounts.itemId, items.id))
       .where(eq(accounts.id, accountId));
+    
+      const account = await getAccount(accountId);
 
-    if (!result[0] || !result[0].account) return null;
+    if (!result[0] || !result[0].account || !account) return null;
 
-    const accountType = result[0].account.accountTypeId
-      ? await getAccountTypeById(result[0].account.accountTypeId)
-      : result[0].account.accountTypeId;
+    const accountType = account.accountTypeId
+      ? await getAccountTypeById(account.accountTypeId)
+      : account.accountTypeId;
 
-    const refinedResult = {
-      ...result[0].account,
+    return {
+      account,
       accountTypeId: accountType,
       transactions: result.map((result) => ({
         ...result.transaction,
         category: { ...result.categories },
       })),
     };
-    return {  ...refinedResult, transactions: refinedResult.transactions[0].id === undefined ? [] : refinedResult.transactions }
   } catch (e) {
     console.error(e, "at getAccountWithTransactions");
     return null;

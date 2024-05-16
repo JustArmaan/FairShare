@@ -25,7 +25,6 @@ export const GroupTransactionsListPage = (props: {
       <div class="flex flex-col my-8">
         <div class="flex justify-start">
           <p class="text-font-off-white text-semibold">{`Viewing Transactions for group ${props.group.name}`}</p>
-          {/* What the heck is going on with the type here */}
         </div>
         <div class="transactions-container flex flex-col my-8">
           {props.group.transactions.map((transaction) => (

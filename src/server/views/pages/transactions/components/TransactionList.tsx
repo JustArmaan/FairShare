@@ -1,20 +1,15 @@
 import { type TransactionSchema } from '../../../../interface/types';
+import { type ExtractFunctionReturnType } from '../../../../services/user.service';
+import { getAccountWithTransactions } from '../../../../services/plaid.service';
 import Transaction from './Transaction';
 
-const iconColors = [
-  'bg-accent-red',
-  'bg-accent-blue',
-  'bg-accent-green',
-  'bg-accent-yellow',
-  'bg-accent-purple',
-];
-
+type AccountWithTransactions = ExtractFunctionReturnType<typeof getAccountWithTransactions>
 export const TransactionList = (props: {
-  transactions: TransactionSchema[];
+  account: AccountWithTransactions;
 }) => {
   return (
     <div class="animate-fade-in">
-      {props.transactions.map((transaction) => (
+      {props.account.transactions.map((transaction) => (
         <Transaction
           transaction={transaction}
           tailwindColorClass={transaction.category.color}

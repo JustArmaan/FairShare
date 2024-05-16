@@ -185,30 +185,18 @@ export async function getGroupWithMembersAndTransactions(groupId: string) {
     const groupWithMembers = await getGroupWithMembers(groupId);
     if (!groupWithMembers) {
       console.error('Group with members not found.');
-      return [];
+      return null;
     }
 
     const transactions = await getTransactionsForGroup(groupId);
 
     return {
-      id: groupWithMembers.id,
-      name: groupWithMembers.name,
-      color: groupWithMembers.color,
-      icon: groupWithMembers.icon,
-      temporary: groupWithMembers.temporary,
-      members: groupWithMembers.members,
+      ...groupWithMembers,
       transactions: transactions.map((transaction) => ({
-        id: transaction.id,
-        accountId: transaction.accountId,
-        categoryId: transaction.categoryId,
-        company: transaction.company,
-        amount: transaction.amount,
-        timestamp: transaction.timestamp,
-        address: transaction.address,
-        latitude: transaction.latitude,
-        longitude: transaction.longitude,
-        pending: transaction.pending,
+        ...transaction,
         category: {
+          ...transaction.category,
+          categoryId: undefined,
           id: transaction.categoryId,
           name: transaction.category.name,
           color: transaction.category.color,
@@ -219,7 +207,7 @@ export async function getGroupWithMembersAndTransactions(groupId: string) {
     };
   } catch (error) {
     console.error(error, 'Groups with Members and Transactions not found.');
-    return [];
+    return null;
   }
 }
 
