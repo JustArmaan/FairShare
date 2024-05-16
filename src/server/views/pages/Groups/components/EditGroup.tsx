@@ -1,10 +1,6 @@
-import {
-  type CategoriesSchema,
-  type MemberTypeSchema,
-} from "../../../../services/group.service";
-import { type UserSchema } from "../../../../interface/types";
-import { AddedMember } from "./Member";
-import { getGroupWithMembers } from "../../../../services/group.service";
+import { type UserSchema } from '../../../../interface/types';
+import { AddedMember } from './Member';
+import { getGroupWithMembers } from '../../../../services/group.service';
 
 export type UserGroupSchema = NonNullable<
   Awaited<ReturnType<typeof getGroupWithMembers>>
@@ -26,14 +22,14 @@ export const EditGroupPage = ({
   group: UserGroupSchema;
 }) => {
   const colors = [
-    { name: "accent-blue", bgClass: "bg-accent-blue" },
-    { name: "accent-purple", bgClass: "bg-accent-purple" },
-    { name: "accent-red", bgClass: "bg-accent-red" },
-    { name: "accent-yellow", bgClass: "bg-accent-yellow" },
-    { name: "accent-green", bgClass: "bg-accent-green" },
-    { name: "positive-number", bgClass: "bg-positive-number" },
-    { name: "negative-number", bgClass: "bg-negative-number" },
-    { name: "card-red", bgClass: "bg-card-red" },
+    { name: 'accent-blue', bgClass: 'bg-accent-blue' },
+    { name: 'accent-purple', bgClass: 'bg-accent-purple' },
+    { name: 'accent-red', bgClass: 'bg-accent-red' },
+    { name: 'accent-yellow', bgClass: 'bg-accent-yellow' },
+    { name: 'accent-green', bgClass: 'bg-accent-green' },
+    { name: 'positive-number', bgClass: 'bg-positive-number' },
+    { name: 'negative-number', bgClass: 'bg-negative-number' },
+    { name: 'card-red', bgClass: 'bg-card-red' },
   ];
 
   function findMatchedCategory(
@@ -99,11 +95,9 @@ export const EditGroupPage = ({
           value="Change Group Icon"
           placeholder="Select Group Icon"
         />
-        {icons.map(
-          (icon) => (
-            (<div>{findMatchedCategory(icon.icon, group.icon, icons)}</div>)
-          )
-        )}
+        {icons.map((icon) => (
+          <div>{findMatchedCategory(icon.icon, group.icon, icons)}</div>
+        ))}
         <div id="categoriesContainer" class="hidden">
           {icons.map((icon) => (
             <div>
@@ -134,8 +128,8 @@ export const EditGroupPage = ({
             <button
               class={`color-button h-10 w-10 rounded-full ${color.bgClass} ${
                 group.color === color.name
-                  ? "ring-2 ring-offset-2 ring-accent-blue"
-                  : ""
+                  ? 'ring-2 ring-offset-2 ring-accent-blue'
+                  : ''
               }`}
               data-color={color.name}
             ></button>
@@ -173,7 +167,7 @@ export const EditGroupPage = ({
               <button
                 id="enterEmailButton"
                 class="text-accent-blue bg-pure-white rounded-lg flex justify-center mx-1 items-center w-16"
-                  hx-get={`/groups/addMember/${group.id}`}
+                hx-get={`/groups/addMember/${group.id}`}
                 hx-trigger="click"
                 hx-include="[name='addEmail']"
                 hx-swap="beforeend"
@@ -200,7 +194,7 @@ export const EditGroupPage = ({
             name="temporaryGroup"
             id="temporaryGroup"
             class="ml-2 mt-2"
-            checked={group.temporary.toString() === "true"}
+            checked={group.temporary.toString() === 'true'}
           />
         </div>
 

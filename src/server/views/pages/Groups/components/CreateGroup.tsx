@@ -137,7 +137,7 @@ export const CreateGroup = ({
               <button
                 id="enterEmailButton"
                 class="text-accent-blue bg-pure-white rounded-lg flex justify-center mx-1 items-center w-16"
-                hx-get="/groups/addMember"
+                hx-get={`/groups/addMember`}
                 hx-trigger="click"
                 hx-include="[name='addEmail']"
                 hx-swap="beforeend"

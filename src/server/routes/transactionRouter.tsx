@@ -94,7 +94,6 @@ router.post('/search/:selectedAccountId', getUser, async (req, res) => {
     const query = req.body.search;
     const accountId = req.params.selectedAccountId;
     const transactions = await searchTransactions(accountId, query);
-    console.log(transactions, 'transactions');
 
     const html = renderToHtml(
       <div>
@@ -179,21 +178,11 @@ router.get('/addButton', async (req, res) => {
       transaction.id,
       groupId as string
     );
-    if (added) {
-      console.log('Transaction added to group successfully.');
-    } else {
-      console.log('Failed to add transaction to group.');
-    }
   } else if (checked === 'true') {
     const deleted = await deleteTransactionFromGroup(
       transaction.id,
       groupId as string
     );
-    if (deleted) {
-      console.log('Transaction deleted from group');
-    } else {
-      console.log('Failed to delete transaction');
-    }
   }
 
   const html = renderToHtml(

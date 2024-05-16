@@ -141,11 +141,33 @@ router.get('/create', getUser, async (req, res) => {
   }
 });
 
+router.get('/addMember', getUser, async (req, res) => {
+  try {
+    const email = req.query.addEmail as string;
+    const member = await getUserByEmailOnly(email);
+
+    if (!member) {
+      return res.status(400).send('User not found.');
+    }
+
+    let content;
+
+    if (!member) {
+      return res.status(400).send('User not found.');
+    } else {
+      content = <AddedMember user={{ ...member, type: 'Invited' }} />;
+    }
+    const html = renderToHtml(content);
+    res.send(html);
+  } catch (error) {
+    console.error(error);
+  }
+});
+
 router.get('/addMember/:groupId', getUser, async (req, res) => {
   try {
     const email = req.query.addEmail as string;
     const member = await getUserByEmailOnly(email);
-    console.log(member, email, req.params.groupId, 'hello');
 
     if (!member) {
       return res.status(400).send('User not found.');
@@ -168,7 +190,9 @@ router.get('/addMember/:groupId', getUser, async (req, res) => {
     if (!member) {
       return res.status(400).send('User not found.');
     } else {
-      content = <AddedMember user={{ ...member, type: 'Invited' }} />;
+      content = (
+        <AddedMember user={{ ...member, type: 'Invited' }} groupId={group.id} />
+      );
     }
     const html = renderToHtml(content);
     res.send(html);
@@ -345,8 +369,6 @@ router.post('/edit/:groupId', getUser, async (req, res) => {
       temporaryGroup,
     } = req.body;
 
-    console.log(req.body, 'body');
-
     const isTemp = temporaryGroup === 'on';
     const currentGroup = await getGroupWithMembers(req.params.groupId);
 
@@ -439,11 +461,8 @@ router.post('/deleteMember/:userID/:groupID', async (req, res) => {
   try {
     const userID = req.params.userID;
     const groupID = req.params.groupID;
-    const deleteMembersByGroup = await deleteMemberByGroup(userID, groupID);
-
-    if (!deleteMembersByGroup) {
-      return res.status(500).send('Failed to delete member from group.');
-    }
+    await deleteMemberByGroup(userID, groupID);
+    res.status(204).send();
   } catch (error) {
     res.status(500).send('An error occured when removing a member');
   }

@@ -305,7 +305,6 @@ export const addMember = async (
       memberTypeId: memberTypeId,
     });
 
-    console.log('Member added successfully.');
     return true;
   } catch (error) {
     console.error('Failed to add member:', error);
@@ -404,7 +403,6 @@ export async function addTransactionsToGroup(
       })
       .returning();
 
-    console.log('Transaction added to group');
     return true;
   } catch (error) {
     console.error(error, 'Failed to add transaction');
@@ -425,7 +423,6 @@ export async function deleteTransactionFromGroup(
           eq(transactionsToGroups.groupsId, groupId)
         )
       );
-    console.log('Transaction deleted from group');
     return true;
   } catch (error) {
     console.error(error, 'Failed to delete transaction');
