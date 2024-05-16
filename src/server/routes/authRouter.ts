@@ -10,6 +10,17 @@ import express, {
   type NextFunction,
 } from 'express';
 import { createUser, findUser } from '../services/user.service';
+import { faker } from '@faker-js/faker';
+
+const colors = [
+  'accent-blue',
+  'accent-purple',
+  'accent-red',
+  'accent-yellow',
+  'accent-green',
+  'negative-number',
+  'card-red',
+]
 
 const router = express.Router();
 
@@ -100,7 +111,7 @@ export async function getUser(req: Request, res: Response, next: NextFunction) {
         firstName: given_name,
         lastName: family_name,
         email,
-        picture,
+        color: faker.helpers.arrayElement(colors)
       });
       // await seedFakeTransactions(id, 20);
       if (!(await findUser(id))) throw new Error('failed to create user');

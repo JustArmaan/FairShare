@@ -7,6 +7,6 @@ export const users = sqliteTable('users', {
   firstName: text('first_name').notNull(),
   lastName: text('last_name').notNull(),
   email: text('email').notNull(),
-  picture: text('picture'),
+  color: text('color').notNull(),
   createdAt: text('created_at').default(sql`(current_timestamp)`),
 });
