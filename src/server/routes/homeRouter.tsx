@@ -25,7 +25,6 @@ router.get('/page', getUser, async (req, res) => {
   await syncTransactionsForUser(userId);
 
   const accounts = await getAccountsForUser(userId);
-
   if (!accounts || accounts.length === 0) {
     const html = renderToHtml(<ConnectAccount />);
     res.send(html);
@@ -40,7 +39,7 @@ router.get('/page', getUser, async (req, res) => {
       };
     })
   );
-
+console.log(accountsWithTransactions)
   const sortedAccounts = accountsWithTransactions.sort((a, b) => {
     return (b.transactions.length || 0) - (a.transactions.length || 0);
   });
@@ -73,6 +72,7 @@ router.get('/accountOverview/:accountId', async (req, res) => {
   const accountWithTransactions = await getAccountWithTransactions(
     req.params.accountId
   );
+  console.log(accountWithTransactions, "Account with transactions")
   const html = renderToHtml(
     <AccountOverview account={accountWithTransactions!} />
   );

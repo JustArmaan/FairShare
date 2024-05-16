@@ -1,17 +1,5 @@
 import type { Groups } from '../GroupPage';
 import type { ArrayElement } from '../../transactions/components/Transaction';
-import { faker } from '@faker-js/faker';
-
-
-const colors = [
-  'accent-blue',
-  'accent-purple',
-  'accent-red',
-  'accent-yellow',
-  'accent-green',
-  'negative-number',
-  'card-red',
-]
 
 export const GroupItem = (props: {
   group: ArrayElement<Groups>;
@@ -85,10 +73,10 @@ export const GroupItem = (props: {
                         +{props.group.members.length - 4}
                       </p>
                     </div>
-                    <div class={`flex rounded-full bg-${faker.helpers.arrayElement(colors)} h-12 w-12 m-2 justify-center`}><span class='flex justify-center self-center text-center text-xl font-semibold'>{member.firstName.split('',1)}{member.lastName.split('',1)}</span></div>
+                    <div class={`flex rounded-full bg-${member.color} h-12 w-12 m-2 justify-center`}><span class='flex justify-center self-center text-center text-xl font-semibold'>{member.firstName.split('',1)}{member.lastName.split('',1)}</span></div>
                   </div>
                 ) : (
-                  <div class={`flex rounded-full bg-${faker.helpers.arrayElement(colors)} h-12 w-12 m-2 justify-center`}><span class='flex justify-center self-center text-center text-xl font-semibold'>{member.firstName.split('',1)}{member.lastName.split('',1)}</span></div>
+                  <div class={`flex rounded-full bg-${member.color} h-12 w-12 m-2 justify-center`}><span class='flex justify-center self-center text-center text-xl font-semibold'>{member.firstName.split('',1)}{member.lastName.split('',1)}</span></div>
 
                 );
               })}

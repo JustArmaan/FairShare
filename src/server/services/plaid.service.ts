@@ -110,8 +110,8 @@ export async function getAccountWithTransactions(accountId: string) {
         // bankName: items.,
       })
       .from(accounts)
-      .innerJoin(transactions, eq(accounts.id, transactions.accountId))
-      .innerJoin(categories, eq(transactions.categoryId, categories.id))
+      .leftJoin(transactions, eq(accounts.id, transactions.accountId))
+      .leftJoin(categories, eq(transactions.categoryId, categories.id))
       // .innerJoin(items, eq(accounts.itemId, items.id))
       .where(eq(accounts.id, accountId));
 
@@ -121,7 +121,7 @@ export async function getAccountWithTransactions(accountId: string) {
       ? await getAccountTypeById(result[0].account.accountTypeId)
       : result[0].account.accountTypeId;
 
-    return {
+    const refinedResult = {
       ...result[0].account,
       accountTypeId: accountType,
       transactions: result.map((result) => ({
@@ -129,6 +129,7 @@ export async function getAccountWithTransactions(accountId: string) {
         category: { ...result.categories },
       })),
     };
+    return {  ...refinedResult, transactions: refinedResult.transactions[0].id === undefined ? [] : refinedResult.transactions }
   } catch (e) {
     console.error(e, "at getAccountWithTransactions");
     return null;
