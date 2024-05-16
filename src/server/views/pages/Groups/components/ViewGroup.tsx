@@ -76,8 +76,8 @@ export const ViewGroups = ({
           currentUser={currentUser}
           transactions={transactions}
         />
-        <p class="text-font-off-white text-2xl pt-3 pb-1">Budget</p>
-        <BudgetChart groupBudget={groupBudget} />
+        {/* <p class="text-font-off-white text-2xl pt-3 pb-1">Budget</p>
+        <BudgetChart groupBudget={groupBudget} /> */}
         <div class="flex justify-between align-center text-center pt-3">
           <p class="text-font-off-white text-2xl">Recent Expenses</p>
           <p
