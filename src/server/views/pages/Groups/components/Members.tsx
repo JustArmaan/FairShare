@@ -13,7 +13,7 @@ export const Members = ({
     memberDetails: UserSchema[],
     transactionSum: number
   ) {
-    return (transactionSum / memberDetails.length).toFixed(2);
+    return ((transactionSum / memberDetails.length) * -1).toFixed(2);
   }
   return (
     <div class="flex flex-wrap items-center w-full">
@@ -30,9 +30,16 @@ export const Members = ({
               <p class="text-font-off-white flex w-fit text-sm">You</p>
             ) : (
               <p class="text-negative-number flex w-fit text-sm">
-                $
-                <span class="text-negative-number flex w-fit text-sm font-semibold">
-                  {calculateOwedAmount(memberDetails, transactionSum)}
+                
+                <span
+                  class={`flex w-fit text-sm font-semibold ${
+                    Number(calculateOwedAmount(memberDetails, transactionSum)) >
+                    0
+                      ? 'text-positive-number'
+                      : 'text-negative-number'
+                  }`}
+                >
+                  ${calculateOwedAmount(memberDetails, transactionSum)}
                 </span>
               </p>
             )}
