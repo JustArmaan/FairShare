@@ -36,18 +36,12 @@ CREATE TABLE `groups` (
 	`temporary` text NOT NULL
 );
 --> statement-breakpoint
-CREATE TABLE `institutions` (
-	`id` text PRIMARY KEY NOT NULL,
-	`name` text NOT NULL
-);
---> statement-breakpoint
 CREATE TABLE `items` (
 	`id` text PRIMARY KEY NOT NULL,
 	`plaid_access_token` text NOT NULL,
-	`institution_id` text,
+	`institution_name` text,
 	`user_id` text NOT NULL,
 	`next_cursor` text,
-	FOREIGN KEY (`institution_id`) REFERENCES `institutions`(`id`) ON UPDATE no action ON DELETE no action,
 	FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON UPDATE no action ON DELETE cascade
 );
 --> statement-breakpoint
@@ -84,7 +78,7 @@ CREATE TABLE `users` (
 	`first_name` text NOT NULL,
 	`last_name` text NOT NULL,
 	`email` text NOT NULL,
-	`picture` text,
+	`color` text NOT NULL,
 	`created_at` text DEFAULT (current_timestamp)
 );
 --> statement-breakpoint

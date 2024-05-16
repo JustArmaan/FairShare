@@ -48,6 +48,7 @@ async function syncTransaction({ item }: { item: Item }) {
       next_cursor: string;
       has_more: boolean;
     };
+    console.log(response, "response");
     const { accounts } = response;
     if (!accountsAdded) {
       await Promise.all(
@@ -143,7 +144,7 @@ async function addTransactions(transactions: AddedPlaidTransaction[]) {
         address: locationIsNull
           ? null
           : `${transaction.location.address!},  ${transaction.location
-              .city!}, ${transaction.location.region!}, ${transaction.location
+            .city!}, ${transaction.location.region!}, ${transaction.location
               .country!}`,
         accountId: transaction.account_id,
         categoryId: categoryId.id,
@@ -179,14 +180,14 @@ async function modifyTransaction(transaction: ModifiedPlaidTransaction) {
     company: transaction.merchant_name
       ? transaction.merchant_name
       : transaction.name
-      ? transaction.name
-      : undefined,
+        ? transaction.name
+        : undefined,
     amount: transaction.amount ? transaction.amount : undefined,
     timestamp: transaction.datetime
       ? transaction.datetime
       : transaction.date
-      ? transaction.date
-      : undefined,
+        ? transaction.date
+        : undefined,
     latitude: transaction.location.lat ? transaction.location.lat : undefined,
     longitude: transaction.location.lon ? transaction.location.lon : undefined,
   });

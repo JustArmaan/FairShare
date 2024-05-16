@@ -39,7 +39,7 @@ router.get('/page', getUser, async (req, res) => {
       };
     })
   );
-console.log(accountsWithTransactions)
+  console.log(accountsWithTransactions);
   const sortedAccounts = accountsWithTransactions.sort((a, b) => {
     return (b.transactions.length || 0) - (a.transactions.length || 0);
   });
@@ -72,7 +72,6 @@ router.get('/accountOverview/:accountId', async (req, res) => {
   const accountWithTransactions = await getAccountWithTransactions(
     req.params.accountId
   );
-  console.log(accountWithTransactions, "Account with transactions")
   const html = renderToHtml(
     <AccountOverview account={accountWithTransactions!} />
   );

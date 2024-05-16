@@ -345,7 +345,7 @@ router.get('/addTransaction/:groupId', getUser, async (req, res) => {
         currentUser={currentUser!}
         groupId={req.params.groupId}
         accounts={accountsWithTransactions ? accountsWithTransactions : []}
-        selectedAccountId={accountsWithTransactions[1].account.id}
+        selectedAccountId={accountsWithTransactions[1].id}
         groupTransactionIds={
           groupTransactions?.map((transaction) => transaction.transactionId) ??
           []
@@ -469,9 +469,8 @@ router.post('/deleteMember/:userID/:groupID', async (req, res) => {
 
 router.get('/transactions/:groupId', getUser, async (req, res) => {
   const groupId = req.params.groupId;
-  const groupWithTransactions = await getGroupWithMembersAndTransactions(
-    groupId
-  );
+  const groupWithTransactions =
+    await getGroupWithMembersAndTransactions(groupId);
   const html = renderToHtml(
     <GroupTransactionsListPage
       group={groupWithTransactions as GroupMembersTransactions}

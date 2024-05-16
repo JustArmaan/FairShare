@@ -5,29 +5,8 @@
     {
       "idx": 0,
       "version": "6",
-      "when": 1715723104932,
-      "tag": "0000_damp_roxanne_simpson",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "6",
-      "when": 1715739027017,
-      "tag": "0001_icy_omega_sentinel",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "6",
-      "when": 1715741526969,
-      "tag": "0002_nervous_lockheed",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "6",
-      "when": 1715886781401,
-      "tag": "0003_foamy_captain_america",
+      "when": 1715889734822,
+      "tag": "0000_thankful_marauders",
       "breakpoints": true
     }
   ]
