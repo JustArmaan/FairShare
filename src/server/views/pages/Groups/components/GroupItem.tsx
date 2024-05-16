@@ -1,5 +1,17 @@
 import type { Groups } from '../GroupPage';
 import type { ArrayElement } from '../../transactions/components/Transaction';
+import { faker } from '@faker-js/faker';
+
+
+const colors = [
+  'accent-blue',
+  'accent-purple',
+  'accent-red',
+  'accent-yellow',
+  'accent-green',
+  'negative-number',
+  'card-red',
+]
 
 export const GroupItem = (props: {
   group: ArrayElement<Groups>;
@@ -73,26 +85,11 @@ export const GroupItem = (props: {
                         +{props.group.members.length - 4}
                       </p>
                     </div>
-                    <img
-                      class="h-8 w-8 rounded-full z-0"
-                      src={
-                        member.picture
-                          ? member.picture
-                          : 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Default_pfp.svg/2048px-Default_pfp.svg.png'
-                      }
-                      alt=""
-                    />
+                    <div class={`flex rounded-full bg-${faker.helpers.arrayElement(colors)} h-12 w-12 m-2 justify-center`}><span class='flex justify-center self-center text-center text-xl font-semibold'>{member.firstName.split('',1)}{member.lastName.split('',1)}</span></div>
                   </div>
                 ) : (
-                  <img
-                    class={`${index > 0 && '-ml-4'} h-8 w-8 rounded-full`}
-                    src={
-                      member.picture
-                        ? member.picture
-                        : 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Default_pfp.svg/2048px-Default_pfp.svg.png'
-                    }
-                    alt="member icon"
-                  />
+                  <div class={`flex rounded-full bg-${faker.helpers.arrayElement(colors)} h-12 w-12 m-2 justify-center`}><span class='flex justify-center self-center text-center text-xl font-semibold'>{member.firstName.split('',1)}{member.lastName.split('',1)}</span></div>
+
                 );
               })}
           </div>
