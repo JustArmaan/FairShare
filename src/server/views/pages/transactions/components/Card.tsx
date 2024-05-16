@@ -11,7 +11,9 @@ export const Card = (props: { account: AccountSchema }) => {
       </div>
       <div class="flex justify-between items-center">
         <span class="text-font-off-white">Balance:</span>
-        <span class="text-lg font-semibold">${props.account.balance}</span>
+        <span class="text-lg font-semibold">
+            ${parseFloat(props.account.balance!).toFixed(2)}
+</span>
       </div>
     </div>
   );

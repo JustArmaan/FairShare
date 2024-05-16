@@ -1,6 +1,5 @@
 import { BudgetCard } from './components/BudgetCard';
 import { Graph } from './components/TotalExpenses/Graph';
-import { type ArrayElement } from '../transactions/components/Transaction';
 import type { TransactionSchema } from '../../../interface/types';
 
 type Coordinate = {
@@ -30,7 +29,7 @@ function rangeToStyleString({ start, end }: { start: number; end: number }) {
   // key coords are from 0 to 1 in all intervals of 0.125
   // if we include a key coord, we must add it as a point in our polygon
   let currentCoord = 0;
-  const interval = 0.125;
+  const interval = 0.01;
   const keyCoords = [];
   for (let i = 0; i < 1 / interval; i++) {
     keyCoords.push(currentCoord);
@@ -93,15 +92,17 @@ const iconColors = [
 
 export function mapTransactionsToCategories(transactions: TransactionSchema[]) {
   const categories = transactions.reduce((categories, transaction) => {
+    if(transaction.amount <= 0) return categories;
     const index = categories.findIndex(
-      (currentCategory) => currentCategory.title === transaction.category.name
+      (currentCategory) =>
+        currentCategory.title === transaction.category.displayName
     );
     if (index === -1) {
       const newCategory: Category = {
         id: transaction.category.id,
         tailwindColorClass: transaction.category.color,
         cost: transaction.amount,
-        title: transaction.category.name,
+        title: transaction.category.displayName,
         percentage: 0,
       };
 
