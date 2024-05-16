@@ -33,7 +33,7 @@ export const ViewGroups = ({
     <div class="p-6 animate-fade-in">
       <div class="flex justify-between">
         <a
-          hx-get='/groups/page'
+          hx-get="/groups/page"
           hx-trigger="click"
           hx-target="#app"
           hx-swap="innerHTML"
@@ -69,13 +69,28 @@ export const ViewGroups = ({
         <p class="text-font-off-white text-2xl pt-3 pb-1">Budget</p>
         <BudgetChart groupBudget={groupBudget} />
         <p class="text-font-off-white text-2xl pt-3">Recent Expenses</p>
-        {transactions.map((transaction, categoryIndex) => (
+        {transactions.map((transaction) => (
           <Transaction
             transaction={transaction}
-            tailwindColorClass={iconColors[categoryIndex % iconColors.length]}
+            tailwindColorClass={transaction.category.color}
           />
         ))}
       </div>
+      <button
+        hx-get={`/groups/addTransaction/${groupId}`}
+        hx-trigger="click"
+        hx-target="#app"
+        hx-swap="innerHTML"
+        class="fixed bottom-24 right-6 hover:-translate-y-0.5 transition-transform bg-[#F9F9F9] text-font-grey px-6 py-3 rounded-full shadow-lg hover:bg-blue-600 flex flex-row justify-center"
+      >
+        <p>Add Expense</p>
+        <img
+          src="/icons/addExpenseCircle.svg"
+          alt="Add Expense Icon"
+          class=" hover:opacity-80 h-6 justify-end pl-0.5"
+        />
+      </button>
+      <div class="h-16"></div>
     </div>
   );
 };

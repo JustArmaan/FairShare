@@ -19,7 +19,8 @@ CREATE TABLE `categories` (
 	`id` text PRIMARY KEY NOT NULL,
 	`name` text NOT NULL,
 	`display_name` text NOT NULL,
-	`icon` text NOT NULL
+	`icon` text NOT NULL,
+	`color` text NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE `currency_code` (

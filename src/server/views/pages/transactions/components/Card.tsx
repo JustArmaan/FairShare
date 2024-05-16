@@ -1,37 +1,17 @@
-interface CardDetails {
-  primaryColor: string;
-  textColor: string;
-  accentColor1: string;
-  accentColor2: string;
-  bankLogo: string;
-  bankName: string;
-  cardNumber: string;
-  cardHolder: string;
-  expiryDate: string;
-}
+import type { AccountSchema } from '../../../../services/plaid.service';
 
-interface CardProps {
-  cardDetails: CardDetails;
-}
-
-export const Card = ({ cardDetails }: CardProps) => {
+export const Card = (props: { account: AccountSchema }) => {
   return (
-    <div class="bg-card-black text-pure-white p-5 rounded-lg border-2 border-primary-dark-grey shadow-lg max-w-md mx-auto my-4">
-      <div class="flex justify-between items-center mb-2">
-        <span class="text-sm text-font-grey">Card Holder:</span>
-        <span class="text-lg">{cardDetails.cardHolder}</span>
-      </div>
-      <div class="flex justify-between items-center mb-2">
-        <span class="text-sm text-font-grey">Card Number:</span>
-        <span class="text-lg">{cardDetails.cardNumber}</span>
-      </div>
-      <div class="flex justify-between items-center mb-2">
-        <span class="text-sm text-font-grey">Expiry Date:</span>
-        <span class="text-lg">{cardDetails.expiryDate}</span>
+    <div class="bg-primary-black text-font-off-white py-3 px-4 rounded-lg shadow-lg  my-4">
+      <div class="flex justify-between items-center mb-4">
+        <span class="text-font-off-white">Name:</span>
+        <span class="text-lg font-semibold">
+          {props.account.name && props.account.name}
+        </span>
       </div>
       <div class="flex justify-between items-center">
-        <span class="text-sm text-font-grey">Bank Name:</span>
-        <span class="text-lg">{cardDetails.bankName}</span>
+        <span class="text-font-off-white">Balance:</span>
+        <span class="text-lg font-semibold">${props.account.balance}</span>
       </div>
     </div>
   );

@@ -1,12 +1,12 @@
-import { type TransactionSchema } from "../../../../interface/types";
+import { type TransactionSchema } from '../../../../interface/types';
 
 function formatDate(timestamp: string) {
   const date = new Date(timestamp);
 
-  return date.toLocaleString("default", {
-    month: "long",
-    day: "numeric",
-    year: "numeric",
+  return date.toLocaleString('default', {
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric',
   });
 }
 
@@ -20,7 +20,7 @@ export const Transaction = ({
   transaction: TransactionSchema;
   tailwindColorClass: string;
 }) => {
-  if (!transaction) throw new Error("404");
+  if (!transaction) throw new Error('404');
   return (
     <button
       hx-get={`/transactions/details/${transaction.id}`}
@@ -36,24 +36,24 @@ export const Transaction = ({
           <div class="flex items-center">
             <div class={`p-3 pl-4 pr-4 mr-4 ${tailwindColorClass} rounded-xl`}>
               <div class="flex items-center justify-center w-10 h-10">
-                <img
-                  src={transaction.category.icon}
-                  alt="category icon for transaction"
-                  class="w-10"
-                />
+                <img src={transaction.category.icon} alt="" class="w-10" />
               </div>
             </div>
             <div>
-              <h4 class="text-font-off-white font-semibold">
-                {transaction.company.split(" ")[0].split(",")[0]}
+              <h4 class="text-font-off-white font-semibold w-fit">
+                {transaction.company &&
+                  (transaction.company.length > 24
+                    ? transaction.company.slice(0, 23) + '...'
+                    : transaction.company)}
               </h4>
-              <p class="text-gray-400 text-sm text-font-off-white">
-                {formatDate(transaction.timestamp)}
+              <p class="text-gray-400 text-sm text-font-off-white w-fit">
+                {transaction.timestamp && formatDate(transaction.timestamp)}
               </p>
             </div>
           </div>
           <div class="text-font-off-white text-lg font-semibold mr-4">
-            -${Math.abs(transaction.amount).toFixed(2)}
+            {(transaction.amount > 0 ? '-$' : '+$') +
+              Math.abs(transaction.amount).toFixed(2)}
           </div>
         </div>
       </div>

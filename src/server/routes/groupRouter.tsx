@@ -15,12 +15,13 @@ import {
   addMember,
   getGroupWithMembers,
   updateGroup,
-} from "../services/group.service.ts";
-import { env } from "../../../env.ts";
-import CreateGroup from "../views/pages/Groups/components/CreateGroup.tsx";
-import { EditGroupPage } from "../views/pages/Groups/components/EditGroup.tsx";
-import { ViewGroups } from "../views/pages/Groups/components/ViewGroup.tsx";
-import { getTransactionsForUser } from "../services/transaction.service.ts";
+} from '../services/group.service.ts';
+import { env } from '../../../env.ts';
+import CreateGroup from '../views/pages/Groups/components/CreateGroup.tsx';
+import { EditGroupPage } from '../views/pages/Groups/components/EditGroup.tsx';
+import { ViewGroups } from '../views/pages/Groups/components/ViewGroup.tsx';
+import { getTransactionsForUser } from '../services/transaction.service.ts';
+import { AddTransaction } from '../views/pages/Groups/components/AddTransaction.tsx';
 
 const router = express.Router();
 
@@ -88,9 +89,8 @@ router.get("/view/:groupId", getUser, async (req, res) => {
       getTransactionsForUser(req.user!.id, 4),
       getGroupWithMembers(req.params.groupId),
     ]);
-    if (!currentUser) throw new Error("No such user");
-    if (!group) return res.status(404).send("No such group");
-    console.log(group.members, "working for what reaon???");
+    if (!currentUser) throw new Error('No such user');
+    if (!group) return res.status(404).send('No such group');
 
     const html = renderToHtml(
       <ViewGroups
@@ -112,20 +112,12 @@ router.get("/create", getUser, async (req, res) => {
     const { id } = req.user!;
 
     let databaseUser = await findUser(id);
-<<<<<<< HEAD
-    if (!databaseUser) throw new Error("failed to create user");
-=======
     if (!databaseUser) throw new Error('failed to create user');
->>>>>>> 46b964cee010ae6d4fa66baa0264c6f21967546f
 
     const html = renderToHtml(
       <CreateGroup
         icons={icons}
-<<<<<<< HEAD
-        currentUser={{ ...databaseUser, type: "Owner" }}
-=======
         currentUser={{ ...databaseUser, type: 'Owner' }}
->>>>>>> 46b964cee010ae6d4fa66baa0264c6f21967546f
       />
     );
     res.send(html);
@@ -208,11 +200,7 @@ router.post("/create", getUser, async (req, res) => {
     }
 
     if (!selectedCategoryId) {
-<<<<<<< HEAD
-      return res.status(400).send("Category not found.");
-=======
       return res.status(400).send('Category not found.');
->>>>>>> 46b964cee010ae6d4fa66baa0264c6f21967546f
     }
 
     const group = await createGroup(
@@ -300,7 +288,27 @@ router.get("/edit/:groupId", getUser, async (req, res) => {
   }
 });
 
-router.post("/edit/:groupId", getUser, async (req, res) => {
+router.get('/addTransaction/:groupId', getUser, async (req, res) => {
+  try {
+    if (!req.user) {
+      return res.set('HX-Redirect', `${env.baseUrl}/login`).send();
+    }
+    const currentUser = await findUser(req.user.id);
+
+    if (!currentUser) {
+      return res.status(500).send('Failed to get user');
+    }
+
+    const html = renderToHtml(
+      <AddTransaction currentUser={currentUser} groupId={req.params.groupId} />
+    );
+    res.send(html);
+  } catch (err) {
+    console.error(err);
+  }
+});
+
+router.post('/edit/:groupId', getUser, async (req, res) => {
   try {
     const {
       groupName,
@@ -400,8 +408,6 @@ router.post("/edit/:groupId", getUser, async (req, res) => {
   }
 });
 
-<<<<<<< HEAD
-=======
 router.post('/deleteMember/:userID/:groupID', async (req, res) => {
   try {
     const userID = req.params.userID;
@@ -411,7 +417,6 @@ router.post('/deleteMember/:userID/:groupID', async (req, res) => {
     if (!deleteMembersByGroup) {
       return res.status(500).send('Failed to delete member from group.');
     }
-    console.log(userID, groupID);
   } catch (error) {
     res.status(500).send('An error occured when removing a member');
   }
@@ -429,5 +434,4 @@ router.get('/transactions/:groupId', getUser, async (req, res) => {
 });
 */
 
->>>>>>> 46b964cee010ae6d4fa66baa0264c6f21967546f
 export const groupRouter = router;
