@@ -27,7 +27,14 @@ import CheckButton from '../views/pages/transactions/components/CheckButton';
 import {
   addTransactionsToGroup,
   deleteTransactionFromGroup,
+  getGroupWithMembers,
+  getTransactionsToGroup,
+  getUsersToGroup,
 } from '../services/group.service';
+import {
+  createOwed,
+  getAllOwedForGroupTransaction,
+} from '../services/owed.service';
 
 const router = express.Router();
 
@@ -46,9 +53,7 @@ router.get('/accountPicker/:accountId', getUser, async (req, res) => {
 router.get('/transactionList/:accountId', getUser, async (req, res) => {
   const account = await getAccountWithTransactions(req.params.accountId);
   if (!account) throw new Error('404');
-  const html = renderToHtml(
-    <TransactionList account={account} />
-  );
+  const html = renderToHtml(<TransactionList account={account} />);
   res.send(html);
 });
 
@@ -168,21 +173,47 @@ router.get('/location/:transactionId', async (req, res) => {
 });
 
 router.get('/addButton', async (req, res) => {
-  const { checked, transactionId, groupId } = req.query;
+  // sorry jeremy ^^^^
+  const { checked, transactionId, groupId } = req.query as {
+    [key: string]: string;
+  };
 
-  const transaction = await getTransaction(transactionId as string);
+  const transaction = await getTransaction(transactionId);
+  console.log(transaction);
   // add/remove the transaction to group relationship
 
+  const { members } = (await getGroupWithMembers(groupId))!;
   if (checked === 'false') {
-    const added = await addTransactionsToGroup(
-      transaction.id,
-      groupId as string
+    await addTransactionsToGroup(transaction.id, groupId);
+
+    await Promise.all(
+      members.map(async (member) => {
+        const owedPerMember = transaction.amount / members.length;
+        return await createOwed({
+          usersToGroupsId: (await getUsersToGroup(groupId, member.id))!.id,
+          transactionsToGroupsId: (await getTransactionsToGroup(
+            groupId,
+            transactionId
+          ))!.id,
+          amount: (member.id === req.user!.id
+            ? owedPerMember * (members.length - 1)
+            : -1 * owedPerMember
+          ).toString(),
+        });
+      })
     );
   } else if (checked === 'true') {
-    const deleted = await deleteTransactionFromGroup(
-      transaction.id,
-      groupId as string
+    const allTransactions = await getAllOwedForGroupTransaction(
+      groupId,
+      transaction.id
     );
+    if (allTransactions!.some((transaction) => transaction.amount === '0')) {
+      return res
+        .status(400)
+        .send("Can't remove transaction that is being settled");
+    } else {
+      await deleteTransactionFromGroup(transaction.id, groupId as string);
+    }
   }
 
   const html = renderToHtml(

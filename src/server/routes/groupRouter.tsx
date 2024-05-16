@@ -5,7 +5,6 @@ import { getUser } from './authRouter.ts';
 import {
   checkUserInGroup,
   deleteMemberByGroup,
-  getCategory,
   getGroupTransactions,
   getGroupWithMembersAndTransactions,
   getGroupsAndAllMembersForUser,
@@ -25,7 +24,6 @@ import { env } from '../../../env.ts';
 import CreateGroup from '../views/pages/Groups/components/CreateGroup.tsx';
 import { EditGroupPage } from '../views/pages/Groups/components/EditGroup.tsx';
 import { ViewGroups } from '../views/pages/Groups/components/ViewGroup.tsx';
-import { getTransactionsForUser } from '../services/transaction.service.ts';
 import { AddTransaction } from '../views/pages/Groups/components/AddTransaction.tsx';
 import {
   getAccountWithTransactions,
@@ -33,6 +31,10 @@ import {
 } from '../services/plaid.service';
 import type { ExtractFunctionReturnType } from '../services/user.service';
 import { GroupTransactionsListPage } from '../views/pages/Groups/TransactionsListGroupsPage.tsx';
+import {
+  getAllOwedForGroupTransaction,
+  getAllOwedForGroupTransactionWithTransactionId,
+} from '../services/owed.service.ts';
 
 const router = express.Router();
 
@@ -103,7 +105,19 @@ router.get('/view/:groupId', getUser, async (req, res) => {
     if (!group) return res.status(404).send('No such group');
 
     const transactions = await getTransactionsForGroup(group.id);
-    const sum = await transactionSumForGroup(group.id);
+
+    const owedPerMember = await Promise.all(
+      transactions
+        .map(async (transaction) => {
+          return (await getAllOwedForGroupTransactionWithTransactionId(
+            group.id,
+            transaction.id
+          )) as ExtractFunctionReturnType<
+            typeof getAllOwedForGroupTransactionWithTransactionId
+          >;
+        })
+        .filter((owed) => owed !== null)
+    );
 
     const html = renderToHtml(
       <ViewGroups
@@ -112,7 +126,17 @@ router.get('/view/:groupId', getUser, async (req, res) => {
         members={group.members}
         currentUser={currentUser}
         groupBudget={groupBudget}
-        transactionSum={sum}
+        owedPerMember={
+          owedPerMember && owedPerMember.length > 0
+            ? owedPerMember
+            : [
+                group.members.map((member) => ({
+                  transactionId: '',
+                  userId: member.id,
+                  amount: '0',
+                })),
+              ]
+        }
       />
     );
     res.send(html);
@@ -345,7 +369,7 @@ router.get('/addTransaction/:groupId', getUser, async (req, res) => {
         currentUser={currentUser!}
         groupId={req.params.groupId}
         accounts={accountsWithTransactions ? accountsWithTransactions : []}
-        selectedAccountId={accountsWithTransactions[1].id}
+        selectedAccountId={accountsWithTransactions[0].id}
         groupTransactionIds={
           groupTransactions?.map((transaction) => transaction.transactionId) ??
           []

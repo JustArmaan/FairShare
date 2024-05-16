@@ -24,6 +24,45 @@ export async function getGroup(groupId: string) {
   }
 }
 
+export async function getTransactionsToGroup(
+  groupId: string,
+  transactionId: string
+) {
+  try {
+    const results = await db
+      .select()
+      .from(transactionsToGroups)
+      .where(
+        and(
+          eq(transactionsToGroups.groupsId, groupId),
+          eq(transactionsToGroups.transactionId, transactionId)
+        )
+      );
+    return results[0];
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
+}
+
+export async function getUsersToGroup(groupId: string, userId: string) {
+  try {
+    const results = await db
+      .select()
+      .from(usersToGroups)
+      .where(
+        and(
+          eq(usersToGroups.groupId, groupId),
+          eq(usersToGroups.userId, userId)
+        )
+      );
+    return results[0];
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
+}
+
 export const getCategories = async () => {
   try {
     const allCategories = await db.select().from(categories).all();
@@ -74,25 +113,28 @@ export async function getGroupWithMembers(groupId: string) {
       .innerJoin(memberType, eq(usersToGroups.memberTypeId, memberType.id))
       .where(eq(groups.id, groupId));
 
-    return result.reduce((groups, currentResult) => {
-      const groupIndex = groups.findIndex(
-        (group) => group.id === currentResult.group.id
-      );
-      if (groupIndex === -1) {
-        groups.push({
-          ...currentResult.group,
-          members: [
-            { ...currentResult.members, type: currentResult.memberType.type },
-          ],
-        });
-      } else {
-        groups[groupIndex].members.push({
-          ...currentResult.members,
-          type: currentResult.memberType.type,
-        });
-      }
-      return groups;
-    }, [] as (GroupSchema & { members: UserSchemaWithMemberType[] })[])[0];
+    return result.reduce(
+      (groups, currentResult) => {
+        const groupIndex = groups.findIndex(
+          (group) => group.id === currentResult.group.id
+        );
+        if (groupIndex === -1) {
+          groups.push({
+            ...currentResult.group,
+            members: [
+              { ...currentResult.members, type: currentResult.memberType.type },
+            ],
+          });
+        } else {
+          groups[groupIndex].members.push({
+            ...currentResult.members,
+            type: currentResult.memberType.type,
+          });
+        }
+        return groups;
+      },
+      [] as (GroupSchema & { members: UserSchemaWithMemberType[] })[]
+    )[0];
   } catch (error) {
     console.error(error);
     return null;
@@ -127,16 +169,7 @@ export async function getTransactionsForGroup(groupId: string) {
       .all();
 
     return results.map((transaction) => ({
-      id: transaction.id,
-      accountId: transaction.accountId,
-      categoryId: transaction.categoryId,
-      company: transaction.company,
-      amount: transaction.amount,
-      timestamp: transaction.timestamp,
-      address: transaction.address,
-      latitude: transaction.latitude,
-      longitude: transaction.longitude,
-      pending: transaction.pending,
+      ...transaction,
       category: {
         id: transaction.categoryId,
         name: transaction.name,

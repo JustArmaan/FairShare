@@ -74,7 +74,9 @@ export const Transaction = ({
             </div>
           </div>
           <div
-            class={`text-font-off-white text-lg font-semibold ${route === 'AddTransaction' ? 'mr-1' : 'mr-4'}`}
+            class={`text-font-off-white text-lg font-semibold ${
+              route === 'AddTransaction' ? 'mr-1' : 'mr-4'
+            }`}
           >
             {(transaction.amount > 0 ? '-$' : '$') +
               Math.abs(transaction.amount).toFixed(2)}

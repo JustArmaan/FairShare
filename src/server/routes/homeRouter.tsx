@@ -22,7 +22,7 @@ const router = express.Router();
 router.get('/page', getUser, async (req, res) => {
   const userId = req.user!.id;
 
-  await syncTransactionsForUser(userId);
+  // await syncTransactionsForUser(userId);
 
   const accounts = await getAccountsForUser(userId);
   if (!accounts || accounts.length === 0) {
@@ -39,7 +39,6 @@ router.get('/page', getUser, async (req, res) => {
       };
     })
   );
-  console.log(accountsWithTransactions);
   const sortedAccounts = accountsWithTransactions.sort((a, b) => {
     return (b.transactions.length || 0) - (a.transactions.length || 0);
   });
@@ -50,6 +49,7 @@ router.get('/page', getUser, async (req, res) => {
     <MyAccountsPage
       accountIds={sortedAccounts.map((account) => account.id)}
       selectedAccountId={mostTransactionsAccountId}
+      username={req.user!.firstName}
     />
   );
 

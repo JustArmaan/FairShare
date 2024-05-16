@@ -3,13 +3,11 @@ import { type GroupWithTransactions } from '../../../../services/group.service';
 import Members from './Members';
 import OwedGroup from './OwedGroup';
 import { type UserSchema } from '../../../../interface/types';
-import BudgetChart from './BudgetChart';
-const iconColors = [
-  'bg-accent-red',
-  'bg-accent-blue',
-  'bg-accent-green',
-  'bg-accent-yellow',
-];
+import type { ExtractFunctionReturnType } from '../../../../services/user.service';
+import type {
+  getAllOwedForGroupTransaction,
+  getAllOwedForGroupTransactionWithTransactionId,
+} from '../../../../services/owed.service';
 
 interface groupBudget {
   budgetGoal: number;
@@ -20,16 +18,17 @@ export const ViewGroups = ({
   transactions,
   members,
   currentUser,
-  groupBudget,
   groupId,
-  transactionSum,
+  owedPerMember,
 }: {
   groupId: string;
   transactions: GroupWithTransactions;
   members: UserSchema[];
   currentUser: UserSchema;
   groupBudget: groupBudget[];
-  transactionSum: number;
+  owedPerMember: ExtractFunctionReturnType<
+    typeof getAllOwedForGroupTransactionWithTransactionId
+  >[];
 }) => {
   return (
     <div class="p-6 animate-fade-in">
@@ -67,7 +66,7 @@ export const ViewGroups = ({
           <Members
             memberDetails={members}
             currentUser={currentUser}
-            transactionSum={transactionSum}
+            owedPerMember={owedPerMember}
           />
         </div>
         <p class="text-font-off-white text-2xl pt-3">Owing</p>
@@ -75,6 +74,7 @@ export const ViewGroups = ({
           memberDetails={members}
           currentUser={currentUser}
           transactions={transactions}
+          owedPerMember={owedPerMember}
         />
         {/* <p class="text-font-off-white text-2xl pt-3 pb-1">Budget</p>
         <BudgetChart groupBudget={groupBudget} /> */}
