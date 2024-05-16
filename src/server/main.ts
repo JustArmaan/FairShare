@@ -15,12 +15,36 @@ const app = express();
 configureApp(app);
 
 app.use(indexRouter);
+app.use('/api/v0', apiRouterV0);
 app.use('/breakdown', breakdownRouter);
 app.use('/home', homeRouter);
 app.use('/transactions', transactionRouter);
-app.use('/api/v0', apiRouterV0);
 app.use('/groups', groupRouter);
 app.use('/auth', authRouter);
+
+// Global error handler
+interface ErrorWithStatus extends Error {
+  status?: number;
+}
+
+app.use(
+  (
+    error: ErrorWithStatus,
+    req: express.Request,
+    res: express.Response,
+    next: express.NextFunction
+  ) => {
+    console.error(`Error status: ${error.status}, Message: ${error.message}`);
+
+    if (error.status === 404) {
+      return res.status(404).send('404 - Not Found');
+    }
+
+    error.status = error.status || 500;
+    res.status(error.status);
+    res.send(`${error.status} - Server Error`);
+  }
+);
 
 ViteExpress.listen(app, PORT as number, () =>
   console.log(`Server is running on port ${PORT}...`)

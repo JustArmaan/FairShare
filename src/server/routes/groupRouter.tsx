@@ -6,7 +6,12 @@ import {
   checkUserInGroup,
   deleteMemberByGroup,
   getCategory,
+  getGroupTransactions,
+  getGroupWithMembersAndTransactions,
   getGroupsAndAllMembersForUser,
+  getTransactionsForGroup,
+  transactionSumForGroup,
+  type GroupMembersTransactions,
 } from '../services/group.service';
 import { findUser, getUserByEmailOnly } from '../services/user.service.ts';
 import { AddedMember } from '../views/pages/Groups/components/Member.tsx';
@@ -22,6 +27,12 @@ import { EditGroupPage } from '../views/pages/Groups/components/EditGroup.tsx';
 import { ViewGroups } from '../views/pages/Groups/components/ViewGroup.tsx';
 import { getTransactionsForUser } from '../services/transaction.service.ts';
 import { AddTransaction } from '../views/pages/Groups/components/AddTransaction.tsx';
+import {
+  getAccountWithTransactions,
+  getAccountsForUser,
+} from '../services/plaid.service';
+import type { ExtractFunctionReturnType } from '../services/user.service';
+import { GroupTransactionsListPage } from '../views/pages/Groups/TransactionsListGroupsPage.tsx';
 
 const router = express.Router();
 
@@ -66,7 +77,6 @@ const icons = [
 router.get('/page', getUser, async (req, res) => {
   try {
     const groups = await getGroupsAndAllMembersForUser(req.user!.id);
-    console.log(groups, 'groups');
     const html = renderToHtml(<GroupPage groups={groups ? groups : []} />);
     res.send(html);
   } catch (err) {
@@ -84,13 +94,16 @@ const groupBudget = [
 router.get('/view/:groupId', getUser, async (req, res) => {
   try {
     const userId = req.user!.id;
-    const [currentUser, transactions, group] = await Promise.all([
-      findUser(userId),
-      getTransactionsForUser(req.user!.id, 4),
-      getGroupWithMembers(req.params.groupId),
-    ]);
+    const currentUser = await findUser(userId);
+
     if (!currentUser) throw new Error('No such user');
+
+    const group = await getGroupWithMembers(req.params.groupId);
+
     if (!group) return res.status(404).send('No such group');
+
+    const transactions = await getTransactionsForGroup(group.id);
+    const sum = await transactionSumForGroup(group.id);
 
     const html = renderToHtml(
       <ViewGroups
@@ -99,6 +112,7 @@ router.get('/view/:groupId', getUser, async (req, res) => {
         members={group.members}
         currentUser={currentUser}
         groupBudget={groupBudget}
+        transactionSum={sum}
       />
     );
     res.send(html);
@@ -135,9 +149,32 @@ router.get('/addMember', getUser, async (req, res) => {
       return res.status(400).send('User not found.');
     }
 
+    let content;
+
+    if (!member) {
+      return res.status(400).send('User not found.');
+    } else {
+      content = <AddedMember user={{ ...member, type: 'Invited' }} />;
+    }
+    const html = renderToHtml(content);
+    res.send(html);
+  } catch (error) {
+    console.error(error);
+  }
+});
+
+router.get('/addMember/:groupId', getUser, async (req, res) => {
+  try {
+    const email = req.query.addEmail as string;
+    const member = await getUserByEmailOnly(email);
+
+    if (!member) {
+      return res.status(400).send('User not found.');
+    }
+
     const inGroup = await checkUserInGroup(
       member.id,
-      req.query.groupId as string
+      req.params.groupId as string
     );
 
     let content;
@@ -152,7 +189,9 @@ router.get('/addMember', getUser, async (req, res) => {
     if (!member) {
       return res.status(400).send('User not found.');
     } else {
-      content = <AddedMember user={{ ...member, type: 'Invited' }} />;
+      content = (
+        <AddedMember user={{ ...member, type: 'Invited' }} groupId={group.id} />
+      );
     }
     const html = renderToHtml(content);
     res.send(html);
@@ -288,27 +327,35 @@ router.get('/edit/:groupId', getUser, async (req, res) => {
   }
 });
 
-router.get("/addTransaction/:groupId", getUser, async (req, res,) => {
+router.get('/addTransaction/:groupId', getUser, async (req, res) => {
   try {
-    if (!req.user) {
-      return res.set('HX-Redirect', `${env.baseUrl}/login`).send();
-    }
-    const currentUser = await findUser(req.user.id);
+    const accounts = await getAccountsForUser(req.user!.id);
+    if (!accounts) throw new Error('no accounts for user!');
 
-    if (!currentUser) {
-      return res.status(500).send('Failed to get user');
-    }
+    const groupTransactions = await getGroupTransactions(req.params.groupId);
 
+    const accountsWithTransactions = (await Promise.all(
+      accounts.map(
+        async (account) => await getAccountWithTransactions(account.id)
+      )
+    )) as ExtractFunctionReturnType<typeof getAccountWithTransactions>[];
+    const currentUser = req.user;
     const html = renderToHtml(
       <AddTransaction
-        currentUser={currentUser}
+        currentUser={currentUser!}
         groupId={req.params.groupId}
+        accounts={accountsWithTransactions ? accountsWithTransactions : []}
+        selectedAccountId={accountsWithTransactions[1].id}
+        groupTransactionIds={
+          groupTransactions?.map((transaction) => transaction.transactionId) ??
+          []
+        }
       />
     );
     res.send(html);
-} catch (err) {
-  console.error(err);
-}
+  } catch (err) {
+    console.error(err);
+  }
 });
 
 router.post('/edit/:groupId', getUser, async (req, res) => {
@@ -320,8 +367,6 @@ router.post('/edit/:groupId', getUser, async (req, res) => {
       memberEmails,
       temporaryGroup,
     } = req.body;
-
-    console.log(selectedCategoryId, 'selectedCategoryId');
 
     const isTemp = temporaryGroup === 'on';
     const currentGroup = await getGroupWithMembers(req.params.groupId);
@@ -351,7 +396,7 @@ router.post('/edit/:groupId', getUser, async (req, res) => {
     if (selectedColor !== currentGroup.color && selectedColor !== '')
       updates.color = selectedColor;
     if (selectedCategoryId !== currentGroup.icon && selectedCategoryId !== '')
-      updates.icon = (await getCategory(selectedCategoryId))!.icon;
+      updates.icon = selectedCategoryId;
     if (
       isTemp.toString() !== currentGroup.temporary &&
       isTemp.toString() !== ''
@@ -415,27 +460,24 @@ router.post('/deleteMember/:userID/:groupID', async (req, res) => {
   try {
     const userID = req.params.userID;
     const groupID = req.params.groupID;
-    const deleteMembersByGroup = await deleteMemberByGroup(userID, groupID);
-
-    if (!deleteMembersByGroup) {
-      return res.status(500).send('Failed to delete member from group.');
-    }
-    console.log(userID, groupID);
+    await deleteMemberByGroup(userID, groupID);
+    res.status(204).send();
   } catch (error) {
     res.status(500).send('An error occured when removing a member');
   }
 });
 
-/*
 router.get('/transactions/:groupId', getUser, async (req, res) => {
-  // unfinished
-  if (!req.user) {
-    return res.set('HX-Redirect', `${env.baseUrl}/login`).send();
-  }
-  const group = await getGroupWithMembers(req.params.groupId);
-  if (!group) return res.status(404).send('No such group');
-  const { id } = req.user;
+  const groupId = req.params.groupId;
+  const groupWithTransactions = await getGroupWithMembersAndTransactions(
+    groupId
+  );
+  const html = renderToHtml(
+    <GroupTransactionsListPage
+      group={groupWithTransactions as GroupMembersTransactions}
+    />
+  );
+  res.send(html);
 });
-*/
 
 export const groupRouter = router;

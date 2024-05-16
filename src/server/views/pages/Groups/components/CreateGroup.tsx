@@ -1,5 +1,5 @@
-import { type UserSchemaWithMemberType } from "../../../../interface/types";
-import { AddedMember } from "./Member";
+import { type UserSchemaWithMemberType } from '../../../../interface/types';
+import { AddedMember } from './Member';
 
 interface Icon {
   id: string;
@@ -116,7 +116,7 @@ export const CreateGroup = ({
           class="bg-primary-black w-full rounded-lg flex p-6 flex-col text-xs justify-center items-center"
         >
           <div class="flex-col w-full">
-            <AddedMember user={{...currentUser, type: "Owner"}} />
+            <AddedMember user={{ ...currentUser, type: 'Owner' }} />
             <div
               id="memberContainer"
               class="bg-primary-black w-full rounded-lg flex flex-col text-xs justify-center items-center"
@@ -137,7 +137,7 @@ export const CreateGroup = ({
               <button
                 id="enterEmailButton"
                 class="text-accent-blue bg-pure-white rounded-lg flex justify-center mx-1 items-center w-16"
-                hx-get="/groups/addMember"
+                hx-get={`/groups/addMember`}
                 hx-trigger="click"
                 hx-include="[name='addEmail']"
                 hx-swap="beforeend"

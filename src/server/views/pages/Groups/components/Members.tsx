@@ -14,10 +14,18 @@ const colors = [
 export const Members = ({
   memberDetails,
   currentUser,
+  transactionSum,
 }: {
   memberDetails: UserSchema[];
   currentUser: UserSchema;
+  transactionSum: number;
 }) => {
+  function calculateOwedAmount(
+    memberDetails: UserSchema[],
+    transactionSum: number
+  ) {
+    return (transactionSum / memberDetails.length).toFixed(2);
+  }
   return (
     <div class="flex flex-wrap items-center w-full">
       {memberDetails.map((member) => (
@@ -32,7 +40,7 @@ export const Members = ({
               <p class="text-negative-number flex w-fit text-sm">
                 $
                 <span class="text-negative-number flex w-fit text-sm font-semibold">
-                  {(Math.random() * 40).toFixed(2)}
+                  {calculateOwedAmount(memberDetails, transactionSum)}
                 </span>
               </p>
             )}

@@ -2,9 +2,11 @@ import { Router } from 'express';
 import { getAccessToken, getLinkToken } from '../../../plaid/link';
 import {
   addItemToUser,
+  getAccountsForUser,
   getItemsForUser,
 } from '../../../services/plaid.service';
 import { getUser } from '../../authRouter';
+import { syncTransactionsForUser } from '../../../plaid/sync';
 
 const router = Router();
 
@@ -22,6 +24,42 @@ router.get('/connected', getUser, async (req, res) => {
     error: null,
     data: { connected },
   });
+});
+
+router.get('/has-accounts', getUser, async (req, res) => {
+  if (!req.user) {
+    return res.json({
+      error: 'Not logged in.',
+      data: null,
+    });
+  }
+
+  const accounts = await getAccountsForUser(req.user.id);
+  console.log(accounts);
+  const connected = accounts && accounts.length > 0;
+  return res
+    .set({
+      'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+      Pragma: 'no-cache',
+      Expires: '0',
+      'Surrogate-Control': 'no-store',
+    })
+    .json({
+      error: null,
+      data: { connected },
+    });
+});
+
+router.get('/sync', getUser, async (req, res) => {
+  if (!req.user) {
+    return res.json({
+      error: 'Not logged in.',
+      data: null,
+    });
+  }
+  await syncTransactionsForUser(req.user.id);
+
+  return res.status(200).send();
 });
 
 router.get('/plaid-token', getUser, async (req, res) => {
@@ -63,6 +101,7 @@ router.post('/plaid-public-token', getUser, async (req, res) => {
       id: item_id as string,
       plaidAccessToken: access_token,
       nextCursor: null,
+      institutionName: null,
     });
     console.log('added!');
     res.status(200).send();

@@ -13,7 +13,7 @@ export async function addAccount(account: Account) {
   }
 }
 
-type Account = ExtractFunctionReturnType<typeof getAccount>;
+export type Account = ExtractFunctionReturnType<typeof getAccount>;
 
 export async function getAccount(accountId: string) {
   try {

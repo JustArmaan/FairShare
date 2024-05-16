@@ -1,8 +1,8 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "c7e16988-a9ff-4137-8245-b4f6c01b229e",
-  "prevId": "00000000-0000-0000-0000-000000000000",
+  "id": "8f56c045-baac-49db-822c-cc01ce19ad8b",
+  "prevId": "fef24484-ff3a-4090-ad99-09afbe302548",
   "tables": {
     "accounts": {
       "name": "accounts",
@@ -229,29 +229,6 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "institutions": {
-      "name": "institutions",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "name": {
-          "name": "name",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
-    },
     "items": {
       "name": "items",
       "columns": {
@@ -269,8 +246,8 @@
           "notNull": true,
           "autoincrement": false
         },
-        "institution_id": {
-          "name": "institution_id",
+        "institution_name": {
+          "name": "institution_name",
           "type": "text",
           "primaryKey": false,
           "notNull": false,
@@ -293,19 +270,6 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "items_institution_id_institutions_id_fk": {
-          "name": "items_institution_id_institutions_id_fk",
-          "tableFrom": "items",
-          "tableTo": "institutions",
-          "columnsFrom": [
-            "institution_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
         "items_user_id_users_id_fk": {
           "name": "items_user_id_users_id_fk",
           "tableFrom": "items",

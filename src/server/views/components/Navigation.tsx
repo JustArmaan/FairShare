@@ -45,7 +45,7 @@ export const Nav = () => {
         <div class="rounded-full bg-accent-blue size-12">
           <li class="flex justify-center items-center">
             <a
-              href="#"
+              href=""
               class="flex flex-col items-center text-font-off-white dark:text-white"
             >
               <img
@@ -58,7 +58,7 @@ export const Nav = () => {
         </div>
         <li class="group w-1/6">
           <a
-            href="#"
+            href=""
             class="parent hover:child-hidden flex flex-col items-center text-font-off-white dark:text-white text-sm group-hover:text-accent-green"
           >
             <img
@@ -75,23 +75,25 @@ export const Nav = () => {
             <p class="mt-1 text-xs">Notifications</p>
           </a>
         </li>
-        <li class="group w-1/6">
-          <a
-            href="#"
-            class="parent hover:child-hidden flex flex-col items-center text-font-off-white dark:text-white group-hover:text-accent-red"
-            hx-get="/menu"
-            hx-target=".menu"
-            hx-include="[name=original]"
-            aria-label="Toggle menu"
-          >
-            <img
-              src="/images/menu.svg"
-              alt="Menu Icon"
-              class="h-6 p-1"
-              id="moreIcon"
-            ></img>
-            <p class="mt-1 text-xs">More</p>
-          </a>
+        <li class="group w-1/6 relative">
+            <a
+              class="parent hover:child-hidden flex flex-col items-center text-font-off-white dark:text-white group-hover:text-accent-red"
+              hx-get="/menu"
+              hx-target="#Div"
+              hx-trigger="click"
+              hx-swap="innerHTML"
+            >
+              <img
+                src="/images/menu.svg"
+                alt="Menu Icon"
+                class="h-6 p-1"
+                id="moreIcon"
+              ></img>
+              <p class="mt-1 text-xs">More</p>
+            </a>
+          <div id="Div">
+            {" "}
+          </div>
         </li>
       </ul>
     </nav>

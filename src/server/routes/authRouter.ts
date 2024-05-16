@@ -10,7 +10,6 @@ import express, {
   type NextFunction,
 } from 'express';
 import { createUser, findUser } from '../services/user.service';
-// import { seedFakeTransactions } from '../database/seedFakeTransations';
 
 const router = express.Router();
 

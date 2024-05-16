@@ -1,5 +1,5 @@
-import { type TransactionSchema } from "../../../interface/types";
-import { env } from "../../../../../env";
+import { type TransactionSchema } from '../../../interface/types';
+import { env } from '../../../../../env';
 
 export const TransactionDetailsPage = ({
   transaction,
@@ -10,7 +10,7 @@ export const TransactionDetailsPage = ({
     <div class="p-6 animate-fade-in">
       <div class="flex justify-start w-fit items-center mb-1">
         <a
-          hx-get={"/home/page"}
+          hx-get={'/home/page'}
           hx-trigger="click"
           hx-target="#app"
           hx-swap="innerHTML"
@@ -25,7 +25,8 @@ export const TransactionDetailsPage = ({
       </div>
       <div class="flex justify-center flex-col items-center">
         <p class="text-3xl text-font-off-white font-semibold mb-1">
-          ${transaction.amount}
+            {(transaction.amount > 0 ? '-$' : '+$') +
+              Math.abs(transaction.amount).toFixed(2)}
         </p>
         <div class="text-font-grey text-md mb-3">{transaction.address}</div>
         <div class="bg-primary-black rounded-lg shadow-lg px-4 py-2 w-full">
