@@ -110,6 +110,12 @@ const newCategoriesList = [
     icon: '/icons/pharmacy.svg',
     color: 'bg-category-color-15',
   },
+  {
+    name: 'OTHER',
+    displayName: 'Other',
+    icon: '/icons/plus.svg',
+    color: 'bg-category-color-16',
+  },
 ];
 
 const memberTypes = [

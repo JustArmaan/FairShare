@@ -16,6 +16,7 @@ import type { ExtractFunctionReturnType } from '../services/user.service';
 import MyAccountsPage from '../views/pages/transactions/MyAccountsPage';
 import { AccountOverview } from '../views/pages/transactions/components/AccountOverview';
 import { ItemPickerForm } from '../views/pages/transactions/components/ItemPickerForm';
+import { ConnectAccount } from '../views/pages/transactions/components/ConnectAccount';
 const router = express.Router();
 
 router.get('/page', getUser, async (req, res) => {
@@ -26,9 +27,7 @@ router.get('/page', getUser, async (req, res) => {
   const accounts = await getAccountsForUser(userId);
 
   if (!accounts || accounts.length === 0) {
-    const html = renderToHtml(
-      <MyAccountsPage accountIds={[]} selectedAccountId="" />
-    );
+    const html = renderToHtml(<ConnectAccount />);
     res.send(html);
     return;
   }
@@ -43,11 +42,10 @@ router.get('/page', getUser, async (req, res) => {
   );
 
   const sortedAccounts = accountsWithTransactions.sort((a, b) => {
-    return (b.transactions?.length || 0) - (a.transactions?.length || 0);
+    return (b.transactions.length || 0) - (a.transactions.length || 0);
   });
 
-  const mostTransactionsAccountId = sortedAccounts[0]?.id || '';
-
+  const mostTransactionsAccountId = sortedAccounts[0].id;
   // This will now get the account with the most transactions first to display nicer graphs
   const html = renderToHtml(
     <MyAccountsPage

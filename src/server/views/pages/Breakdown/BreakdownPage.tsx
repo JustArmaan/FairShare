@@ -92,7 +92,7 @@ const iconColors = [
 
 export function mapTransactionsToCategories(transactions: TransactionSchema[]) {
   const categories = transactions.reduce((categories, transaction) => {
-    if(transaction.amount <= 0) return categories;
+    if (transaction.amount <= 0) return categories;
     const index = categories.findIndex(
       (currentCategory) =>
         currentCategory.title === transaction.category.displayName
@@ -124,8 +124,10 @@ export function mapTransactionsToCategories(transactions: TransactionSchema[]) {
 
 export const BreakdownPage = ({
   transactions,
+  accountName,
 }: {
   transactions: TransactionSchema[];
+  accountName: string;
 }) => {
   const categories = mapTransactionsToCategories(transactions);
   const pathStyles = generatePathStyles(categories);
@@ -133,9 +135,9 @@ export const BreakdownPage = ({
   return (
     <div class="text-font-off-white h-fit w-screen p-6 page animate-fade-in">
       <p class="text-2xl">
-        <b>April</b>
+        <b>{accountName}</b>
       </p>
-      <p class="text-xl">Monthly Breakdown</p>
+      <p class="text-xl">Account Breakdown</p>
       <div class="mt-6">
         <p>
           <b>Total Expenses</b>

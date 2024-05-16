@@ -9,7 +9,14 @@ const router = express.Router();
 
 router.get('/page/:accountId', getUser, async (req, res) => {
   const result = await getAccountWithTransactions(req.params.accountId);
-  const html = renderToHtml(<BreakdownPage transactions={result!.transactions} />);
+  if (!result) throw new Error('404');
+  console.log(result);
+  const html = renderToHtml(
+    <BreakdownPage
+      transactions={result.transactions}
+      accountName={result.name}
+    />
+  );
 
   res.send(html);
 });

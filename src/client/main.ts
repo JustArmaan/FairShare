@@ -48,23 +48,42 @@ async function isConnectedToPlaid(): Promise<boolean> {
   return data.connected;
 }
 
-try {
-  const connected = await isConnectedToPlaid();
-  if (!connected) {
-    const publicToken = await getToken();
-    const response = await fetch(`/api/v${apiVersion}/plaid-public-token`, {
-      method: 'POST',
-      body: JSON.stringify({ publicToken }),
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
-    if (response.status === 200) {
-      console.log('Token pushed succesfully');
-    }
+async function hasAccounts(): Promise<boolean> {
+  const response = await fetch(`/api/v${apiVersion}/has-accounts`);
+  const { error, data } = await response.json();
+  if (error) {
+    throw new Error(error);
   }
-} catch (error) {
-  console.log(error);
+
+  return data.connected;
+}
+
+async function runLinkSetup() {
+  try {
+    const connected = await isConnectedToPlaid();
+    if (!connected) {
+      const publicToken = await getToken();
+      const response = await fetch(`/api/v${apiVersion}/plaid-public-token`, {
+        method: 'POST',
+        body: JSON.stringify({ publicToken }),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      if (response.status === 200) {
+        console.log('Token pushed succesfully');
+        const response = await fetch(`/api/v${apiVersion}/sync`);
+        if (response.status === 200) {
+          setInterval(async () => {
+            const connected = await hasAccounts();
+            if (connected) window.location.reload();
+          }, 500);
+        }
+      }
+    }
+  } catch (error) {
+    console.log(error);
+  }
 }
 
 async function initMap() {
@@ -87,6 +106,15 @@ async function initMap() {
   }
 }
 
+function attachButton(event: Event) {
+  if (event.currentTarget instanceof HTMLButtonElement) {
+    if (event.currentTarget.innerText !== 'Loading...') {
+      runLinkSetup();
+      event.currentTarget.innerText = 'Loading...';
+    }
+  }
+}
+
 document.addEventListener('htmx:afterSwap', () => {
   const dateSelectorForm = document.getElementById('date-selector-form');
   const filterSelector = document.getElementById('filter-selector');
@@ -98,6 +126,18 @@ document.addEventListener('htmx:afterSwap', () => {
     });
     filterSelector.dataset.listenerAttached = 'true';
   }
+
+  const connectButton = document.querySelector('#connect-to-plaid');
+  if (connectButton && connectButton instanceof HTMLElement) {
+    connectButton.addEventListener('click', attachButton);
+  }
+});
+
+document.addEventListener('htmx:beforeSwap', () => {
+  const connectButton = document.querySelector('#connect-to-plaid');
+  if (connectButton && connectButton instanceof HTMLElement) {
+    connectButton.removeEventListener('click', attachButton);
+  }
 });
 
 declare global {
@@ -107,5 +147,3 @@ declare global {
 }
 
 window.initMap = initMap;
-
-
