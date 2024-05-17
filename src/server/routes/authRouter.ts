@@ -113,7 +113,7 @@ export async function getUser(req: Request, res: Response, next: NextFunction) {
   );
   if (isAuthenticated) {
     const profile = await kindeClient.getUserProfile(sessionManager(req, res));
-    if (!profile) res.redirect('/logout');
+    if (!profile) return res.redirect('/auth/logout');
     const user = await findUser(profile.id);
     if (!user) {
       const { id, given_name, family_name, email } = profile;
