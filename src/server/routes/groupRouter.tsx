@@ -9,7 +9,6 @@ import {
   getGroupWithMembersAndTransactions,
   getGroupsAndAllMembersForUser,
   getTransactionsForGroup,
-  transactionSumForGroup,
   type GroupMembersTransactions,
 } from '../services/group.service';
 import { findUser, getUserByEmailOnly } from '../services/user.service.ts';
@@ -31,10 +30,7 @@ import {
 } from '../services/plaid.service';
 import type { ExtractFunctionReturnType } from '../services/user.service';
 import { GroupTransactionsListPage } from '../views/pages/Groups/TransactionsListGroupsPage.tsx';
-import {
-  getAllOwedForGroupTransaction,
-  getAllOwedForGroupTransactionWithTransactionId,
-} from '../services/owed.service.ts';
+import { getAllOwedForGroupTransactionWithTransactionId } from '../services/owed.service.ts';
 
 const router = express.Router();
 
@@ -493,8 +489,9 @@ router.post('/deleteMember/:userID/:groupID', async (req, res) => {
 
 router.get('/transactions/:groupId', getUser, async (req, res) => {
   const groupId = req.params.groupId;
-  const groupWithTransactions =
-    await getGroupWithMembersAndTransactions(groupId);
+  const groupWithTransactions = await getGroupWithMembersAndTransactions(
+    groupId
+  );
   const html = renderToHtml(
     <GroupTransactionsListPage
       group={groupWithTransactions as GroupMembersTransactions}

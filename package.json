@@ -9,7 +9,8 @@
     "tailwind-build": "bun x tailwindcss -i ./src/server/views/tailwind.css -o ./public/output.css",
     "drizzle-generate": "drizzle-kit generate",
     "drizzle-seed": "bun run src/server/database/seed.ts",
-    "drizzle-push": "drizzle-kit push"
+    "drizzle-push": "drizzle-kit push",
+    "turso-local": "turso dev --db-file src/server/database/dev.db"
   },
   "typings": "/index.d.ts",
   "dependencies": {
