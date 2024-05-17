@@ -76,24 +76,7 @@ export const Nav = () => {
           </a>
         </li>
         <li class="group w-1/6 relative">
-            <a
-              class="parent hover:child-hidden flex flex-col items-center text-font-off-white dark:text-white group-hover:text-accent-red"
-              hx-get="/menu"
-              hx-target="#Div"
-              hx-trigger="click"
-              hx-swap="innerHTML"
-            >
-              <img
-                src="/images/menu.svg"
-                alt="Menu Icon"
-                class="h-6 p-1"
-                id="moreIcon"
-              ></img>
-              <p class="mt-1 text-xs">More</p>
-            </a>
-          <div id="Div">
-            {" "}
-          </div>
+          <div hx-get="/menu?open=false" hx-swap="outerHTML" hx-trigger="load"/>
         </li>
       </ul>
     </nav>

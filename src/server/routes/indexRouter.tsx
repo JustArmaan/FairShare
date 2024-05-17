@@ -24,9 +24,11 @@ router.get('/nav', (_, res) => {
   }
 });
 
-router.get('/menu', (_, res) => {
+router.get('/menu', (req, res) => {
   try {
-    const html = renderToHtml(<Menu />);
+    const open = req.query.open as string;
+
+    const html = renderToHtml(<Menu value={open==="true"}/>);
     res.send(html);
   } catch (err) {
     console.error(err);
