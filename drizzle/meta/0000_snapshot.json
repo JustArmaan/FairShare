@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "2d0bd569-8054-4113-8ddf-c51152192cde",
+  "id": "49b9d01f-da98-47db-93e9-ae005cbdb57f",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "accounts": {
@@ -226,6 +226,70 @@
       },
       "indexes": {},
       "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "groupTransactionToUsersToGroups": {
+      "name": "groupTransactionToUsersToGroups",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "amount": {
+          "name": "amount",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "transactions_to_groups_id": {
+          "name": "transactions_to_groups_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "users_to_groups_id": {
+          "name": "users_to_groups_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "groupTransactionToUsersToGroups_transactions_to_groups_id_transactionsToGroups_id_fk": {
+          "name": "groupTransactionToUsersToGroups_transactions_to_groups_id_transactionsToGroups_id_fk",
+          "tableFrom": "groupTransactionToUsersToGroups",
+          "tableTo": "transactionsToGroups",
+          "columnsFrom": [
+            "transactions_to_groups_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "groupTransactionToUsersToGroups_users_to_groups_id_usersToGroups_id_fk": {
+          "name": "groupTransactionToUsersToGroups_users_to_groups_id_usersToGroups_id_fk",
+          "tableFrom": "groupTransactionToUsersToGroups",
+          "tableTo": "usersToGroups",
+          "columnsFrom": [
+            "users_to_groups_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },

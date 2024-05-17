@@ -1,6 +1,7 @@
 export const MyAccountsPage = (props: {
   accountIds: string[];
   selectedAccountId: string;
+  username: string;
 }) => {
   return (
     <div class="p-6 animate-fade-in pb-24">
@@ -18,11 +19,14 @@ export const MyAccountsPage = (props: {
           id="account-select-image"
         />
       </div>
-      <div class="header flex align-center mb-2">
-        <h1 class="text-font-off-white font-semibold text-lg mr-2">
+      <div class="header flex items-center mb-2 mt-4 justify-between">
+        <h1 class="text-xl text-font-off-white h-fit font-semibold">
+          {' '}
+          Welcome, {props.username}
+        </h1>{' '}
+        <h1 class="text-font-off-white font-semibold text-xl mr-2 h-fit">
           My Accounts
         </h1>
-        <img src="/activeIcons/info.svg" alt="help icon" />
       </div>
       {props.accountIds.map((id) => (
         <div

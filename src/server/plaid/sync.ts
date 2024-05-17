@@ -48,7 +48,6 @@ async function syncTransaction({ item }: { item: Item }) {
       next_cursor: string;
       has_more: boolean;
     };
-    console.log(response, "response");
     const { accounts } = response;
     if (!accountsAdded) {
       await Promise.all(
@@ -165,6 +164,7 @@ async function addTransactions(transactions: AddedPlaidTransaction[]) {
 }
 
 async function modifyTransaction(transaction: ModifiedPlaidTransaction) {
+  console.log('modifiying');
   let categoryId: { id: string } | undefined | null = undefined;
   if (transaction.personal_finance_category) {
     categoryId = await getCategoryIdByName(

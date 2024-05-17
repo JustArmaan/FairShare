@@ -36,6 +36,15 @@ CREATE TABLE `groups` (
 	`temporary` text NOT NULL
 );
 --> statement-breakpoint
+CREATE TABLE `groupTransactionToUsersToGroups` (
+	`id` text PRIMARY KEY NOT NULL,
+	`amount` real NOT NULL,
+	`transactions_to_groups_id` text NOT NULL,
+	`users_to_groups_id` text NOT NULL,
+	FOREIGN KEY (`transactions_to_groups_id`) REFERENCES `transactionsToGroups`(`id`) ON UPDATE no action ON DELETE cascade,
+	FOREIGN KEY (`users_to_groups_id`) REFERENCES `usersToGroups`(`id`) ON UPDATE no action ON DELETE no action
+);
+--> statement-breakpoint
 CREATE TABLE `items` (
 	`id` text PRIMARY KEY NOT NULL,
 	`plaid_access_token` text NOT NULL,
