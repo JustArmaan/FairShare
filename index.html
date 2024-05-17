@@ -18,19 +18,17 @@
     />
   </head>
   <body class="bg-primary-black-page">
-    <div
+    <!-- <div
       id="header"
       hx-get="/header"
       hx-trigger="load"
       hx-swap="outerHTML"
-    ></div>
+    ></div> -->
     <div
-      id="app"
-      hx-get="/home/page"
+      hx-get="/onboard"
       hx-trigger="load"
-      hx-swap="innerHTML"
+      hx-swap="outerHTML"
     ></div>
-    <div id="nav" hx-get="/nav" hx-trigger="load" hx-swap="outerHTML"></div>
+    <!-- <div id="nav" hx-get="/nav" hx-trigger="load" hx-swap="outerHTML"></div> -->
   </body>
 </html>
-<!-- Make it so this /home goes to header/navigation, then in there it knows to load the default overview page-->

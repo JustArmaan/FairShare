@@ -20,7 +20,7 @@ const colors = [
   'accent-green',
   'negative-number',
   'card-red',
-]
+];
 
 const router = express.Router();
 
@@ -41,7 +41,8 @@ const cookieOptions = {
 
 const sessionManager = (req: Request, res: Response): SessionManager => ({
   async getSessionItem(key: string) {
-    return req.cookies[key];
+    if (req.cookies[key] && req.cookies[key] !== '') return req.cookies[key];
+    return undefined;
   },
   async setSessionItem(key: string, value: unknown) {
     if (typeof value === 'string') {
@@ -51,10 +52,18 @@ const sessionManager = (req: Request, res: Response): SessionManager => ({
     }
   },
   async removeSessionItem(key: string) {
+    console.log('clearing cookie', key);
     res.clearCookie(key, cookieOptions);
   },
   async destroySession() {
-    ['id_token', 'access_token', 'user', 'refresh_token'].forEach((key) => {
+    [
+      'ac-state-key',
+      'id_token',
+      'access_token',
+      'user',
+      'refresh_token',
+    ].forEach((key) => {
+      console.log('clearing cookies', key);
       res.clearCookie(key, cookieOptions);
     });
   },
@@ -86,15 +95,16 @@ router.get('/register', async (req, res) => {
   return res.redirect(registerUrl.toString());
 });
 
+router.get('/logout', async (req, res) => {
+  const logoutUrl = await kindeClient.logout(sessionManager(req, res));
+  console.log(logoutUrl);
+  return res.redirect(logoutUrl.toString());
+});
+
 router.get('/callback', async (req, res) => {
   const url = new URL(`${req.protocol}://${req.get('host')}${req.url}`);
   await kindeClient.handleRedirectToApp(sessionManager(req, res), url);
   return res.redirect('/');
-});
-
-router.get('/logout', async (req, res) => {
-  const logoutUrl = await kindeClient.logout(sessionManager(req, res));
-  return res.redirect(logoutUrl.toString());
 });
 
 export async function getUser(req: Request, res: Response, next: NextFunction) {
@@ -111,7 +121,7 @@ export async function getUser(req: Request, res: Response, next: NextFunction) {
         firstName: given_name,
         lastName: family_name,
         email,
-        color: faker.helpers.arrayElement(colors)
+        color: faker.helpers.arrayElement(colors),
       });
       // await seedFakeTransactions(id, 20);
       if (!(await findUser(id))) throw new Error('failed to create user');
@@ -122,7 +132,17 @@ export async function getUser(req: Request, res: Response, next: NextFunction) {
     }
   } else {
     if (req.url.includes('auth')) return next();
-    res.redirect('/auth/login');
+    if (
+      req.url === '/' ||
+      req.url.includes('onboard') ||
+      req.url.includes('images') ||
+      req.url.endsWith('.svg') ||
+      req.url.endsWith('.png') ||
+      req.url.endsWith('.css') ||
+      req.url.endsWith('client')
+    )
+      return next();
+    res.redirect('/');
   }
 }
 
