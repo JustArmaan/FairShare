@@ -198,7 +198,7 @@ router.get('/addButton', async (req, res) => {
           amount: (member.id === req.user!.id
             ? owedPerMember * (members.length - 1)
             : -1 * owedPerMember
-          ).toString(),
+          ),
         });
       })
     );
@@ -207,7 +207,7 @@ router.get('/addButton', async (req, res) => {
       groupId,
       transaction.id
     );
-    if (allTransactions!.some((transaction) => transaction.amount === '0')) {
+    if (allTransactions!.some((transaction) => transaction.amount === 0)) {
       return res
         .status(400)
         .send("Can't remove transaction that is being settled");

@@ -15,10 +15,10 @@ function calculateTotalOwed(
   if (accIndex === -1) {
     accumulator.push({
       userId: currentOwed.userId,
-      amount: parseFloat(currentOwed.amount),
+      amount: currentOwed.amount,
     });
   } else {
-    accumulator[accIndex].amount += parseFloat(currentOwed.amount);
+    accumulator[accIndex].amount += currentOwed.amount;
   }
   return accumulator;
 }
@@ -34,7 +34,7 @@ function calculateTotalOwedAll(
       (total, owedPerMember) => {
         return [...total, ...owedPerMember];
       },
-      [] as { userId: string; amount: string }[]
+      [] as { userId: string; amount: number }[]
     )
     .reduce(calculateTotalOwed, [] as { userId: string; amount: number }[])
     .map((totalOwed) => {
@@ -83,7 +83,7 @@ export const Members = ({
                       : 'text-negative-number'
                   }`}
                 >
-                  ${-1 * member.amount}
+                  ${(-1 * member.amount).toFixed(2)}
                 </span>
               </p>
             )}

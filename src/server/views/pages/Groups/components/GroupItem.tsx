@@ -18,7 +18,7 @@ export const GroupItem = (props: {
             props.group.temporary === 'true'
               ? `border-[3px] border-dashed border-${props.group.color} rounded-lg`
               : `bg-${props.group.color} rounded`
-          } w-14 h-14 aspect-square flex items-center justify-center`}
+          }  w-14 h-14 aspect-square flex items-center justify-center`}
         >
           <div
             class={`${
@@ -73,11 +73,24 @@ export const GroupItem = (props: {
                         +{props.group.members.length - 4}
                       </p>
                     </div>
-                    <div class={`flex rounded-full bg-${member.color} h-12 w-12 m-2 justify-center`}><span class='flex justify-center self-center text-center text-xl font-semibold'>{member.firstName.split('',1)}{member.lastName.split('',1)}</span></div>
+                    <div
+                      class={`flex rounded-full bg-${member.color} h-12 w-12 m-2 justify-center`}
+                    >
+                      <span class="flex justify-center self-center text-center text-xl font-semibold">
+                        {member.firstName.split('', 1)}
+                        {member.lastName.split('', 1)}
+                      </span>
+                    </div>
                   </div>
                 ) : (
-                  <div class={`flex rounded-full bg-${member.color} h-12 w-12 m-2 justify-center`}><span class='flex justify-center self-center text-center text-xl font-semibold'>{member.firstName.split('',1)}{member.lastName.split('',1)}</span></div>
-
+                  <div
+                    class={`-ml-6 flex rounded-full bg-${member.color} h-12 w-12 m-2 justify-center`}
+                  >
+                    <span class="flex justify-center self-center text-center text-xl font-semibold">
+                      {member.firstName.split('', 1)}
+                      {member.lastName.split('', 1)}
+                    </span>
+                  </div>
                 );
               })}
           </div>
