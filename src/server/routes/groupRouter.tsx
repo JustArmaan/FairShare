@@ -345,7 +345,7 @@ router.get('/addTransaction/:groupId', getUser, async (req, res) => {
         currentUser={currentUser!}
         groupId={req.params.groupId}
         accounts={accountsWithTransactions ? accountsWithTransactions : []}
-        selectedAccountId={accountsWithTransactions[1].id}
+        selectedAccountId={accountsWithTransactions[2].id}
         groupTransactionIds={
           groupTransactions?.map((transaction) => transaction.transactionId) ??
           []

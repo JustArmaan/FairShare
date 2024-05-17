@@ -249,4 +249,3 @@ export async function getAccountForUserWithMostTransactions(userId: string) {
     return null;
   }
 }
-

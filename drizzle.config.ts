@@ -5,6 +5,7 @@ export default {
   dialect: 'sqlite',
   schema: './src/server/database/schema/*',
   out: './drizzle',
+  
   // driver: isDev ? 'better-sqlite' : 'turso',
   dbCredentials: config,
 } satisfies Config;
