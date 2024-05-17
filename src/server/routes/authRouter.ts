@@ -131,7 +131,6 @@ export async function getUser(req: Request, res: Response, next: NextFunction) {
       next();
     }
   } else {
-    console.log(req.url);
     if (req.url.includes('auth')) return next();
     if (
       req.url === '/' ||
