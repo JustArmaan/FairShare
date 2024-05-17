@@ -4,7 +4,7 @@ import type { UserSchema } from '../interface/types';
 import { getUser } from '../routes/authRouter';
 import { env } from '../../../env';
 
-declare module "express-serve-static-core" {
+declare module 'express-serve-static-core' {
   interface Request {
     user?: UserSchema;
   }
@@ -16,7 +16,7 @@ export const configureApp = (app: Express) => {
   app.use(express.static('~/public'));
   app.use(cookieParser());
 
-  app.use("/", getUser, (_, __, next) => {
+  app.use('/', getUser, (_, __, next) => {
     next();
   });
 };

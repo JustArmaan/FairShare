@@ -24,7 +24,7 @@ router.get('/nav', (_, res) => {
   }
 });
 
-router.get('/menu', (_, res) => { 
+router.get('/menu', (_, res) => {
   try {
     const html = renderToHtml(<Menu />);
     res.send(html);
@@ -38,8 +38,29 @@ router.get('/empty', (req, res) => {
 });
 
 router.get('/onboard', (req, res) => {
-  const html = renderToHtml(<Login/>);
-  res.send(html)
-})
+  if (!req.user) {
+    const html = renderToHtml(<Login />);
+    return res.send(html);
+  } else {
+    const html = renderToHtml(
+      <>
+        <div
+          id="header"
+          hx-get="/header"
+          hx-trigger="load"
+          hx-swap="outerHTML"
+        ></div>
+        <div
+          id="app"
+          hx-get="/home/page"
+          hx-trigger="load"
+          hx-swap="innerHTML"
+        ></div>
+        <div id="nav" hx-get="/nav" hx-trigger="load" hx-swap="outerHTML"></div>
+      </>
+    );
+    return res.send(html);
+  }
+});
 
 export const indexRouter = router;

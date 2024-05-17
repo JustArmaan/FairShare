@@ -5,7 +5,6 @@ import {
   getAccountForUserWithMostTransactions,
 } from '../services/transaction.service';
 import { Overview } from '../views/pages/Overview/Overview';
-import { getUser } from './authRouter';
 import { syncTransactionsForUser } from '../plaid/sync';
 import {
   getAccountWithTransactions,
@@ -19,7 +18,7 @@ import { ItemPickerForm } from '../views/pages/transactions/components/ItemPicke
 import { ConnectAccount } from '../views/pages/transactions/components/ConnectAccount';
 const router = express.Router();
 
-router.get('/page', getUser, async (req, res) => {
+router.get('/page', async (req, res) => {
   const userId = req.user!.id;
 
   // await syncTransactionsForUser(userId);
@@ -56,7 +55,8 @@ router.get('/page', getUser, async (req, res) => {
   res.send(html);
 });
 
-router.get('/itemPicker/:itemId', getUser, async (req, res) => {
+/*
+router.get('/itemPicker/:itemId', async (req, res) => {
   const results = await getItemsForUser(req.user!.id);
   if (!results) throw new Error('Missing accounts for user');
   const html = renderToHtml(
@@ -67,6 +67,7 @@ router.get('/itemPicker/:itemId', getUser, async (req, res) => {
   );
   res.send(html);
 });
+*/
 
 router.get('/accountOverview/:accountId', async (req, res) => {
   const accountWithTransactions = await getAccountWithTransactions(

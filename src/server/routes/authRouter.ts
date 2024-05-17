@@ -41,7 +41,8 @@ const cookieOptions = {
 
 const sessionManager = (req: Request, res: Response): SessionManager => ({
   async getSessionItem(key: string) {
-    return req.cookies[key];
+    if (req.cookies[key] && req.cookies[key] !== '') return req.cookies[key];
+    return undefined;
   },
   async setSessionItem(key: string, value: unknown) {
     if (typeof value === 'string') {
@@ -55,7 +56,13 @@ const sessionManager = (req: Request, res: Response): SessionManager => ({
     res.clearCookie(key, cookieOptions);
   },
   async destroySession() {
-    ['id_token', 'access_token', 'user', 'refresh_token'].forEach((key) => {
+    [
+      'ac-state-key',
+      'id_token',
+      'access_token',
+      'user',
+      'refresh_token',
+    ].forEach((key) => {
       console.log('clearing cookies', key);
       res.clearCookie(key, cookieOptions);
     });
@@ -124,8 +131,19 @@ export async function getUser(req: Request, res: Response, next: NextFunction) {
       next();
     }
   } else {
+    console.log(req.url);
     if (req.url.includes('auth')) return next();
-    res.redirect('/auth/login');
+    if (
+      req.url === '/' ||
+      req.url.includes('onboard') ||
+      req.url.includes('images') ||
+      req.url.endsWith('.svg') ||
+      req.url.endsWith('.png') ||
+      req.url.endsWith('.css') ||
+      req.url.endsWith('client')
+    )
+      return next();
+    res.redirect('/');
   }
 }
 
