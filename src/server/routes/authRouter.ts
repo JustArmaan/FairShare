@@ -97,7 +97,6 @@ router.get('/register', async (req, res) => {
 
 router.get('/logout', async (req, res) => {
   const logoutUrl = await kindeClient.logout(sessionManager(req, res));
-  console.log(logoutUrl);
   return res.redirect(logoutUrl.toString());
 });
 
@@ -111,9 +110,12 @@ export async function getUser(req: Request, res: Response, next: NextFunction) {
   const isAuthenticated = await kindeClient.isAuthenticated(
     sessionManager(req, res)
   );
-  if (isAuthenticated) {
+  if (isAuthenticated && !req.url.includes('logout')) {
     const profile = await kindeClient.getUserProfile(sessionManager(req, res));
-    if (!profile) return res.redirect('/auth/logout');
+    if (!profile) {
+      const logoutUrl = await kindeClient.logout(sessionManager(req, res));
+      return res.redirect(logoutUrl.toString());
+    }
     const user = await findUser(profile.id);
     if (!user) {
       const { id, given_name, family_name, email } = profile;
