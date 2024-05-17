@@ -9,7 +9,6 @@ import {
   getGroupWithMembersAndTransactions,
   getGroupsAndAllMembersForUser,
   getTransactionsForGroup,
-  transactionSumForGroup,
   type GroupMembersTransactions,
 } from '../services/group.service';
 import { findUser, getUserByEmailOnly } from '../services/user.service.ts';
@@ -312,10 +311,7 @@ router.post('/create', getUser, async (req, res) => {
 
 router.get('/edit', getUser, async (req, res) => {
   try {
-    if (!req.user) {
-      return res.set('HX-Redirect', `${env.baseUrl}/login`).send();
-    }
-    const groups = await getGroupsAndAllMembersForUser(req.user.id);
+    const groups = await getGroupsAndAllMembersForUser(req.user!.id);
     const html = renderToHtml(<GroupPage groups={groups ? groups : []} edit />);
     res.send(html);
   } catch (err) {
@@ -329,19 +325,15 @@ export type UserGroupSchema = NonNullable<
 
 router.get('/edit/:groupId', getUser, async (req, res) => {
   try {
-    if (!req.user) {
-      return res.set('HX-Redirect', `${env.baseUrl}/login`).send();
-    }
-
-    const currentUser = await findUser(req.user.id);
+    const currentUser = await findUser(req.user!.id);
 
     if (!currentUser) {
       return res.status(500).send('Failed to get user');
     }
 
     const group = await getGroupWithMembers(req.params.groupId);
-
     if (!group) return res.status(404).send('No such group');
+
     const html = renderToHtml(
       <EditGroupPage icons={icons} currentUser={currentUser} group={group} />
     );
@@ -395,8 +387,15 @@ router.post('/edit/:groupId', getUser, async (req, res) => {
     const isTemp = temporaryGroup === 'on';
     const currentGroup = await getGroupWithMembers(req.params.groupId);
 
+    const currentMember = currentGroup!.members.find(
+      (member) => req.user!.id === member.id
+    );
     if (!currentGroup) {
       return res.status(404).send('Group not found');
+    }
+
+    if (currentMember?.type !== 'Owner') {
+      res.status(403).send("Only the owner can edit a group.")
     }
 
     if (!req.user) {
