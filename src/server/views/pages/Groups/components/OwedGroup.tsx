@@ -74,7 +74,7 @@ export const OwedGroup = ({
                     </button>
                   </div>
                 </div>
-                <div class="mx-3 mt-4 h-[1px] bg-primary-grey rounded w-full"></div>
+                <div class="mt-4 h-[1px] bg-primary-grey rounded w-full"></div>
                 {index === transactions.length - 1 && <div class="pb-2"></div>}
               </div>
             ))
