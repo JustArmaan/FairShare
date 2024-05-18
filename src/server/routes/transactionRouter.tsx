@@ -9,8 +9,6 @@ import {
   getTransactionsByMonth,
 } from '../services/transaction.service';
 
-import MyAccountsPage from '../views/pages/transactions/MyAccountsPage';
-import { getAccount } from '../services/account.service';
 import Transaction from '../views/pages/transactions/components/Transaction';
 import TransactionsPage from '../views/pages/transactions/TransactionPage';
 import { getUser } from './authRouter';
@@ -18,12 +16,10 @@ import { env } from '../../../env';
 import {
   getAccountWithTransactions,
   getAccountsForUser,
+  getItem,
 } from '../services/plaid.service';
-import type { ExtractFunctionReturnType } from '../services/user.service';
 import { TransactionList } from '../views/pages/transactions/components/TransactionList';
 import { AccountPickerForm } from '../views/pages/transactions/components/AccountPickerForm';
-import AddButton from '../views/pages/transactions/components/AddButton';
-import CheckButton from '../views/pages/transactions/components/CheckButton';
 import {
   addTransactionsToGroup,
   deleteTransactionFromGroup,
@@ -35,6 +31,9 @@ import {
   createOwed,
   getAllOwedForGroupTransaction,
 } from '../services/owed.service';
+import { getAccountTypeById } from '../services/accountType.service';
+import { getAccount } from '../services/account.service';
+import { tr } from '@faker-js/faker';
 
 const router = express.Router();
 
@@ -82,11 +81,23 @@ router.get('/details/:transactionId', async (req, res) => {
   try {
     const transactionId = req.params.transactionId;
     const transaction = await getTransaction(transactionId);
+    const account = await getAccount(transaction.accountId);
 
-    if (!transaction) return res.status(404).send('404');
+    if (!transaction || !account) return res.status(404).send('404');
+
+    const accountType = await getAccountTypeById(
+      account.accountTypeId ? account.accountTypeId : 'Unknown'
+    );
+
+    const item = await getItem(account.itemId);
+    if (!item) return res.status(404).send('404');
 
     const html = renderToHtml(
-      <TransactionDetailsPage transaction={transaction} />
+      <TransactionDetailsPage
+        transaction={transaction}
+        accountType={accountType ? accountType : 'Unknown'}
+        institution={item.institutionName ? item.institutionName : 'Unknown'}
+      />
     );
     res.send(html);
   } catch (error) {
@@ -195,10 +206,10 @@ router.get('/addButton', async (req, res) => {
             groupId,
             transactionId
           ))!.id,
-          amount: (member.id === req.user!.id
-            ? owedPerMember * (members.length - 1)
-            : -1 * owedPerMember
-          ),
+          amount:
+            member.id === req.user!.id
+              ? owedPerMember * (members.length - 1)
+              : -1 * owedPerMember,
         });
       })
     );
