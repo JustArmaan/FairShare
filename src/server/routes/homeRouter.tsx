@@ -21,7 +21,7 @@ const router = express.Router();
 router.get('/page', async (req, res) => {
   const userId = req.user!.id;
 
-  // await syncTransactionsForUser(userId);
+  await syncTransactionsForUser(userId);
 
   const accounts = await getAccountsForUser(userId);
   if (!accounts || accounts.length === 0) {

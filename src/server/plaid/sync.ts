@@ -71,6 +71,7 @@ async function syncTransaction({ item }: { item: Item }) {
       accountsAdded = true;
     }
     const { added, modified, removed, next_cursor, has_more } = response;
+    console.log(added, 'added');
     await addTransactions(added);
     await Promise.all(modified.map(modifyTransaction));
     if (removed.length > 0) {
@@ -89,6 +90,7 @@ async function syncTransaction({ item }: { item: Item }) {
 }
 
 interface PlaidTransactionGeneral {
+  transaction_id: string;
   personal_finance_category: { primary: string };
   account_id: string;
   amount: number;
@@ -139,11 +141,13 @@ async function addTransactions(transactions: AddedPlaidTransaction[]) {
       const locationIsNull = Object.values(transaction.location).some(
         (value) => value === null
       );
+      console.log(transaction.transaction_id, 'transaction id');
       return {
+        id: transaction.transaction_id,
         address: locationIsNull
           ? null
           : `${transaction.location.address!},  ${transaction.location
-            .city!}, ${transaction.location.region!}, ${transaction.location
+              .city!}, ${transaction.location.region!}, ${transaction.location
               .country!}`,
         accountId: transaction.account_id,
         categoryId: categoryId.id,
@@ -173,21 +177,23 @@ async function modifyTransaction(transaction: ModifiedPlaidTransaction) {
     if (!categoryId) throw new Error('No such category!');
   }
 
-  updateTransaction({
+  const transactionId = transaction.transaction_id ? transaction.transaction_id : '';
+  updateTransaction(transactionId, {
     // address: transaction.location ? locationToAddress(transaction.location) : undefined,
+    
     accountId: transaction.account_id!,
     categoryId: categoryId ? categoryId.id : undefined,
     company: transaction.merchant_name
       ? transaction.merchant_name
       : transaction.name
-        ? transaction.name
-        : undefined,
+      ? transaction.name
+      : undefined,
     amount: transaction.amount ? transaction.amount : undefined,
     timestamp: transaction.datetime
       ? transaction.datetime
       : transaction.date
-        ? transaction.date
-        : undefined,
+      ? transaction.date
+      : undefined,
     latitude: transaction.location.lat ? transaction.location.lat : undefined,
     longitude: transaction.location.lon ? transaction.location.lon : undefined,
   });

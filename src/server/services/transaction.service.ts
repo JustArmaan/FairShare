@@ -70,15 +70,11 @@ export type Transaction = ExtractFunctionReturnType<
   typeof getTransactionNoJoins
 >;
 
-export async function createTransactions(
-  newTransactions: Omit<Transaction, 'id'>[]
-) {
+export async function createTransactions(newTransactions: Transaction[]) {
   try {
     await db
       .insert(transactions)
-      .values(
-        newTransactions.map((transaction) => ({ ...transaction, id: uuid() }))
-      );
+      .values(newTransactions.map((transaction) => ({ ...transaction })));
   } catch (error) {
     console.error(error);
   }
@@ -97,12 +93,16 @@ export async function createTransaction(transaction: Omit<Transaction, 'id'>) {
 }
 
 export async function updateTransaction(
+  id: string,
   transaction: Partial<Omit<Transaction, 'id'>>
 ) {
   try {
-    const newTransaction = await db.update(transactions).set({
-      ...transaction,
-    });
+    const newTransaction = await db
+      .update(transactions)
+      .set({
+        ...transaction,
+      })
+      .where(eq(transactions.id, id));
     return newTransaction;
   } catch (error) {
     console.error(error);
