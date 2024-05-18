@@ -38,7 +38,28 @@ export const AddTransaction = (props: {
           />
         </a>
       </div>
-      <div id="transactionsContainer" class="mt-2">
+      <div
+        id="modal-bg"
+        class="fixed inset-0 bg-primary-black bg-opacity-40 z-10 hidden"
+      ></div>
+      <div class="flex justify-start p-4">
+        <div class="hidden rotate-90"></div>
+        <div
+          hx-get={`/groups/accountPicker/${props.selectedAccountId}/${props.groupId}`}
+          hx-target=".account-selector-form"
+          hx-swap="innerHTML"
+          class="mb-2 flex justify-start w-fit items-center hover:-translate-y-0.5 transition-transform cursor-pointer"
+        >
+          <p class="text-font-off-white mr-3 text-xl">Change Account</p>
+          <img
+            class="h-3"
+            src="/images/right-triangle.svg"
+            alt="triangle icon"
+            id="account-select-image"
+          />
+        </div>
+      </div>
+      {/* <div id="transactionsContainer" class="mt-2">
         {props.accounts
           .find((account) => account.id === props.selectedAccountId)!
           .transactions.map((transaction, categoryIndex) => (
@@ -50,7 +71,16 @@ export const AddTransaction = (props: {
               groupId={props.groupId}
             />
           ))}
-      </div>
+          
+      </div> */}
+      <div
+        id="transactionsContainer"
+        class="mt-2"
+        hx-get={`/groups/transactionList/${props.selectedAccountId}/${props.groupId}`}
+        hx-swap="innerHTML"
+        hx-trigger="load"
+      ></div>
+      <div class="account-selector-form" />
     </div>
   );
 };

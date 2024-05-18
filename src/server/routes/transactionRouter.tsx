@@ -33,7 +33,6 @@ import {
 } from '../services/owed.service';
 import { getAccountTypeById } from '../services/accountType.service';
 import { getAccount } from '../services/account.service';
-import { tr } from '@faker-js/faker';
 
 const router = express.Router();
 

@@ -31,6 +31,8 @@ import {
 import type { ExtractFunctionReturnType } from '../services/user.service';
 import { GroupTransactionsListPage } from '../views/pages/Groups/TransactionsListGroupsPage.tsx';
 import { getAllOwedForGroupTransactionWithTransactionId } from '../services/owed.service.ts';
+import { TransactionList } from '../views/pages/transactions/components/TransactionList.tsx';
+import { AccountPickerForm } from '../views/pages/transactions/components/AccountPickerForm.tsx';
 
 const router = express.Router();
 
@@ -115,6 +117,9 @@ router.get('/view/:groupId', getUser, async (req, res) => {
         .filter((owed) => owed !== null)
     );
 
+    const account = await getAccountsForUser(userId);
+    const accountId = account ? account[0].id : '';
+
     const html = renderToHtml(
       <ViewGroups
         groupId={group.id}
@@ -133,6 +138,7 @@ router.get('/view/:groupId', getUser, async (req, res) => {
                 })),
               ]
         }
+        accountId={accountId}
       />
     );
     res.send(html);
@@ -340,7 +346,7 @@ router.get('/edit/:groupId', getUser, async (req, res) => {
   }
 });
 
-router.get('/addTransaction/:groupId', getUser, async (req, res) => {
+router.get('/addTransaction/:accountId/:groupId', getUser, async (req, res) => {
   try {
     const accounts = await getAccountsForUser(req.user!.id);
     if (!accounts) throw new Error('no accounts for user!');
@@ -352,13 +358,14 @@ router.get('/addTransaction/:groupId', getUser, async (req, res) => {
         async (account) => await getAccountWithTransactions(account.id)
       )
     )) as ExtractFunctionReturnType<typeof getAccountWithTransactions>[];
+    const selectedAccountId = req.params.accountId;
     const currentUser = req.user;
     const html = renderToHtml(
       <AddTransaction
         currentUser={currentUser!}
         groupId={req.params.groupId}
         accounts={accountsWithTransactions ? accountsWithTransactions : []}
-        selectedAccountId={accountsWithTransactions[0].id}
+        selectedAccountId={selectedAccountId}
         groupTransactionIds={
           groupTransactions?.map((transaction) => transaction.transactionId) ??
           []
@@ -392,7 +399,7 @@ router.post('/edit/:groupId', getUser, async (req, res) => {
     }
 
     if (currentMember?.type !== 'Owner') {
-      res.status(403).send("Only the owner can edit a group.")
+      res.status(403).send('Only the owner can edit a group.');
     }
 
     if (!req.user) {
@@ -495,6 +502,43 @@ router.get('/transactions/:groupId', getUser, async (req, res) => {
   const html = renderToHtml(
     <GroupTransactionsListPage
       group={groupWithTransactions as GroupMembersTransactions}
+    />
+  );
+  res.send(html);
+});
+
+router.get(
+  '/transactionList/:accountId/:groupId',
+  getUser,
+  async (req, res) => {
+    const account = await getAccountWithTransactions(req.params.accountId);
+    const groupTransactions = await getGroupTransactions(req.params.groupId);
+    if (!account) throw new Error('404');
+    const groupTransactionIds = groupTransactions
+      ? groupTransactions.map(
+          (transaction) => transaction.transactionId as string
+        )
+      : [];
+    const html = renderToHtml(
+      <TransactionList
+        account={account}
+        route="AddTransaction"
+        groupId={req.params.groupId}
+        groupTransactionIds={groupTransactionIds}
+      />
+    );
+    res.send(html);
+  }
+);
+
+router.get('/accountPicker/:accountId/:groupId', getUser, async (req, res) => {
+  const accounts = await getAccountsForUser(req.user!.id);
+  if (!accounts) throw new Error('Missing accounts for user');
+  const html = renderToHtml(
+    <AccountPickerForm
+      accounts={accounts}
+      selectedAccountId={req.params.accountId}
+      groupId={req.params.groupId as string}
     />
   );
   res.send(html);

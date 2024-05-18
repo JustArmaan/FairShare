@@ -3,6 +3,7 @@ import type { AccountSchema } from '../../../../services/plaid.service';
 export const AccountPickerForm = (props: {
   accounts: AccountSchema[];
   selectedAccountId: string;
+  groupId?: string;
 }) => {
   return (
     <div class="picker-container">
@@ -14,7 +15,11 @@ export const AccountPickerForm = (props: {
               <>
                 <div
                   class="w-full flex justify-between p-4 hover:opacity-80 cursor-pointer"
-                  hx-get={`/transactions/page/${account.id}`}
+                  hx-get={
+                    props.groupId // Add the missing declaration of the variable 'isGroupTransacrion'
+                      ? `/groups/addTransaction/${account.id}/${props.groupId}`
+                      : `/transactions/page/${account.id}`
+                  }
                   hx-swap="innerHTML"
                   hx-target="#app"
                 >

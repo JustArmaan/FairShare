@@ -20,6 +20,7 @@ export const ViewGroups = ({
   currentUser,
   groupId,
   owedPerMember,
+  accountId,
 }: {
   groupId: string;
   transactions: GroupWithTransactions;
@@ -29,6 +30,8 @@ export const ViewGroups = ({
   owedPerMember: ExtractFunctionReturnType<
     typeof getAllOwedForGroupTransactionWithTransactionId
   >[];
+
+  accountId: string;
 }) => {
   return (
     <div class="p-6 animate-fade-in">
@@ -98,7 +101,7 @@ export const ViewGroups = ({
         ))}
       </div>
       <button
-        hx-get={`/groups/addTransaction/${groupId}`}
+        hx-get={`/groups/addTransaction/${accountId}/${groupId}`}
         hx-trigger="click"
         hx-target="#app"
         hx-swap="innerHTML"
