@@ -26,15 +26,15 @@ export const GroupTransactionsListPage = (props: {
         <div class="flex justify-start">
           <p class="text-font-off-white text-semibold">{`Viewing Transactions for group ${props.group.name}`}</p>
         </div>
-        <div class="transactions-container flex flex-col my-8">
-          {props.group.transactions.map((transaction) => (
-            <Transaction
-              transaction={transaction}
-              tailwindColorClass={transaction.category.color}
-            />
-          ))}
-        </div>
+        <div
+          class="transactions-container flex flex-col my-8"
+          hx-get={`/groups/getTransactions/${props.group.id}`}
+          hx-swap="innerHTML"
+          hx-trigger="load"
+          hx-target=".transactions-container"
+        ></div>
       </div>
+      <div class="mb-12"></div>
     </div>
   );
 };

@@ -189,7 +189,6 @@ router.get('/addButton', async (req, res) => {
   };
 
   const transaction = await getTransaction(transactionId);
-  console.log(transaction);
   // add/remove the transaction to group relationship
 
   const { members } = (await getGroupWithMembers(groupId))!;

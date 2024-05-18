@@ -33,6 +33,7 @@ import { GroupTransactionsListPage } from '../views/pages/Groups/TransactionsLis
 import { getAllOwedForGroupTransactionWithTransactionId } from '../services/owed.service.ts';
 import { TransactionList } from '../views/pages/transactions/components/TransactionList.tsx';
 import { AccountPickerForm } from '../views/pages/transactions/components/AccountPickerForm.tsx';
+import Transaction from '../views/pages/transactions/components/Transaction.tsx';
 
 const router = express.Router();
 
@@ -540,6 +541,24 @@ router.get('/accountPicker/:accountId/:groupId', getUser, async (req, res) => {
       selectedAccountId={req.params.accountId}
       groupId={req.params.groupId as string}
     />
+  );
+  res.send(html);
+});
+
+router.get('/getTransactions/:groupId/', async (req, res) => {
+  const groupTransactions = await getGroupWithMembersAndTransactions(
+    req.params.groupId
+  );
+  const html = renderToHtml(
+    <>
+      {groupTransactions &&
+        groupTransactions.transactions.map((transaction) => (
+          <Transaction
+            transaction={transaction}
+            tailwindColorClass={transaction.category.color}
+          />
+        ))}
+    </>
   );
   res.send(html);
 });
