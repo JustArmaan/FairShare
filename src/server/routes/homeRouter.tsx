@@ -2,19 +2,14 @@ import express from 'express';
 import { renderToHtml } from 'jsxte';
 import {
   getTransactionsForUser,
-  getAccountForUserWithMostTransactions,
 } from '../services/transaction.service';
-import { Overview } from '../views/pages/Overview/Overview';
 import { syncTransactionsForUser } from '../plaid/sync';
 import {
   getAccountWithTransactions,
   getAccountsForUser,
-  getItemsForUser,
 } from '../services/plaid.service';
-import type { ExtractFunctionReturnType } from '../services/user.service';
 import MyAccountsPage from '../views/pages/transactions/MyAccountsPage';
 import { AccountOverview } from '../views/pages/transactions/components/AccountOverview';
-import { ItemPickerForm } from '../views/pages/transactions/components/ItemPickerForm';
 import { ConnectAccount } from '../views/pages/transactions/components/ConnectAccount';
 const router = express.Router();
 
@@ -42,12 +37,11 @@ router.get('/page', async (req, res) => {
     return (b.transactions.length || 0) - (a.transactions.length || 0);
   });
 
-  const mostTransactionsAccountId = sortedAccounts[0].id;
   // This will now get the account with the most transactions first to display nicer graphs
   const html = renderToHtml(
     <MyAccountsPage
       accountIds={sortedAccounts.map((account) => account.id)}
-      selectedAccountId={mostTransactionsAccountId}
+      selectedAccountId={''}
       username={req.user!.firstName}
     />
   );

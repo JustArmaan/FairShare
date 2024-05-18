@@ -1,10 +1,8 @@
 import { type GroupMembersTransactions } from '../../../services/group.service';
-import Transaction from '../transactions/components/Transaction';
 
 export const GroupTransactionsListPage = (props: {
   group: GroupMembersTransactions;
 }) => {
-  console.log('start', props.group, 'props.group');
   return (
     <div class="p-6 animate-fade-in">
       <div class="flex justify-start w-fit items-center mb-1">

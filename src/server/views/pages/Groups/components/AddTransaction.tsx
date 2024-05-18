@@ -58,9 +58,7 @@ export const AddTransaction = (props: {
         hx-trigger="load"
       ></div>
       <div class="account-selector-form" />
-      <div
-        class="mb-24"
-      ></div>
+      <div class="mb-24"></div>
     </div>
   );
 };

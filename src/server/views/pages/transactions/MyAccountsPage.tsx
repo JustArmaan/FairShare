@@ -35,6 +35,7 @@ export const MyAccountsPage = (props: {
           hx-swap="outerHTML"
         ></div>
       ))}
+      <div class="account-selector-form" />
     </div>
   );
 };

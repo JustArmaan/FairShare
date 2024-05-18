@@ -76,7 +76,7 @@ export const EditGroupPage = ({
           />
         </a>
       </div>
-      <div class="flex flex-col my-8">
+      <div class="flex flex-col my-8 bg-primary-black bg-opacity-40 rounded-lg p-4">
         <label class="text-font-off-white justify-start bold">Group Name</label>
         <input
           class="px-2 py-1 justify-center items-center text-font-grey bg-primary-black rounded-lg mt-2"
@@ -222,6 +222,7 @@ export const EditGroupPage = ({
           </button>
         </div>
       </div>
+      <div class="mb-24"></div>
     </div>
   );
 };

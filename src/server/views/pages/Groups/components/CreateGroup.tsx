@@ -31,7 +31,7 @@ export const CreateGroup = ({
           />
         </a>
       </div>
-      <div class="flex flex-col my-8">
+      <div class="flex flex-col my-8 bg-primary-black bg-opacity-40 rounded-lg p-4">
         <label class="text-font-off-white justify-start bold">Group Name</label>
         <input
           class="py-1 px-4 justify-center items-center text-font-grey bg-primary-black rounded-lg mt-2"
@@ -196,6 +196,7 @@ export const CreateGroup = ({
           </button>
         </div>
       </div>
+      <div class="mb-20"></div>
     </div>
   );
 };
