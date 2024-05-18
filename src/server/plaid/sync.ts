@@ -71,7 +71,7 @@ async function syncTransaction({ item }: { item: Item }) {
       accountsAdded = true;
     }
     const { added, modified, removed, next_cursor, has_more } = response;
-    console.log(added, 'added');
+    console.log(added, 'added in sync');
     await addTransactions(added);
     await Promise.all(modified.map(modifyTransaction));
     if (removed.length > 0) {
@@ -141,7 +141,6 @@ async function addTransactions(transactions: AddedPlaidTransaction[]) {
       const locationIsNull = Object.values(transaction.location).some(
         (value) => value === null
       );
-      console.log(transaction.transaction_id, 'transaction id');
       return {
         id: transaction.transaction_id,
         address: locationIsNull
@@ -177,10 +176,12 @@ async function modifyTransaction(transaction: ModifiedPlaidTransaction) {
     if (!categoryId) throw new Error('No such category!');
   }
 
-  const transactionId = transaction.transaction_id ? transaction.transaction_id : '';
+  const transactionId = transaction.transaction_id
+    ? transaction.transaction_id
+    : '';
   updateTransaction(transactionId, {
     // address: transaction.location ? locationToAddress(transaction.location) : undefined,
-    
+
     accountId: transaction.account_id!,
     categoryId: categoryId ? categoryId.id : undefined,
     company: transaction.merchant_name

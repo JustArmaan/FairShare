@@ -184,8 +184,12 @@ dist
 .DS_Store
 notes.md
 dev.db
+dev.db-shm
+dev.db-wal
 error.log
 
 # Local DB
 
 ./src/server/database/dev.db
+./src/server/database/dev.db-wal
+./src/server/database/dev.db-shm
