@@ -48,7 +48,7 @@ export const TransactionDetailsPage = ({
           </div>
           <div class="flex text-font-off-white justify-between bg-primary-black">
             <span class="text-lg font-semibold">Total</span>
-            <span class="text-lg font-semibold">${transaction.amount}</span>
+            <span class="text-lg font-semibold">${transaction.amount.toFixed(2)}</span>
           </div>
         </div>
         <div class="mt-6 w-full h-auto rounded-lg bg-primary-black">
@@ -62,7 +62,7 @@ export const TransactionDetailsPage = ({
               ></script>
             </>
           )}
-          <p class="text-font-off-white py-3 px-4">
+          <p class="text-font-off-white py-3 px-4 text-wrap overflow-hidden whitespace-normal break-words">
             {transaction.company} <br />#{transaction.id}
           </p>
         </div>

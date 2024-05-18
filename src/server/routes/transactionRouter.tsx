@@ -220,7 +220,7 @@ router.get('/addButton', async (req, res) => {
     if (allTransactions!.some((transaction) => transaction.amount === 0)) {
       return res
         .status(400)
-        .send("Can't remove transaction that is being settled");
+        .send("You can't remove a transaction that is being settled");
     } else {
       await deleteTransactionFromGroup(transaction.id, groupId as string);
     }
