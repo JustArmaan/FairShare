@@ -5,7 +5,7 @@ export async function plaidRequest(endpoint: string, body: any) {
     const clientId = env.plaidClientId as string;
     const secret = env.plaidSecret as string;
 
-    const response = await fetch(`https://sandbox.plaid.com/${endpoint}`, {
+    const response = await fetch(`${env.plaidApiUrl}/${endpoint}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
