@@ -7,6 +7,7 @@ import type { ExtractFunctionReturnType } from './user.service';
 import { v4 as uuid } from 'uuid';
 import { users } from '../database/schema/users';
 import { groups } from '../database/schema/group';
+import { groupTransactionState } from '../database/schema/groupTransactionState';
 
 type Owed = ExtractFunctionReturnType<typeof getOwed>;
 
@@ -37,8 +38,27 @@ async function getOwed(id: string) {
 export async function getGroupIdAndTransactionIdForOwed(owedId: string) {
   try {
     const results = await db
-      .select({ groupId: groups, transactionId: })
+      .select({
+        groupId: transactionsToGroups.groupsId,
+        transactionId: transactionsToGroups.transactionId,
+      })
+      .from(groupTransactionToUsersToGroups)
+      .innerJoin(
+        groupTransactionState,
+        eq(
+          groupTransactionState.id,
+          groupTransactionToUsersToGroups.groupTransactionStateId
+        )
+      )
+      .innerJoin(
+        transactionsToGroups,
+        eq(groupTransactionState.groupTransactionId, transactionsToGroups.id)
+      )
+      .where(eq(groupTransactionToUsersToGroups.id, owedId));
+    return results[0];
   } catch (e) {
+    console.error(e, 'at getGroupIdAndTransactionForOwed');
+    return null;
   }
 }
 

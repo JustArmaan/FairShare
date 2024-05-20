@@ -2,6 +2,9 @@ import { getAllOwedForGroupTransactionWithMemberInfo } from '../../../services/o
 import type { getTransaction } from '../../../services/transaction.service';
 import type { ExtractFunctionReturnType } from '../../../services/user.service';
 
+// bridge: generate, seed and migrate
+// see that the view and pay page renders correctly and continue implementing the page ui
+
 export const ViewAndPayPage = (props: {
   owed: ExtractFunctionReturnType<
     typeof getAllOwedForGroupTransactionWithMemberInfo
