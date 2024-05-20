@@ -145,8 +145,14 @@ export async function createTransferForReceiver(
       '/transfer/create',
       transferCreateRequest
     );
+<<<<<<< HEAD
     console.log('respose', response.transfer);
     return response.transfer;
+=======
+    console.log('response', response);
+    console.log('Transfer successful', response.data);
+    return response.data.transfer;
+>>>>>>> a1a2ca1874df9ca386ab63a403c2614ff5c026c1
   } catch (error) {
     console.error('Error initiating transfer:', error);
     throw error;

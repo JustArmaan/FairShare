@@ -11,6 +11,7 @@
     "seed": "bun run src/server/database/seed.ts",
     "migrate": "drizzle-kit migrate",
     "push": "drizzle-kit push",
+    "studio": "drizzle-kit studio",
     "turso-local": "turso dev --db-file src/server/database/dev.db"
   },
   "typings": "/index.d.ts",
