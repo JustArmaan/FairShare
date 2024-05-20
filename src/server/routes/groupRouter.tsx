@@ -136,6 +136,7 @@ router.get('/view/:groupId', getUser, async (req, res) => {
                   transactionId: '',
                   userId: member.id,
                   amount: 0,
+                  groupTransactionToUsersToGroupsId: '',
                 })),
               ]
         }
@@ -146,6 +147,9 @@ router.get('/view/:groupId', getUser, async (req, res) => {
   } catch (error) {
     console.error(error);
   }
+});
+
+router.get('/pay/:groupTransactionToUsersToGroupsId', async (req, res) => {
 });
 
 router.get('/create', getUser, async (req, res) => {
@@ -497,9 +501,8 @@ router.post('/deleteMember/:userID/:groupID', async (req, res) => {
 
 router.get('/transactions/:groupId', getUser, async (req, res) => {
   const groupId = req.params.groupId;
-  const groupWithTransactions = await getGroupWithMembersAndTransactions(
-    groupId
-  );
+  const groupWithTransactions =
+    await getGroupWithMembersAndTransactions(groupId);
   const html = renderToHtml(
     <GroupTransactionsListPage
       group={groupWithTransactions as GroupMembersTransactions}
