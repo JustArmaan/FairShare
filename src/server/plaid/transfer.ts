@@ -23,7 +23,7 @@ export async function authorizeTransfer(
       account_id: recipientAccountId,
       type: 'debit',
       network: 'ach',
-      amount: amount,
+      amount: amount.toFixed(2).toString(),
       ach_class: 'ppd',
       user: {
         legal_name: await findUserLegalNameForAccount(user.id, accountId),
@@ -35,8 +35,8 @@ export async function authorizeTransfer(
       transferRequest
     );
     console.log('response', response);
-    console.log('Authorization successful', response.data);
-    console.log('Authorization ID:', response.data.authorization.id);
+    // console.log('Authorization successful', response.data);
+    // console.log('Authorization ID:', response.data.authorization.id);
     return response.data.authorization.id;
   } catch (error) {
     console.error('Error initiating authorization:', error);
@@ -101,7 +101,7 @@ export async function getTransfer(userId: string, transferId: string) {
 
 createTransfer(
   'kp_ae3fe5538e824f54b990b4f7876c22f8',
-  'B4zWwyGg9DuRamN3lr54ugp5Exvkqri4xn6gB',
-  '3re5Blb5GWHXnJLGW9m3tk5xzx4594CZVqQb6',
-  100
+  'oGJNBPGkN4sNx1nNpnvAh8gyxdEnnduoQX8G3',
+  '3oeLymWKbbcRbb9QBxEvHwLvG48B4oTZVnJPk',
+  20
 );
