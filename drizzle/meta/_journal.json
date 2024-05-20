@@ -5,15 +5,8 @@
     {
       "idx": 0,
       "version": "6",
-      "when": 1715905360828,
-      "tag": "0000_awesome_lake",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "6",
-      "when": 1716236817628,
-      "tag": "0001_natural_onslaught",
+      "when": 1716242065413,
+      "tag": "0000_unknown_nuke",
       "breakpoints": true
     }
   ]

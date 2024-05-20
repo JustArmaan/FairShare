@@ -5,6 +5,7 @@ CREATE TABLE `accounts` (
 	`account_type_id` text,
 	`balance` numeric,
 	`currency_code_id` text,
+	`legal_name` text NOT NULL,
 	FOREIGN KEY (`item_id`) REFERENCES `items`(`id`) ON UPDATE no action ON DELETE cascade,
 	FOREIGN KEY (`account_type_id`) REFERENCES `account_type`(`id`) ON UPDATE no action ON DELETE no action,
 	FOREIGN KEY (`currency_code_id`) REFERENCES `currency_code`(`id`) ON UPDATE no action ON DELETE no action
@@ -36,13 +37,38 @@ CREATE TABLE `groups` (
 	`temporary` text NOT NULL
 );
 --> statement-breakpoint
+CREATE TABLE `transactionState` (
+	`id` text PRIMARY KEY NOT NULL,
+	`fk_group_transaction_id` text NOT NULL,
+	`pending` integer,
+	FOREIGN KEY (`fk_group_transaction_id`) REFERENCES `transactionsToGroups`(`id`) ON UPDATE no action ON DELETE cascade
+);
+--> statement-breakpoint
 CREATE TABLE `groupTransactionToUsersToGroups` (
 	`id` text PRIMARY KEY NOT NULL,
 	`amount` real NOT NULL,
 	`transactions_to_groups_id` text NOT NULL,
 	`users_to_groups_id` text NOT NULL,
-	FOREIGN KEY (`transactions_to_groups_id`) REFERENCES `transactionsToGroups`(`id`) ON UPDATE no action ON DELETE cascade,
+	FOREIGN KEY (`transactions_to_groups_id`) REFERENCES `transactionState`(`id`) ON UPDATE no action ON DELETE cascade,
 	FOREIGN KEY (`users_to_groups_id`) REFERENCES `usersToGroups`(`id`) ON UPDATE no action ON DELETE no action
+);
+--> statement-breakpoint
+CREATE TABLE `groupTransfer` (
+	`id` text PRIMARY KEY NOT NULL,
+	`group_transaction_to_users_to_groups_id` text NOT NULL,
+	`sender_account_id` text NOT NULL,
+	`receiver_account_id` text NOT NULL,
+	`completed_timestamp` text NOT NULL,
+	`group_transfer_status_id` text NOT NULL,
+	FOREIGN KEY (`group_transaction_to_users_to_groups_id`) REFERENCES `groupTransactionToUsersToGroups`(`id`) ON UPDATE no action ON DELETE cascade,
+	FOREIGN KEY (`sender_account_id`) REFERENCES `accounts`(`id`) ON UPDATE no action ON DELETE cascade,
+	FOREIGN KEY (`receiver_account_id`) REFERENCES `accounts`(`id`) ON UPDATE no action ON DELETE cascade,
+	FOREIGN KEY (`group_transfer_status_id`) REFERENCES `group_transfer_status`(`id`) ON UPDATE no action ON DELETE no action
+);
+--> statement-breakpoint
+CREATE TABLE `group_transfer_status` (
+	`id` text PRIMARY KEY NOT NULL,
+	`status` text NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE `items` (
@@ -59,6 +85,15 @@ CREATE TABLE `memberType` (
 	`type` text NOT NULL
 );
 --> statement-breakpoint
+CREATE TABLE `receiptsToItems` (
+	`id` text PRIMARY KEY NOT NULL,
+	`product_name` text NOT NULL,
+	`quantity` integer NOT NULL,
+	`cost_per_item` real NOT NULL,
+	`fk_transaction_receipt_id` text NOT NULL,
+	FOREIGN KEY (`fk_transaction_receipt_id`) REFERENCES `transactionReceipt`(`id`) ON UPDATE no action ON DELETE cascade
+);
+--> statement-breakpoint
 CREATE TABLE `transactions` (
 	`id` text PRIMARY KEY NOT NULL,
 	`account_id` text NOT NULL,
@@ -72,6 +107,14 @@ CREATE TABLE `transactions` (
 	`pending` integer,
 	FOREIGN KEY (`account_id`) REFERENCES `accounts`(`id`) ON UPDATE no action ON DELETE cascade,
 	FOREIGN KEY (`category_id`) REFERENCES `categories`(`id`) ON UPDATE no action ON DELETE cascade
+);
+--> statement-breakpoint
+CREATE TABLE `transactionReceipt` (
+	`id` text PRIMARY KEY NOT NULL,
+	`fk_group_transaction_state_id` text NOT NULL,
+	`fk_transaction_id` text NOT NULL,
+	FOREIGN KEY (`fk_group_transaction_state_id`) REFERENCES `transactionState`(`id`) ON UPDATE no action ON DELETE cascade,
+	FOREIGN KEY (`fk_transaction_id`) REFERENCES `transactions`(`id`) ON UPDATE no action ON DELETE no action
 );
 --> statement-breakpoint
 CREATE TABLE `transactionsToGroups` (
@@ -99,4 +142,13 @@ CREATE TABLE `usersToGroups` (
 	FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON UPDATE no action ON DELETE cascade,
 	FOREIGN KEY (`group_id`) REFERENCES `groups`(`id`) ON UPDATE no action ON DELETE cascade,
 	FOREIGN KEY (`member_type_id`) REFERENCES `memberType`(`id`) ON UPDATE no action ON DELETE no action
+);
+--> statement-breakpoint
+CREATE TABLE `usersToItems` (
+	`id` text PRIMARY KEY NOT NULL,
+	`items_to_user_id` text NOT NULL,
+	`users_to_group_id` text NOT NULL,
+	`percent_share` real NOT NULL,
+	FOREIGN KEY (`items_to_user_id`) REFERENCES `receiptsToItems`(`id`) ON UPDATE no action ON DELETE cascade,
+	FOREIGN KEY (`users_to_group_id`) REFERENCES `usersToGroups`(`id`) ON UPDATE no action ON DELETE cascade
 );
