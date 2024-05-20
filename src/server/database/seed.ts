@@ -6,6 +6,7 @@ import { categories } from './schema/category';
 import { v4 as uuid } from 'uuid';
 import { items } from './schema/items';
 import { accountType } from './schema/accountType';
+import { groupTransferStatus } from './schema/groupTransferStatus';
 
 let db = getDB();
 
@@ -132,6 +133,11 @@ const accountTypes = [
   { type: 'other' },
 ];
 
+const groupTransferStatusValues = [
+  { status: 'pending' },
+  { status: 'completed' },
+];
+
 console.log('Starting deletions');
 (await db.select().from(categories)).length > 0 &&
   (await db.delete(categories));
@@ -147,6 +153,10 @@ console.log('Deleted all records from the users table.');
 (await db.select().from(memberType)).length > 0 &&
   (await db.delete(memberType));
 console.log('Deleted all records from the memberTypes table.');
+
+(await db.select().from(groupTransferStatus)).length > 0 &&
+  (await db.delete(groupTransferStatus));
+console.log('Deleted all records from the groupTransferStatus table.');
 
 (await db.select().from(items)).length > 0 && (await db.delete(items));
 console.log('Deleted all items');
@@ -196,6 +206,13 @@ try {
         type: type.type,
       });
       console.log(`Inserted member type: ${type.type} with ID: ${typeId}`);
+    }
+    for (const status of groupTransferStatusValues) {
+      const statusId = uuid();
+      await trx.insert(groupTransferStatus).values({
+        id: statusId,
+        status: status.status,
+      });
     }
     console.log('Seeding transaction complete.');
   });
