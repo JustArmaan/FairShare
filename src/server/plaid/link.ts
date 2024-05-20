@@ -27,7 +27,7 @@ export async function getLinkToken(user: { id: string; email: string }) {
       client_user_id: user.id,
       email_address: user.email,
     },
-    products: ['transactions'],
+    products: ['transactions', 'identity', 'transfer'],
   });
 }
 

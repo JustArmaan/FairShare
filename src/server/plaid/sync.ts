@@ -12,13 +12,20 @@ import {
   type Item,
 } from '../services/plaid.service';
 import { plaidRequest } from './link';
+import { findUserLegalNameForAccount } from './identity';
 
 export async function syncTransactionsForUser(userId: string) {
   const items = await getItemsForUser(userId);
-  items.forEach(syncTransaction);
+  items.forEach((item) => syncTransaction({ ...item, userId }));
 }
 
-async function syncTransaction({ item }: { item: Item }) {
+async function syncTransaction({
+  item,
+  userId,
+}: {
+  item: Item;
+  userId: string;
+}) {
   const count = 500;
   let cursor: string | undefined = item.nextCursor
     ? item.nextCursor
@@ -52,10 +59,15 @@ async function syncTransaction({ item }: { item: Item }) {
     if (!accountsAdded) {
       await Promise.all(
         accounts.map(async (account) => {
+          console.log(account, 'account');
           const accountTypeId = await getAccountTypeIdByName(account.type);
           if (!accountTypeId) return;
           const acc = await getAccount(account.account_id);
           if (!acc) {
+            const legalName = await findUserLegalNameForAccount(
+              userId,
+              account.account_id
+            );
             await addAccount({
               id: account.account_id,
               name: account.name,
@@ -64,6 +76,7 @@ async function syncTransaction({ item }: { item: Item }) {
                 account.balances.current)!.toString(),
               currencyCodeId: null, // account.balances.iso_currency_code,
               itemId: item.id,
+              legalName,
             });
           }
         })
@@ -71,7 +84,6 @@ async function syncTransaction({ item }: { item: Item }) {
       accountsAdded = true;
     }
     const { added, modified, removed, next_cursor, has_more } = response;
-    console.log(added, 'added in sync');
     await addTransactions(added);
     await Promise.all(modified.map(modifyTransaction));
     if (removed.length > 0) {

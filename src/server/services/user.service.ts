@@ -1,8 +1,6 @@
 import { getDB } from '../database/client';
-import { items } from '../database/schema/items';
 import { users } from '../database/schema/users';
 import { eq } from 'drizzle-orm';
-import { type ArrayElement } from '../interface/types';
 
 const db = getDB();
 
