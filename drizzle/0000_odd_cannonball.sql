@@ -56,17 +56,22 @@ CREATE TABLE `groupTransactionToUsersToGroups` (
 CREATE TABLE `groupTransfer` (
 	`id` text PRIMARY KEY NOT NULL,
 	`group_transaction_to_users_to_groups_id` text NOT NULL,
+	`group_transfer_receiver_status_id` text NOT NULL,
+	`group_transfer_sender_status_id` text NOT NULL,
 	`sender_account_id` text NOT NULL,
 	`receiver_account_id` text NOT NULL,
-	`completed_timestamp` text NOT NULL,
-	`group_transfer_status_id` text NOT NULL,
+	`sender_completed_timestamp` text,
+	`sender_initiated_timestamp` text NOT NULL,
+	`receiver_completed_timestamp` text,
+	`receiver_initiated_timestamp` text NOT NULL,
 	FOREIGN KEY (`group_transaction_to_users_to_groups_id`) REFERENCES `groupTransactionToUsersToGroups`(`id`) ON UPDATE no action ON DELETE cascade,
+	FOREIGN KEY (`group_transfer_receiver_status_id`) REFERENCES `groupTransferStatus`(`id`) ON UPDATE no action ON DELETE no action,
+	FOREIGN KEY (`group_transfer_sender_status_id`) REFERENCES `groupTransferStatus`(`id`) ON UPDATE no action ON DELETE no action,
 	FOREIGN KEY (`sender_account_id`) REFERENCES `accounts`(`id`) ON UPDATE no action ON DELETE cascade,
-	FOREIGN KEY (`receiver_account_id`) REFERENCES `accounts`(`id`) ON UPDATE no action ON DELETE cascade,
-	FOREIGN KEY (`group_transfer_status_id`) REFERENCES `group_transfer_status`(`id`) ON UPDATE no action ON DELETE no action
+	FOREIGN KEY (`receiver_account_id`) REFERENCES `accounts`(`id`) ON UPDATE no action ON DELETE cascade
 );
 --> statement-breakpoint
-CREATE TABLE `group_transfer_status` (
+CREATE TABLE `groupTransferStatus` (
 	`id` text PRIMARY KEY NOT NULL,
 	`status` text NOT NULL
 );

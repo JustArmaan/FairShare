@@ -1,7 +1,6 @@
 import { sqliteTable, text } from 'drizzle-orm/sqlite-core';
 import { groupTransactionToUsersToGroups } from './groupTransactionToUsersToGroups';
 import { accounts } from './accounts';
-import { sql } from 'drizzle-orm';
 import { groupTransferStatus } from './groupTransferStatus';
 
 export const groupTransfer = sqliteTable('groupTransfer', {
@@ -13,15 +12,20 @@ export const groupTransfer = sqliteTable('groupTransfer', {
       onDelete: 'cascade',
     })
     .notNull(),
+  groupTransferReceiverStatusId: text('group_transfer_receiver_status_id')
+    .references(() => groupTransferStatus.id)
+    .notNull(),
+  groupTransferSenderStatusId: text('group_transfer_sender_status_id')
+    .references(() => groupTransferStatus.id)
+    .notNull(),
   senderAccountId: text('sender_account_id')
     .references(() => accounts.id, { onDelete: 'cascade' })
     .notNull(),
   receiverAccountId: text('receiver_account_id')
     .references(() => accounts.id, { onDelete: 'cascade' })
     .notNull(),
-  completedTimestamp: text('completed_timestamp'),
-  initiatedTimestamp: text('completed_timestamp').notNull(),
-  groupTransferStatusId: text('group_transfer_status_id')
-    .references(() => groupTransferStatus.id)
-    .notNull(),
+  senderCompletedTimestamp: text('sender_completed_timestamp'),
+  senderInitiatedTimestamp: text('sender_initiated_timestamp').notNull(),
+  receiverCompletedTimestamp: text('receiver_completed_timestamp'),
+  receiverInitiatedTimestamp: text('receiver_initiated_timestamp').notNull(),
 });

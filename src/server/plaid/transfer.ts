@@ -73,7 +73,7 @@ export async function createTransfer(
       '/transfer/create',
       transferCreateRequest
     );
-    console.log('respose', response);
+    console.log('response', response);
     console.log('Transfer successful', response.data);
     return response.data.transfer;
   } catch (error) {

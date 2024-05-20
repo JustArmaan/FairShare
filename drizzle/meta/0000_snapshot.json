@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "8b15809a-a3db-4ddc-99e7-43e49e05f894",
+  "id": "7029ca4c-f4c2-4ea3-842b-d6890c558537",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "accounts": {
@@ -361,6 +361,20 @@
           "notNull": true,
           "autoincrement": false
         },
+        "group_transfer_receiver_status_id": {
+          "name": "group_transfer_receiver_status_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "group_transfer_sender_status_id": {
+          "name": "group_transfer_sender_status_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
         "sender_account_id": {
           "name": "sender_account_id",
           "type": "text",
@@ -375,15 +389,29 @@
           "notNull": true,
           "autoincrement": false
         },
-        "completed_timestamp": {
-          "name": "completed_timestamp",
+        "sender_completed_timestamp": {
+          "name": "sender_completed_timestamp",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "sender_initiated_timestamp": {
+          "name": "sender_initiated_timestamp",
           "type": "text",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
-        "group_transfer_status_id": {
-          "name": "group_transfer_status_id",
+        "receiver_completed_timestamp": {
+          "name": "receiver_completed_timestamp",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "receiver_initiated_timestamp": {
+          "name": "receiver_initiated_timestamp",
           "type": "text",
           "primaryKey": false,
           "notNull": true,
@@ -403,6 +431,32 @@
             "id"
           ],
           "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "groupTransfer_group_transfer_receiver_status_id_groupTransferStatus_id_fk": {
+          "name": "groupTransfer_group_transfer_receiver_status_id_groupTransferStatus_id_fk",
+          "tableFrom": "groupTransfer",
+          "tableTo": "groupTransferStatus",
+          "columnsFrom": [
+            "group_transfer_receiver_status_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "groupTransfer_group_transfer_sender_status_id_groupTransferStatus_id_fk": {
+          "name": "groupTransfer_group_transfer_sender_status_id_groupTransferStatus_id_fk",
+          "tableFrom": "groupTransfer",
+          "tableTo": "groupTransferStatus",
+          "columnsFrom": [
+            "group_transfer_sender_status_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
           "onUpdate": "no action"
         },
         "groupTransfer_sender_account_id_accounts_id_fk": {
@@ -430,26 +484,13 @@
           ],
           "onDelete": "cascade",
           "onUpdate": "no action"
-        },
-        "groupTransfer_group_transfer_status_id_group_transfer_status_id_fk": {
-          "name": "groupTransfer_group_transfer_status_id_group_transfer_status_id_fk",
-          "tableFrom": "groupTransfer",
-          "tableTo": "group_transfer_status",
-          "columnsFrom": [
-            "group_transfer_status_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "group_transfer_status": {
-      "name": "group_transfer_status",
+    "groupTransferStatus": {
+      "name": "groupTransferStatus",
       "columns": {
         "id": {
           "name": "id",

@@ -136,6 +136,7 @@ const accountTypes = [
 const groupTransferStatusValues = [
   { status: 'pending' },
   { status: 'completed' },
+  { status: 'not-initiated' },
 ];
 
 console.log('Starting deletions');
