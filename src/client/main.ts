@@ -121,7 +121,6 @@ document.addEventListener('htmx:afterSwap', () => {
 
   if (filterSelector && !filterSelector.dataset.listenerAttached) {
     filterSelector?.addEventListener('click', () => {
-      console.log('clicked');
       dateSelectorForm?.classList.toggle('hidden');
     });
     filterSelector.dataset.listenerAttached = 'true';

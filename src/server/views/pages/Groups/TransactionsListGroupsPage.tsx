@@ -22,7 +22,7 @@ export const GroupTransactionsListPage = (props: {
       </div>
       <div class="flex flex-col my-8">
         <div class="flex justify-start">
-          <p class="text-font-off-white text-semibold">{`Viewing Transactions for group ${props.group.name}`}</p>
+          <p class="text-font-off-white text-semibold">{`Viewing Transactions for group <strong>${props.group.name}</strong>`}</p>
         </div>
         <div
           class="transactions-container flex flex-col my-8"
