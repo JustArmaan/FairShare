@@ -164,8 +164,14 @@ router.get('/pay/:groupTransactionToUsersToGroupsId', async (req, res) => {
     transactionId
   );
   const transaction = await getTransaction(transactionId);
+  const accounts = await getAccountsForUser(req.user!.id);
+  // const selectedAccount = wait for schema
   const html = renderToHtml(
-    <ViewAndPayPage owed={owed!} transaction={transaction} />
+    <ViewAndPayPage
+      owed={owed!}
+      transaction={transaction}
+      accounts={accounts!}
+    />
   );
   return res.send(html);
 });

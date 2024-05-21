@@ -201,10 +201,10 @@ router.get('/addButton', async (req, res) => {
     );
     if (!groupTransactions) throw new Error();
 
-        const groupTransactionState = await createGroupTransactionState({
-          pending: true,
-          groupTransactionId: groupTransactions[0].id,
-        });
+    const groupTransactionState = await createGroupTransactionState({
+      pending: true,
+      groupTransactionId: groupTransactions[0].id,
+    });
     await Promise.all(
       members.map(async (member) => {
         const owedPerMember = transaction.amount / members.length;
