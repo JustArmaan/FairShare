@@ -16,8 +16,8 @@ export const ConnectAccount = () => {
         </p>
         <br />
         <p>
-          By clicking below, you can connect your bank and begin using the
-          application.
+          By clicking below, you will be promted to connect your bank and begin
+          using the application.
         </p>
       </div>
       <button

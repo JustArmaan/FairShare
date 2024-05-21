@@ -34,7 +34,6 @@ import {
   getAllOwedForGroupTransactionWithMemberInfo,
   getAllOwedForGroupTransactionWithTransactionId,
   getGroupIdAndTransactionIdForOwed,
-  getOwed,
 } from '../services/owed.service.ts';
 import { TransactionList } from '../views/pages/transactions/components/TransactionList.tsx';
 import { AccountPickerForm } from '../views/pages/transactions/components/AccountPickerForm.tsx';
