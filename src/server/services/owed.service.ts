@@ -13,13 +13,42 @@ type Owed = ExtractFunctionReturnType<typeof getOwed>;
 
 const db = getDB();
 
-export async function createOwed(group: Omit<Owed, "id">) {
+async function getGroupTransactionState(id: string) {
+  try {
+    const result = await db
+      .select()
+      .from(groupTransactionState)
+      .where(eq(groupTransactionState.id, id));
+    return result[0];
+  } catch (e) {
+    console.log(e, 'at getGroupTransactionState');
+  }
+}
+
+type GroupTransactionState = ExtractFunctionReturnType<
+  typeof getGroupTransactionState
+>;
+
+export async function createGroupTransactionState(
+  newGroupTransactionState: Omit<GroupTransactionState, 'id'>
+) {
+  try {
+    return await db
+      .insert(groupTransactionState)
+      .values({ ...newGroupTransactionState, id: uuid() })
+      .returning();
+  } catch (e) {
+    console.log(e, 'at getGroupTransactionState');
+  }
+}
+
+export async function createOwed(group: Omit<Owed, 'id'>) {
   try {
     await db
       .insert(groupTransactionToUsersToGroups)
       .values({ ...group, id: uuid() });
   } catch (e) {
-    console.log(e, "at createOwed");
+    console.log(e, 'at createOwed');
   }
 }
 
@@ -137,7 +166,7 @@ export async function getAllOwedForGroupTransaction(
       })),
     ];
   } catch (e) {
-    console.error(e, "at getOwed");
+    console.error(e, 'at getOwed');
     return null;
   }
 }
@@ -157,7 +186,7 @@ export async function getAllOwedForGroupTransactionWithTransactionId(
       .innerJoin(
         groupTransactionToUsersToGroups,
         eq(
-          transactionsToGroups.id,
+          groupTransactionState.id,
           groupTransactionToUsersToGroups.groupTransactionStateId
         )
       )
@@ -182,7 +211,7 @@ export async function getAllOwedForGroupTransactionWithTransactionId(
       })),
     ];
   } catch (e) {
-    console.error(e, "at getOwed");
+    console.error(e, 'at getOwed');
     return null;
   }
 }

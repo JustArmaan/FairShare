@@ -74,12 +74,14 @@ export const ViewGroups = ({
           />
         </div>
         <p class="text-font-off-white text-2xl pt-3">Pending</p>
+        /*
         <PendingItems
           memberDetails={members}
           currentUser={currentUser}
           transactions={transactions}
           owedPerMember={owedPerMember}
         />
+        */
         <p class="text-font-off-white text-2xl pt-3">Owing</p>
         <OwedGroup
           memberDetails={members}

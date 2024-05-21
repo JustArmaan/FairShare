@@ -440,7 +440,7 @@ export async function addTransactionsToGroup(
   groupId: string
 ) {
   try {
-    await db
+    return await db
       .insert(transactionsToGroups)
       .values({
         id: uuidv4(),
@@ -448,8 +448,6 @@ export async function addTransactionsToGroup(
         transactionId: transactionId,
       })
       .returning();
-
-    return true;
   } catch (error) {
     console.error(error, 'Failed to add transaction');
     return false;
