@@ -65,7 +65,7 @@ export const PendingItems = ({
                 <div class="flex justify-evenly w-full">
                   <button
                     hx-swap="innerHTML"
-                    hx-get={`/transactions/splitTransaction/${groupId}/${result.transaction.id}/equal`}
+                    hx-get={`/transactions/splitTransaction/${groupId}/${result.transaction.id}`}
                     hx-target="#app"
                     class="hover:-translate-y-0.5 rotate-[0.0001deg] transition-transform font-semibold py-1.5 w-1/2 border-4 border-accent-blue text-font-off-white rounded-xl h-fit"
                   >
