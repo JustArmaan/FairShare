@@ -39,17 +39,17 @@ CREATE TABLE `groups` (
 --> statement-breakpoint
 CREATE TABLE `transactionState` (
 	`id` text PRIMARY KEY NOT NULL,
-	`fk_group_transaction_id` text NOT NULL,
+	`group_transaction_id` text NOT NULL,
 	`pending` integer,
-	FOREIGN KEY (`fk_group_transaction_id`) REFERENCES `transactionsToGroups`(`id`) ON UPDATE no action ON DELETE cascade
+	FOREIGN KEY (`group_transaction_id`) REFERENCES `transactionsToGroups`(`id`) ON UPDATE no action ON DELETE cascade
 );
 --> statement-breakpoint
 CREATE TABLE `groupTransactionToUsersToGroups` (
 	`id` text PRIMARY KEY NOT NULL,
 	`amount` real NOT NULL,
-	`transactions_to_groups_id` text NOT NULL,
+	`group_transaction_state_id` text NOT NULL,
 	`users_to_groups_id` text NOT NULL,
-	FOREIGN KEY (`transactions_to_groups_id`) REFERENCES `transactionState`(`id`) ON UPDATE no action ON DELETE cascade,
+	FOREIGN KEY (`group_transaction_state_id`) REFERENCES `transactionState`(`id`) ON UPDATE no action ON DELETE cascade,
 	FOREIGN KEY (`users_to_groups_id`) REFERENCES `usersToGroups`(`id`) ON UPDATE no action ON DELETE no action
 );
 --> statement-breakpoint

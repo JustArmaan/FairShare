@@ -1,13 +1,14 @@
-import { Transaction } from '../../transactions/components/Transaction';
-import { type GroupWithTransactions } from '../../../../services/group.service';
-import Members from './Members';
-import OwedGroup from './OwedGroup';
-import { type UserSchema } from '../../../../interface/types';
-import type { ExtractFunctionReturnType } from '../../../../services/user.service';
+import { Transaction } from "../../transactions/components/Transaction";
+import { type GroupWithTransactions } from "../../../../services/group.service";
+import Members from "./Members";
+import OwedGroup from "./OwedGroup";
+import { type UserSchema } from "../../../../interface/types";
+import type { ExtractFunctionReturnType } from "../../../../services/user.service";
 import type {
   getAllOwedForGroupTransaction,
   getAllOwedForGroupTransactionWithTransactionId,
-} from '../../../../services/owed.service';
+} from "../../../../services/owed.service";
+import PendingItems from "./PendingItem";
 
 interface groupBudget {
   budgetGoal: number;
@@ -48,7 +49,7 @@ export const ViewGroups = ({
             alt="back arrow icon"
             class="hover:-translate-y-0.5 transition-transform hover:opacity-80 h-6"
           />
-        </a>{' '}
+        </a>{" "}
         <a
           hx-get={`/groups/edit/${groupId}`}
           hx-trigger="click"
@@ -64,7 +65,7 @@ export const ViewGroups = ({
         </a>
       </div>
       <div class="mt-4 mb-24">
-        <h1 class="text-2xl text-font-off-white pt-3 pb-1"> Members</h1>{' '}
+        <h1 class="text-2xl text-font-off-white pt-3 pb-1"> Members</h1>{" "}
         <div class="flex flex-wrap items-center">
           <Members
             memberDetails={members}
@@ -72,6 +73,13 @@ export const ViewGroups = ({
             owedPerMember={owedPerMember}
           />
         </div>
+        <p class="text-font-off-white text-2xl pt-3">Pending</p>
+        <PendingItems
+          memberDetails={members}
+          currentUser={currentUser}
+          transactions={transactions}
+          owedPerMember={owedPerMember}
+        />
         <p class="text-font-off-white text-2xl pt-3">Owing</p>
         <OwedGroup
           memberDetails={members}
