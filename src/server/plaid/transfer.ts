@@ -10,7 +10,7 @@ import {
   updateGroupTransferToReceive,
 } from '../services/plaid.transfer.service';
 import { type GroupTransfer } from '../services/plaid.transfer.service';
-import { getGroupIdAndTransactionIdForOwed } from '../services/group.service';
+import { getGroupIdAndTransactionIdForOwed } from '../services/owed.service';
 
 export async function authorizeSendersTransfer(
   userId: string,
@@ -81,7 +81,6 @@ export async function authorizeReceiversTransfer(
       '/transfer/authorization/create',
       transferRequest
     );
-    console.log('response', response);
     return response.authorization.id;
   } catch (error) {
     console.error('Error initiating authorization:', error);
@@ -109,14 +108,12 @@ export async function createTransferForSender(
       account_id: accountId,
       description: 'success',
       authorization_id: authorizationId,
-      //   amount: amount.toString(),
     };
 
     const response = await plaidRequest(
       '/transfer/create',
       transferCreateRequest
     );
-    console.log('respose', response);
     console.log('Transfer successful', response.transfer);
     return response.transfer;
   } catch (error) {
@@ -164,7 +161,8 @@ export async function createTransferForSenderAndRecord(
   accountId: string,
   receiverAccountId: string,
   amount: number,
-  groupId: string
+  groupId: string,
+  transactionId: string
 ) {
   try {
     const authorizationId = await authorizeSendersTransfer(
@@ -195,7 +193,10 @@ export async function createTransferForSenderAndRecord(
       throw new Error('Transfer status not found');
     }
 
-    const groupToUserTransaction = await getUserGroupTransaction(groupId);
+    const groupToUserTransaction = await getUserGroupTransaction(
+      groupId,
+      transactionId
+    );
     if (!groupToUserTransaction) {
       throw new Error('Group transaction not found');
     }

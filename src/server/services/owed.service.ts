@@ -74,7 +74,7 @@ export async function getAllOwedForGroupTransactionWithMemberInfo(
         groupTransactionToUsersToGroups,
         eq(
           transactionsToGroups.id,
-          groupTransactionToUsersToGroups.transactionsToGroupsId
+          groupTransactionToUsersToGroups.groupTransactionStateId
         )
       )
       .innerJoin(
@@ -112,7 +112,7 @@ export async function getAllOwedForGroupTransaction(
         groupTransactionToUsersToGroups,
         eq(
           transactionsToGroups.id,
-          groupTransactionToUsersToGroups.transactionsToGroupsId
+          groupTransactionToUsersToGroups.groupTransactionStateId
         )
       )
       .innerJoin(
@@ -150,7 +150,7 @@ export async function getAllOwedForGroupTransactionWithTransactionId(
         groupTransactionToUsersToGroups,
         eq(
           transactionsToGroups.id,
-          groupTransactionToUsersToGroups.transactionsToGroupsId
+          groupTransactionToUsersToGroups.groupTransactionStateId
         )
       )
       .innerJoin(

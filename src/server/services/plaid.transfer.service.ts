@@ -78,7 +78,10 @@ export async function getTransferStatusById(id: string) {
   }
 }
 
-export async function getUserGroupTransaction(groupId: string) {
+export async function getUserGroupTransaction(
+  groupId: string,
+  transactionId: string
+) {
   try {
     const result = await db
       .select()
