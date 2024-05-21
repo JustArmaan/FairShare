@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "7029ca4c-f4c2-4ea3-842b-d6890c558537",
+  "id": "d47c6b7d-6ba1-4be6-983d-d7061a17730b",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "accounts": {
@@ -236,8 +236,8 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "transactionState": {
-      "name": "transactionState",
+    "groupTransactionState": {
+      "name": "groupTransactionState",
       "columns": {
         "id": {
           "name": "id",
@@ -246,8 +246,8 @@
           "notNull": true,
           "autoincrement": false
         },
-        "fk_group_transaction_id": {
-          "name": "fk_group_transaction_id",
+        "group_transaction_id": {
+          "name": "group_transaction_id",
           "type": "text",
           "primaryKey": false,
           "notNull": true,
@@ -263,12 +263,12 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "transactionState_fk_group_transaction_id_transactionsToGroups_id_fk": {
-          "name": "transactionState_fk_group_transaction_id_transactionsToGroups_id_fk",
-          "tableFrom": "transactionState",
+        "groupTransactionState_group_transaction_id_transactionsToGroups_id_fk": {
+          "name": "groupTransactionState_group_transaction_id_transactionsToGroups_id_fk",
+          "tableFrom": "groupTransactionState",
           "tableTo": "transactionsToGroups",
           "columnsFrom": [
-            "fk_group_transaction_id"
+            "group_transaction_id"
           ],
           "columnsTo": [
             "id"
@@ -297,8 +297,8 @@
           "notNull": true,
           "autoincrement": false
         },
-        "transactions_to_groups_id": {
-          "name": "transactions_to_groups_id",
+        "group_transaction_state_id": {
+          "name": "group_transaction_state_id",
           "type": "text",
           "primaryKey": false,
           "notNull": true,
@@ -314,12 +314,12 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "groupTransactionToUsersToGroups_transactions_to_groups_id_transactionState_id_fk": {
-          "name": "groupTransactionToUsersToGroups_transactions_to_groups_id_transactionState_id_fk",
+        "groupTransactionToUsersToGroups_group_transaction_state_id_groupTransactionState_id_fk": {
+          "name": "groupTransactionToUsersToGroups_group_transaction_state_id_groupTransactionState_id_fk",
           "tableFrom": "groupTransactionToUsersToGroups",
-          "tableTo": "transactionState",
+          "tableTo": "groupTransactionState",
           "columnsFrom": [
-            "transactions_to_groups_id"
+            "group_transaction_state_id"
           ],
           "columnsTo": [
             "id"
@@ -784,10 +784,10 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "transactionReceipt_fk_group_transaction_state_id_transactionState_id_fk": {
-          "name": "transactionReceipt_fk_group_transaction_state_id_transactionState_id_fk",
+        "transactionReceipt_fk_group_transaction_state_id_groupTransactionState_id_fk": {
+          "name": "transactionReceipt_fk_group_transaction_state_id_groupTransactionState_id_fk",
           "tableFrom": "transactionReceipt",
-          "tableTo": "transactionState",
+          "tableTo": "groupTransactionState",
           "columnsFrom": [
             "fk_group_transaction_state_id"
           ],
@@ -831,8 +831,8 @@
           "notNull": true,
           "autoincrement": false
         },
-        "fk_transaction_id": {
-          "name": "fk_transaction_id",
+        "transaction_id": {
+          "name": "transaction_id",
           "type": "text",
           "primaryKey": false,
           "notNull": true,
@@ -854,12 +854,12 @@
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
-        "transactionsToGroups_fk_transaction_id_transactions_id_fk": {
-          "name": "transactionsToGroups_fk_transaction_id_transactions_id_fk",
+        "transactionsToGroups_transaction_id_transactions_id_fk": {
+          "name": "transactionsToGroups_transaction_id_transactions_id_fk",
           "tableFrom": "transactionsToGroups",
           "tableTo": "transactions",
           "columnsFrom": [
-            "fk_transaction_id"
+            "transaction_id"
           ],
           "columnsTo": [
             "id"

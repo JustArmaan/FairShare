@@ -37,19 +37,19 @@ CREATE TABLE `groups` (
 	`temporary` text NOT NULL
 );
 --> statement-breakpoint
-CREATE TABLE `transactionState` (
+CREATE TABLE `groupTransactionState` (
 	`id` text PRIMARY KEY NOT NULL,
-	`fk_group_transaction_id` text NOT NULL,
+	`group_transaction_id` text NOT NULL,
 	`pending` integer,
-	FOREIGN KEY (`fk_group_transaction_id`) REFERENCES `transactionsToGroups`(`id`) ON UPDATE no action ON DELETE cascade
+	FOREIGN KEY (`group_transaction_id`) REFERENCES `transactionsToGroups`(`id`) ON UPDATE no action ON DELETE cascade
 );
 --> statement-breakpoint
 CREATE TABLE `groupTransactionToUsersToGroups` (
 	`id` text PRIMARY KEY NOT NULL,
 	`amount` real NOT NULL,
-	`transactions_to_groups_id` text NOT NULL,
+	`group_transaction_state_id` text NOT NULL,
 	`users_to_groups_id` text NOT NULL,
-	FOREIGN KEY (`transactions_to_groups_id`) REFERENCES `transactionState`(`id`) ON UPDATE no action ON DELETE cascade,
+	FOREIGN KEY (`group_transaction_state_id`) REFERENCES `groupTransactionState`(`id`) ON UPDATE no action ON DELETE cascade,
 	FOREIGN KEY (`users_to_groups_id`) REFERENCES `usersToGroups`(`id`) ON UPDATE no action ON DELETE no action
 );
 --> statement-breakpoint
@@ -118,16 +118,16 @@ CREATE TABLE `transactionReceipt` (
 	`id` text PRIMARY KEY NOT NULL,
 	`fk_group_transaction_state_id` text NOT NULL,
 	`fk_transaction_id` text NOT NULL,
-	FOREIGN KEY (`fk_group_transaction_state_id`) REFERENCES `transactionState`(`id`) ON UPDATE no action ON DELETE cascade,
+	FOREIGN KEY (`fk_group_transaction_state_id`) REFERENCES `groupTransactionState`(`id`) ON UPDATE no action ON DELETE cascade,
 	FOREIGN KEY (`fk_transaction_id`) REFERENCES `transactions`(`id`) ON UPDATE no action ON DELETE no action
 );
 --> statement-breakpoint
 CREATE TABLE `transactionsToGroups` (
 	`id` text PRIMARY KEY NOT NULL,
 	`group_id` text NOT NULL,
-	`fk_transaction_id` text NOT NULL,
+	`transaction_id` text NOT NULL,
 	FOREIGN KEY (`group_id`) REFERENCES `groups`(`id`) ON UPDATE no action ON DELETE cascade,
-	FOREIGN KEY (`fk_transaction_id`) REFERENCES `transactions`(`id`) ON UPDATE no action ON DELETE cascade
+	FOREIGN KEY (`transaction_id`) REFERENCES `transactions`(`id`) ON UPDATE no action ON DELETE cascade
 );
 --> statement-breakpoint
 CREATE TABLE `users` (
