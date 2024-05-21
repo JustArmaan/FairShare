@@ -10,6 +10,7 @@ import {
   updateGroupTransferToReceive,
 } from '../services/plaid.transfer.service';
 import { type GroupTransfer } from '../services/plaid.transfer.service';
+import { getGroupIdAndTransactionIdForOwed } from '../services/group.service';
 
 export async function authorizeSendersTransfer(
   userId: string,
@@ -99,8 +100,6 @@ export async function createTransferForSender(
       accountId,
       amount
     );
-
-    console.log(authorizationId, 'authoization');
 
     const [{ item }] = await getItemsForUser(userId);
     const accessToken = item.plaidAccessToken;

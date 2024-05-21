@@ -30,10 +30,17 @@ import {
 } from '../services/plaid.service';
 import type { ExtractFunctionReturnType } from '../services/user.service';
 import { GroupTransactionsListPage } from '../views/pages/Groups/TransactionsListGroupsPage.tsx';
-import { getAllOwedForGroupTransactionWithTransactionId } from '../services/owed.service.ts';
+import {
+  getAllOwedForGroupTransactionWithMemberInfo,
+  getAllOwedForGroupTransactionWithTransactionId,
+  getGroupIdAndTransactionIdForOwed,
+  getOwed,
+} from '../services/owed.service.ts';
 import { TransactionList } from '../views/pages/transactions/components/TransactionList.tsx';
 import { AccountPickerForm } from '../views/pages/transactions/components/AccountPickerForm.tsx';
 import Transaction from '../views/pages/transactions/components/Transaction.tsx';
+import { ViewAndPayPage } from '../views/pages/Groups/ViewAndPayPage.tsx';
+import { getTransaction } from '../services/transaction.service.ts';
 
 const router = express.Router();
 
@@ -136,6 +143,7 @@ router.get('/view/:groupId', getUser, async (req, res) => {
                   transactionId: '',
                   userId: member.id,
                   amount: 0,
+                  groupTransactionToUsersToGroupsId: '',
                 })),
               ]
         }
@@ -146,6 +154,21 @@ router.get('/view/:groupId', getUser, async (req, res) => {
   } catch (error) {
     console.error(error);
   }
+});
+
+router.get('/pay/:groupTransactionToUsersToGroupsId', async (req, res) => {
+  const { groupId, transactionId } = (await getGroupIdAndTransactionIdForOwed(
+    req.params.groupTransactionToUsersToGroupsId
+  ))!;
+  const owed = await getAllOwedForGroupTransactionWithMemberInfo(
+    groupId,
+    transactionId
+  );
+  const transaction = await getTransaction(transactionId);
+  const html = renderToHtml(
+    <ViewAndPayPage owed={owed!} transaction={transaction} />
+  );
+  return res.send(html);
 });
 
 router.get('/create', getUser, async (req, res) => {
@@ -497,9 +520,8 @@ router.post('/deleteMember/:userID/:groupID', async (req, res) => {
 
 router.get('/transactions/:groupId', getUser, async (req, res) => {
   const groupId = req.params.groupId;
-  const groupWithTransactions = await getGroupWithMembersAndTransactions(
-    groupId
-  );
+  const groupWithTransactions =
+    await getGroupWithMembersAndTransactions(groupId);
   const html = renderToHtml(
     <GroupTransactionsListPage
       group={groupWithTransactions as GroupMembersTransactions}

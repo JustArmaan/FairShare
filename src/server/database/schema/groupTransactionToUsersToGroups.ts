@@ -1,6 +1,6 @@
 import { sqliteTable, text, real } from 'drizzle-orm/sqlite-core';
 import { usersToGroups } from './usersToGroups';
-import { transactionState } from './groupTransactionState';
+import { groupTransactionState } from './groupTransactionState';
 
 export const groupTransactionToUsersToGroups = sqliteTable(
   'groupTransactionToUsersToGroups',
@@ -8,7 +8,7 @@ export const groupTransactionToUsersToGroups = sqliteTable(
     id: text('id').primaryKey(),
     amount: real('amount').notNull(),
     groupTransactionStateId: text('group_transaction_state_id')
-      .references(() => transactionState.id, { onDelete: 'cascade' })
+      .references(() => groupTransactionState.id, { onDelete: 'cascade' })
       .notNull(),
     usersToGroupsId: text('users_to_groups_id')
       .references(() => usersToGroups.id)
