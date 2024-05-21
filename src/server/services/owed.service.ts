@@ -1,13 +1,13 @@
-import { and, eq } from 'drizzle-orm';
-import { getDB } from '../database/client';
-import { groupTransactionToUsersToGroups } from '../database/schema/groupTransactionToUsersToGroups';
-import { transactionsToGroups } from '../database/schema/transactionsToGroups';
-import { usersToGroups } from '../database/schema/usersToGroups';
-import type { ExtractFunctionReturnType } from './user.service';
-import { v4 as uuid } from 'uuid';
-import { users } from '../database/schema/users';
-import { groups } from '../database/schema/group';
-import { groupTransactionState } from '../database/schema/groupTransactionState';
+import { and, eq } from "drizzle-orm";
+import { getDB } from "../database/client";
+import { groupTransactionToUsersToGroups } from "../database/schema/groupTransactionToUsersToGroups";
+import { transactionsToGroups } from "../database/schema/transactionsToGroups";
+import { usersToGroups } from "../database/schema/usersToGroups";
+import type { ExtractFunctionReturnType } from "./user.service";
+import { v4 as uuid } from "uuid";
+import { users } from "../database/schema/users";
+import { groups } from "../database/schema/group";
+import { groupTransactionState } from "../database/schema/groupTransactionState";
 
 type Owed = ExtractFunctionReturnType<typeof getOwed>;
 
@@ -57,7 +57,7 @@ export async function getGroupIdAndTransactionIdForOwed(owedId: string) {
       .where(eq(groupTransactionToUsersToGroups.id, owedId));
     return results[0];
   } catch (e) {
-    console.error(e, 'at getGroupIdAndTransactionForOwed');
+    console.error(e, "at getGroupIdAndTransactionForOwed");
     return null;
   }
 }
@@ -95,7 +95,7 @@ export async function getAllOwedForGroupTransactionWithMemberInfo(
       })),
     ];
   } catch (e) {
-    console.error(e, 'at getOwed');
+    console.error(e, "at getOwed");
     return null;
   }
 }
