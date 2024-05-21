@@ -203,7 +203,7 @@ export async function createTransferForSenderAndRecord(
 
     const groupTransferData: Omit<GroupTransfer, 'id'> = {
       groupTransactionToUsersToGroupsId:
-        groupToUserTransaction[0].groupTransactionToUsersToGroups.id,
+        groupToUserTransaction.groupTransactionToUsersToGroups.id,
       groupTransferSenderStatusId: senderStatus[0].id,
       groupTransferReceiverStatusId: receiverStatus[0].id,
       senderAccountId: accountId,
@@ -284,10 +284,4 @@ export async function getTransfer(userId: string, transferId: string) {
   }
 }
 
-// console.log(
-//   await createTransferForSender(
-//     'kp_ae3fe5538e824f54b990b4f7876c22f8',
-//     'Qw7JoB56jQSDg5BvEkq9i5eGvd9N7lcw6Lajz',
-//     20
-//   )
-// );
+

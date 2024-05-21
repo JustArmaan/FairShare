@@ -2,12 +2,15 @@ import express, { type Express } from 'express';
 import cookieParser from 'cookie-parser';
 import type { UserSchema } from '../interface/types';
 import { getUser } from '../routes/authRouter';
-import { env } from '../../../env';
 
 declare module 'express-serve-static-core' {
   interface Request {
     user?: UserSchema;
   }
+}
+
+interface ErrorWithStatus extends Error {
+  status?: number;
 }
 
 export const configureApp = (app: Express) => {
@@ -19,4 +22,29 @@ export const configureApp = (app: Express) => {
   app.use('/', getUser, (_, __, next) => {
     next();
   });
+
+  app.use(
+    (
+      error: ErrorWithStatus,
+      req: express.Request,
+      res: express.Response,
+      next: express.NextFunction
+    ) => {
+      try {
+        console.error(
+          `Error status: ${error.status}, Message: ${error.message}, Stack: ${error.stack}`
+        );
+
+        if (error.status === 404) {
+          return res.status(404).send('404 - Not Found');
+        }
+
+        error.status = error.status || 500;
+        res.status(error.status);
+        res.send(`${error.status} - Server Error`);
+      } catch (error) {
+        console.error(error);
+      }
+    }
+  );
 };

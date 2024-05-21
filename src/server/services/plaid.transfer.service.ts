@@ -6,6 +6,9 @@ import { usersToGroups } from '../database/schema/usersToGroups';
 import { groupTransactionToUsersToGroups } from '../database/schema/groupTransactionToUsersToGroups';
 import { groupTransferStatus } from '../database/schema/groupTransferStatus';
 import { v4 as uuidv4 } from 'uuid';
+import { groups } from '../database/schema/group';
+import { transactionsToGroups } from '../database/schema/transactionsToGroups';
+import { groupTransactionState } from '../database/schema/groupTransactionState';
 
 const db = getDB();
 
@@ -84,14 +87,25 @@ export async function getUserGroupTransaction(
 ) {
   try {
     const result = await db
-      .select()
-      .from(usersToGroups)
-      .where(eq(usersToGroups.groupId, groupId))
+      .select({ groupTransactionToUsersToGroups: groupTransactionToUsersToGroups })
+      .from(groups)
+      .where(eq(groups.id, groupId))
+      .innerJoin(
+        transactionsToGroups,
+        eq(transactionsToGroups.transactionId, transactionId)
+      )
+      .innerJoin(
+        groupTransactionState,
+        eq(groupTransactionState.groupTransactionId, transactionsToGroups.id)
+      )
       .innerJoin(
         groupTransactionToUsersToGroups,
-        eq(usersToGroups.id, groupTransactionToUsersToGroups.usersToGroupsId)
+        eq(
+          groupTransactionToUsersToGroups.groupTransactionStateId,
+          groupTransactionState.id
+        )
       );
-    return result;
+    return result[0];
   } catch (error) {
     console.error(error);
     return null;
