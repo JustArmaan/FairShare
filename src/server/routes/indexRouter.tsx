@@ -28,7 +28,7 @@ router.get('/menu', (req, res) => {
   try {
     const open = req.query.open as string;
 
-    const html = renderToHtml(<Menu value={open==="true"}/>);
+    const html = renderToHtml(<Menu value={open === 'true'} />);
     res.send(html);
   } catch (err) {
     console.error(err);
@@ -54,7 +54,7 @@ router.get('/onboard', (req, res) => {
         ></div>
         <div
           id="app"
-          hx-get="/home/page"
+          hx-get="/groups/view/9d2d3cf5-1415-4db2-b115-15b4859be540"
           hx-trigger="load"
           hx-swap="innerHTML"
         ></div>

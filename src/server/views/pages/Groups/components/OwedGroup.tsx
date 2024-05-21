@@ -57,25 +57,26 @@ export const OwedGroup = ({
                 </p>
                 <div class="flex justify-between w-full">
                   <p class="text-font-off-white self-start mt-2">
-                    {/* Paid by:{' '} */}
+                    Paid by:{' '}
                     <span class="text-font-off-white self-start mt-2 font-semibold">
-                      {/*currentUser.firstName*/}
+                      {currentUser.firstName}
                       {/* This needs to be whoever paid for the bill */}
                     </span>
                   </p>
                   <div class="flex flex-row justify-center text-font-off-white">
                     <button
                       hx-swap="innerHTML"
-                      hx-get="/breakdown/page"
+                      hx-get={`/groups/pay/${result.groupTransactionToUsersToGroupsId}`}
                       hx-target="#app"
-                      class="hover:-translate-y-0.5 rotate-[0.0001deg] transition-transform font-semibold px-12 py-2.5 bg-accent-blue rounded-xl"
+                      class="hover:-translate-y-0.5 rotate-[0.0001deg] transition-transform font-semibold px-12 py-2.5 bg-accent-blue rounded-xl h-fit"
                     >
-                      View and Pay
+                      {result.amount > 0 ? 'View Details' : 'View and Pay'}
                     </button>
                   </div>
                 </div>
-                <div class="mt-4 h-[1px] bg-primary-grey rounded w-full"></div>
-                {index === transactions.length - 1 && <div class="pb-2"></div>}
+                {index !== transactions.length - 1 && (
+                  <div class="mt-4 h-[1px] bg-primary-grey rounded w-full"></div>
+                )}
               </div>
             ))
         ) : (

@@ -23,6 +23,7 @@ import { AccountPickerForm } from '../views/pages/transactions/components/Accoun
 import {
   addTransactionsToGroup,
   deleteTransactionFromGroup,
+  getGroupTransactionStateId,
   getGroupWithMembers,
   getTransactionsToGroup,
   getUsersToGroup,
@@ -200,7 +201,7 @@ router.get('/addButton', async (req, res) => {
         const owedPerMember = transaction.amount / members.length;
         return await createOwed({
           usersToGroupsId: (await getUsersToGroup(groupId, member.id))!.id,
-          transactionsToGroupsId: (await getTransactionsToGroup(
+          groupTransactionStateId: (await getGroupTransactionStateId(
             groupId,
             transactionId
           ))!.id,
