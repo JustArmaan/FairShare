@@ -53,31 +53,33 @@ export const PendingItems = ({
                     </span>
                   </p>
                 </div>
-                <p class="text-font-off-white self-start text-xs">
-                  {result.transaction.timestamp}
-                </p>
-                <p class="text-font-off-white self-start text-xs">
-                  Total:
-                </p>
-                <div class="flex justify-between w-full">
+                <p class="text-font-off-white self-start mt-2 mb-2">
+                    Total:{' '}
+                    <span class="text-font-off-white self-start mt-2 font-semibold">
+                      {result.amount.toFixed(2)}
+                      {/* This needs to be whoever paid for the bill */}
+                    </span>
+                  </p>
+                <div class="flex justify-evenly w-full">
                   <button
                     hx-swap="innerHTML"
                     hx-get="/split/edit"
                     hx-target="#app"
-                    class="hover:-translate-y-0.5 rotate-[0.0001deg] transition-transform font-semibold px-12 py-2.5 bg-accent-blue rounded-xl"
+                    class="hover:-translate-y-0.5 rotate-[0.0001deg] transition-transform font-semibold py-1.5 w-1/2 border-4 border-accent-blue text-font-off-white rounded-xl h-fit"
                   >
-                    Confirm
+                    Edit
                   </button>
-                  <div class="flex flex-row justify-center text-font-off-white">
+                  <div class="w-2"></div>
+
                     <button
                       hx-swap="innerHTML"
                       hx-get="/"
                       hx-target="#app"
-                      class="hover:-translate-y-0.5 rotate-[0.0001deg] transition-transform font-semibold px-12 py-2.5 bg-accent-blue rounded-xl"
+                      class="hover:-translate-y-0.5 rotate-[0.0001deg] transition-transform font-semibold py-2.5 w-1/2 bg-accent-blue rounded-xl h-fit"
                     >
                       Confirm
                     </button>
-                  </div>
+    
                 </div>
                 <div class="mt-4 h-[1px] bg-primary-grey rounded w-full"></div>
                 {index === transactions.length - 1 && <div class="pb-2"></div>}
