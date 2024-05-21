@@ -151,9 +151,11 @@ CREATE TABLE `usersToGroups` (
 	`user_id` text NOT NULL,
 	`group_id` text NOT NULL,
 	`member_type_id` text NOT NULL,
+	`deposit_account_id` text,
 	FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON UPDATE no action ON DELETE cascade,
 	FOREIGN KEY (`group_id`) REFERENCES `groups`(`id`) ON UPDATE no action ON DELETE cascade,
-	FOREIGN KEY (`member_type_id`) REFERENCES `memberType`(`id`) ON UPDATE no action ON DELETE no action
+	FOREIGN KEY (`member_type_id`) REFERENCES `memberType`(`id`) ON UPDATE no action ON DELETE no action,
+	FOREIGN KEY (`deposit_account_id`) REFERENCES `accounts`(`id`) ON UPDATE no action ON DELETE no action
 );
 --> statement-breakpoint
 CREATE TABLE `usersToItems` (

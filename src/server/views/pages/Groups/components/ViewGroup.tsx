@@ -74,7 +74,6 @@ export const ViewGroups = ({
           />
         </div>
         <p class="text-font-off-white text-2xl pt-3">Pending</p>
-        /*
         <PendingItems
           memberDetails={members}
           currentUser={currentUser}

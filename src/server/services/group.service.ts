@@ -178,13 +178,12 @@ export async function getTransactionsForGroup(groupId: string) {
         latitude: transactions.latitude,
         longitude: transactions.longitude,
         pending: transactions.pending,
-        splitType: splitType.type,
+        type: splitType.type,
         name: categories.name,
         color: categories.color,
         icon: categories.icon,
       })
       .from(transactionsToGroups)
-      .where(eq(transactionsToGroups.groupsId, groupId))
       .innerJoin(
         transactions,
         eq(transactions.id, transactionsToGroups.transactionId)
@@ -195,7 +194,7 @@ export async function getTransactionsForGroup(groupId: string) {
         eq(groupTransactionState.groupTransactionId, transactionsToGroups.id)
       )
       .innerJoin(splitType, eq(splitType.id, groupTransactionState.splitTypeId))
-      .all();
+      .where(eq(transactionsToGroups.groupsId, groupId));
 
     return results.map((transaction) => ({
       ...transaction,
@@ -206,7 +205,7 @@ export async function getTransactionsForGroup(groupId: string) {
         icon: transaction.icon,
         displayName: transaction.name,
       },
-      splitType: splitType.type,
+      type: transaction.type,
     }));
   } catch (error) {
     console.error(error, 'getTransactionsForGroup');

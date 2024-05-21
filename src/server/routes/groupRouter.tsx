@@ -128,6 +128,8 @@ router.get('/view/:groupId', getUser, async (req, res) => {
     const account = await getAccountsForUser(userId);
     const accountId = account ? account[0].id : '';
 
+    console.log(transactions, 'transactions');
+
     const html = renderToHtml(
       <ViewGroups
         groupId={group.id}

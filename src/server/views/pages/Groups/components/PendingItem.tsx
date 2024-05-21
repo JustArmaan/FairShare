@@ -21,6 +21,10 @@ export const PendingItems = ({
     return str.length > max ? str.substring(0, max - 3) + '...' : str;
   }
 
+  function firstLetterUppercase(str: string) {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  }
+
   return (
     <div class="flex-col w-full justify-evenly rounded-lg py-1.5 px-4 mt-3 flex items-center bg-primary-black relative">
       {transactions &&
@@ -43,22 +47,19 @@ export const PendingItems = ({
                     {maxCompanyNameLength(result.transaction.company ?? '', 20)}
                   </p>
                   <p class="text-font-off-white self-end w-fit text-lg">
-                    {result.amount > 0 ? "You're Owed " : 'You Owe '}
-                    <span
-                      class={`text-lg font-medium ${
-                        result.amount > 0
-                          ? 'text-positive-number'
-                          : 'text-negative-number'
-                      }`}
-                    >
-                      ${result.amount.toFixed(2)}
+                    Split:{' '}
+                    <span class="text-lg font-medium">
+                      {firstLetterUppercase(result.transaction.type)}
                     </span>
                   </p>
                 </div>
+                <p class="text-font-off-white self-start text-xs">
+                  {result.transaction.timestamp}
+                </p>
                 <p class="text-font-off-white self-start mt-2 mb-2">
                   Total:{' '}
                   <span class="text-font-off-white self-start mt-2 font-semibold">
-                    {result.amount.toFixed(2)}
+                    ${transactions.map((list) => list.amount.toFixed(2))}
                     {/* This needs to be whoever paid for the bill */}
                   </span>
                 </p>
@@ -77,13 +78,14 @@ export const PendingItems = ({
                     hx-swap="innerHTML"
                     hx-get="/"
                     hx-target="#app"
-                    class="hover:-translate-y-0.5 rotate-[0.0001deg] transition-transform font-semibold py-2.5 w-1/2 bg-accent-blue rounded-xl h-fit"
+                    class="hover:-translate-y-0.5 rotate-[0.0001deg] transition-transform font-semibold py-2.5 w-1/2 bg-accent-blue rounded-xl h-fit text-font-off-white"
                   >
                     Confirm
                   </button>
                 </div>
-                <div class="mt-4 h-[1px] bg-primary-grey rounded w-full"></div>
-                {index === transactions.length - 1 && <div class="pb-2"></div>}
+                {index !== transactions.length - 1 && (
+                  <div class="mt-4 h-[1px] bg-primary-grey rounded w-full"></div>
+                )}
               </div>
             ))
         ) : (
