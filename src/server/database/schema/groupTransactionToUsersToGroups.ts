@@ -7,7 +7,7 @@ export const groupTransactionToUsersToGroups = sqliteTable(
   {
     id: text('id').primaryKey(),
     amount: real('amount').notNull(),
-    groupTransactionStateId: text('transactions_to_groups_id')
+    groupTransactionStateId: text('group_transaction_state_id')
       .references(() => transactionState.id, { onDelete: 'cascade' })
       .notNull(),
     usersToGroupsId: text('users_to_groups_id')

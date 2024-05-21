@@ -11,6 +11,11 @@ import { accounts } from '../database/schema/accounts.ts';
 import { categories } from '../database/schema/category.ts';
 import { getAccountTypeById } from './accountType.service.ts';
 import { getAccount } from './account.service.ts';
+import { usersToGroups } from '../database/schema/usersToGroups.ts';
+import { groups } from '../database/schema/group.ts';
+import { groupTransactionToUsersToGroups } from '../database/schema/groupTransactionToUsersToGroups.ts';
+import { groupTransfer } from '../database/schema/groupTransfer.ts';
+import { groupTransferStatus } from '../database/schema/groupTransferStatus.ts';
 
 const db = getDB();
 
