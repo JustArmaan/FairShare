@@ -1,17 +1,46 @@
-import { and, eq } from 'drizzle-orm';
-import { getDB } from '../database/client';
-import { groupTransactionToUsersToGroups } from '../database/schema/groupTransactionToUsersToGroups';
-import { transactionsToGroups } from '../database/schema/transactionsToGroups';
-import { usersToGroups } from '../database/schema/usersToGroups';
-import type { ExtractFunctionReturnType } from './user.service';
-import { v4 as uuid } from 'uuid';
-import { users } from '../database/schema/users';
-import { groups } from '../database/schema/group';
-import { groupTransactionState } from '../database/schema/groupTransactionState';
+import { and, eq } from "drizzle-orm";
+import { getDB } from "../database/client";
+import { groupTransactionToUsersToGroups } from "../database/schema/groupTransactionToUsersToGroups";
+import { transactionsToGroups } from "../database/schema/transactionsToGroups";
+import { usersToGroups } from "../database/schema/usersToGroups";
+import type { ExtractFunctionReturnType } from "./user.service";
+import { v4 as uuid } from "uuid";
+import { users } from "../database/schema/users";
+import { groups } from "../database/schema/group";
+import { groupTransactionState } from "../database/schema/groupTransactionState";
 
 type Owed = ExtractFunctionReturnType<typeof getOwed>;
 
 const db = getDB();
+
+async function getGroupTransactionState(id: string) {
+  try {
+    const result = await db
+      .select()
+      .from(groupTransactionState)
+      .where(eq(groupTransactionState.id, id));
+    return result[0];
+  } catch (e) {
+    console.log(e, 'at getGroupTransactionState');
+  }
+}
+
+type GroupTransactionState = ExtractFunctionReturnType<
+  typeof getGroupTransactionState
+>;
+
+export async function createGroupTransactionState(
+  newGroupTransactionState: Omit<GroupTransactionState, 'id'>
+) {
+  try {
+    return await db
+      .insert(groupTransactionState)
+      .values({ ...newGroupTransactionState, id: uuid() })
+      .returning();
+  } catch (e) {
+    console.log(e, 'at getGroupTransactionState');
+  }
+}
 
 export async function createOwed(group: Omit<Owed, 'id'>) {
   try {
@@ -57,7 +86,7 @@ export async function getGroupIdAndTransactionIdForOwed(owedId: string) {
       .where(eq(groupTransactionToUsersToGroups.id, owedId));
     return results[0];
   } catch (e) {
-    console.error(e, 'at getGroupIdAndTransactionForOwed');
+    console.error(e, "at getGroupIdAndTransactionForOwed");
     return null;
   }
 }
@@ -95,7 +124,7 @@ export async function getAllOwedForGroupTransactionWithMemberInfo(
       })),
     ];
   } catch (e) {
-    console.error(e, 'at getOwed');
+    console.error(e, "at getOwed");
     return null;
   }
 }
@@ -108,6 +137,10 @@ export async function getAllOwedForGroupTransaction(
     const results = await db
       .select()
       .from(transactionsToGroups)
+      .innerJoin(
+        groupTransactionState,
+        eq(transactionsToGroups.id, groupTransactionState.groupTransactionId)
+      )
       .innerJoin(
         groupTransactionToUsersToGroups,
         eq(
@@ -147,9 +180,13 @@ export async function getAllOwedForGroupTransactionWithTransactionId(
       .select()
       .from(transactionsToGroups)
       .innerJoin(
+        groupTransactionState,
+        eq(transactionsToGroups.id, groupTransactionState.groupTransactionId)
+      )
+      .innerJoin(
         groupTransactionToUsersToGroups,
         eq(
-          transactionsToGroups.id,
+          groupTransactionState.id,
           groupTransactionToUsersToGroups.groupTransactionStateId
         )
       )

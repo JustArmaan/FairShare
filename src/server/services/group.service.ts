@@ -10,6 +10,7 @@ import type { UserSchemaWithMemberType } from '../interface/types';
 import type { ExtractFunctionReturnType } from './user.service';
 import { transactionsToGroups } from '../database/schema/transactionsToGroups';
 import { transactions } from '../database/schema/transaction';
+import { groupTransactionState } from '../database/schema/groupTransactionState';
 
 const db = getDB();
 
@@ -17,6 +18,31 @@ export async function getGroup(groupId: string) {
   try {
     const group = await db.select().from(groups).where(eq(groups.id, groupId));
     return group[0];
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
+}
+
+export async function getGroupTransactionStateId(
+  groupId: string,
+  transactionId: string
+) {
+  try {
+    const results = await db
+      .select({ id: groupTransactionState })
+      .from(transactionsToGroups)
+      .innerJoin(
+        groupTransactionState,
+        eq(transactionsToGroups.id, groupTransactionState.groupTransactionId)
+      )
+      .where(
+        and(
+          eq(transactionsToGroups.groupsId, groupId),
+          eq(transactionsToGroups.transactionId, transactionId)
+        )
+      );
+    return results[0].id;
   } catch (error) {
     console.error(error);
     return null;
@@ -112,25 +138,28 @@ export async function getGroupWithMembers(groupId: string) {
       .innerJoin(memberType, eq(usersToGroups.memberTypeId, memberType.id))
       .where(eq(groups.id, groupId));
 
-    return result.reduce((groups, currentResult) => {
-      const groupIndex = groups.findIndex(
-        (group) => group.id === currentResult.group.id
-      );
-      if (groupIndex === -1) {
-        groups.push({
-          ...currentResult.group,
-          members: [
-            { ...currentResult.members, type: currentResult.memberType.type },
-          ],
-        });
-      } else {
-        groups[groupIndex].members.push({
-          ...currentResult.members,
-          type: currentResult.memberType.type,
-        });
-      }
-      return groups;
-    }, [] as (GroupSchema & { members: UserSchemaWithMemberType[] })[])[0];
+    return result.reduce(
+      (groups, currentResult) => {
+        const groupIndex = groups.findIndex(
+          (group) => group.id === currentResult.group.id
+        );
+        if (groupIndex === -1) {
+          groups.push({
+            ...currentResult.group,
+            members: [
+              { ...currentResult.members, type: currentResult.memberType.type },
+            ],
+          });
+        } else {
+          groups[groupIndex].members.push({
+            ...currentResult.members,
+            type: currentResult.memberType.type,
+          });
+        }
+        return groups;
+      },
+      [] as (GroupSchema & { members: UserSchemaWithMemberType[] })[]
+    )[0];
   } catch (error) {
     console.error(error);
     return null;
@@ -411,7 +440,7 @@ export async function addTransactionsToGroup(
   groupId: string
 ) {
   try {
-    await db
+    return await db
       .insert(transactionsToGroups)
       .values({
         id: uuidv4(),
@@ -419,8 +448,6 @@ export async function addTransactionsToGroup(
         transactionId: transactionId,
       })
       .returning();
-
-    return true;
   } catch (error) {
     console.error(error, 'Failed to add transaction');
     return false;

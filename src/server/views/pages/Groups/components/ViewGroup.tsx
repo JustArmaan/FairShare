@@ -8,6 +8,7 @@ import type {
   getAllOwedForGroupTransaction,
   getAllOwedForGroupTransactionWithTransactionId,
 } from '../../../../services/owed.service';
+import PendingItems from './PendingItem';
 
 interface groupBudget {
   budgetGoal: number;
@@ -72,6 +73,16 @@ export const ViewGroups = ({
             owedPerMember={owedPerMember}
           />
         </div>
+        <p class="text-font-off-white text-2xl pt-3">Pending</p>
+        /*
+        <PendingItems
+          memberDetails={members}
+          currentUser={currentUser}
+          transactions={transactions}
+          owedPerMember={owedPerMember}
+          groupId={groupId}
+        />
+        */
         <p class="text-font-off-white text-2xl pt-3">Owing</p>
         <OwedGroup
           memberDetails={members}
@@ -105,13 +116,13 @@ export const ViewGroups = ({
         hx-trigger="click"
         hx-target="#app"
         hx-swap="innerHTML"
-        class="fixed bottom-24 right-6 hover:-translate-y-0.5 transition-transform bg-[#F9F9F9] text-font-grey px-6 py-3 rounded-full shadow-lg hover:bg-blue-600 flex flex-row justify-center"
+        class="fixed bottom-24 right-6 hover:-translate-y-0.5 transition-transform bg-accent-blue text-font-off-white px-6 py-3 rounded-full shadow-lg hover:bg-blue-600 flex flex-row justify-center font-semibold"
       >
         <p>Add Expense</p>
         <img
           src="/icons/addExpenseCircle.svg"
           alt="Add Expense Icon"
-          class=" hover:opacity-80 h-6 justify-end pl-0.5"
+          class=" hover:opacity-80 h-6 justify-end pl-0.5 ml-1"
         />
       </button>
       <div class="h-16"></div>

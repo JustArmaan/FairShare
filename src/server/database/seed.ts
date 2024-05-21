@@ -7,6 +7,7 @@ import { v4 as uuid } from 'uuid';
 import { items } from './schema/items';
 import { accountType } from './schema/accountType';
 import { groupTransferStatus } from './schema/groupTransferStatus';
+import { splitType } from './schema/splitType';
 
 let db = getDB();
 
@@ -139,6 +140,12 @@ const groupTransferStatusValues = [
   { status: 'not-initiated' },
 ];
 
+const splitTypes = [
+  { type: 'percentage' },
+  { type: 'amount' },
+  { type: 'equal' },
+];
+
 console.log('Starting deletions');
 (await db.select().from(categories)).length > 0 &&
   (await db.delete(categories));
@@ -213,6 +220,13 @@ try {
       await trx.insert(groupTransferStatus).values({
         id: statusId,
         status: status.status,
+      });
+    }
+
+    for (const splitTyped of splitTypes) {
+      await trx.insert(splitType).values({
+        id: uuid(),
+        type: splitTyped.type,
       });
     }
     console.log('Seeding transaction complete.');

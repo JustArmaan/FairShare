@@ -23,11 +23,13 @@ import { AccountPickerForm } from '../views/pages/transactions/components/Accoun
 import {
   addTransactionsToGroup,
   deleteTransactionFromGroup,
+  getGroupTransactionStateId,
   getGroupWithMembers,
   getTransactionsToGroup,
   getUsersToGroup,
 } from '../services/group.service';
 import {
+  createGroupTransactionState,
   createOwed,
   getAllOwedForGroupTransaction,
 } from '../services/owed.service';
@@ -193,17 +195,22 @@ router.get('/addButton', async (req, res) => {
 
   const { members } = (await getGroupWithMembers(groupId))!;
   if (checked === 'false') {
-    await addTransactionsToGroup(transaction.id, groupId);
+    const groupTransactions = await addTransactionsToGroup(
+      transaction.id,
+      groupId
+    );
+    if (!groupTransactions) throw new Error();
 
+        const groupTransactionState = await createGroupTransactionState({
+          pending: true,
+          groupTransactionId: groupTransactions[0].id,
+        });
     await Promise.all(
       members.map(async (member) => {
         const owedPerMember = transaction.amount / members.length;
         return await createOwed({
           usersToGroupsId: (await getUsersToGroup(groupId, member.id))!.id,
-          transactionsToGroupsId: (await getTransactionsToGroup(
-            groupId,
-            transactionId
-          ))!.id,
+          groupTransactionStateId: groupTransactionState![0].id,
           amount:
             member.id === req.user!.id
               ? owedPerMember * (members.length - 1)
