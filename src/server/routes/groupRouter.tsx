@@ -5,9 +5,11 @@ import { getUser } from './authRouter.ts';
 import {
   checkUserInGroup,
   deleteMemberByGroup,
+  getGroupTransactionWithSplitType,
   getGroupTransactions,
   getGroupWithMembersAndTransactions,
   getGroupsAndAllMembersForUser,
+  getSplitOptions,
   getTransactionsForGroup,
   type GroupMembersTransactions,
 } from '../services/group.service';
@@ -40,7 +42,8 @@ import { AccountPickerForm } from '../views/pages/transactions/components/Accoun
 import Transaction from '../views/pages/transactions/components/Transaction.tsx';
 import { ViewAndPayPage } from '../views/pages/Groups/ViewAndPayPage.tsx';
 import { getTransaction } from '../services/transaction.service.ts';
-import { SplitOptionsPage } from '../views/pages/Groups/SplitOptionsPage.tsx';
+import { SplitOptionsPage } from '../views/pages/Transfers/SplitOptionsPage.tsx';
+import { group } from 'console';
 
 const router = express.Router();
 
@@ -548,7 +551,7 @@ router.get(
     const html = renderToHtml(
       <TransactionList
         account={account}
-        route="AddTransaction"
+        route='AddTransaction'
         groupId={req.params.groupId}
         groupTransactionIds={groupTransactionIds}
       />
@@ -588,26 +591,6 @@ router.get('/getTransactions/:groupId/', async (req, res) => {
   res.send(html);
 });
 
-router.get(
-  '/splitTransaction/:groupId/:transactionId/:splitOption',
-  async (req, res) => {
-    const groupId = req.params.groupId;
-    const transactionId = req.params.transactionId;
-    const splitOption = req.params.splitOption;
 
-    const transactionDetails = await getTransaction(transactionId);
-
-    const html = renderToHtml(
-      <SplitOptionsPage
-        groupId={groupId}
-        transactionId={transactionId}
-        splitOption={splitOption}
-        transactionDetails={transactionDetails}
-      />
-    );
-
-    res.send(html);
-  }
-);
 
 export const groupRouter = router;

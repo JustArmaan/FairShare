@@ -164,6 +164,10 @@ export async function getGroupWithMembers(groupId: string) {
   }
 }
 
+export type GroupWithMembers = NonNullable<
+  Awaited<ReturnType<typeof getGroupWithMembers>>
+>;
+
 export async function getTransactionsForGroup(groupId: string) {
   try {
     const results = await db
@@ -475,5 +479,48 @@ export async function deleteTransactionFromGroup(
   } catch (error) {
     console.error(error, 'Failed to delete transaction');
     return false;
+  }
+}
+
+export async function getGroupTransactionWithSplitType(
+  groupId: string,
+  transactionId: string
+) {
+  try {
+    const results = await db
+      .select({
+        transaction: transactions,
+        type: splitType.type,
+      })
+      .from(transactionsToGroups)
+      .innerJoin(
+        groupTransactionState,
+        eq(transactionsToGroups.id, groupTransactionState.groupTransactionId)
+      )
+      .innerJoin(splitType, eq(groupTransactionState.splitTypeId, splitType.id))
+      .innerJoin(transactions, eq(transactions.id, transactionId))
+      .where(
+        and(
+          eq(transactionsToGroups.groupsId, groupId),
+          eq(transactionsToGroups.transactionId, transactionId)
+        )
+      );
+    return results[0];
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
+}
+
+export type GroupTransactionWithSplitType = NonNullable<
+  ExtractFunctionReturnType<typeof getGroupTransactionWithSplitType>
+>;
+
+export function getSplitOptions() {
+  try {
+    return db.select().from(splitType).all();
+  } catch (error) {
+    console.error(error);
+    return null;
   }
 }
