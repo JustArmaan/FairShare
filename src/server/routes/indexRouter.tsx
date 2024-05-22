@@ -4,6 +4,10 @@ import { Header } from '../views/components/Header';
 import { Nav } from '../views/components/Navigation';
 import { Menu } from '../views/components/Menu';
 import { Login } from '../views/pages/Onboarding/Login';
+import { SignIn } from '../views/pages/Onboarding/SignIn';
+import { CreateAccount } from '../views/pages/Onboarding/CreateAccount';
+import { CreateAccountInfo } from '../views/pages/Onboarding/CreateAccountInfo';
+import { Initial } from '../views/pages/Onboarding/Initial'; 
 const router = express.Router();
 
 router.get('/header', (_, res) => {
@@ -41,7 +45,7 @@ router.get('/empty', (req, res) => {
 
 router.get('/onboard', (req, res) => {
   if (!req.user) {
-    const html = renderToHtml(<Login />);
+    const html = renderToHtml(<SignIn />);
     return res.send(html);
   } else {
     const html = renderToHtml(
