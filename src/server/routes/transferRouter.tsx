@@ -6,6 +6,10 @@ import {
   getSplitOptions,
 } from '../services/group.service';
 import { SplitOptionsPage } from '../views/pages/Transfers/SplitOptionsPage';
+import {
+  getAllOwedForGroupTransaction,
+  getAllOwedForGroupTransactionWithMemberInfo,
+} from '../services/owed.service';
 
 const router = express.Router();
 
@@ -104,9 +108,9 @@ router.get(
 router.get('/splitTransaction/:groupId/:transactionId', async (req, res) => {
   const groupId = req.params.groupId;
   const transactionId = req.params.transactionId;
-  const groupWithMembers = await getGroupWithMembers(groupId);
+  const groupWithMember = await getGroupWithMembers(groupId);
 
-  if (!groupWithMembers) {
+  if (!groupWithMember) {
     return res.status(404).send('No such group');
   }
 
@@ -119,12 +123,22 @@ router.get('/splitTransaction/:groupId/:transactionId', async (req, res) => {
     return res.status(404).send('No such transaction');
   }
 
+  const owedInfo = await getAllOwedForGroupTransactionWithMemberInfo(
+    groupId,
+    transactionId
+  );
+
+  if (!owedInfo) {
+    return res.status(404).send('No owed info found');
+  }
+
   const html = renderToHtml(
     <SplitOptionsPage
       groupId={groupId}
       transactionId={transactionId}
       transaction={transactionDetails}
-      groupWithMembers={groupWithMembers}
+      groupWithMembers={groupWithMember}
+      owedInfo={owedInfo}
       isOpen={true}
     />
   );

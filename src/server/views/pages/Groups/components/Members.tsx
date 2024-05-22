@@ -57,7 +57,6 @@ export const Members = ({
   return (
     <div class="flex flex-wrap items-center w-full">
       {calculateTotalOwedAll(owedPerMember, memberDetails).map((member) => {
-        console.log(member, 'member');
         return (
           <div class="flex bg-primary-black h-16 md:w-[calc(100%_-_0.5rem)] w-[calc(50%_-_0.5rem)] rounded-lg m-1 items-center">
             <div

@@ -6,7 +6,6 @@ import { usersToGroups } from '../database/schema/usersToGroups';
 import type { ExtractFunctionReturnType } from './user.service';
 import { v4 as uuid } from 'uuid';
 import { users } from '../database/schema/users';
-import { groups } from '../database/schema/group';
 import { groupTransactionState } from '../database/schema/groupTransactionState';
 import { splitType } from '../database/schema/splitType';
 
@@ -142,6 +141,10 @@ export async function getAllOwedForGroupTransactionWithMemberInfo(
     return null;
   }
 }
+
+export type OwedTransactionWithMember = NonNullable<
+  Awaited<ReturnType<typeof getAllOwedForGroupTransactionWithMemberInfo>>
+>;
 
 export async function getAllOwedForGroupTransaction(
   groupId: string,

@@ -59,7 +59,6 @@ async function syncTransaction({
     if (!accountsAdded) {
       await Promise.all(
         accounts.map(async (account) => {
-          console.log(account, 'account');
           const accountTypeId = await getAccountTypeIdByName(account.type);
           if (!accountTypeId) return;
           const acc = await getAccount(account.account_id);

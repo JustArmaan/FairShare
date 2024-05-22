@@ -5,11 +5,9 @@ import { getUser } from './authRouter.ts';
 import {
   checkUserInGroup,
   deleteMemberByGroup,
-  getGroupTransactionWithSplitType,
   getGroupTransactions,
   getGroupWithMembersAndTransactions,
   getGroupsAndAllMembersForUser,
-  getSplitOptions,
   getTransactionsForGroup,
   type GroupMembersTransactions,
 } from '../services/group.service';
@@ -32,18 +30,12 @@ import {
 } from '../services/plaid.service';
 import type { ExtractFunctionReturnType } from '../services/user.service';
 import { GroupTransactionsListPage } from '../views/pages/Groups/TransactionsListGroupsPage.tsx';
-import {
-  getAllOwedForGroupTransactionWithMemberInfo,
-  getAllOwedForGroupTransactionWithTransactionId,
-  getGroupIdAndTransactionIdForOwed,
-} from '../services/owed.service.ts';
+import { getAllOwedForGroupTransactionWithMemberInfo, getAllOwedForGroupTransactionWithTransactionId, getGroupIdAndTransactionIdForOwed } from '../services/owed.service.ts';
 import { TransactionList } from '../views/pages/transactions/components/TransactionList.tsx';
 import { AccountPickerForm } from '../views/pages/transactions/components/AccountPickerForm.tsx';
 import Transaction from '../views/pages/transactions/components/Transaction.tsx';
-import { ViewAndPayPage } from '../views/pages/Groups/ViewAndPayPage.tsx';
 import { getTransaction } from '../services/transaction.service.ts';
-import { SplitOptionsPage } from '../views/pages/Transfers/SplitOptionsPage.tsx';
-import { group } from 'console';
+import { ViewAndPayPage } from '../views/pages/Groups/ViewAndPayPage.tsx';
 
 const router = express.Router();
 
@@ -131,8 +123,6 @@ router.get('/view/:groupId', getUser, async (req, res) => {
     const account = await getAccountsForUser(userId);
     const accountId = account ? account[0].id : '';
 
-    console.log(transactions, 'transactions');
-
     const html = renderToHtml(
       <ViewGroups
         groupId={group.id}
@@ -162,16 +152,18 @@ router.get('/view/:groupId', getUser, async (req, res) => {
 });
 
 router.get('/pay/:groupTransactionToUsersToGroupsId', async (req, res) => {
-  const { groupId, transactionId } = (await getGroupIdAndTransactionIdForOwed(
-    req.params.groupTransactionToUsersToGroupsId
-  ))!;
-  const owed = await getAllOwedForGroupTransactionWithMemberInfo(
-    groupId,
-    transactionId
-  );
+  const result = await getGroupIdAndTransactionIdForOwed(req.params.groupTransactionToUsersToGroupsId);
+  // console.log("Result from getGroupIdAndTransactionIdForOwed:", result);
+
+  if (!result) {
+    return res.status(404).send("Group ID and Transaction ID not found");
+  }
+
+  const { groupId, transactionId } = result;
+  const owed = await getAllOwedForGroupTransactionWithMemberInfo(groupId, transactionId);
   const transaction = await getTransaction(transactionId);
   const accounts = await getAccountsForUser(req.user!.id);
-  // const selectedAccount = wait for schema
+
   const html = renderToHtml(
     <ViewAndPayPage
       owed={owed!}
@@ -179,8 +171,10 @@ router.get('/pay/:groupTransactionToUsersToGroupsId', async (req, res) => {
       accounts={accounts!}
     />
   );
+
   return res.send(html);
 });
+
 
 router.get('/create', getUser, async (req, res) => {
   try {
@@ -596,7 +590,5 @@ router.get('/getTransactions/:groupId/', async (req, res) => {
   );
   res.send(html);
 });
-
-
 
 export const groupRouter = router;

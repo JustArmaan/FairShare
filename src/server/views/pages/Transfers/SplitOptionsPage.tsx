@@ -3,6 +3,7 @@ import {
   type GroupWithMembers,
 } from '../../../services/group.service';
 import { SplittingSelector } from './components/SplittingSelector';
+import { type OwedTransactionWithMember } from '../../../services/owed.service';
 
 export const SplitOptionsPage = ({
   groupId,
@@ -10,12 +11,14 @@ export const SplitOptionsPage = ({
   transaction,
   isOpen,
   groupWithMembers,
+  owedInfo,
 }: {
   groupId: string;
   transactionId: string;
   transaction: GroupTransactionWithSplitType;
   groupWithMembers: GroupWithMembers;
   isOpen: boolean;
+  owedInfo: OwedTransactionWithMember;
 }) => {
   function uppercaseFirstLetter(str: string) {
     return str.charAt(0).toUpperCase() + str.slice(1);
@@ -82,23 +85,30 @@ export const SplitOptionsPage = ({
           Split Options
         </h1>
       </div>
-      <div
-        id='split-options'
-        hx-get={`/transfer/splitTransaction/splitOptions/open/${transactionId}/${groupId}`}
-        hx-trigger='click'
-        hx-target='this'
-        hx-swap='outerHTML'
-        class='flex py-2 hover:opacity-80 pointer-cursor px-4 justify-between text-left text-font-off-white bg-primary-black rounded-lg mt-2 w-full'
-      >
-        <input
-          id='select-split-options'
-          type='button'
-          name='select-split-options'
-          value={uppercaseFirstLetter(transaction.type)}
+      <form>
+        <div
+          id='split-options'
+          hx-get={`/transfer/splitTransaction/splitOptions/open/${transactionId}/${groupId}`}
+          hx-trigger='click'
+          hx-target='this'
+          hx-swap='outerHTML'
+          class='flex py-2 hover:opacity-80 pointer-cursor px-4 justify-between text-left text-font-off-white bg-primary-black rounded-lg mt-4 w-full'
+        >
+          <input
+            id='select-split-options'
+            type='button'
+            name='select-split-options'
+            value={uppercaseFirstLetter(transaction.type)}
+          />
+          <img src='/activeIcons/expand_more.svg' alt='expandable' />
+        </div>
+        <SplittingSelector
+          splitType={transaction.type}
+          transaction={transaction}
+          groupWithMembers={groupWithMembers}
+          owedInfo={owedInfo}
         />
-        <img src='/activeIcons/expand_more.svg' alt='expandable' />
-      </div>
-      <SplittingSelector transaction={transaction} groupWithMembers={groupWithMembers}/>
+      </form>
     </div>
   );
 };
