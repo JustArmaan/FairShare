@@ -110,9 +110,13 @@ export async function getAllOwedForGroupTransactionWithMemberInfo(
       .select({ user: users, amount: groupTransactionToUsersToGroups.amount })
       .from(transactionsToGroups)
       .innerJoin(
+        groupTransactionState,
+        eq(groupTransactionState.groupTransactionId, transactionsToGroups.id)
+      )
+      .innerJoin(
         groupTransactionToUsersToGroups,
         eq(
-          transactionsToGroups.id,
+          groupTransactionState.id,
           groupTransactionToUsersToGroups.groupTransactionStateId
         )
       )

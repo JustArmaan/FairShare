@@ -81,7 +81,6 @@ export const ViewGroups = ({
           owedPerMember={owedPerMember}
           groupId={groupId}
         />
-        */
         <p class="text-font-off-white text-2xl pt-3">Owing</p>
         <OwedGroup
           memberDetails={members}

@@ -56,6 +56,7 @@ export default {
       'primary-black': '#343434',
       'primary-faded-black': '#4E4E4E',
       'primary-faded-black': '#4E4E4E',
+      'primary-dark-grey': '#686868',
       'card-red': '#e60000',
     },
     fontFamily: {
