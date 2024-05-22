@@ -1,7 +1,9 @@
 import { main } from './group';
 import { CustomizeMap } from './map/customizeMap';
+import { splitTransfer } from './splitTransfer/splitTransfer';
 
 main();
+splitTransfer();
 
 document.body.addEventListener('htmx:afterSwap', () => {
   window.scrollTo({ top: 0 });

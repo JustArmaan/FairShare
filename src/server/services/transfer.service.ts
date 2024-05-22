@@ -2,6 +2,7 @@ import { getDB } from '../database/client';
 import { transactionsToGroups } from '../database/schema/transactionsToGroups';
 import { eq, and } from 'drizzle-orm';
 import { groupTransactionState } from '../database/schema/groupTransactionState';
+import { splitType } from '../database/schema/splitType';
 
 const db = getDB();
 
@@ -52,3 +53,15 @@ const getGroupTransactionStateId = async (
     console.error(e, 'at getGroupTransactionStateId');
   }
 };
+
+export function getSplitTypeById(splitTypeId: string) {
+  try {
+    const splitTypeResult = db
+      .select()
+      .from(splitType)
+      .where(eq(splitType.id, splitTypeId));
+    return splitTypeResult;
+  } catch (e) {
+    console.error(e, 'at getSplitTypeById');
+  }
+}
