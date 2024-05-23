@@ -10,7 +10,6 @@ import {
   updateGroupTransferToReceive,
 } from '../services/plaid.transfer.service';
 import { type GroupTransfer } from '../services/plaid.transfer.service';
-import { getGroupIdAndTransactionIdForOwed } from '../services/owed.service';
 
 export async function authorizeSendersTransfer(
   userId: string,
