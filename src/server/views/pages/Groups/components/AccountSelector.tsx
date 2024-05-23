@@ -4,6 +4,8 @@ import { InstitutionDropDown } from './InstitutionDropDown';
 export const AccountSelector = (props: {
   selectedAccount: AccountWithItem | null;
   accounts: AccountWithItem[];
+  isDepositAccount: true | undefined;
+  groupId: string;
 }) => {
   /*
   const items = props.accounts.reduce(
@@ -41,6 +43,7 @@ export const AccountSelector = (props: {
           <p>
             Balance:{' '}
             <span class="font-semibold">
+$
               {props.selectedAccount.balance
                 ? parseFloat(props.selectedAccount.balance).toFixed(2)
                 : (0).toFixed(2)}
@@ -74,7 +77,7 @@ export const AccountSelector = (props: {
                   </span>
                 </p>
                 <button
-                  hx-get={`/groups/account-selector/select?accountId=${account.id}`}
+                  hx-get={`/groups/account-selector/select?accountId=${account.id}&isDepositAccount=${props.isDepositAccount}&groupId=${props.groupId}`}
                   hx-trigger="click"
                   hx-swap="outerHTML"
                   hx-target="#accountSelector"
@@ -89,11 +92,11 @@ export const AccountSelector = (props: {
       )}
       {props.selectedAccount && (
         <button
-          hx-get={`/groups/account-selector/select?accountId=`}
+          hx-get={`/groups/account-selector/select?accountId=&isDepositAccount=${props.isDepositAccount}&groupId=${props.groupId}`}
           hx-trigger="click"
           hx-swap="outerHTML"
           hx-target="#accountSelector"
-          class={`${'bg-accent-blue'} border-2 py-1.5 w-full rounded-lg mt-4 font-semibold hover:-translate-y-0.5 rotate-[0.0001deg] transition-transform`}
+          class={`${'bg-accent-blue'} py-1.5 w-full rounded-lg mt-4 font-semibold hover:-translate-y-0.5 rotate-[0.0001deg] transition-transform`}
         >
           Change Account
         </button>
