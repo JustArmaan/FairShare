@@ -15,6 +15,7 @@ export const ViewAndPayPage = (props: {
 }) => {
   return (
     <div class="p-6 text-font-off-white">
+      <form>
       <div>
         <h2 class="text-3xl">
           Total:{' '}
@@ -91,6 +92,7 @@ export const ViewAndPayPage = (props: {
       <button class="hover:-translate-y-0.5 rotate-[0.0001deg] transition-transform bg-accent-blue py-4 w-full rounded-2xl mt-8 font-semibold text-2xl">
         Confirm and Transfer
       </button>
+      </form>
     </div>
   );
 };

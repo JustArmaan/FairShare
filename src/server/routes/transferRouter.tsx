@@ -239,7 +239,6 @@ router.get(
 );
 
 router.post('/splitOptions/edit', async (req, res) => {
-
   const { splitType, memberId, groupId, transactionId } = req.body;
 
   if (!splitType) {
