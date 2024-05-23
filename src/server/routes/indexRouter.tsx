@@ -45,7 +45,7 @@ router.get('/empty', (req, res) => {
 
 router.get('/onboard', (req, res) => {
   if (!req.user) {
-    const html = renderToHtml(<SignIn />);
+    const html = renderToHtml(<CreateAccountInfo />);
     return res.send(html);
   } else {
     const html = renderToHtml(
