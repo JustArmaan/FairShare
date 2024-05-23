@@ -90,6 +90,14 @@ CREATE TABLE `memberType` (
 	`type` text NOT NULL
 );
 --> statement-breakpoint
+CREATE TABLE `notifications` (
+	`id` text PRIMARY KEY NOT NULL,
+	`fk_user_group_id` text NOT NULL,
+	`message` text NOT NULL,
+	`timestamp` text NOT NULL,
+	FOREIGN KEY (`fk_user_group_id`) REFERENCES `usersToGroups`(`id`) ON UPDATE no action ON DELETE cascade
+);
+--> statement-breakpoint
 CREATE TABLE `receiptsToItems` (
 	`id` text PRIMARY KEY NOT NULL,
 	`product_name` text NOT NULL,
@@ -144,9 +152,11 @@ CREATE TABLE `usersToGroups` (
 	`user_id` text NOT NULL,
 	`group_id` text NOT NULL,
 	`member_type_id` text NOT NULL,
+	`deposit_account_id` text,
 	FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON UPDATE no action ON DELETE cascade,
 	FOREIGN KEY (`group_id`) REFERENCES `groups`(`id`) ON UPDATE no action ON DELETE cascade,
-	FOREIGN KEY (`member_type_id`) REFERENCES `memberType`(`id`) ON UPDATE no action ON DELETE no action
+	FOREIGN KEY (`member_type_id`) REFERENCES `memberType`(`id`) ON UPDATE no action ON DELETE no action,
+	FOREIGN KEY (`deposit_account_id`) REFERENCES `accounts`(`id`) ON UPDATE no action ON DELETE no action
 );
 --> statement-breakpoint
 CREATE TABLE `usersToItems` (
