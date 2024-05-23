@@ -22,6 +22,11 @@ export const AccountSelector = (props: {
       class="rounded-lg p-4 bg-primary-black text-xl flex flex-col animate-fade-in"
       id="accountSelector"
     >
+      <input
+        type="hidden"
+        value={props.selectedAccount?.id}
+        name="selectedAccountId"
+      />
       {props.selectedAccount ? (
         <>
           <p>
