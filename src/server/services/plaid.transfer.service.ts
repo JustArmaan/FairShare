@@ -1,14 +1,17 @@
-import { getDB } from '../database/client';
-import { groupTransfer } from '../database/schema/groupTransfer';
-import { eq } from 'drizzle-orm';
-import { type ExtractFunctionReturnType } from './user.service';
-import { usersToGroups } from '../database/schema/usersToGroups';
-import { groupTransactionToUsersToGroups } from '../database/schema/groupTransactionToUsersToGroups';
-import { groupTransferStatus } from '../database/schema/groupTransferStatus';
-import { v4 as uuidv4 } from 'uuid';
-import { groups } from '../database/schema/group';
+import { getDB } from "../database/client";
+import { groupTransfer } from "../database/schema/groupTransfer";
+import { eq } from "drizzle-orm";
+import { findUser, type ExtractFunctionReturnType } from "./user.service";
+import { usersToGroups } from "../database/schema/usersToGroups";
+import { groupTransactionToUsersToGroups } from "../database/schema/groupTransactionToUsersToGroups";
+import { groupTransferStatus } from "../database/schema/groupTransferStatus";
+import { v4 as uuidv4 } from "uuid";
+import { createNotificationForUserInGroups } from "./notification.service";
+import { getUserInfoFromAccount } from "./account.service";
+import { getGroupTransactionToUserToGroupById } from "./group.service";
 import { transactionsToGroups } from '../database/schema/transactionsToGroups';
 import { groupTransactionState } from '../database/schema/groupTransactionState';
+import { groups } from "../database/schema/group";
 
 const db = getDB();
 
@@ -29,11 +32,27 @@ export type GroupTransfer = ExtractFunctionReturnType<
   typeof getGroupTransferById
 >;
 
-export async function createGroupTransfer(transfer: Omit<GroupTransfer, 'id'>) {
+export async function createGroupTransfer(
+  transfer: Omit<GroupTransfer, "id">,
+  groupId: string
+) {
   try {
     await db
       .insert(groupTransfer)
-      .values({ id: uuidv4(), ...transfer } as GroupTransfer);
+      .values({ id: uuidv4(), ...transfer } as GroupTransfer)
+
+      const senderName = await getUserInfoFromAccount(transfer.senderAccountId);
+      const recieverName = await getUserInfoFromAccount(transfer.receiverAccountId);
+      const groupTransaction = await getGroupTransactionToUserToGroupById(transfer.groupTransactionToUsersToGroupsId)
+
+    await createNotificationForUserInGroups(groupId, transfer.senderAccountId, {
+      message: `Your transfer to ${recieverName?.user.firstName}`,
+      timestamp: new Date().toISOString(),
+    });
+    await createNotificationForUserInGroups(groupId, transfer.receiverAccountId, {
+      message: `${senderName?.user.firstName} has sent you ${groupTransaction![0].amount}`,
+      timestamp: new Date().toISOString(),
+    });
   } catch (err) {
     console.error(err);
   }

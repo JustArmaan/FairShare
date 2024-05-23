@@ -7,6 +7,7 @@ import {
   getGroupWithMembers,
   getSplitOptions,
   getTransactionsForGroup,
+  getUsersToGroup,
   updateGroupTransactionToUserToGroup,
   updateSplitType,
 } from '../services/group.service';
@@ -24,6 +25,8 @@ import {
 } from '../services/user.service';
 import { ViewGroups } from '../views/pages/Groups/components/ViewGroup';
 import { getAccountsForUser } from '../services/plaid.service';
+import { createTransferForSenderAndRecord } from '../plaid/transfer';
+import { group } from 'console';
 
 const router = express.Router();
 
@@ -239,7 +242,6 @@ router.get(
 );
 
 router.post('/splitOptions/edit', async (req, res) => {
-
   const { splitType, memberId, groupId, transactionId } = req.body;
 
   if (!splitType) {
@@ -377,6 +379,10 @@ router.post('/splitOptions/edit', async (req, res) => {
       .filter((owed) => owed !== null)
   );
 
+  const userId = req.user!.id;
+
+  const userToGroup = (await getUsersToGroup(groupId, userId))!;
+
   const currentUser = await findUser(req.user?.id as string);
   const accountId = await getAccountsForUser(req.user?.id as string);
   if (!accountId) {
@@ -408,10 +414,50 @@ router.post('/splitOptions/edit', async (req, res) => {
             ]
       }
       accountId={accountId[0].id}
+      selectedDepositAccountId={userToGroup.depositAccountId}
     />
   );
 
   res.send(html);
+});
+
+router.post('/initiate/transfer/sender', async (req, res) => {
+  const { selectedAccountId, transactionId, groupId } = req.body;
+  const userId = req.user!.id;
+
+  const userToGroup = (await getUsersToGroup(groupId, userId))!;
+
+  if (!userToGroup.depositAccountId) {
+    return res
+      .status(400)
+      .send(
+        'No deposit account found for the owner of this transaction was found'
+      );
+  }
+
+  const owedInfo = await getAllOwedForGroupTransactionWithMemberInfo(
+    groupId,
+    transactionId
+  );
+
+  const currentUser = owedInfo?.find((owed) => owed.user.id === userId);
+
+  if (!currentUser) {
+    return res.status(403).send('You need to be signed in to use this feature');
+  }
+
+  console.log(userToGroup.depositAccountId);
+
+  await createTransferForSenderAndRecord(
+    userId,
+    selectedAccountId,
+    userToGroup.depositAccountId,
+    Math.abs(currentUser?.amount).toFixed(2),
+    groupId,
+    transactionId
+  );
+
+  console.log(req.body, 'init transfer for sender');
 });
 
 export const transferRouter = router;

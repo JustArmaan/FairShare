@@ -169,10 +169,8 @@ router.get('/view/:groupId', async (req, res) => {
   }
 });
 
-router.get('/pay/:groupTransactionToUsersToGroupsId', async (req, res) => {
-  const result = await getGroupIdAndTransactionIdForOwed(
-    req.params.groupTransactionToUsersToGroupsId
-  );
+router.get('/pay/:groupTransactionToUsersToGroupsId/:groupId', async (req, res) => {
+  const result = await getGroupIdAndTransactionIdForOwed(req.params.groupTransactionToUsersToGroupsId);
   // console.log("Result from getGroupIdAndTransactionIdForOwed:", result);
 
   if (!result) {
@@ -192,6 +190,7 @@ router.get('/pay/:groupTransactionToUsersToGroupsId', async (req, res) => {
       owed={owed!}
       transaction={transaction}
       accounts={accounts!}
+      groupId={req.params.groupId}
     />
   );
 

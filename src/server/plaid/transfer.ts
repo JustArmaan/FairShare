@@ -10,12 +10,11 @@ import {
   updateGroupTransferToReceive,
 } from '../services/plaid.transfer.service';
 import { type GroupTransfer } from '../services/plaid.transfer.service';
-import { getGroupIdAndTransactionIdForOwed } from '../services/owed.service';
 
 export async function authorizeSendersTransfer(
   userId: string,
   accountId: string,
-  amount: number
+  amount: string
 ) {
   const [{ item }] = await getItemsForUser(userId);
   const accessToken = item.plaidAccessToken;
@@ -32,7 +31,7 @@ export async function authorizeSendersTransfer(
       account_id: accountId,
       type: 'debit',
       network: 'ach',
-      amount: amount.toFixed(2).toString(),
+      amount: amount,
       ach_class: 'web',
       user: {
         legal_name: await findUserLegalNameForAccount(user.id, accountId),
@@ -44,6 +43,8 @@ export async function authorizeSendersTransfer(
       transferRequest
     );
 
+    // console.log(response, 'auth response');
+
     return response.authorization.id;
   } catch (error) {
     console.error('Error initiating authorization:', error);
@@ -54,7 +55,7 @@ export async function authorizeSendersTransfer(
 export async function authorizeReceiversTransfer(
   userId: string,
   accountId: string,
-  amount: number
+  amount: string
 ) {
   const [{ item }] = await getItemsForUser(userId);
   const accessToken = item.plaidAccessToken;
@@ -70,7 +71,7 @@ export async function authorizeReceiversTransfer(
       account_id: accountId,
       type: 'credit',
       network: 'ach',
-      amount: amount.toFixed(2).toString(),
+      amount: amount,
       ach_class: 'web',
       user: {
         legal_name: await findUserLegalNameForAccount(user.id, accountId),
@@ -91,14 +92,16 @@ export async function authorizeReceiversTransfer(
 async function createTransferForSender(
   userId: string,
   accountId: string,
-  amount: number
-) {
+  amount: string
+): Promise<{ transfer: { status: string }}> {
   try {
     const authorizationId = await authorizeSendersTransfer(
       userId,
       accountId,
       amount
     );
+
+    // console.log(authorizationId, 'authid');
 
     const [{ item }] = await getItemsForUser(userId);
     const accessToken = item.plaidAccessToken;
@@ -114,7 +117,7 @@ async function createTransferForSender(
       '/transfer/create',
       transferCreateRequest
     );
-    return response.transfer;
+    return response;
   } catch (error) {
     console.error('Error initiating transfer:', error);
     throw error;
@@ -124,7 +127,7 @@ async function createTransferForSender(
 export async function createTransferForReceiver(
   userId: string,
   accountId: string,
-  amount: number
+  amount: string
 ) {
   try {
     const authorizationId = await authorizeReceiversTransfer(
@@ -159,13 +162,13 @@ export async function createTransferForSenderAndRecord(
   userId: string,
   accountId: string,
   receiverAccountId: string,
-  amount: number,
+  amount: string,
   groupId: string,
   transactionId: string
 ) {
   try {
     const response = await createTransferForSender(userId, accountId, amount);
-
+    console.log(response.transfer, "agdyuwad");
     const transferStatus = response.transfer.status;
     const senderStatus = await getTransferStatusByName(transferStatus);
     const receiverStatus = await getTransferStatusByName('pending');
@@ -195,7 +198,7 @@ export async function createTransferForSenderAndRecord(
       receiverCompletedTimestamp: null,
     };
 
-    await createGroupTransfer(groupTransferData);
+    await createGroupTransfer(groupTransferData, groupId);
 
     return response.transfer;
   } catch (error) {
@@ -212,7 +215,7 @@ export async function checkAndProcessReceiveTransfer(
   senderAccountId: string,
   receiverUserId: string,
   receiverAccountId: string,
-  amount: number
+  amount: string
 ) {
   try {
     const senderStatusResult = await getSenderTransferStatus(senderAccountId);
@@ -233,7 +236,7 @@ export async function checkAndProcessReceiveTransfer(
         receiverAccountId,
         amount
       );
-      console.log('Receiver transfer initiated:', receiverTransfer);
+      // console.log('Receiver transfer initiated:', receiverTransfer);
     } else {
       const receiverStatus = await getTransferStatusByName('completed');
 
@@ -269,7 +272,7 @@ export async function getTransfer(
       access_token: accessToken,
       transfer_id: transferId,
     });
-    console.log(response, 'response.data.transfer?');
+    // console.log(response, 'response.data.transfer?');
     return response;
   } catch (error) {
     console.error('Error retrieving transfer:', error);
