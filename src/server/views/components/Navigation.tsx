@@ -60,6 +60,10 @@ export const Nav = () => {
           <a
             href=""
             class="parent hover:child-hidden flex flex-col items-center text-font-off-white dark:text-white text-sm group-hover:text-accent-green"
+            hx-get="/notification/page"
+            hx-target="#app"
+            hx-trigger="click"
+            hx-swap="innerHTML"
           >
             <img
               id="notifIcon"

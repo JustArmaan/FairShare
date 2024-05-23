@@ -198,7 +198,7 @@ export async function createTransferForSenderAndRecord(
       receiverCompletedTimestamp: null,
     };
 
-    await createGroupTransfer(groupTransferData);
+    await createGroupTransfer(groupTransferData, groupId);
 
     return response.transfer;
   } catch (error) {

@@ -9,6 +9,7 @@ import { groupRouter } from './routes/groupRouter';
 import { apiRouterV0 } from './routes/api/v0/apiRouter';
 import { authRouter } from './routes/authRouter';
 import { transferRouter } from './routes/transferRouter';
+import { notificationRouter } from './routes/notificationRouter';
 const PORT = process.env.PORT || 3000;
 
 const app = express();
@@ -23,6 +24,7 @@ app.use('/transactions', transactionRouter);
 app.use('/groups', groupRouter);
 app.use('/auth', authRouter);
 app.use('/transfer', transferRouter);
+app.use('/notification', notificationRouter )
 
 
 

@@ -159,28 +159,25 @@ export async function getGroupWithMembers(groupId: string) {
       .innerJoin(memberType, eq(usersToGroups.memberTypeId, memberType.id))
       .where(eq(groups.id, groupId));
 
-    return result.reduce(
-      (groups, currentResult) => {
-        const groupIndex = groups.findIndex(
-          (group) => group.id === currentResult.group.id
-        );
-        if (groupIndex === -1) {
-          groups.push({
-            ...currentResult.group,
-            members: [
-              { ...currentResult.members, type: currentResult.memberType.type },
-            ],
-          });
-        } else {
-          groups[groupIndex].members.push({
-            ...currentResult.members,
-            type: currentResult.memberType.type,
-          });
-        }
-        return groups;
-      },
-      [] as (GroupSchema & { members: UserSchemaWithMemberType[] })[]
-    )[0];
+    return result.reduce((groups, currentResult) => {
+      const groupIndex = groups.findIndex(
+        (group) => group.id === currentResult.group.id
+      );
+      if (groupIndex === -1) {
+        groups.push({
+          ...currentResult.group,
+          members: [
+            { ...currentResult.members, type: currentResult.memberType.type },
+          ],
+        });
+      } else {
+        groups[groupIndex].members.push({
+          ...currentResult.members,
+          type: currentResult.memberType.type,
+        });
+      }
+      return groups;
+    }, [] as (GroupSchema & { members: UserSchemaWithMemberType[] })[])[0];
   } catch (error) {
     console.error(error);
     return null;
@@ -621,6 +618,23 @@ export async function updateGroupTransactionToUserToGroup(
       );
   } catch (error) {
     console.error(error);
+  }
+}
+
+export async function getGroupTransactionToUserToGroupById(
+  groupTransactionId: string
+) {
+  try {
+    const result = await db
+      .select()
+      .from(groupTransactionToUsersToGroups)
+      .where(eq(groupTransactionToUsersToGroups.id, groupTransactionId));
+    if (result.length === 0) {
+      throw new Error('No group transaction found');
+    }
+    return result;
+  } catch (error) {
+    console.log(error, 'Failed to get transaction from group id');
     return null;
   }
 }
