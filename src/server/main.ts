@@ -24,6 +24,8 @@ app.use('/groups', groupRouter);
 app.use('/auth', authRouter);
 app.use('/transfer', transferRouter);
 
+
+
 ViteExpress.listen(app, PORT as number, () =>
   console.log(`Server is running on port ${PORT}...`)
 );

@@ -91,6 +91,9 @@ export const SplitOptionsPage = ({
         <div class='w-full flex justify-center'>
           <input
             hx-post={`/transfer/splitOptions/edit`}
+            hx-trigger='click'
+            hx-target='#app'
+            hx-swap='innerHTML'
             type='button'
             value='Save Changes'
             class='flex justify-center text-font-off-white mt-4 hover:-translate-y-0.5 rotate-[0.0001deg] transition-transform font-semibold px-12 py-2.5 bg-accent-blue rounded-xl w-2/3'

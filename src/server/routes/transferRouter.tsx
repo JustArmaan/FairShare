@@ -1,14 +1,29 @@
 import express from 'express';
 import { renderToHtml } from 'jsxte';
 import {
+  getGroupTransactionStateId,
   getGroupTransactionWithSplitType,
+  getGroupTransactions,
   getGroupWithMembers,
   getSplitOptions,
+  getTransactionsForGroup,
+  updateGroupTransactionToUserToGroup,
+  updateSplitType,
 } from '../services/group.service';
 import { SplitOptionsPage } from '../views/pages/Transfers/SplitOptionsPage';
-import { getAllOwedForGroupTransactionWithMemberInfo } from '../services/owed.service';
+import {
+  getAllOwedForGroupTransactionWithMemberInfo,
+  getAllOwedForGroupTransactionWithTransactionId,
+} from '../services/owed.service';
 import { FullSelector } from '../views/pages/Transfers/components/FullSelector';
 import { getSplitTypeById } from '../services/transfer.service';
+import { GroupPage } from '../views/pages/Groups/GroupPage';
+import {
+  findUser,
+  type ExtractFunctionReturnType,
+} from '../services/user.service';
+import { ViewGroups } from '../views/pages/Groups/components/ViewGroup';
+import { getAccountsForUser } from '../services/plaid.service';
 
 const router = express.Router();
 
@@ -222,19 +237,181 @@ router.get(
 );
 
 router.post('/splitOptions/edit', async (req, res) => {
-  const { splitOptions } = req.body;
-  console.log(req.body, 'req.body');
-  if (!splitOptions) {
-    return res.status(400).send('No split options provided');
+  console.log('Route /splitOptions/edit accessed');
+  console.log('Request Body:', req.body);
+
+  const { splitType, memberId, groupId, transactionId } = req.body;
+
+  if (!splitType) {
+    console.log('Error: Required parameters are missing');
+    return res.status(400).send('Required parameters are missing');
   }
 
-  // const updatedSplitOptions = await updateSplitOptions(splitOptions);
+  let memberList;
+  if (splitType === 'equal') {
+    console.log('Split type is equal');
+    const groupAndMembers = await getGroupWithMembers(groupId);
+    if (!groupAndMembers) {
+      console.log('No such group found');
+      return res.status(404).send('No such group');
+    }
+    memberList = groupAndMembers.members.map((member) => member.id);
+  } else {
+    console.log('Split type is not equal, processing memberId as CSV');
+    memberList = memberId.split(',');
+  }
 
-  // if (!updatedSplitOptions) {
-  //   return res.status(500).send('Failed to update split options');
-  // }
+  const transactionState = await getGroupTransactionStateId(
+    groupId,
+    transactionId
+  );
 
-  // res.send({ updatedSplitOptions });
+  console.log(transactionState, 'transactionState', groupId, transactionId);
+  const transaction = await getGroupTransactionWithSplitType(
+    groupId,
+    transactionId
+  );
+  console.log(transaction, 'transaction');
+
+  if (!transactionState || !transaction) {
+    console.log('No such transaction found');
+    return res.status(404).send('No such transaction');
+  }
+
+  const allSplitTypes = await getSplitOptions();
+  if (!allSplitTypes) {
+    console.log('No split options found');
+    return res.status(404).send('No split options found');
+  }
+
+  const selectedSplitType = allSplitTypes.find(
+    (split) => split.type === splitType
+  );
+  if (!selectedSplitType) {
+    console.log('No such split type found');
+    return res.status(404).send('No such split type');
+  }
+
+  const updatedSplitOptions = await updateSplitType(
+    transactionState.id,
+    selectedSplitType.id
+  );
+  if (!updatedSplitOptions) {
+    console.log('Failed to update split options');
+    return res.status(500).send('Failed to update split options');
+  }
+
+  if (splitType === 'percentage') {
+    const { percentInput } = req.body;
+    if (!percentInput) {
+      return res.status(400).send('Percentage input is missing');
+    }
+    const totalAmount = transaction.transaction.amount * (percentInput / 100);
+    await Promise.all(
+      memberList.map(async (member: string) => {
+        return updateGroupTransactionToUserToGroup(
+          groupId,
+          transactionId,
+          member,
+          parseFloat(totalAmount.toFixed(2)) * -1
+        );
+      })
+    );
+  } else if (splitType === 'amount') {
+    const { amountInput } = req.body;
+    if (!amountInput) {
+      console.log('Amount input is missing');
+      return res.status(400).send('Amount input is missing');
+    }
+    await Promise.all(
+      memberList.map(async (member: string) => {
+        const numberAmount = Number(amountInput);
+        await updateGroupTransactionToUserToGroup(
+          groupId,
+          transactionId,
+          member,
+          parseFloat(numberAmount.toFixed(2)) * -1
+        );
+      })
+    );
+  } else if (splitType === 'equal') {
+    const equalShare = parseFloat(
+      (transaction.transaction.amount / memberList.length).toFixed(2)
+    );
+    await Promise.all(
+      memberList.map(async (member: string) => {
+        if (member !== transaction.user.id) {
+          await updateGroupTransactionToUserToGroup(
+            groupId,
+            transactionId,
+            member,
+            equalShare
+          );
+        }
+      })
+    );
+  }
+
+  const groupTransactions = await getTransactionsForGroup(groupId);
+  if (!groupTransactions) {
+    console.log('No transactions found for group');
+    return res.status(404).send('No transactions found');
+  }
+
+  const groupMembers = await getGroupWithMembers(groupId);
+  if (!groupMembers) {
+    console.log('No members found in group');
+    return res.status(404).send('No members found');
+  }
+
+  const owedPerMember = await Promise.all(
+    groupTransactions
+      .map(async (transaction) => {
+        return (await getAllOwedForGroupTransactionWithTransactionId(
+          groupId,
+          transaction.id
+        )) as ExtractFunctionReturnType<
+          typeof getAllOwedForGroupTransactionWithTransactionId
+        >;
+      })
+      .filter((owed) => owed !== null)
+  );
+
+  const currentUser = await findUser(req.user?.id as string);
+  const accountId = await getAccountsForUser(req.user?.id as string);
+  if (!accountId) {
+    console.log('No account found for user');
+    return res.status(404).send('No account found');
+  }
+  if (!currentUser) {
+    console.log('No such user found');
+    return res.status(404).send('No such user');
+  }
+
+  const html = renderToHtml(
+    <ViewGroups
+      groupId={groupId}
+      transactions={groupTransactions}
+      members={groupMembers.members}
+      currentUser={currentUser}
+      groupBudget={[]}
+      owedPerMember={
+        owedPerMember && owedPerMember.length > 0
+          ? owedPerMember
+          : [
+              groupMembers.members.map((member) => ({
+                transactionId: '',
+                userId: member.id,
+                amount: 0,
+                groupTransactionToUsersToGroupsId: '',
+              })),
+            ]
+      }
+      accountId={accountId[0].id}
+    />
+  );
+
+  res.send(html);
 });
 
 export const transferRouter = router;

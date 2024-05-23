@@ -169,6 +169,8 @@ console.log('Deleted all records from the groupTransferStatus table.');
 (await db.select().from(items)).length > 0 && (await db.delete(items));
 console.log('Deleted all items');
 
+(await db.select().from(splitType)).length > 0 && (await db.delete(splitType));
+
 try {
   await db.transaction(async (trx) => {
     console.log('Starting the seeding transaction.');

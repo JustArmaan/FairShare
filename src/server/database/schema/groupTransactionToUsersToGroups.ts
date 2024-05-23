@@ -1,7 +1,6 @@
 import { sqliteTable, text, real } from 'drizzle-orm/sqlite-core';
 import { usersToGroups } from './usersToGroups';
 import { groupTransactionState } from './groupTransactionState';
-import { splitType } from './splitType';
 
 export const groupTransactionToUsersToGroups = sqliteTable(
   'groupTransactionToUsersToGroups',

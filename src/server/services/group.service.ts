@@ -12,6 +12,10 @@ import { transactionsToGroups } from '../database/schema/transactionsToGroups';
 import { transactions } from '../database/schema/transaction';
 import { groupTransactionState } from '../database/schema/groupTransactionState';
 import { splitType } from '../database/schema/splitType';
+import { accounts } from '../database/schema/accounts';
+import { items } from '../database/schema/items';
+import { group } from 'console';
+import { groupTransactionToUsersToGroups } from '../database/schema/groupTransactionToUsersToGroups';
 
 const db = getDB();
 
@@ -490,6 +494,7 @@ export async function getGroupTransactionWithSplitType(
     const results = await db
       .select({
         transaction: transactions,
+        user: users,
         type: splitType.type,
       })
       .from(transactionsToGroups)
@@ -499,6 +504,9 @@ export async function getGroupTransactionWithSplitType(
       )
       .innerJoin(splitType, eq(groupTransactionState.splitTypeId, splitType.id))
       .innerJoin(transactions, eq(transactions.id, transactionId))
+      .innerJoin(accounts, eq(transactions.accountId, accounts.id))
+      .innerJoin(items, eq(accounts.itemId, items.id))
+      .innerJoin(users, eq(items.userId, users.id))
       .where(
         and(
           eq(transactionsToGroups.groupsId, groupId),
@@ -519,6 +527,75 @@ export type GroupTransactionWithSplitType = NonNullable<
 export function getSplitOptions() {
   try {
     return db.select().from(splitType).all();
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
+}
+
+export async function updateSplitType(
+  transactionStateId: string,
+  splitTypeId: string
+) {
+  try {
+    return await db
+      .update(groupTransactionState)
+      .set({ splitTypeId })
+      .where(eq(groupTransactionState.id, transactionStateId))
+      .returning();
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
+}
+
+export async function getUserGroupId(userId: string, groupId: string) {
+  try {
+    const results = await db
+      .select()
+      .from(usersToGroups)
+      .where(
+        and(
+          eq(usersToGroups.userId, userId),
+          eq(usersToGroups.groupId, groupId)
+        )
+      );
+    return results[0];
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
+}
+
+export async function updateGroupTransactionToUserToGroup(
+  groupId: string,
+  transactionId: string,
+  userId: string,
+  amount: number
+) {
+  try {
+    const userGroup = await getUserGroupId(userId, groupId);
+    const transactionStateId = await getGroupTransactionStateId(
+      groupId,
+      transactionId
+    );
+
+    if (!userGroup || !transactionStateId) {
+      return null;
+    }
+
+    await db
+      .update(groupTransactionToUsersToGroups)
+      .set({ amount })
+      .where(
+        and(
+          eq(
+            groupTransactionToUsersToGroups.groupTransactionStateId,
+            transactionStateId.id
+          ),
+          eq(groupTransactionToUsersToGroups.usersToGroupsId, userGroup.id)
+        )
+      );
   } catch (error) {
     console.error(error);
     return null;

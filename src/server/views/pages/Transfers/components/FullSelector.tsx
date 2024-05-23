@@ -35,6 +35,13 @@ export const FullSelector = ({
         hx-swap='innerHTML'
         class='flex py-2 hover:opacity-80 pointer-cursor justify-between text-left text-font-off-white rounded-lg mt-4 w-full animate-fade-in'
       ></div>
+      <input
+        type='hidden'
+        name='splitType'
+        value={splitType ? splitType : transaction.type}
+      />
+      <input type='hidden' name='transactionId' value={transactionId} />
+      <input type='hidden' name='groupId' value={groupId} />
       <SplittingSelector
         splitType={splitType ? splitType : transaction.type}
         transaction={transaction}

@@ -68,7 +68,7 @@ export function splitTransfer() {
 
           const amount = (billTotal * percent) / 100;
 
-          percentTotalDiv.textContent = `$${amount.toFixed(2)}`;
+          percentTotalDiv.textContent = `-$${amount.toFixed(2)}`;
         });
 
         input.dataset.listenerAttached = 'true';
@@ -90,7 +90,7 @@ export function splitTransfer() {
           let amount = parseFloat(input.value);
           if (isNaN(amount)) amount = 0;
 
-          amountTotalDiv.textContent = `$${amount.toFixed(2)}`;
+          amountTotalDiv.textContent = `-$${amount.toFixed(2)}`;
         });
 
         input.dataset.listenerAttached = 'true';
