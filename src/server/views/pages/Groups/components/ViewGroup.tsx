@@ -22,6 +22,7 @@ export const ViewGroups = ({
   groupId,
   owedPerMember,
   accountId,
+  selectedDepositAccountId,
 }: {
   groupId: string;
   transactions: GroupWithTransactions;
@@ -33,6 +34,7 @@ export const ViewGroups = ({
   >[];
 
   accountId: string;
+  selectedDepositAccountId: string | null;
 }) => {
   return (
     <div class="p-6 animate-fade-in">
@@ -80,7 +82,16 @@ export const ViewGroups = ({
           transactions={transactions}
           owedPerMember={owedPerMember}
         />
-        <p class="text-font-off-white text-2xl pt-3">Owing</p>
+        <div class="text-font-off-white mt-4">
+          <h2>Select an account for deposits</h2>
+          <div
+            class="h-80"
+            hx-get={`/groups/account-selector/select?accountId=${selectedDepositAccountId}`}
+            hx-trigger="load"
+            hx-swap="outerHTML"
+          ></div>
+        </div>
+        <p class="text-font-off-white text-2xl pt-3 mt-2">Owing</p>
         <OwedGroup
           memberDetails={members}
           currentUser={currentUser}
