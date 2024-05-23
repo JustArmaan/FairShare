@@ -204,6 +204,10 @@ export async function createTransferForSenderAndRecord(
   }
 }
 
+async function sandboxCompleteTransfer(transferId: string) {
+  /* todo: implement! */
+}
+
 export async function checkAndProcessReceiveTransfer(
   senderAccountId: string,
   receiverUserId: string,
