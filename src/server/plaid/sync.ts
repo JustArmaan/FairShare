@@ -141,12 +141,7 @@ async function addTransactions(transactions: AddedPlaidTransaction[]) {
         transaction.personal_finance_category.primary
       );
       if (!categoryId) {
-        console.log(
-          categoryId,
-          transaction.personal_finance_category.primary,
-          transaction,
-          'No such category!'
-        );
+       
         throw new Error('No such category!');
       }
       const locationIsNull = Object.values(transaction.location).some(

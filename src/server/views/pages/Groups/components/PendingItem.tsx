@@ -64,7 +64,6 @@ export const PendingItems = ({
                   </span>
                 </p>
                 <div class='flex justify-evenly w-full'>
-                  {console.log(result.transaction)}
                   <button
                     hx-swap='innerHTML'
                     hx-get={`/transfer/splitTransaction/${groupId}/${result.transactionId}`}

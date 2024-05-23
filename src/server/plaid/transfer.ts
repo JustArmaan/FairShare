@@ -88,7 +88,7 @@ export async function authorizeReceiversTransfer(
   }
 }
 
-export async function createTransferForSender(
+async function createTransferForSender(
   userId: string,
   accountId: string,
   amount: number
@@ -165,25 +165,7 @@ export async function createTransferForSenderAndRecord(
   transactionId: string
 ) {
   try {
-    const authorizationId = await authorizeSendersTransfer(
-      userId,
-      accountId,
-      amount
-    );
-    const [{ item }] = await getItemsForUser(userId);
-    const accessToken = item.plaidAccessToken;
-
-    const transferCreateRequest = {
-      access_token: accessToken,
-      account_id: accountId,
-      description: 'Initial transfer from sender',
-      authorization_id: authorizationId,
-    };
-
-    const response = await plaidRequest(
-      '/transfer/create',
-      transferCreateRequest
-    );
+    const response = await createTransferForSender(userId, accountId, amount);
 
     const transferStatus = response.transfer.status;
     const senderStatus = await getTransferStatusByName(transferStatus);
@@ -283,5 +265,3 @@ export async function getTransfer(userId: string, transferId: string) {
     throw error;
   }
 }
-
-

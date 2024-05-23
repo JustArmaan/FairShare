@@ -73,18 +73,21 @@ router.get(
           />
           <img src='/activeIcons/expand_more.svg' alt='expandable' />
         </div>
-        {splitTypes.map((splitType) => (
-          <div
-            hx-get={`/transfer/fullSelector/${req.params.groupId}/${transaction.transaction.id}/${splitType.id}`}
-            hx-trigger='click'
-            hx-target='#swap-full-selector'
-            hx-swap='innerHTML'
-            data-split-option={`${splitType.id}`}
-            class='flex items-center p-2 mt-2 bg-card-black rounded-lg hover:bg-primary-faded-black w-full animation-fade-in'
-          >
-            {uppercaseFirstLetter(splitType.type)}
-          </div>
-        ))}
+        {splitTypes.map(
+          (splitType) =>
+            splitType.type !== selectedType.type && (
+              <div
+                hx-get={`/transfer/fullSelector/${req.params.groupId}/${transaction.transaction.id}/${splitType.id}`}
+                hx-trigger='click'
+                hx-target='#swap-full-selector'
+                hx-swap='innerHTML'
+                data-split-option={`${splitType.id}`}
+                class='flex items-center p-2 mt-2 bg-card-black rounded-lg hover:bg-primary-faded-black w-full animation-fade-in'
+              >
+                {uppercaseFirstLetter(splitType.type)}
+              </div>
+            )
+        )}
       </div>
     );
 
@@ -177,7 +180,6 @@ router.get('/splitTransaction/:groupId/:transactionId', async (req, res) => {
       transaction={transactionDetails}
       groupWithMembers={groupWithMember}
       owedInfo={owedInfo}
-      isOpen={true}
       splitType={transactionDetails.type}
     />
   );
@@ -237,8 +239,6 @@ router.get(
 );
 
 router.post('/splitOptions/edit', async (req, res) => {
-  console.log('Route /splitOptions/edit accessed');
-  console.log('Request Body:', req.body);
 
   const { splitType, memberId, groupId, transactionId } = req.body;
 
@@ -266,12 +266,10 @@ router.post('/splitOptions/edit', async (req, res) => {
     transactionId
   );
 
-  console.log(transactionState, 'transactionState', groupId, transactionId);
   const transaction = await getGroupTransactionWithSplitType(
     groupId,
     transactionId
   );
-  console.log(transaction, 'transaction');
 
   if (!transactionState || !transaction) {
     console.log('No such transaction found');
@@ -287,6 +285,7 @@ router.post('/splitOptions/edit', async (req, res) => {
   const selectedSplitType = allSplitTypes.find(
     (split) => split.type === splitType
   );
+
   if (!selectedSplitType) {
     console.log('No such split type found');
     return res.status(404).send('No such split type');
@@ -296,6 +295,7 @@ router.post('/splitOptions/edit', async (req, res) => {
     transactionState.id,
     selectedSplitType.id
   );
+
   if (!updatedSplitOptions) {
     console.log('Failed to update split options');
     return res.status(500).send('Failed to update split options');

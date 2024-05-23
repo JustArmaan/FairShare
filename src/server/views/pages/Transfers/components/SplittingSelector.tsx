@@ -54,13 +54,13 @@ export const SplittingSelector = ({
                             -100
                           : '0'
                       }
-                      class='percent-input cursor-default w-24 px-4 py-1.5 bg-accent-blue rounded-lg h-fit ml-2 text-font-off-white text-center'
+                      class='percent-input cursor-default w-24 px-4 py-1.5 bg-primary-black border-2 border-accent-blue rounded-lg h-fit ml-2 text-font-off-white text-center'
                     />
                     <input type='hidden' value={member.id} name='memberId' />
                   </div>
                   <div class='flex items-center'>
                     <p class='text-font-off-white text-lg'>Total Due: </p>
-                    <div class='percent-total cursor-default text-center w-24 px-4 py-1.5 bg-accent-blue rounded-lg h-fit ml-2 text-font-off-white'>
+                    <div class='percent-total cursor-default text-center w-24 px-4 py-1.5 bg-primary-black rounded-lg h-fit ml-2 text-font-off-white'>
                       ${memberOwed ? memberOwed.amount.toFixed(2) : '0.00'}
                     </div>
                   </div>
@@ -81,7 +81,7 @@ export const SplittingSelector = ({
             (owed) => owed.user.id === member.id
           );
           const totalDue = memberOwed ? memberOwed.amount.toFixed(2) : '0.00';
-          
+
           return (
             <div class='flex items-center justify-between p-3 bg-primary-black rounded-lg w-full mb-4'>
               <div class='flex flex-col items-center space-x-3 justify-center'>
@@ -100,7 +100,7 @@ export const SplittingSelector = ({
                 <div class='flex flex-col items-end font-light'>
                   <div class='flex items-center justify-center'>
                     <p class='text-font-off-white text-lg'>Total Due: </p>
-                    <div class='amount-input cursor-default text-center w-24 px-4 py-1.5 bg-accent-blue rounded-lg h-fit ml-2 text-font-off-white'>
+                    <div class='amount-input cursor-default text-center w-24 rounded-lg h-fit ml-2 text-font-off-white'>
                       ${totalDue}
                     </div>
                   </div>
@@ -149,14 +149,13 @@ export const SplittingSelector = ({
                           ? parseFloat(memberOwed.amount.toFixed(2)) * -1
                           : '0.00'
                       }
-                      class='amount-input cursor-default w-24 px-4 py-1.5 bg-accent-blue rounded-lg h-fit ml-2 text-font-off-white text-center'
+                      class='amount-input cursor-default w-24 px-4 py-1.5 bg-primary-black border-2 border-accent-blue rounded-lg h-fit ml-2 text-font-off-white text-center'
                     />
                     <input type='hidden' value={member.id} name='memberId' />
                   </div>
-
                   <div class='flex items-center'>
                     <p class='text-font-off-white text-lg'>Total Due: </p>
-                    <div class='amount-total cursor-default text-center w-24 px-4 py-1.5 bg-accent-blue rounded-lg h-fit ml-2 text-font-off-white'>
+                    <div class='amount-total cursor-default text-center w-24 px-4 py-1.5 rounded-lg h-fit ml-2 text-font-off-white'>
                       ${memberOwed ? memberOwed.amount.toFixed(2) : '0.00'}
                     </div>
                   </div>

@@ -9,7 +9,6 @@ export const SplitOptionsPage = ({
   groupId,
   transactionId,
   transaction,
-  isOpen,
   groupWithMembers,
   owedInfo,
   splitType,
@@ -18,7 +17,6 @@ export const SplitOptionsPage = ({
   transactionId: string;
   transaction: GroupTransactionWithSplitType;
   groupWithMembers: GroupWithMembers;
-  isOpen: boolean;
   owedInfo: OwedTransactionWithMember;
   splitType?: string;
 }) => {

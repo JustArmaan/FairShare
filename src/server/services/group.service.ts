@@ -190,6 +190,7 @@ export async function getTransactionsForGroup(groupId: string) {
         name: categories.name,
         color: categories.color,
         icon: categories.icon,
+        user: users,
       })
       .from(transactionsToGroups)
       .innerJoin(
@@ -202,6 +203,9 @@ export async function getTransactionsForGroup(groupId: string) {
         eq(groupTransactionState.groupTransactionId, transactionsToGroups.id)
       )
       .innerJoin(splitType, eq(splitType.id, groupTransactionState.splitTypeId))
+      .innerJoin(accounts, eq(accounts.id, transactions.accountId))
+      .innerJoin(items, eq(items.id, accounts.itemId))
+      .innerJoin(users, eq(items.userId, users.id))
       .where(eq(transactionsToGroups.groupsId, groupId));
 
     return results.map((transaction) => ({

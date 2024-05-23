@@ -10,7 +10,6 @@ function checkPercentInputs(percentInputs: NodeListOf<HTMLInputElement>) {
       input.value = newPercent.toString();
     });
   }
-  console.log(total, 'total');
 }
 
 function checkAmountInputs(

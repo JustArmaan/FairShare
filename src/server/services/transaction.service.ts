@@ -1,9 +1,7 @@
 import { getDB } from '../database/client';
-import { users } from '../database/schema/users';
 import { categories } from '../database/schema/category';
 import { transactions } from '../database/schema/transaction';
 import { eq, desc, like, and, or, gte, lt, inArray, count } from 'drizzle-orm';
-import { findUser } from './user.service';
 import { v4 as uuid } from 'uuid';
 import type { ExtractFunctionReturnType } from './user.service';
 import { accounts } from '../database/schema/accounts';
