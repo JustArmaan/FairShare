@@ -16,7 +16,7 @@ export const ConnectAccount = () => {
         </p>
         <br />
         <p>
-          By clicking below, you will be promted to connect your bank and begin
+          By clicking below, you will be prompted to connect your bank and begin
           using the application.
         </p>
       </div>
@@ -24,7 +24,7 @@ export const ConnectAccount = () => {
         id="connect-to-plaid"
         class="px-6 py-4 bg-accent-blue animate-fade-in hover:-translate-y-0.5 rounded-xl text-font-off-white text-xl font-semibold"
       >
-        Connect your first institution!
+        Click to get started
       </button>
     </div>
   );
