@@ -98,6 +98,7 @@ export const ViewGroups = ({
           currentUser={currentUser}
           transactions={transactions}
           owedPerMember={owedPerMember}
+          groupId={groupId}
         />
         {/* <p class="text-font-off-white text-2xl pt-3 pb-1">Budget</p>
         <BudgetChart groupBudget={groupBudget} /> */}

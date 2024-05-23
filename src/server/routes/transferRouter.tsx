@@ -24,6 +24,8 @@ import {
 } from '../services/user.service';
 import { ViewGroups } from '../views/pages/Groups/components/ViewGroup';
 import { getAccountsForUser } from '../services/plaid.service';
+import { createTransferForSenderAndRecord } from '../plaid/transfer';
+import { group } from 'console';
 
 const router = express.Router();
 
@@ -411,6 +413,39 @@ router.post('/splitOptions/edit', async (req, res) => {
   );
 
   res.send(html);
+});
+
+router.post('/initiate/transfer/sender', async (req, res) => {
+  const { selectedAccountId, transactionId, groupId } = req.body;
+  const userId = req.user?.id;
+
+  if (!userId) {
+    return res.status(403).send('You need to be signed in to use this feature');
+  }
+
+  const owedInfo = await getAllOwedForGroupTransactionWithMemberInfo(
+    groupId,
+    transactionId
+  );
+
+  const currentUser = owedInfo?.find((owed) => owed.user.id === userId);
+
+  if (!currentUser) {
+    return res.status(403).send('You need to be signed in to use this feature');
+  }
+
+  console.log(currentUser);
+
+  await createTransferForSenderAndRecord(
+    userId,
+    selectedAccountId,
+    'yEdyRzLzRrfKJX8Q78w5fGvnG8aD8of4v7MQ7',
+    Math.abs(currentUser?.amount).toFixed(2),
+    groupId,
+    transactionId
+  );
+  
+  console.log(req.body, 'init transfer for sender');
 });
 
 export const transferRouter = router;
