@@ -7,6 +7,7 @@ import {
   getGroupWithMembers,
   getSplitOptions,
   getTransactionsForGroup,
+  getUsersToGroup,
   updateGroupTransactionToUserToGroup,
   updateSplitType,
 } from '../services/group.service';
@@ -378,6 +379,10 @@ router.post('/splitOptions/edit', async (req, res) => {
       .filter((owed) => owed !== null)
   );
 
+  const userId = req.user!.id;
+
+  const userToGroup = (await getUsersToGroup(groupId, userId))!;
+
   const currentUser = await findUser(req.user?.id as string);
   const accountId = await getAccountsForUser(req.user?.id as string);
   if (!accountId) {
@@ -409,6 +414,7 @@ router.post('/splitOptions/edit', async (req, res) => {
             ]
       }
       accountId={accountId[0].id}
+      selectedDepositAccountId={userToGroup.depositAccountId}
     />
   );
 
@@ -417,10 +423,16 @@ router.post('/splitOptions/edit', async (req, res) => {
 
 router.post('/initiate/transfer/sender', async (req, res) => {
   const { selectedAccountId, transactionId, groupId } = req.body;
-  const userId = req.user?.id;
+  const userId = req.user!.id;
 
-  if (!userId) {
-    return res.status(403).send('You need to be signed in to use this feature');
+  const userToGroup = (await getUsersToGroup(groupId, userId))!;
+
+  if (!userToGroup.depositAccountId) {
+    return res
+      .status(400)
+      .send(
+        'No deposit account found for the owner of this transaction was found'
+      );
   }
 
   const owedInfo = await getAllOwedForGroupTransactionWithMemberInfo(
@@ -434,17 +446,17 @@ router.post('/initiate/transfer/sender', async (req, res) => {
     return res.status(403).send('You need to be signed in to use this feature');
   }
 
-  console.log(currentUser);
+  console.log(userToGroup.depositAccountId);
 
   await createTransferForSenderAndRecord(
     userId,
     selectedAccountId,
-    'yEdyRzLzRrfKJX8Q78w5fGvnG8aD8of4v7MQ7',
+    userToGroup.depositAccountId,
     Math.abs(currentUser?.amount).toFixed(2),
     groupId,
     transactionId
   );
-  
+
   console.log(req.body, 'init transfer for sender');
 });
 
