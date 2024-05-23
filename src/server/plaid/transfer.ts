@@ -113,7 +113,6 @@ async function createTransferForSender(
       '/transfer/create',
       transferCreateRequest
     );
-    console.log('Transfer successful', response.transfer);
     return response.transfer;
   } catch (error) {
     console.error('Error initiating transfer:', error);
@@ -216,9 +215,14 @@ export async function checkAndProcessReceiveTransfer(
       throw new Error('No transfer found for this sender account ID');
     }
 
-    const { groupTransferStatus, groupTransfer } = senderStatusResult[0];
+    const { transfer } = await getTransfer(
+      receiverUserId,
+      senderStatusResult[0].groupTransfer.id
+    );
 
-    if (groupTransferStatus.status === 'completed') {
+    const { groupTransfer } = senderStatusResult[0];
+
+    if (transfer.status === 'completed') {
       const receiverTransfer = await createTransferForReceiver(
         receiverUserId,
         receiverAccountId,
@@ -248,7 +252,10 @@ export async function checkAndProcessReceiveTransfer(
   }
 }
 
-export async function getTransfer(userId: string, transferId: string) {
+export async function getTransfer(
+  userId: string,
+  transferId: string
+): Promise<{ transfer: { status: string } }> {
   const [{ item }] = await getItemsForUser(userId);
   const accessToken = item.plaidAccessToken;
 
@@ -257,8 +264,8 @@ export async function getTransfer(userId: string, transferId: string) {
       access_token: accessToken,
       transfer_id: transferId,
     });
-    console.log('Transfer details:', response.data);
-    return response.data.transfer;
+    console.log(response, 'response.data.transfer?');
+    return response;
   } catch (error) {
     console.error('Error retrieving transfer:', error);
     throw error;

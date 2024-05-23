@@ -1,7 +1,6 @@
 import express from 'express';
 import { GroupPage } from '../views/pages/Groups/GroupPage';
 import { renderToHtml } from 'jsxte';
-import { getUser } from './authRouter.ts';
 import {
   checkUserInGroup,
   deleteMemberByGroup,
@@ -36,6 +35,12 @@ import { AccountPickerForm } from '../views/pages/transactions/components/Accoun
 import Transaction from '../views/pages/transactions/components/Transaction.tsx';
 import { getTransaction } from '../services/transaction.service.ts';
 import { ViewAndPayPage } from '../views/pages/Groups/ViewAndPayPage.tsx';
+import { InstitutionDropDown } from '../views/pages/Groups/components/InstitutionDropDown.tsx';
+import {
+  getAccountWithItem,
+  getAccountsWithItemsForUser,
+} from '../services/account.service.ts';
+import { AccountSelector } from '../views/pages/Groups/components/AccountSelector.tsx';
 
 const router = express.Router();
 
@@ -77,7 +82,7 @@ const icons = [
   },
 ];
 
-router.get('/page', getUser, async (req, res) => {
+router.get('/page', async (req, res) => {
   try {
     const groups = await getGroupsAndAllMembersForUser(req.user!.id);
     const html = renderToHtml(<GroupPage groups={groups ? groups : []} />);
@@ -94,7 +99,7 @@ const groupBudget = [
   },
 ];
 
-router.get('/view/:groupId', getUser, async (req, res) => {
+router.get('/view/:groupId', async (req, res) => {
   try {
     const userId = req.user!.id;
     const currentUser = await findUser(userId);
@@ -143,6 +148,7 @@ router.get('/view/:groupId', getUser, async (req, res) => {
               ]
         }
         accountId={accountId}
+        selectedDepositAccountId={req.user}
       />
     );
     res.send(html);
@@ -162,8 +168,8 @@ router.get('/pay/:groupTransactionToUsersToGroupsId', async (req, res) => {
   const { groupId, transactionId } = result;
   const owed = await getAllOwedForGroupTransactionWithMemberInfo(groupId, transactionId);
   const transaction = await getTransaction(transactionId);
-  const accounts = await getAccountsForUser(req.user!.id);
-
+  const accounts = await getAccountsWithItemsForUser(req.user!.id);
+  // const selectedAccount = wait for schema
   const html = renderToHtml(
     <ViewAndPayPage
       owed={owed!}
@@ -175,8 +181,44 @@ router.get('/pay/:groupTransactionToUsersToGroupsId', async (req, res) => {
   return res.send(html);
 });
 
+// should be a post
+router.get('/account-selector/select', async (req, res) => {
+  const { id } = req.user!;
+  const { accountId } = req.query as { [key: string]: string };
+  const accounts = await getAccountsWithItemsForUser(id);
+  const selectedAccount =
+    accountId && accountId !== '' ? await getAccountWithItem(accountId) : null;
 
-router.get('/create', getUser, async (req, res) => {
+  const html = renderToHtml(
+    <AccountSelector selectedAccount={selectedAccount!} accounts={accounts!} />
+  );
+  res.send(html);
+});
+
+// should be a post
+router.get('/account-selector/institution-drop-down/', async (req, res) => {
+  const { id } = req.user!;
+  const { open: openParam, selected: selectedItemId } = req.query as {
+    [key: string]: string;
+  };
+  console.log(openParam, 'param');
+  const open = openParam === 'true';
+  console.log(open);
+  const accounts = await getAccountsWithItemsForUser(id);
+  const items = accounts!.map((account) => account.item);
+
+  const html = renderToHtml(
+    <InstitutionDropDown
+      open={open}
+      items={items}
+      selectedItem={items.find((item) => selectedItemId === item.id)!}
+    />
+  );
+
+  res.send(html);
+});
+
+router.get('/create', async (req, res) => {
   try {
     const { id } = req.user!;
 
@@ -195,7 +237,7 @@ router.get('/create', getUser, async (req, res) => {
   }
 });
 
-router.get('/addMember', getUser, async (req, res) => {
+router.get('/addMember', async (req, res) => {
   try {
     const email = req.query.addEmail as string;
     const member = await getUserByEmailOnly(email);
@@ -218,7 +260,7 @@ router.get('/addMember', getUser, async (req, res) => {
   }
 });
 
-router.get('/addMember/:groupId', getUser, async (req, res) => {
+router.get('/addMember/:groupId', async (req, res) => {
   try {
     const email = req.query.addEmail as string;
     const member = await getUserByEmailOnly(email);
@@ -255,7 +297,7 @@ router.get('/addMember/:groupId', getUser, async (req, res) => {
   }
 });
 
-router.post('/create', getUser, async (req, res) => {
+router.post('/create', async (req, res) => {
   try {
     const { id } = req.user!;
     if (!id) {
@@ -341,7 +383,7 @@ router.post('/create', getUser, async (req, res) => {
   }
 });
 
-router.get('/edit', getUser, async (req, res) => {
+router.get('/edit', async (req, res) => {
   try {
     const groups = await getGroupsAndAllMembersForUser(req.user!.id);
     const html = renderToHtml(<GroupPage groups={groups ? groups : []} edit />);
@@ -355,7 +397,7 @@ export type UserGroupSchema = NonNullable<
   Awaited<ReturnType<typeof getGroupWithMembers>>
 >;
 
-router.get('/edit/:groupId', getUser, async (req, res) => {
+router.get('/edit/:groupId', async (req, res) => {
   try {
     const currentUser = await findUser(req.user!.id);
 
@@ -375,7 +417,7 @@ router.get('/edit/:groupId', getUser, async (req, res) => {
   }
 });
 
-router.get('/addTransaction/:accountId/:groupId', getUser, async (req, res) => {
+router.get('/addTransaction/:accountId/:groupId', async (req, res) => {
   try {
     const accounts = await getAccountsForUser(req.user!.id);
     if (!accounts) throw new Error('no accounts for user!');
@@ -407,7 +449,7 @@ router.get('/addTransaction/:accountId/:groupId', getUser, async (req, res) => {
   }
 });
 
-router.post('/edit/:groupId', getUser, async (req, res) => {
+router.post('/edit/:groupId', async (req, res) => {
   try {
     const {
       groupName,
@@ -523,7 +565,7 @@ router.post('/deleteMember/:userID/:groupID', async (req, res) => {
   }
 });
 
-router.get('/transactions/:groupId', getUser, async (req, res) => {
+router.get('/transactions/:groupId', async (req, res) => {
   const groupId = req.params.groupId;
   const groupWithTransactions = await getGroupWithMembersAndTransactions(
     groupId
@@ -538,7 +580,7 @@ router.get('/transactions/:groupId', getUser, async (req, res) => {
 
 router.get(
   '/transactionList/:accountId/:groupId',
-  getUser,
+
   async (req, res) => {
     const account = await getAccountWithTransactions(req.params.accountId);
     const groupTransactions = await getGroupTransactions(req.params.groupId);
@@ -560,7 +602,7 @@ router.get(
   }
 );
 
-router.get('/accountPicker/:accountId/:groupId', getUser, async (req, res) => {
+router.get('/accountPicker/:accountId/:groupId', async (req, res) => {
   const accounts = await getAccountsForUser(req.user!.id);
   if (!accounts) throw new Error('Missing accounts for user');
   const html = renderToHtml(

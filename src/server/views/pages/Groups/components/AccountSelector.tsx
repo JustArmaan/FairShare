@@ -1,11 +1,27 @@
-import type { Account } from '../../../../services/account.service';
+import type { AccountWithItem } from '../../../../services/account.service';
+import { InstitutionDropDown } from './InstitutionDropDown';
 
 export const AccountSelector = (props: {
-  selectedAccount: Account | false;
-  accounts: Account[];
+  selectedAccount: AccountWithItem | null;
+  accounts: AccountWithItem[];
 }) => {
+  /*
+  const items = props.accounts.reduce(
+    (items, account) => {
+      const index = items.findIndex((item) => item.id === account.item.id);
+      if (index === -1) {
+        items.push(account.item);
+      }
+      return items;
+    },
+    [] as AccountWithItem['item'][]
+  ); */
+
   return (
-    <div class="rounded-lg p-4 bg-primary-black text-xl flex flex-col">
+    <div
+      class="rounded-lg p-4 bg-primary-black text-xl flex flex-col animate-fade-in"
+      id="accountSelector"
+    >
       {props.selectedAccount ? (
         <>
           <p>
@@ -28,35 +44,55 @@ export const AccountSelector = (props: {
         </>
       ) : (
         <>
-          <div class="drop-shadow-md rounded-xl bg-primary-faded-black">
-            <p class="mx-6 py-3">Tap to select an institution</p>
+          {/*
+          <div
+            hx-get={`/groups/account-selector/institution-drop-down?open=false&selected=`}
+            hx-swap="outerHTML"
+            hx-trigger="load"
+          /> */}
+          <div class="flex flex-row overflow-x-scroll items-start w-full relative">
+            {props.accounts.map((account) => (
+              <div class="py-6 bg-primary-faded-black rounded-lg my-2 drop-shadow-xl w-[80%] min-w-[80%] px-8 mx-4 flex flex-col justify-center">
+                <p class="mb-1">
+                  Name:{' '}
+                  <span class="font-semibold">
+                    {account.name &&
+                      (account.name.length > 20
+                        ? account.name.slice(0, 20) + '...'
+                        : account.name)}
+                  </span>
+                </p>
+                <p class="mb-6">
+                  Balance:{' '}
+                  <span class="font-semibold">
+                    ${parseFloat(account.balance!).toFixed(2)}
+                  </span>
+                </p>
+                <button
+                  hx-get={`/groups/account-selector/select?accountId=${account.id}`}
+                  hx-trigger="click"
+                  hx-swap="outerHTML"
+                  hx-target="#accountSelector"
+                  class="bg-accent-blue py-2 w-full rounded-lg mt-4 font-semibold hover:-translate-y-0.5 rotate-[0.0001deg] transition-transform"
+                >
+                  Select
+                </button>
+              </div>
+            ))}
           </div>
-          {props.accounts.map((account) => (
-            <div class="bg-primary-faded-black rounded-lg my-2 p-2">
-              <p>
-                Name:
-                {account.name &&
-                  (account.name.length > 20
-                    ? account.name.slice(0, 20) + '...'
-                    : account.name)}
-              </p>
-              <p>
-                Balance:{' '}
-                <span class="font-semibold">
-                  {parseFloat(account.balance!).toFixed(2)}
-                </span>
-              </p>
-            </div>
-          ))}
         </>
       )}
-      <button
-        class={`${
-          props.selectedAccount ? 'bg-accent-blue' : 'border-accent-blue'
-        } border-2 py-1.5 w-full rounded-lg mt-4 font-semibold hover:-translate-y-0.5 rotate-[0.0001deg] transition-transform`}
-      >
-        {props.selectedAccount ? 'Change Account' : 'Cancel'}
-      </button>
+      {props.selectedAccount && (
+        <button
+          hx-get={`/groups/account-selector/select?accountId=`}
+          hx-trigger="click"
+          hx-swap="outerHTML"
+          hx-target="#accountSelector"
+          class={`${'bg-accent-blue'} border-2 py-1.5 w-full rounded-lg mt-4 font-semibold hover:-translate-y-0.5 rotate-[0.0001deg] transition-transform`}
+        >
+          Change Account
+        </button>
+      )}
     </div>
   );
 };

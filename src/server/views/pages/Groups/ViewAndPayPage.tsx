@@ -1,4 +1,4 @@
-import type { Account } from '../../../services/account.service';
+import type { AccountWithItem } from '../../../services/account.service';
 import { getAllOwedForGroupTransactionWithMemberInfo } from '../../../services/owed.service';
 import type { getTransaction } from '../../../services/transaction.service';
 import type { ExtractFunctionReturnType } from '../../../services/user.service';
@@ -11,7 +11,7 @@ export const ViewAndPayPage = (props: {
     typeof getAllOwedForGroupTransactionWithMemberInfo
   >;
   transaction: ExtractFunctionReturnType<typeof getTransaction>;
-  accounts: Account[];
+  accounts: AccountWithItem[];
 }) => {
   return (
     <div class="p-6 text-font-off-white">
@@ -74,7 +74,12 @@ export const ViewAndPayPage = (props: {
       <div class="mt-4 mb-2 flex items-center justify-between text-font-off-white">
         <h3 class="text-2xl">Select Account</h3>
       </div>
-      <AccountSelector selectedAccount={false} accounts={props.accounts} />
+      <div
+        class="h-80"
+        hx-get={`/groups/account-selector/select?accountId=`}
+        hx-trigger="load"
+        hx-swap="outerHTML"
+      ></div>
       <div class="mt-4 rounded-lg p-4 bg-primary-black text-xl flex flex-col">
         <p>
           By clicking confirm, you authorize Fairshare to complete the listed
