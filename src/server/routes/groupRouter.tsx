@@ -181,7 +181,7 @@ router.get('/confirm-transaction', async (req, res) => {
   const html = renderToHtml(
     <div
       hx-get={`/groups/view/${groupId}`}
-      hx-swap="outerHTML"
+      hx-swap="innerHTML"
       hx-trigger="load"
       hx-target="#app"
     />
@@ -237,7 +237,7 @@ router.get('/account-selector/select', async (req, res) => {
   const isDepositAccount = isDepositAccountParamater === 'true';
   console.log(isDepositAccountParamater, groupId);
   const usersToGroup = groupId && (await getUsersToGroup(groupId, id));
-  if (usersToGroup && isDepositAccount) {
+  if (usersToGroup && isDepositAccount && accountId !== "null") {
     await updateUsersToGroup(usersToGroup.id, { depositAccountId: accountId });
   }
 

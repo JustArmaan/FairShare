@@ -12,7 +12,7 @@ export const ViewAndPayPage = (props: {
   >;
   transaction: ExtractFunctionReturnType<typeof getTransaction>;
   accounts: AccountWithItem[];
-  groupId: string
+  groupId: string;
 }) => {
   return (
     <div class='p-6 text-font-off-white'>
@@ -90,8 +90,22 @@ export const ViewAndPayPage = (props: {
           <p class='font-semibold mt-4'>This action is irreversible.</p>
         </div>
 
-        <input type='hidden' name='transactionId' value={props.transaction.id}/>
-        <input type='hidden' name='groupId' value={props.groupId}/>
+        <input
+          type='hidden'
+          name='transactionId'
+          value={props.transaction.id}
+        />
+        <input type='hidden' name='groupId' value={props.groupId} />
+        <input
+          type='hidden'
+          name='receiverIds'
+          value={props.owed
+            .filter((member) => {
+              return member.amount > 0;
+            })
+            .map((member) => member.user.id)
+            .join(',')}
+        />
 
         <button
           hx-post='/transfer/initiate/transfer/sender'

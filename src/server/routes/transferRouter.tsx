@@ -66,30 +66,30 @@ router.get(
     const html = renderToHtml(
       <div
         hx-get={`/transfer/splitTransaction/splitOptions/closed/${transaction.transaction.id}/${req.params.groupId}/${selectedType.type}`}
-        hx-trigger="click"
-        hx-target="#split-swapper"
-        hx-swap="innerHTML"
-        class="w-full"
+        hx-trigger='click'
+        hx-target='#split-swapper'
+        hx-swap='innerHTML'
+        class='w-full'
       >
-        <div class="flex py-2 hover:opacity-80 pointer-cursor px-4 justify-between text-left text-font-off-white bg-primary-black rounded-lg mt-2 w-full">
+        <div class='flex py-2 hover:opacity-80 pointer-cursor px-4 justify-between text-left text-font-off-white bg-primary-black rounded-lg mt-2 w-full'>
           <input
-            id="select-split-options"
-            type="button"
-            name="select-split-options"
+            id='select-split-options'
+            type='button'
+            name='select-split-options'
             value={uppercaseFirstLetter(selectedType.type)}
           />
-          <img src="/activeIcons/expand_more.svg" alt="expandable" />
+          <img src='/activeIcons/expand_more.svg' alt='expandable' />
         </div>
         {splitTypes.map(
           (splitType) =>
             splitType.type !== selectedType.type && (
               <div
                 hx-get={`/transfer/fullSelector/${req.params.groupId}/${transaction.transaction.id}/${splitType.id}`}
-                hx-trigger="click"
-                hx-target="#swap-full-selector"
-                hx-swap="innerHTML"
+                hx-trigger='click'
+                hx-target='#swap-full-selector'
+                hx-swap='innerHTML'
                 data-split-option={`${splitType.id}`}
-                class="flex items-center p-2 mt-2 bg-card-black rounded-lg hover:bg-primary-faded-black w-full animation-fade-in"
+                class='flex items-center p-2 mt-2 bg-card-black rounded-lg hover:bg-primary-faded-black w-full animation-fade-in'
               >
                 {uppercaseFirstLetter(splitType.type)}
               </div>
@@ -130,21 +130,21 @@ router.get(
     const html = renderToHtml(
       <div
         hx-get={`/transfer/splitTransaction/splitOptions/open/${transaction.transaction.id}/${req.params.groupId}/${selectedSplitType.type}`}
-        hx-trigger="click"
-        hx-target="#split-swapper"
-        hx-swap="innerHTML"
-        class="w-full"
+        hx-trigger='click'
+        hx-target='#split-swapper'
+        hx-swap='innerHTML'
+        class='w-full'
       >
-        <div class="flex py-2 hover:opacity-80 pointer-cursor px-4 justify-between text-left text-font-off-white bg-primary-black rounded-lg mt-2 w-full">
+        <div class='flex py-2 hover:opacity-80 pointer-cursor px-4 justify-between text-left text-font-off-white bg-primary-black rounded-lg mt-2 w-full'>
           <input
-            id="select-split-options"
-            type="button"
-            name="select-split-options"
+            id='select-split-options'
+            type='button'
+            name='select-split-options'
             value={uppercaseFirstLetter(
               selectedSplitType.type ? selectedSplitType.type : transaction.type
             )}
           />
-          <img src="/activeIcons/expand_more.svg" alt="expandable" />
+          <img src='/activeIcons/expand_more.svg' alt='expandable' />
         </div>
       </div>
     );
@@ -426,12 +426,18 @@ router.post('/splitOptions/edit', async (req, res) => {
 });
 
 router.post('/initiate/transfer/sender', async (req, res) => {
-  const { selectedAccountId, transactionId, groupId } = req.body;
+  const { selectedAccountId, transactionId, groupId, receiverIds } = req.body;
+  const receiverIdList = receiverIds.split(',');
   const userId = req.user!.id;
 
-  const userToGroup = (await getUsersToGroup(groupId, userId))!;
+  console.log(receiverIdList, 'receiverIdList', userId, 'userId', 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA');
 
-  console.log(userToGroup, 'userToGroup');
+  const owedInfo = await getAllOwedForGroupTransactionWithMemberInfo(
+    groupId,
+    transactionId
+  );
+
+  const userToGroup = (await getUsersToGroup(groupId, receiverIdList[0]))!;
 
   if (!userToGroup.depositAccountId) {
     return res
@@ -440,11 +446,6 @@ router.post('/initiate/transfer/sender', async (req, res) => {
         'No deposit account found for the owner of this transaction was found'
       );
   }
-
-  const owedInfo = await getAllOwedForGroupTransactionWithMemberInfo(
-    groupId,
-    transactionId
-  );
 
   const currentUser = owedInfo?.find((owed) => owed.user.id === userId);
 
