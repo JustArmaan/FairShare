@@ -42,7 +42,7 @@ export const PendingItems = ({
               (owedList) =>
                 owedList.find((owed) => owed.userId === currentUser.id)!
             )
-            .filter((owed) => owed.pending)
+            .filter((owed) => owed.pending && owed.userId === currentUser.id)
             .map((owedList) => ({
               ...owedList,
               transaction: transactions.find(
@@ -82,14 +82,14 @@ export const PendingItems = ({
                     Edit
                   </button>
                   <div class="w-2"></div>
-                    <button
-                      hx-swap="innerHTML"
-                      hx-get={`/groups/confirm-transaction/?owedId=${result.groupTransactionToUsersToGroupsId}`}
-                      hx-target="#app"
-                      class="hover:-translate-y-0.5 rotate-[0.0001deg] transition-transform font-semibold py-2.5 w-1/2 bg-accent-blue rounded-xl h-fit text-font-off-white"
-                    >
-                      Confirm
-                    </button>
+                  <button
+                    hx-swap="innerHTML"
+                    hx-get={`/groups/confirm-transaction/?owedId=${result.groupTransactionToUsersToGroupsId}`}
+                    hx-target="#app"
+                    class="hover:-translate-y-0.5 rotate-[0.0001deg] transition-transform font-semibold py-2.5 w-1/2 bg-accent-blue rounded-xl h-fit text-font-off-white"
+                  >
+                    Confirm
+                  </button>
                   )
                 </div>
                 {index !== transactions.length - 1 && (
