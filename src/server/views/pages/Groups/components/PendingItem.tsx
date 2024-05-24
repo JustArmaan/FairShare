@@ -36,7 +36,7 @@ export const PendingItems = ({
             (owedList) =>
               owedList.find((owed) => owed.userId === currentUser.id)!
           )
-          .filter((owed) => owed.pending).length > 0 ? (
+          .filter((owed) => owed.pending && owed.amount > 0).length > 0 ? (
           owedPerMember
             .map(
               (owedList) =>
