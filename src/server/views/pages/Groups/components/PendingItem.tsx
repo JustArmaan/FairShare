@@ -68,7 +68,7 @@ export const PendingItems = ({
                 <p class="text-font-off-white self-start mt-2 mb-2">
                   Total:{' '}
                   <span class="text-font-off-white self-start mt-2 font-semibold">
-                    ${transactions.map((list) => list.amount.toFixed(2))}
+                    ${Math.abs(result.transaction.amount).toFixed(2)}
                     {/* This needs to be whoever paid for the bill */}
                   </span>
                 </p>
