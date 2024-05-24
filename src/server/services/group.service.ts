@@ -159,25 +159,28 @@ export async function getGroupWithMembers(groupId: string) {
       .innerJoin(memberType, eq(usersToGroups.memberTypeId, memberType.id))
       .where(eq(groups.id, groupId));
 
-    return result.reduce((groups, currentResult) => {
-      const groupIndex = groups.findIndex(
-        (group) => group.id === currentResult.group.id
-      );
-      if (groupIndex === -1) {
-        groups.push({
-          ...currentResult.group,
-          members: [
-            { ...currentResult.members, type: currentResult.memberType.type },
-          ],
-        });
-      } else {
-        groups[groupIndex].members.push({
-          ...currentResult.members,
-          type: currentResult.memberType.type,
-        });
-      }
-      return groups;
-    }, [] as (GroupSchema & { members: UserSchemaWithMemberType[] })[])[0];
+    return result.reduce(
+      (groups, currentResult) => {
+        const groupIndex = groups.findIndex(
+          (group) => group.id === currentResult.group.id
+        );
+        if (groupIndex === -1) {
+          groups.push({
+            ...currentResult.group,
+            members: [
+              { ...currentResult.members, type: currentResult.memberType.type },
+            ],
+          });
+        } else {
+          groups[groupIndex].members.push({
+            ...currentResult.members,
+            type: currentResult.memberType.type,
+          });
+        }
+        return groups;
+      },
+      [] as (GroupSchema & { members: UserSchemaWithMemberType[] })[]
+    )[0];
   } catch (error) {
     console.error(error);
     return null;
@@ -187,6 +190,56 @@ export async function getGroupWithMembers(groupId: string) {
 export type GroupWithMembers = NonNullable<
   Awaited<ReturnType<typeof getGroupWithMembers>>
 >;
+
+export async function getGroupIdFromOwed(owedId: string) {
+  try {
+    const result = (
+      await db
+        .select()
+        .from(groupTransactionToUsersToGroups)
+        .innerJoin(
+          usersToGroups,
+          eq(groupTransactionToUsersToGroups.usersToGroupsId, usersToGroups.id)
+        )
+        .innerJoin(groups, eq(groups.id, usersToGroups.groupId))
+        .where(eq(groupTransactionToUsersToGroups.id, owedId))
+    )[0];
+
+    return result.groups.id;
+  } catch (e) {
+    console.error(e);
+    return;
+  }
+}
+
+export async function setGroupTransactionStatePending(
+  owedId: string,
+  pending: true | null
+) {
+  try {
+    const { groupTransactionState: groupTransactionStateResult } = (
+      await db
+        .select()
+        .from(groupTransactionToUsersToGroups)
+        .innerJoin(
+          groupTransactionState,
+          eq(
+            groupTransactionToUsersToGroups.groupTransactionStateId,
+            groupTransactionState.id
+          )
+        )
+        .where(eq(groupTransactionToUsersToGroups.id, owedId))
+    )[0];
+
+    await db
+      .update(groupTransactionState)
+      .set({ pending })
+      .where(eq(groupTransactionState.id, groupTransactionStateResult.id));
+  } catch (e) {
+    console.error(e);
+    return;
+  }
+}
 
 export async function getTransactionsForGroup(groupId: string) {
   try {

@@ -2,12 +2,14 @@ import express from 'express';
 import { renderToHtml } from 'jsxte';
 import {
   getGroupTransactionStateId,
+  getGroupTransactionToUserToGroupById,
   getGroupTransactionWithSplitType,
   getGroupTransactions,
   getGroupWithMembers,
   getSplitOptions,
   getTransactionsForGroup,
   getUsersToGroup,
+  setGroupTransactionStatePending,
   updateGroupTransactionToUserToGroup,
   updateSplitType,
 } from '../services/group.service';
@@ -27,6 +29,7 @@ import { ViewGroups } from '../views/pages/Groups/components/ViewGroup';
 import { getAccountsForUser } from '../services/plaid.service';
 import { createTransferForSenderAndRecord } from '../plaid/transfer';
 import { group } from 'console';
+import { groupTransactionState } from '../database/schema/groupTransactionState';
 
 const router = express.Router();
 
@@ -62,30 +65,30 @@ router.get(
     const html = renderToHtml(
       <div
         hx-get={`/transfer/splitTransaction/splitOptions/closed/${transaction.transaction.id}/${req.params.groupId}/${selectedType.type}`}
-        hx-trigger='click'
-        hx-target='#split-swapper'
-        hx-swap='innerHTML'
-        class='w-full'
+        hx-trigger="click"
+        hx-target="#split-swapper"
+        hx-swap="innerHTML"
+        class="w-full"
       >
-        <div class='flex py-2 hover:opacity-80 pointer-cursor px-4 justify-between text-left text-font-off-white bg-primary-black rounded-lg mt-2 w-full'>
+        <div class="flex py-2 hover:opacity-80 pointer-cursor px-4 justify-between text-left text-font-off-white bg-primary-black rounded-lg mt-2 w-full">
           <input
-            id='select-split-options'
-            type='button'
-            name='select-split-options'
+            id="select-split-options"
+            type="button"
+            name="select-split-options"
             value={uppercaseFirstLetter(selectedType.type)}
           />
-          <img src='/activeIcons/expand_more.svg' alt='expandable' />
+          <img src="/activeIcons/expand_more.svg" alt="expandable" />
         </div>
         {splitTypes.map(
           (splitType) =>
             splitType.type !== selectedType.type && (
               <div
                 hx-get={`/transfer/fullSelector/${req.params.groupId}/${transaction.transaction.id}/${splitType.id}`}
-                hx-trigger='click'
-                hx-target='#swap-full-selector'
-                hx-swap='innerHTML'
+                hx-trigger="click"
+                hx-target="#swap-full-selector"
+                hx-swap="innerHTML"
                 data-split-option={`${splitType.id}`}
-                class='flex items-center p-2 mt-2 bg-card-black rounded-lg hover:bg-primary-faded-black w-full animation-fade-in'
+                class="flex items-center p-2 mt-2 bg-card-black rounded-lg hover:bg-primary-faded-black w-full animation-fade-in"
               >
                 {uppercaseFirstLetter(splitType.type)}
               </div>
@@ -126,21 +129,21 @@ router.get(
     const html = renderToHtml(
       <div
         hx-get={`/transfer/splitTransaction/splitOptions/open/${transaction.transaction.id}/${req.params.groupId}/${selectedSplitType.type}`}
-        hx-trigger='click'
-        hx-target='#split-swapper'
-        hx-swap='innerHTML'
-        class='w-full'
+        hx-trigger="click"
+        hx-target="#split-swapper"
+        hx-swap="innerHTML"
+        class="w-full"
       >
-        <div class='flex py-2 hover:opacity-80 pointer-cursor px-4 justify-between text-left text-font-off-white bg-primary-black rounded-lg mt-2 w-full'>
+        <div class="flex py-2 hover:opacity-80 pointer-cursor px-4 justify-between text-left text-font-off-white bg-primary-black rounded-lg mt-2 w-full">
           <input
-            id='select-split-options'
-            type='button'
-            name='select-split-options'
+            id="select-split-options"
+            type="button"
+            name="select-split-options"
             value={uppercaseFirstLetter(
               selectedSplitType.type ? selectedSplitType.type : transaction.type
             )}
           />
-          <img src='/activeIcons/expand_more.svg' alt='expandable' />
+          <img src="/activeIcons/expand_more.svg" alt="expandable" />
         </div>
       </div>
     );
@@ -353,7 +356,6 @@ router.post('/splitOptions/edit', async (req, res) => {
       })
     );
   }
-
   const groupTransactions = await getTransactionsForGroup(groupId);
   if (!groupTransactions) {
     console.log('No transactions found for group');
@@ -410,6 +412,7 @@ router.post('/splitOptions/edit', async (req, res) => {
                 userId: member.id,
                 amount: 0,
                 groupTransactionToUsersToGroupsId: '',
+                pending: null,
               })),
             ]
       }
