@@ -12,13 +12,20 @@ import {
   type Item,
 } from '../services/plaid.service';
 import { plaidRequest } from './link';
+import { findUserLegalNameForAccount } from './identity';
 
 export async function syncTransactionsForUser(userId: string) {
   const items = await getItemsForUser(userId);
-  items.forEach(syncTransaction);
+  items.forEach((item) => syncTransaction({ ...item, userId }));
 }
 
-async function syncTransaction({ item }: { item: Item }) {
+async function syncTransaction({
+  item,
+  userId,
+}: {
+  item: Item;
+  userId: string;
+}) {
   const count = 500;
   let cursor: string | undefined = item.nextCursor
     ? item.nextCursor
@@ -56,6 +63,10 @@ async function syncTransaction({ item }: { item: Item }) {
           if (!accountTypeId) return;
           const acc = await getAccount(account.account_id);
           if (!acc) {
+            const legalName = await findUserLegalNameForAccount(
+              userId,
+              account.account_id
+            );
             await addAccount({
               id: account.account_id,
               name: account.name,
@@ -64,6 +75,7 @@ async function syncTransaction({ item }: { item: Item }) {
                 account.balances.current)!.toString(),
               currencyCodeId: null, // account.balances.iso_currency_code,
               itemId: item.id,
+              legalName,
             });
           }
         })
@@ -89,6 +101,7 @@ async function syncTransaction({ item }: { item: Item }) {
 }
 
 interface PlaidTransactionGeneral {
+  transaction_id: string;
   personal_finance_category: { primary: string };
   account_id: string;
   amount: number;
@@ -128,22 +141,18 @@ async function addTransactions(transactions: AddedPlaidTransaction[]) {
         transaction.personal_finance_category.primary
       );
       if (!categoryId) {
-        console.log(
-          categoryId,
-          transaction.personal_finance_category.primary,
-          transaction,
-          'No such category!'
-        );
+       
         throw new Error('No such category!');
       }
       const locationIsNull = Object.values(transaction.location).some(
         (value) => value === null
       );
       return {
+        id: transaction.transaction_id,
         address: locationIsNull
           ? null
           : `${transaction.location.address!},  ${transaction.location
-            .city!}, ${transaction.location.region!}, ${transaction.location
+              .city!}, ${transaction.location.region!}, ${transaction.location
               .country!}`,
         accountId: transaction.account_id,
         categoryId: categoryId.id,
@@ -173,21 +182,25 @@ async function modifyTransaction(transaction: ModifiedPlaidTransaction) {
     if (!categoryId) throw new Error('No such category!');
   }
 
-  updateTransaction({
+  const transactionId = transaction.transaction_id
+    ? transaction.transaction_id
+    : '';
+  updateTransaction(transactionId, {
     // address: transaction.location ? locationToAddress(transaction.location) : undefined,
+
     accountId: transaction.account_id!,
     categoryId: categoryId ? categoryId.id : undefined,
     company: transaction.merchant_name
       ? transaction.merchant_name
       : transaction.name
-        ? transaction.name
-        : undefined,
+      ? transaction.name
+      : undefined,
     amount: transaction.amount ? transaction.amount : undefined,
     timestamp: transaction.datetime
       ? transaction.datetime
       : transaction.date
-        ? transaction.date
-        : undefined,
+      ? transaction.date
+      : undefined,
     latitude: transaction.location.lat ? transaction.location.lat : undefined,
     longitude: transaction.location.lon ? transaction.location.lon : undefined,
   });

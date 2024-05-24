@@ -12,4 +12,5 @@ export const accounts = sqliteTable('accounts', {
   accountTypeId: text('account_type_id').references(() => accountType.id),
   balance: numeric('balance'),
   currencyCodeId: text('currency_code_id').references(() => currencyCode.id),
+  legalName: text('legal_name').notNull()
 });

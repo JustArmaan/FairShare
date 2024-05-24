@@ -11,18 +11,23 @@ export default {
           '0%': { opacity: 0 },
           '100%': { opacity: 100 },
         },
+        wiggle: {
+          '0%, 100%': { transform: 'rotate(-3deg)' },
+          '50%': { transform: 'rotate(3deg)' },
+        },
       },
       animation: {
         'fade-in': 'fade-in 0.4s ease-out',
+        'wiggle': 'wiggle 1s ease-in-out infinite',
       },
     },
     colors: {
       'category-color-0': '#ff4d4d',
       'category-color-1': '#ff8b4d',
       'category-color-2': '#ffcb4d',
-      'category-color-3': '#f4ff4d',
+      'category-color-3': '#bcc902',
       'category-color-4': '#b6ff4d',
-      'category-color-5': '#77ff4d',
+      'category-color-5': '#36b50e',
       'category-color-6': '#4dff61',
       'category-color-7': '#4dffa1',
       'category-color-8': '#4dffdf',
@@ -51,6 +56,7 @@ export default {
       'primary-black': '#343434',
       'primary-faded-black': '#4E4E4E',
       'primary-faded-black': '#4E4E4E',
+      'primary-dark-grey': '#686868',
       'card-red': '#e60000',
     },
     fontFamily: {

@@ -8,6 +8,7 @@ import type {
   getAllOwedForGroupTransaction,
   getAllOwedForGroupTransactionWithTransactionId,
 } from '../../../../services/owed.service';
+import PendingItems from './PendingItem';
 
 interface groupBudget {
   budgetGoal: number;
@@ -20,6 +21,8 @@ export const ViewGroups = ({
   currentUser,
   groupId,
   owedPerMember,
+  accountId,
+  selectedDepositAccountId,
 }: {
   groupId: string;
   transactions: GroupWithTransactions;
@@ -29,6 +32,9 @@ export const ViewGroups = ({
   owedPerMember: ExtractFunctionReturnType<
     typeof getAllOwedForGroupTransactionWithTransactionId
   >[];
+
+  accountId: string;
+  selectedDepositAccountId: string | null;
 }) => {
   return (
     <div class="p-6 animate-fade-in">
@@ -69,17 +75,44 @@ export const ViewGroups = ({
             owedPerMember={owedPerMember}
           />
         </div>
-        <p class="text-font-off-white text-2xl pt-3">Owing</p>
+        {selectedDepositAccountId && (
+        <>
+        <p class="text-font-off-white text-2xl pt-3">Pending</p>
+          <PendingItems
+            memberDetails={members}
+            currentUser={currentUser}
+            transactions={transactions}
+            owedPerMember={owedPerMember}
+            groupId={groupId}
+            selectedAccountId={selectedDepositAccountId}
+          />
+          </>
+        )}
+        <div class="text-font-off-white mt-3">
+          <h2 class="text-2xl pb-3">Select deposit account</h2>
+          <div
+            class="h-80"
+            hx-get={`/groups/account-selector/select?accountId=${selectedDepositAccountId}&isDepositAccount=true&groupId=${groupId}`}
+            hx-trigger="load"
+            hx-swap="outerHTML"
+          ></div>{' '}
+        </div>{' '}
+        <p class="text-font-off-white text-2xl pt-3 mt-2">Owing</p>
         <OwedGroup
           memberDetails={members}
           currentUser={currentUser}
           transactions={transactions}
           owedPerMember={owedPerMember}
+          groupId={groupId}
         />
-        {/* <p class="text-font-off-white text-2xl pt-3 pb-1">Budget</p>
-        <BudgetChart groupBudget={groupBudget} /> */}
-        <div class="flex justify-between align-center text-center pt-3">
-          <p class="text-font-off-white text-2xl">Recent Expenses</p>
+        {/* <p class="text-font-off-white text-2xl pt-3
+            pb-1">Budget</p> <BudgetChart groupBudget={groupBudget} /> */}
+        <div
+          class="flex justify-between align-center text-center
+            pt-3"
+        >
+          {' '}
+          <p class="text-font-off-white text-2xl">Recent Expenses</p>{' '}
           <p
             hx-get={`/groups/transactions/${groupId}`}
             hx-trigger="click"
@@ -87,31 +120,36 @@ export const ViewGroups = ({
             hx-swap="innerHTML"
             class="text-font-off-white cursor-pointer"
           >
-            View All
+            {' '}
+            View All{' '}
           </p>
-        </div>
+        </div>{' '}
         {transactions.slice(0, 4).map((transaction) => (
           <Transaction
             transaction={transaction}
             tailwindColorClass={transaction.category.color}
           />
-        ))}
+        ))}{' '}
       </div>
       <button
-        hx-get={`/groups/addTransaction/${groupId}`}
+        hx-get={`/groups/addTransaction/${accountId}/${groupId}`}
         hx-trigger="click"
         hx-target="#app"
         hx-swap="innerHTML"
-        class="fixed bottom-24 right-6 hover:-translate-y-0.5 transition-transform bg-[#F9F9F9] text-font-grey px-6 py-3 rounded-full shadow-lg hover:bg-blue-600 flex flex-row justify-center"
+        class="fixed bottom-24 right-6 hover:-translate-y-0.5
+            transition-transform bg-accent-blue text-font-off-white px-6
+            py-3 rounded-full shadow-lg hover:bg-blue-600 flex flex-row
+            justify-center font-semibold"
       >
-        <p>Add Expense</p>
+        {' '}
+        <p>Add Expense</p>{' '}
         <img
           src="/icons/addExpenseCircle.svg"
           alt="Add Expense Icon"
-          class=" hover:opacity-80 h-6 justify-end pl-0.5"
+          class=" hover:opacity-80 h-6 justify-end pl-0.5 ml-1"
         />
-      </button>
-      <div class="h-16"></div>
+      </button>{' '}
+      <div class="h-16"></div>{' '}
     </div>
   );
 };

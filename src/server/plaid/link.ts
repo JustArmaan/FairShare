@@ -5,7 +5,7 @@ export async function plaidRequest(endpoint: string, body: any) {
     const clientId = env.plaidClientId as string;
     const secret = env.plaidSecret as string;
 
-    const response = await fetch(`https://development.plaid.com/${endpoint}`, {
+    const response = await fetch(`${env.plaidApiUrl}/${endpoint}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -27,7 +27,7 @@ export async function getLinkToken(user: { id: string; email: string }) {
       client_user_id: user.id,
       email_address: user.email,
     },
-    products: ['transactions'],
+    products: ['transactions', 'identity', 'transfer'],
   });
 }
 

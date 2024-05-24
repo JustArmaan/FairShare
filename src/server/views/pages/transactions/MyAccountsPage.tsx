@@ -11,7 +11,7 @@ export const MyAccountsPage = (props: {
         hx-swap="innerHTML"
         class="mb-2 flex justify-start w-fit items-center hover:-translate-y-0.5 transition-transform cursor-pointer"
       >
-        <p class="text-font-off-white mr-3 text-xl">Change Account</p>
+        <p class="text-font-off-white mr-3 text-xl">Change Institution</p>
         <img
           class="h-3"
           src="/images/right-triangle.svg"
@@ -35,6 +35,7 @@ export const MyAccountsPage = (props: {
           hx-swap="outerHTML"
         ></div>
       ))}
+      <div class="account-selector-form" />
     </div>
   );
 };

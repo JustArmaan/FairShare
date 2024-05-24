@@ -35,7 +35,7 @@ router.get('/has-accounts', getUser, async (req, res) => {
   }
 
   const accounts = await getAccountsForUser(req.user.id);
-  console.log(accounts);
+  // console.log(accounts);
   const connected = accounts && accounts.length > 0;
   return res
     .set({
@@ -86,7 +86,7 @@ router.post('/plaid-public-token', getUser, async (req, res) => {
   }
 
   const { publicToken } = req.body;
-  console.log(req.body, 'body');
+  // console.log(req.body, 'body');
 
   if (!publicToken) {
     return res.json({ error: 'Missing public token.', data: null });
@@ -96,7 +96,6 @@ router.post('/plaid-public-token', getUser, async (req, res) => {
     const { access_token, item_id } = await getAccessToken(
       publicToken as string
     );
-    console.log('running add code');
     await addItemToUser(req.user.id, {
       id: item_id as string,
       plaidAccessToken: access_token,

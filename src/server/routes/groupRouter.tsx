@@ -1,7 +1,6 @@
 import express from 'express';
 import { GroupPage } from '../views/pages/Groups/GroupPage';
 import { renderToHtml } from 'jsxte';
-import { getUser } from './authRouter.ts';
 import {
   checkUserInGroup,
   deleteMemberByGroup,
@@ -10,8 +9,16 @@ import {
   getGroupsAndAllMembersForUser,
   getTransactionsForGroup,
   type GroupMembersTransactions,
+  getUsersToGroup,
+  updateUsersToGroup,
+  setGroupTransactionStatePending,
+  getGroupIdFromOwed,
 } from '../services/group.service';
-import { findUser, getUserByEmailOnly } from '../services/user.service.ts';
+import {
+  findUser,
+  getUserByEmailOnly,
+  updateUser,
+} from '../services/user.service.ts';
 import { AddedMember } from '../views/pages/Groups/components/Member.tsx';
 import {
   createGroup,
@@ -30,7 +37,22 @@ import {
 } from '../services/plaid.service';
 import type { ExtractFunctionReturnType } from '../services/user.service';
 import { GroupTransactionsListPage } from '../views/pages/Groups/TransactionsListGroupsPage.tsx';
-import { getAllOwedForGroupTransactionWithTransactionId } from '../services/owed.service.ts';
+import {
+  getAllOwedForGroupTransactionWithMemberInfo,
+  getAllOwedForGroupTransactionWithTransactionId,
+  getGroupIdAndTransactionIdForOwed,
+} from '../services/owed.service.ts';
+import { TransactionList } from '../views/pages/transactions/components/TransactionList.tsx';
+import { AccountPickerForm } from '../views/pages/transactions/components/AccountPickerForm.tsx';
+import Transaction from '../views/pages/transactions/components/Transaction.tsx';
+import { getTransaction } from '../services/transaction.service.ts';
+import { ViewAndPayPage } from '../views/pages/Groups/ViewAndPayPage.tsx';
+import { InstitutionDropDown } from '../views/pages/Groups/components/InstitutionDropDown.tsx';
+import {
+  getAccountWithItem,
+  getAccountsWithItemsForUser,
+} from '../services/account.service.ts';
+import { AccountSelector } from '../views/pages/Groups/components/AccountSelector.tsx';
 
 const router = express.Router();
 
@@ -72,7 +94,7 @@ const icons = [
   },
 ];
 
-router.get('/page', getUser, async (req, res) => {
+router.get('/page', async (req, res) => {
   try {
     const groups = await getGroupsAndAllMembersForUser(req.user!.id);
     const html = renderToHtml(<GroupPage groups={groups ? groups : []} />);
@@ -89,7 +111,7 @@ const groupBudget = [
   },
 ];
 
-router.get('/view/:groupId', getUser, async (req, res) => {
+router.get('/view/:groupId', async (req, res) => {
   try {
     const userId = req.user!.id;
     const currentUser = await findUser(userId);
@@ -115,6 +137,11 @@ router.get('/view/:groupId', getUser, async (req, res) => {
         .filter((owed) => owed !== null)
     );
 
+    const account = await getAccountsForUser(userId);
+    const accountId = account ? account[0].id : '';
+    console.log(group.id, userId);
+    const { depositAccountId } = (await getUsersToGroup(group.id, userId))!;
+
     const html = renderToHtml(
       <ViewGroups
         groupId={group.id}
@@ -130,9 +157,13 @@ router.get('/view/:groupId', getUser, async (req, res) => {
                   transactionId: '',
                   userId: member.id,
                   amount: 0,
+                  groupTransactionToUsersToGroupsId: '',
+                  pending: true,
                 })),
               ]
         }
+        accountId={accountId}
+        selectedDepositAccountId={depositAccountId}
       />
     );
     res.send(html);
@@ -141,7 +172,110 @@ router.get('/view/:groupId', getUser, async (req, res) => {
   }
 });
 
-router.get('/create', getUser, async (req, res) => {
+router.get('/confirm-transaction', async (req, res) => {
+  const { owedId } = req.query as {
+    [key: string]: string;
+  };
+  await setGroupTransactionStatePending(owedId, null);
+  const groupId = await getGroupIdFromOwed(owedId);
+  const html = renderToHtml(
+    <div
+      hx-get={`/groups/view/${groupId}`}
+      hx-swap="innerHTML"
+      hx-trigger="load"
+      hx-target="#app"
+    />
+  );
+  res.send(html);
+});
+
+router.get(
+  '/pay/:groupTransactionToUsersToGroupsId/:groupId',
+  async (req, res) => {
+    const result = await getGroupIdAndTransactionIdForOwed(
+      req.params.groupTransactionToUsersToGroupsId
+    );
+    // console.log("Result from getGroupIdAndTransactionIdForOwed:", result);
+
+    if (!result) {
+      return res.status(404).send('Group ID and Transaction ID not found');
+    }
+
+    const { groupId, transactionId } = result;
+    const owed = await getAllOwedForGroupTransactionWithMemberInfo(
+      groupId,
+      transactionId
+    );
+    const transaction = await getTransaction(transactionId);
+    const accounts = await getAccountsWithItemsForUser(req.user!.id);
+    // const selectedAccount = wait for schema
+    const html = renderToHtml(
+      <ViewAndPayPage
+        owed={owed!}
+        transaction={transaction}
+        accounts={accounts!}
+        groupId={req.params.groupId}
+      />
+    );
+
+    return res.send(html);
+  }
+);
+
+// should be a post
+router.get('/account-selector/select', async (req, res) => {
+  const { id } = req.user!;
+  const {
+    accountId,
+    isDepositAccount: isDepositAccountParamater,
+    groupId,
+  } = req.query as { [key: string]: string };
+  const accounts = await getAccountsWithItemsForUser(id);
+  const selectedAccount =
+    accountId && accountId !== '' ? await getAccountWithItem(accountId) : null;
+
+  const isDepositAccount = isDepositAccountParamater === 'true';
+  console.log(isDepositAccountParamater, groupId);
+  const usersToGroup = groupId && (await getUsersToGroup(groupId, id));
+  if (usersToGroup && isDepositAccount && accountId !== "null") {
+    await updateUsersToGroup(usersToGroup.id, { depositAccountId: accountId });
+  }
+
+  const html = renderToHtml(
+    <AccountSelector
+      selectedAccount={selectedAccount!}
+      accounts={accounts!}
+      isDepositAccount={isDepositAccount ? true : undefined}
+      groupId={groupId}
+    />
+  );
+  res.send(html);
+});
+
+// should be a post
+router.get('/account-selector/institution-drop-down/', async (req, res) => {
+  const { id } = req.user!;
+  const { open: openParam, selected: selectedItemId } = req.query as {
+    [key: string]: string;
+  };
+  console.log(openParam, 'param');
+  const open = openParam === 'true';
+  console.log(open);
+  const accounts = await getAccountsWithItemsForUser(id);
+  const items = accounts!.map((account) => account.item);
+
+  const html = renderToHtml(
+    <InstitutionDropDown
+      open={open}
+      items={items}
+      selectedItem={items.find((item) => selectedItemId === item.id)!}
+    />
+  );
+
+  res.send(html);
+});
+
+router.get('/create', async (req, res) => {
   try {
     const { id } = req.user!;
 
@@ -160,7 +294,7 @@ router.get('/create', getUser, async (req, res) => {
   }
 });
 
-router.get('/addMember', getUser, async (req, res) => {
+router.get('/addMember', async (req, res) => {
   try {
     const email = req.query.addEmail as string;
     const member = await getUserByEmailOnly(email);
@@ -183,7 +317,7 @@ router.get('/addMember', getUser, async (req, res) => {
   }
 });
 
-router.get('/addMember/:groupId', getUser, async (req, res) => {
+router.get('/addMember/:groupId', async (req, res) => {
   try {
     const email = req.query.addEmail as string;
     const member = await getUserByEmailOnly(email);
@@ -220,7 +354,7 @@ router.get('/addMember/:groupId', getUser, async (req, res) => {
   }
 });
 
-router.post('/create', getUser, async (req, res) => {
+router.post('/create', async (req, res) => {
   try {
     const { id } = req.user!;
     if (!id) {
@@ -306,7 +440,7 @@ router.post('/create', getUser, async (req, res) => {
   }
 });
 
-router.get('/edit', getUser, async (req, res) => {
+router.get('/edit', async (req, res) => {
   try {
     const groups = await getGroupsAndAllMembersForUser(req.user!.id);
     const html = renderToHtml(<GroupPage groups={groups ? groups : []} edit />);
@@ -320,7 +454,7 @@ export type UserGroupSchema = NonNullable<
   Awaited<ReturnType<typeof getGroupWithMembers>>
 >;
 
-router.get('/edit/:groupId', getUser, async (req, res) => {
+router.get('/edit/:groupId', async (req, res) => {
   try {
     const currentUser = await findUser(req.user!.id);
 
@@ -340,7 +474,7 @@ router.get('/edit/:groupId', getUser, async (req, res) => {
   }
 });
 
-router.get('/addTransaction/:groupId', getUser, async (req, res) => {
+router.get('/addTransaction/:accountId/:groupId', async (req, res) => {
   try {
     const accounts = await getAccountsForUser(req.user!.id);
     if (!accounts) throw new Error('no accounts for user!');
@@ -352,13 +486,14 @@ router.get('/addTransaction/:groupId', getUser, async (req, res) => {
         async (account) => await getAccountWithTransactions(account.id)
       )
     )) as ExtractFunctionReturnType<typeof getAccountWithTransactions>[];
+    const selectedAccountId = req.params.accountId;
     const currentUser = req.user;
     const html = renderToHtml(
       <AddTransaction
         currentUser={currentUser!}
         groupId={req.params.groupId}
         accounts={accountsWithTransactions ? accountsWithTransactions : []}
-        selectedAccountId={accountsWithTransactions[0].id}
+        selectedAccountId={selectedAccountId}
         groupTransactionIds={
           groupTransactions?.map((transaction) => transaction.transactionId) ??
           []
@@ -371,7 +506,7 @@ router.get('/addTransaction/:groupId', getUser, async (req, res) => {
   }
 });
 
-router.post('/edit/:groupId', getUser, async (req, res) => {
+router.post('/edit/:groupId', async (req, res) => {
   try {
     const {
       groupName,
@@ -392,7 +527,7 @@ router.post('/edit/:groupId', getUser, async (req, res) => {
     }
 
     if (currentMember?.type !== 'Owner') {
-      res.status(403).send("Only the owner can edit a group.")
+      res.status(403).send('Only the owner can edit a group.');
     }
 
     if (!req.user) {
@@ -487,15 +622,69 @@ router.post('/deleteMember/:userID/:groupID', async (req, res) => {
   }
 });
 
-router.get('/transactions/:groupId', getUser, async (req, res) => {
+router.get('/transactions/:groupId', async (req, res) => {
   const groupId = req.params.groupId;
-  const groupWithTransactions = await getGroupWithMembersAndTransactions(
-    groupId
-  );
+  const groupWithTransactions =
+    await getGroupWithMembersAndTransactions(groupId);
   const html = renderToHtml(
     <GroupTransactionsListPage
       group={groupWithTransactions as GroupMembersTransactions}
     />
+  );
+  res.send(html);
+});
+
+router.get(
+  '/transactionList/:accountId/:groupId',
+
+  async (req, res) => {
+    const account = await getAccountWithTransactions(req.params.accountId);
+    const groupTransactions = await getGroupTransactions(req.params.groupId);
+    if (!account) throw new Error('404');
+    const groupTransactionIds = groupTransactions
+      ? groupTransactions.map(
+          (transaction) => transaction.transactionId as string
+        )
+      : [];
+    const html = renderToHtml(
+      <TransactionList
+        account={account}
+        route="AddTransaction"
+        groupId={req.params.groupId}
+        groupTransactionIds={groupTransactionIds}
+      />
+    );
+    res.send(html);
+  }
+);
+
+router.get('/accountPicker/:accountId/:groupId', async (req, res) => {
+  const accounts = await getAccountsForUser(req.user!.id);
+  if (!accounts) throw new Error('Missing accounts for user');
+  const html = renderToHtml(
+    <AccountPickerForm
+      accounts={accounts}
+      selectedAccountId={req.params.accountId}
+      groupId={req.params.groupId as string}
+    />
+  );
+  res.send(html);
+});
+
+router.get('/getTransactions/:groupId/', async (req, res) => {
+  const groupTransactions = await getGroupWithMembersAndTransactions(
+    req.params.groupId
+  );
+  const html = renderToHtml(
+    <>
+      {groupTransactions &&
+        groupTransactions.transactions.map((transaction) => (
+          <Transaction
+            transaction={transaction}
+            tailwindColorClass={transaction.category.color}
+          />
+        ))}
+    </>
   );
   res.send(html);
 });

@@ -1,9 +1,7 @@
 import { getDB } from '../database/client';
-import { users } from '../database/schema/users';
 import { categories } from '../database/schema/category';
 import { transactions } from '../database/schema/transaction';
 import { eq, desc, like, and, or, gte, lt, inArray, count } from 'drizzle-orm';
-import { findUser } from './user.service';
 import { v4 as uuid } from 'uuid';
 import type { ExtractFunctionReturnType } from './user.service';
 import { accounts } from '../database/schema/accounts';
@@ -70,15 +68,11 @@ export type Transaction = ExtractFunctionReturnType<
   typeof getTransactionNoJoins
 >;
 
-export async function createTransactions(
-  newTransactions: Omit<Transaction, 'id'>[]
-) {
+export async function createTransactions(newTransactions: Transaction[]) {
   try {
     await db
       .insert(transactions)
-      .values(
-        newTransactions.map((transaction) => ({ ...transaction, id: uuid() }))
-      );
+      .values(newTransactions.map((transaction) => ({ ...transaction })));
   } catch (error) {
     console.error(error);
   }
@@ -97,12 +91,16 @@ export async function createTransaction(transaction: Omit<Transaction, 'id'>) {
 }
 
 export async function updateTransaction(
+  id: string,
   transaction: Partial<Omit<Transaction, 'id'>>
 ) {
   try {
-    const newTransaction = await db.update(transactions).set({
-      ...transaction,
-    });
+    const newTransaction = await db
+      .update(transactions)
+      .set({
+        ...transaction,
+      })
+      .where(eq(transactions.id, id));
     return newTransaction;
   } catch (error) {
     console.error(error);

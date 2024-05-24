@@ -1,6 +1,6 @@
 import { type TransactionSchema } from '../../../../interface/types';
 
-function formatDate(timestamp: string) {
+export function formatDate(timestamp: string) {
   const date = new Date(timestamp);
 
   return date.toLocaleString('default', {

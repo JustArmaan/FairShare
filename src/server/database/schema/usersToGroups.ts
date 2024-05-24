@@ -2,6 +2,7 @@ import { sqliteTable, text } from "drizzle-orm/sqlite-core";
 import { users } from "../schema/users";
 import { groups } from "./group";
 import { memberType } from "./memberType";
+import { accounts } from "./accounts";
 
 export const usersToGroups = sqliteTable("usersToGroups", {
   id: text("id").primaryKey(),
@@ -14,4 +15,6 @@ export const usersToGroups = sqliteTable("usersToGroups", {
   memberTypeId: text("member_type_id")
     .references(() => memberType.id)
     .notNull(),
+  depositAccountId: text("deposit_account_id")
+    .references(() => accounts.id),
 });

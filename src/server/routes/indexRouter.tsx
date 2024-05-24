@@ -28,7 +28,7 @@ router.get('/menu', (req, res) => {
   try {
     const open = req.query.open as string;
 
-    const html = renderToHtml(<Menu value={open==="true"}/>);
+    const html = renderToHtml(<Menu value={open === 'true'} />);
     res.send(html);
   } catch (err) {
     console.error(err);
@@ -58,6 +58,7 @@ router.get('/onboard', (req, res) => {
           hx-trigger="load"
           hx-swap="innerHTML"
         ></div>
+        <div class="h-24" /> {/* spacer div to make up for nav bar*/}
         <div id="nav" hx-get="/nav" hx-trigger="load" hx-swap="outerHTML"></div>
       </>
     );

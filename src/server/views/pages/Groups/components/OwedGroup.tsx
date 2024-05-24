@@ -1,3 +1,4 @@
+import { group } from 'console';
 import { type UserSchema } from '../../../../interface/types';
 import { type GroupWithTransactions } from '../../../../services/group.service';
 import type { getAllOwedForGroupTransactionWithTransactionId } from '../../../../services/owed.service';
@@ -7,6 +8,7 @@ export const OwedGroup = ({
   currentUser,
   transactions,
   owedPerMember,
+  groupId,
 }: {
   memberDetails: UserSchema[];
   currentUser: UserSchema;
@@ -14,19 +16,19 @@ export const OwedGroup = ({
   owedPerMember: ExtractFunctionReturnType<
     typeof getAllOwedForGroupTransactionWithTransactionId
   >[];
+  groupId: string;
 }) => {
   function maxCompanyNameLength(str: string, max: number) {
     return str.length > max ? str.substring(0, max - 3) + '...' : str;
   }
+  const owedForThisMember = owedPerMember
+    .map((owedList) => owedList.find((owed) => owed.userId === currentUser.id)!)
+    .filter((owed) => !owed.pending);
   return (
     <div class="flex-col w-full justify-evenly rounded-lg py-1.5 px-4 mt-3 flex items-center bg-primary-black relative">
       {transactions &&
-        (transactions.length > 0 ? (
-          owedPerMember
-            .map(
-              (owedList) =>
-                owedList.find((owed) => owed.userId === currentUser.id)!
-            )
+        (transactions.length > 0 && owedForThisMember.length > 0 ? (
+          owedForThisMember
             .map((owedList) => ({
               ...owedList,
               transaction: transactions.find(
@@ -57,25 +59,26 @@ export const OwedGroup = ({
                 </p>
                 <div class="flex justify-between w-full">
                   <p class="text-font-off-white self-start mt-2">
-                    {/* Paid by:{' '} */}
+                    Paid by:{' '}
                     <span class="text-font-off-white self-start mt-2 font-semibold">
-                      {/*currentUser.firstName*/}
+                      {currentUser.firstName}
                       {/* This needs to be whoever paid for the bill */}
                     </span>
                   </p>
                   <div class="flex flex-row justify-center text-font-off-white">
                     <button
                       hx-swap="innerHTML"
-                      hx-get="/breakdown/page"
+                      hx-get={`/groups/pay/${result.groupTransactionToUsersToGroupsId}/${groupId}`}
                       hx-target="#app"
-                      class="hover:-translate-y-0.5 rotate-[0.0001deg] transition-transform font-semibold px-12 py-2.5 bg-accent-blue rounded-xl"
+                      class="hover:-translate-y-0.5 rotate-[0.0001deg] transition-transform font-semibold px-12 py-2.5 bg-accent-blue rounded-xl h-fit"
                     >
-                      View and Pay
+                      {result.amount > 0 ? 'View Details' : 'View and Pay'}
                     </button>
                   </div>
                 </div>
-                <div class="mt-4 h-[1px] bg-primary-grey rounded w-full"></div>
-                {index === transactions.length - 1 && <div class="pb-2"></div>}
+                {index !== transactions.length - 1 && (
+                  <div class="mt-4 h-[1px] bg-primary-grey rounded w-full"></div>
+                )}
               </div>
             ))
         ) : (

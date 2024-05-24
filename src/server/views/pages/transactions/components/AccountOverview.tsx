@@ -5,10 +5,11 @@ import {
 } from '../../Breakdown/BreakdownPage';
 import { Graph } from '../../Breakdown/components/TotalExpenses/Graph';
 import Transaction from './Transaction';
+import { type TransactionSchema } from '../../../../interface/types';
 
-  function firstLetterCapital(str: string) {
-    return str.charAt(0).toUpperCase() + str.slice(1);
-  }
+function firstLetterCapital(str: string) {
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
 
 export const AccountOverview = ({
   account,
@@ -19,11 +20,19 @@ export const AccountOverview = ({
   const categories = mapTransactionsToCategories(account.transactions);
   const pathStyles = generatePathStyles(categories);
 
+  function validateTransactions(transactions: TransactionSchema[]) {
+    const hasTransactions = transactions.length > 0;
+    const hasNegativeAmount = transactions.some(
+      (transaction) => transaction.amount > 0
+    );
+
+    return hasTransactions && hasNegativeAmount;
+  }
   return (
     <>
       <div class="bg-primary-black bg-opacity-40 rounded-lg flex flex-col p-2 py-4 my-4 justify-center text-sm">
         <div class="account-info flex justify-between text-font-off-white mx-1 text-md">
-          <p class="font-semibold">
+        <p class="font-semibold">
             {account.name} <span class="font-normal">(1111)</span>
           </p>
           <div class="flex">
@@ -64,18 +73,24 @@ export const AccountOverview = ({
         </div>
 
         <div class="p-6 text-font-off-white bg-primary-black rounded-lg mt-4">
-          <p class="text-xl font-semibold">Monthly Breakdown</p>
-          <Graph slices={pathStyles} />
-          <div class="flex flex-row justify-center mt-6">
-            <button
-              hx-swap="innerHTML"
-              hx-get={`/breakdown/page/${account.id}`}
-              hx-target="#app"
-              class="hover:-translate-y-0.5 rotate-[0.0001deg] transition-transform font-semibold px-12 py-2.5 bg-accent-blue rounded-xl w-2/3"
-            >
-              More Info
-            </button>
-          </div>
+          {validateTransactions(account.transactions) ? (
+            <>
+              <p class="text-xl font-semibold">Monthly Breakdown</p>
+              <Graph slices={pathStyles} />
+              <div class="flex flex-row justify-center mt-6">
+                <button
+                  hx-swap="innerHTML"
+                  hx-get={`/breakdown/page/${account.id}`}
+                  hx-target="#app"
+                  class="hover:-translate-y-0.5 rotate-[0.0001deg] transition-transform font-semibold px-12 py-2.5 bg-accent-blue rounded-xl w-2/3"
+                >
+                  More Info
+                </button>
+              </div>
+            </>
+          ) : (
+            <p class="text-xl font-semibold">No transactions to show</p>
+          )}
         </div>
       </div>
     </>

@@ -9,8 +9,6 @@ import {
   getTransactionsByMonth,
 } from '../services/transaction.service';
 
-import MyAccountsPage from '../views/pages/transactions/MyAccountsPage';
-import { getAccount } from '../services/account.service';
 import Transaction from '../views/pages/transactions/components/Transaction';
 import TransactionsPage from '../views/pages/transactions/TransactionPage';
 import { getUser } from './authRouter';
@@ -18,23 +16,25 @@ import { env } from '../../../env';
 import {
   getAccountWithTransactions,
   getAccountsForUser,
+  getItem,
 } from '../services/plaid.service';
-import type { ExtractFunctionReturnType } from '../services/user.service';
 import { TransactionList } from '../views/pages/transactions/components/TransactionList';
 import { AccountPickerForm } from '../views/pages/transactions/components/AccountPickerForm';
-import AddButton from '../views/pages/transactions/components/AddButton';
-import CheckButton from '../views/pages/transactions/components/CheckButton';
 import {
   addTransactionsToGroup,
   deleteTransactionFromGroup,
+  getGroupTransactionStateId,
   getGroupWithMembers,
   getTransactionsToGroup,
   getUsersToGroup,
 } from '../services/group.service';
 import {
+  createGroupTransactionState,
   createOwed,
   getAllOwedForGroupTransaction,
 } from '../services/owed.service';
+import { getAccountTypeById } from '../services/accountType.service';
+import { getAccount } from '../services/account.service';
 
 const router = express.Router();
 
@@ -82,11 +82,23 @@ router.get('/details/:transactionId', async (req, res) => {
   try {
     const transactionId = req.params.transactionId;
     const transaction = await getTransaction(transactionId);
+    const account = await getAccount(transaction.accountId);
 
-    if (!transaction) return res.status(404).send('404');
+    if (!transaction || !account) return res.status(404).send('404');
+
+    const accountType = await getAccountTypeById(
+      account.accountTypeId ? account.accountTypeId : 'Unknown'
+    );
+
+    const item = await getItem(account.itemId);
+    if (!item) return res.status(404).send('404');
 
     const html = renderToHtml(
-      <TransactionDetailsPage transaction={transaction} />
+      <TransactionDetailsPage
+        transaction={transaction}
+        accountType={accountType ? accountType : 'Unknown'}
+        institution={item.institutionName ? item.institutionName : 'Unknown'}
+      />
     );
     res.send(html);
   } catch (error) {
@@ -179,26 +191,30 @@ router.get('/addButton', async (req, res) => {
   };
 
   const transaction = await getTransaction(transactionId);
-  console.log(transaction);
   // add/remove the transaction to group relationship
 
   const { members } = (await getGroupWithMembers(groupId))!;
   if (checked === 'false') {
-    await addTransactionsToGroup(transaction.id, groupId);
+    const groupTransactions = await addTransactionsToGroup(
+      transaction.id,
+      groupId
+    );
+    if (!groupTransactions) throw new Error();
 
+    const groupTransactionState = await createGroupTransactionState({
+      pending: true,
+      groupTransactionId: groupTransactions[0].id,
+    });
     await Promise.all(
       members.map(async (member) => {
         const owedPerMember = transaction.amount / members.length;
         return await createOwed({
           usersToGroupsId: (await getUsersToGroup(groupId, member.id))!.id,
-          transactionsToGroupsId: (await getTransactionsToGroup(
-            groupId,
-            transactionId
-          ))!.id,
-          amount: (member.id === req.user!.id
-            ? owedPerMember * (members.length - 1)
-            : -1 * owedPerMember
-          ),
+          groupTransactionStateId: groupTransactionState![0].id,
+          amount:
+            member.id === req.user!.id
+              ? owedPerMember * (members.length - 1)
+              : -1 * owedPerMember,
         });
       })
     );
@@ -210,7 +226,7 @@ router.get('/addButton', async (req, res) => {
     if (allTransactions!.some((transaction) => transaction.amount === 0)) {
       return res
         .status(400)
-        .send("Can't remove transaction that is being settled");
+        .send("You can't remove a transaction that is being settled");
     } else {
       await deleteTransactionFromGroup(transaction.id, groupId as string);
     }

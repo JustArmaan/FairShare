@@ -1,9 +1,15 @@
 import { main } from './group';
 import { CustomizeMap } from './map/customizeMap';
+import { splitTransfer } from './splitTransfer/splitTransfer';
 
 main();
+splitTransfer();
 
-document.body.addEventListener('htmx:afterSwap', () => {
+document.body.addEventListener('htmx:afterSwap', (event) => {
+  if (!(event.target instanceof HTMLElement)) return;
+  console.log(event.target);
+  const excludeListId = new Set(['institutionSelector']);
+  if (excludeListId.has(event.target.id)) return;
   window.scrollTo({ top: 0 });
 });
 
@@ -121,7 +127,6 @@ document.addEventListener('htmx:afterSwap', () => {
 
   if (filterSelector && !filterSelector.dataset.listenerAttached) {
     filterSelector?.addEventListener('click', () => {
-      console.log('clicked');
       dateSelectorForm?.classList.toggle('hidden');
     });
     filterSelector.dataset.listenerAttached = 'true';
