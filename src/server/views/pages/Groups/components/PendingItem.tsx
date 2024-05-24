@@ -8,7 +8,9 @@ export const PendingItems = ({
   transactions,
   owedPerMember,
   groupId,
+  selectedAccountId,
 }: {
+  selectedAccountId: string | null;
   memberDetails: UserSchema[];
   currentUser: UserSchema;
   transactions?: GroupWithTransactions;
@@ -80,15 +82,15 @@ export const PendingItems = ({
                     Edit
                   </button>
                   <div class="w-2"></div>
-
-                  <button
-                    hx-swap="innerHTML"
-                    hx-get={`/groups/confirm-transaction/?owedId=${result.groupTransactionToUsersToGroupsId}`}
-                    hx-target="#app"
-                    class="hover:-translate-y-0.5 rotate-[0.0001deg] transition-transform font-semibold py-2.5 w-1/2 bg-accent-blue rounded-xl h-fit text-font-off-white"
-                  >
-                    Confirm
-                  </button>
+                    <button
+                      hx-swap="innerHTML"
+                      hx-get={`/groups/confirm-transaction/?owedId=${result.groupTransactionToUsersToGroupsId}`}
+                      hx-target="#app"
+                      class="hover:-translate-y-0.5 rotate-[0.0001deg] transition-transform font-semibold py-2.5 w-1/2 bg-accent-blue rounded-xl h-fit text-font-off-white"
+                    >
+                      Confirm
+                    </button>
+                  )
                 </div>
                 {index !== transactions.length - 1 && (
                   <div class="mt-4 h-[1px] bg-primary-grey rounded w-full"></div>

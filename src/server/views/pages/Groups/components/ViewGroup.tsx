@@ -75,14 +75,19 @@ export const ViewGroups = ({
             owedPerMember={owedPerMember}
           />
         </div>
+        {selectedDepositAccountId && (
+        <>
         <p class="text-font-off-white text-2xl pt-3">Pending</p>
-        <PendingItems
-          memberDetails={members}
-          currentUser={currentUser}
-          transactions={transactions}
-          owedPerMember={owedPerMember}
-          groupId={groupId}
-        />
+          <PendingItems
+            memberDetails={members}
+            currentUser={currentUser}
+            transactions={transactions}
+            owedPerMember={owedPerMember}
+            groupId={groupId}
+            selectedAccountId={selectedDepositAccountId}
+          />
+          </>
+        )}
         <div class="text-font-off-white mt-3">
           <h2 class="text-2xl pb-3">Select deposit account</h2>
           <div
