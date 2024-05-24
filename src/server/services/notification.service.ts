@@ -67,14 +67,19 @@ export async function createNotificationForUserInGroups(
 ) {
   try {
     const userToGroup = await getUsersToGroup(groupId, userId);
-    if(!userToGroup) {
+
+    console.log(userToGroup, 'userToGroupAHAHAHAHAHAHAHAHAHHAAH');
+    
+    if (!userToGroup) {
         return null
     }
+
 
     const results = await db
     .insert(notifications)
     .values({ ...notification, id: uuidv4(), userGroupId: userToGroup.id })
-    return;
+    .returning()
+    return results[0];
   } catch (error) {
     console.error(error);
     return null;

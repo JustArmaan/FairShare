@@ -77,6 +77,7 @@ export async function getTransactionsToGroup(
 
 export async function getUsersToGroup(groupId: string, userId: string) {
   try {
+    console.log(groupId, userId, 'groupId, userId');
     const results = await db
       .select()
       .from(usersToGroups)

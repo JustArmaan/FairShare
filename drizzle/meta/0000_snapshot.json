@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "37dd2c08-e356-4fb8-857e-157e2c91485d",
+  "id": "0fa1dcf4-1283-4783-9fea-964eb8f85b5d",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "accounts": {
@@ -259,6 +259,13 @@
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
+        },
+        "split_type_id": {
+          "name": "split_type_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
         }
       },
       "indexes": {},
@@ -274,6 +281,19 @@
             "id"
           ],
           "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "groupTransactionState_split_type_id_splitType_id_fk": {
+          "name": "groupTransactionState_split_type_id_splitType_id_fk",
+          "tableFrom": "groupTransactionState",
+          "tableTo": "splitType",
+          "columnsFrom": [
+            "split_type_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
           "onUpdate": "no action"
         }
       },
@@ -699,6 +719,29 @@
           "onUpdate": "no action"
         }
       },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "splitType": {
+      "name": "splitType",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "type": {
+          "name": "type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },

@@ -27,6 +27,7 @@ import { ViewGroups } from '../views/pages/Groups/components/ViewGroup';
 import { getAccountsForUser } from '../services/plaid.service';
 import { createTransferForSenderAndRecord } from '../plaid/transfer';
 import { group } from 'console';
+import { createNotificationForUserInGroups } from '../services/notification.service';
 
 const router = express.Router();
 
@@ -427,6 +428,8 @@ router.post('/initiate/transfer/sender', async (req, res) => {
 
   const userToGroup = (await getUsersToGroup(groupId, userId))!;
 
+  console.log(userToGroup, 'userToGroup');
+
   if (!userToGroup.depositAccountId) {
     return res
       .status(400)
@@ -445,8 +448,6 @@ router.post('/initiate/transfer/sender', async (req, res) => {
   if (!currentUser) {
     return res.status(403).send('You need to be signed in to use this feature');
   }
-
-  console.log(userToGroup.depositAccountId);
 
   await createTransferForSenderAndRecord(
     userId,
