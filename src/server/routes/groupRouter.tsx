@@ -11,6 +11,8 @@ import {
   type GroupMembersTransactions,
   getUsersToGroup,
   updateUsersToGroup,
+  setGroupTransactionStatePending,
+  getGroupIdFromOwed,
 } from '../services/group.service';
 import {
   findUser,
@@ -156,6 +158,7 @@ router.get('/view/:groupId', async (req, res) => {
                   userId: member.id,
                   amount: 0,
                   groupTransactionToUsersToGroupsId: '',
+                  pending: true,
                 })),
               ]
         }
@@ -169,33 +172,55 @@ router.get('/view/:groupId', async (req, res) => {
   }
 });
 
-router.get('/pay/:groupTransactionToUsersToGroupsId/:groupId', async (req, res) => {
-  const result = await getGroupIdAndTransactionIdForOwed(req.params.groupTransactionToUsersToGroupsId);
-  // console.log("Result from getGroupIdAndTransactionIdForOwed:", result);
-
-  if (!result) {
-    return res.status(404).send('Group ID and Transaction ID not found');
-  }
-
-  const { groupId, transactionId } = result;
-  const owed = await getAllOwedForGroupTransactionWithMemberInfo(
-    groupId,
-    transactionId
-  );
-  const transaction = await getTransaction(transactionId);
-  const accounts = await getAccountsWithItemsForUser(req.user!.id);
-  // const selectedAccount = wait for schema
+router.get('/confirm-transaction', async (req, res) => {
+  const { owedId } = req.query as {
+    [key: string]: string;
+  };
+  await setGroupTransactionStatePending(owedId, null);
+  const groupId = await getGroupIdFromOwed(owedId);
   const html = renderToHtml(
-    <ViewAndPayPage
-      owed={owed!}
-      transaction={transaction}
-      accounts={accounts!}
-      groupId={req.params.groupId}
+    <div
+      hx-get={`/groups/view/${groupId}`}
+      hx-swap="outerHTML"
+      hx-trigger="load"
+      hx-target="#app"
     />
   );
-
-  return res.send(html);
+  res.send(html);
 });
+
+router.get(
+  '/pay/:groupTransactionToUsersToGroupsId/:groupId',
+  async (req, res) => {
+    const result = await getGroupIdAndTransactionIdForOwed(
+      req.params.groupTransactionToUsersToGroupsId
+    );
+    // console.log("Result from getGroupIdAndTransactionIdForOwed:", result);
+
+    if (!result) {
+      return res.status(404).send('Group ID and Transaction ID not found');
+    }
+
+    const { groupId, transactionId } = result;
+    const owed = await getAllOwedForGroupTransactionWithMemberInfo(
+      groupId,
+      transactionId
+    );
+    const transaction = await getTransaction(transactionId);
+    const accounts = await getAccountsWithItemsForUser(req.user!.id);
+    // const selectedAccount = wait for schema
+    const html = renderToHtml(
+      <ViewAndPayPage
+        owed={owed!}
+        transaction={transaction}
+        accounts={accounts!}
+        groupId={req.params.groupId}
+      />
+    );
+
+    return res.send(html);
+  }
+);
 
 // should be a post
 router.get('/account-selector/select', async (req, res) => {

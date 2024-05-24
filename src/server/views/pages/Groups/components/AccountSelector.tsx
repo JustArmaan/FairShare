@@ -43,7 +43,7 @@ export const AccountSelector = (props: {
           <p>
             Balance:{' '}
             <span class="font-semibold">
-$
+              $
               {props.selectedAccount.balance
                 ? parseFloat(props.selectedAccount.balance).toFixed(2)
                 : (0).toFixed(2)}

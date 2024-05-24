@@ -223,6 +223,7 @@ export async function getAllOwedForGroupTransactionWithTransactionId(
         amount: result.groupTransactionToUsersToGroups.amount,
         userId: result.usersToGroups.userId,
         transactionId: result.transactionsToGroups.transactionId,
+        pending: result.groupTransactionState.pending,
         groupTransactionToUsersToGroupsId:
           result.groupTransactionToUsersToGroups.id,
       })),
