@@ -63,10 +63,12 @@ async function syncTransaction({
           if (!accountTypeId) return;
           const acc = await getAccount(account.account_id);
           if (!acc) {
+            /*
             const legalName = await findUserLegalNameForAccount(
               userId,
               account.account_id
             );
+            */
             await addAccount({
               id: account.account_id,
               name: account.name,
@@ -75,7 +77,7 @@ async function syncTransaction({
                 account.balances.current)!.toString(),
               currencyCodeId: null, // account.balances.iso_currency_code,
               itemId: item.id,
-              legalName,
+              legalName: "",
             });
           }
         })
@@ -141,7 +143,7 @@ async function addTransactions(transactions: AddedPlaidTransaction[]) {
         transaction.personal_finance_category.primary
       );
       if (!categoryId) {
-       
+
         throw new Error('No such category!');
       }
       const locationIsNull = Object.values(transaction.location).some(
@@ -152,7 +154,7 @@ async function addTransactions(transactions: AddedPlaidTransaction[]) {
         address: locationIsNull
           ? null
           : `${transaction.location.address!},  ${transaction.location
-              .city!}, ${transaction.location.region!}, ${transaction.location
+            .city!}, ${transaction.location.region!}, ${transaction.location
               .country!}`,
         accountId: transaction.account_id,
         categoryId: categoryId.id,
@@ -193,14 +195,14 @@ async function modifyTransaction(transaction: ModifiedPlaidTransaction) {
     company: transaction.merchant_name
       ? transaction.merchant_name
       : transaction.name
-      ? transaction.name
-      : undefined,
+        ? transaction.name
+        : undefined,
     amount: transaction.amount ? transaction.amount : undefined,
     timestamp: transaction.datetime
       ? transaction.datetime
       : transaction.date
-      ? transaction.date
-      : undefined,
+        ? transaction.date
+        : undefined,
     latitude: transaction.location.lat ? transaction.location.lat : undefined,
     longitude: transaction.location.lon ? transaction.location.lon : undefined,
   });
