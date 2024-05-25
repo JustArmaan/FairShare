@@ -248,6 +248,8 @@ router.get(
 router.post('/splitOptions/edit', async (req, res) => {
   const { splitType, memberId, groupId, transactionId } = req.body;
 
+  console.log(req.body, 'req.body');
+
   if (!splitType) {
     console.log('Error: Required parameters are missing');
     return res.status(400).send('Required parameters are missing');
@@ -263,8 +265,9 @@ router.post('/splitOptions/edit', async (req, res) => {
     }
     memberList = groupAndMembers.members.map((member) => member.id);
   } else {
-    console.log('Split type is not equal, processing memberId as CSV');
-    memberList = memberId.split(',');
+    console.log('Split type is not equal, processing memberId');
+
+    memberList = Array.isArray(memberId) ? memberId : [memberId];
   }
 
   const transactionState = await getGroupTransactionStateId(
@@ -309,34 +312,40 @@ router.post('/splitOptions/edit', async (req, res) => {
 
   if (splitType === 'percentage') {
     const { percentInput } = req.body;
-    if (!percentInput) {
-      return res.status(400).send('Percentage input is missing');
+    const normalizedPercentInput = Array.isArray(percentInput)
+      ? percentInput
+      : [percentInput];
+    console.log(normalizedPercentInput, 'normalizedPercentInput');
+    if (
+      !normalizedPercentInput ||
+      !Array.isArray(normalizedPercentInput) ||
+      normalizedPercentInput.length === 0
+    ) {
+      return res.status(400).send('Percentage input is missing or invalid');
     }
-    const totalAmount = transaction.transaction.amount * (percentInput / 100);
+    if (memberList.length !== normalizedPercentInput.length) {
+      return res
+        .status(400)
+        .send('Mismatch between member IDs and percentage inputs');
+    }
+
+    const totalAmounts = normalizedPercentInput.map((percent, index) => {
+      const amount =
+        transaction.transaction.amount * (parseFloat(percent) / 100);
+      return {
+        memberId: memberList[index],
+        amount: parseFloat(amount.toFixed(2)) * -1,
+      };
+    });
+    console.log(totalAmounts, 'totalAmounts');
+
     await Promise.all(
-      memberList.map(async (member: string) => {
+      totalAmounts.map(async ({ memberId, amount }) => {
         return updateGroupTransactionToUserToGroup(
           groupId,
           transactionId,
-          member,
-          parseFloat(totalAmount.toFixed(2)) * -1
-        );
-      })
-    );
-  } else if (splitType === 'amount') {
-    const { amountInput } = req.body;
-    if (!amountInput) {
-      console.log('Amount input is missing');
-      return res.status(400).send('Amount input is missing');
-    }
-    await Promise.all(
-      memberList.map(async (member: string) => {
-        const numberAmount = Number(amountInput);
-        await updateGroupTransactionToUserToGroup(
-          groupId,
-          transactionId,
-          member,
-          parseFloat(numberAmount.toFixed(2)) * -1
+          memberId,
+          amount
         );
       })
     );
@@ -351,12 +360,48 @@ router.post('/splitOptions/edit', async (req, res) => {
             groupId,
             transactionId,
             member,
-            equalShare
+            equalShare * -1
           );
         }
       })
     );
+  } else if (splitType === 'amount') {
+    const { amountInput } = req.body;
+    const normalizedAmountInput = Array.isArray(amountInput)
+      ? amountInput
+      : [amountInput];
+    if (
+      !normalizedAmountInput ||
+      !Array.isArray(normalizedAmountInput) ||
+      normalizedAmountInput.length === 0
+    ) {
+      return res.status(400).send('Amount input is missing or invalid');
+    }
+    if (memberList.length !== normalizedAmountInput.length) {
+      return res
+        .status(400)
+        .send('Mismatch between member IDs and amount inputs');
+    }
+
+    const transactions = normalizedAmountInput.map((amount, index) => {
+      return {
+        memberId: memberList[index],
+        amount: parseFloat(amount) * -1,
+      };
+    });
+
+    await Promise.all(
+      transactions.map(async ({ memberId, amount }) => {
+        return updateGroupTransactionToUserToGroup(
+          groupId,
+          transactionId,
+          memberId,
+          amount
+        );
+      })
+    );
   }
+
   const groupTransactions = await getTransactionsForGroup(groupId);
   if (!groupTransactions) {
     console.log('No transactions found for group');
@@ -430,7 +475,13 @@ router.post('/initiate/transfer/sender', async (req, res) => {
   const receiverIdList = receiverIds.split(',');
   const userId = req.user!.id;
 
-  console.log(receiverIdList, 'receiverIdList', userId, 'userId', 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA');
+  console.log(
+    receiverIdList,
+    'receiverIdList',
+    userId,
+    'userId',
+    'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'
+  );
 
   const owedInfo = await getAllOwedForGroupTransactionWithMemberInfo(
     groupId,

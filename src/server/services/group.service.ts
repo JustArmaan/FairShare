@@ -16,6 +16,8 @@ import { accounts } from '../database/schema/accounts';
 import { items } from '../database/schema/items';
 import { group } from 'console';
 import { groupTransactionToUsersToGroups } from '../database/schema/groupTransactionToUsersToGroups';
+import { get } from 'http';
+import { filterUniqueTransactions } from '../utils/filter';
 
 const db = getDB();
 
@@ -77,7 +79,6 @@ export async function getTransactionsToGroup(
 
 export async function getUsersToGroup(groupId: string, userId: string) {
   try {
-    console.log(groupId, userId, 'groupId, userId');
     const results = await db
       .select()
       .from(usersToGroups)
@@ -98,7 +99,6 @@ export async function updateUsersToGroup(
   id: string,
   newUsersToGroups: Partial<ExtractFunctionReturnType<typeof getUsersToGroup>>
 ) {
-  console.log('updaintg users to group with', newUsersToGroups);
   try {
     await db
       .update(usersToGroups)
@@ -160,28 +160,25 @@ export async function getGroupWithMembers(groupId: string) {
       .innerJoin(memberType, eq(usersToGroups.memberTypeId, memberType.id))
       .where(eq(groups.id, groupId));
 
-    return result.reduce(
-      (groups, currentResult) => {
-        const groupIndex = groups.findIndex(
-          (group) => group.id === currentResult.group.id
-        );
-        if (groupIndex === -1) {
-          groups.push({
-            ...currentResult.group,
-            members: [
-              { ...currentResult.members, type: currentResult.memberType.type },
-            ],
-          });
-        } else {
-          groups[groupIndex].members.push({
-            ...currentResult.members,
-            type: currentResult.memberType.type,
-          });
-        }
-        return groups;
-      },
-      [] as (GroupSchema & { members: UserSchemaWithMemberType[] })[]
-    )[0];
+    return result.reduce((groups, currentResult) => {
+      const groupIndex = groups.findIndex(
+        (group) => group.id === currentResult.group.id
+      );
+      if (groupIndex === -1) {
+        groups.push({
+          ...currentResult.group,
+          members: [
+            { ...currentResult.members, type: currentResult.memberType.type },
+          ],
+        });
+      } else {
+        groups[groupIndex].members.push({
+          ...currentResult.members,
+          type: currentResult.memberType.type,
+        });
+      }
+      return groups;
+    }, [] as (GroupSchema & { members: UserSchemaWithMemberType[] })[])[0];
   } catch (error) {
     console.error(error);
     return null;
@@ -430,14 +427,62 @@ export const addMember = async (
 
     const memberTypeId = invitedType[0].id;
 
-    await db.insert(usersToGroups).values({
-      id: uuidv4(),
-      groupId: groupId,
-      userId: userId,
-      memberTypeId: memberTypeId,
-    });
+    const newMember = await db
+      .insert(usersToGroups)
+      .values({
+        id: uuidv4(),
+        groupId: groupId,
+        userId: userId,
+        memberTypeId: memberTypeId,
+      })
+      .returning();
 
-    return true;
+    if (newMember) {
+      const equalSplitGroupTransactionsWithAllOwed =
+        await getGroupWithEqualSplitTypeTransactionsAndMembers(groupId);
+
+      const groupWithMembers = await getGroupWithMembers(groupId);
+      console.log(groupWithMembers, 'groupWithMembers');
+      if (equalSplitGroupTransactionsWithAllOwed && groupWithMembers) {
+        const equalSplitGroupTransactions = filterUniqueTransactions(
+          equalSplitGroupTransactionsWithAllOwed
+        );
+
+        for (const transaction of equalSplitGroupTransactions) {
+          const equalSplitAmount =
+            transaction.transaction.amount / groupWithMembers.members.length;
+          groupWithMembers.members.forEach(async (member) => {
+            if (member.id !== transaction.transactionOwner.id) {
+              const newMemberUpdate = await updateOwedForGroupTransaction(
+                groupId,
+                member.id,
+                transaction.transaction.id,
+                equalSplitAmount * -1
+              );
+              console.log(
+                'Updated owed for member:',
+                member.id,
+                transaction.transaction.id,
+                equalSplitAmount * -1
+              );
+            } else if (member.id === transaction.transactionOwner.id) {
+              await updateOwedForGroupTransaction(
+                groupId,
+                member.id,
+                transaction.transaction.id,
+                equalSplitAmount * (groupWithMembers.members.length - 1)
+              );
+              console.log(
+                'Updated owed for owner:',
+                member.id,
+                transaction.transaction.id,
+                equalSplitAmount * (groupWithMembers.members.length - 1)
+              );
+            }
+          });
+        }
+      }
+    }
   } catch (error) {
     console.error('Failed to add member:', error);
     return false;
@@ -690,5 +735,104 @@ export async function getGroupTransactionToUserToGroupById(
   } catch (error) {
     console.log(error, 'Failed to get transaction from group id');
     return null;
+  }
+}
+
+export async function getGroupWithEqualSplitTypeTransactionsAndMembers(
+  groupId: string
+) {
+  try {
+    const results = await db
+      .select({
+        transactionState: groupTransactionState,
+        transactionAmount: groupTransactionToUsersToGroups.amount,
+        transaction: transactions,
+        transactionOwner: users,
+      })
+      .from(transactionsToGroups)
+      .innerJoin(
+        groupTransactionState,
+        eq(transactionsToGroups.id, groupTransactionState.groupTransactionId)
+      )
+      .innerJoin(
+        transactions,
+        eq(transactionsToGroups.transactionId, transactions.id)
+      )
+      .innerJoin(accounts, eq(transactions.accountId, accounts.id))
+      .innerJoin(items, eq(accounts.itemId, items.id))
+      .innerJoin(users, eq(items.userId, users.id))
+      .innerJoin(splitType, eq(groupTransactionState.splitTypeId, splitType.id))
+      .innerJoin(
+        groupTransactionToUsersToGroups,
+        eq(
+          groupTransactionState.id,
+          groupTransactionToUsersToGroups.groupTransactionStateId
+        )
+      )
+      .where(
+        and(
+          eq(transactionsToGroups.groupsId, groupId),
+          eq(splitType.type, 'equal')
+        )
+      );
+
+    return results;
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
+}
+
+export type GroupWithEqualSplitTypeTransactionsAndMembers = NonNullable<
+  ExtractFunctionReturnType<
+    typeof getGroupWithEqualSplitTypeTransactionsAndMembers
+  >
+>;
+
+export async function updateOwedForGroupTransaction(
+  groupId: string,
+  userId: string,
+  transactionId: string,
+  amount: number
+) {
+  try {
+    const userGroup = await getUserGroupId(userId, groupId);
+    const transactionStateId = await getGroupTransactionStateId(
+      groupId,
+      transactionId
+    );
+
+    if (!userGroup || !transactionStateId) {
+      return null;
+    }
+
+    const result = await db
+      .update(groupTransactionToUsersToGroups)
+      .set({ amount })
+      .where(
+        and(
+          eq(
+            groupTransactionToUsersToGroups.groupTransactionStateId,
+            transactionStateId.id
+          ),
+          eq(groupTransactionToUsersToGroups.usersToGroupsId, userGroup.id)
+        )
+      )
+      .returning();
+    if (result.length === 0) {
+      return await db
+        .insert(groupTransactionToUsersToGroups)
+        .values({
+          id: uuidv4(),
+          groupTransactionStateId: transactionStateId.id,
+          usersToGroupsId: userGroup.id,
+          amount,
+        })
+        .returning();
+    } else {
+      return result;
+    }
+  } catch (error) {
+    console.error(error);
   }
 }

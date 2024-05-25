@@ -139,7 +139,6 @@ router.get('/view/:groupId', async (req, res) => {
 
     const account = await getAccountsForUser(userId);
     const accountId = account ? account[0].id : '';
-    console.log(group.id, userId);
     const { depositAccountId } = (await getUsersToGroup(group.id, userId))!;
 
     const html = renderToHtml(
@@ -181,9 +180,9 @@ router.get('/confirm-transaction', async (req, res) => {
   const html = renderToHtml(
     <div
       hx-get={`/groups/view/${groupId}`}
-      hx-swap="innerHTML"
-      hx-trigger="load"
-      hx-target="#app"
+      hx-swap='innerHTML'
+      hx-trigger='load'
+      hx-target='#app'
     />
   );
   res.send(html);
@@ -195,7 +194,6 @@ router.get(
     const result = await getGroupIdAndTransactionIdForOwed(
       req.params.groupTransactionToUsersToGroupsId
     );
-    // console.log("Result from getGroupIdAndTransactionIdForOwed:", result);
 
     if (!result) {
       return res.status(404).send('Group ID and Transaction ID not found');
@@ -235,9 +233,8 @@ router.get('/account-selector/select', async (req, res) => {
     accountId && accountId !== '' ? await getAccountWithItem(accountId) : null;
 
   const isDepositAccount = isDepositAccountParamater === 'true';
-  console.log(isDepositAccountParamater, groupId);
   const usersToGroup = groupId && (await getUsersToGroup(groupId, id));
-  if (usersToGroup && isDepositAccount && accountId !== "null") {
+  if (usersToGroup && isDepositAccount && accountId !== 'null') {
     await updateUsersToGroup(usersToGroup.id, { depositAccountId: accountId });
   }
 
@@ -258,9 +255,7 @@ router.get('/account-selector/institution-drop-down/', async (req, res) => {
   const { open: openParam, selected: selectedItemId } = req.query as {
     [key: string]: string;
   };
-  console.log(openParam, 'param');
   const open = openParam === 'true';
-  console.log(open);
   const accounts = await getAccountsWithItemsForUser(id);
   const items = accounts!.map((account) => account.item);
 
@@ -589,6 +584,7 @@ router.post('/edit/:groupId', async (req, res) => {
     for (const memberEmail of newMembers) {
       const user = await getUserByEmailOnly(memberEmail);
       if (user) {
+        console.log("RANNNNN");
         await addMember(currentGroup.id, user.id, 'Invited');
       } else {
         return res.status(400).send(`User with email ${memberEmail} not found`);
@@ -624,8 +620,9 @@ router.post('/deleteMember/:userID/:groupID', async (req, res) => {
 
 router.get('/transactions/:groupId', async (req, res) => {
   const groupId = req.params.groupId;
-  const groupWithTransactions =
-    await getGroupWithMembersAndTransactions(groupId);
+  const groupWithTransactions = await getGroupWithMembersAndTransactions(
+    groupId
+  );
   const html = renderToHtml(
     <GroupTransactionsListPage
       group={groupWithTransactions as GroupMembersTransactions}
@@ -649,7 +646,7 @@ router.get(
     const html = renderToHtml(
       <TransactionList
         account={account}
-        route="AddTransaction"
+        route='AddTransaction'
         groupId={req.params.groupId}
         groupTransactionIds={groupTransactionIds}
       />
