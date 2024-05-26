@@ -43,8 +43,6 @@ export async function authorizeSendersTransfer(
       transferRequest
     );
 
-    // console.log(response, 'auth response');
-
     return response.authorization.id;
   } catch (error) {
     console.error('Error initiating authorization:', error);
@@ -101,8 +99,6 @@ async function createTransferForSender(
       amount
     );
 
-    // console.log(authorizationId, 'authid');
-
     const [{ item }] = await getItemsForUser(userId);
     const accessToken = item.plaidAccessToken;
 
@@ -150,7 +146,6 @@ export async function createTransferForReceiver(
       '/transfer/create',
       transferCreateRequest
     );
-    console.log('respose', response.transfer);
     return response.transfer;
   } catch (error) {
     console.error('Error initiating transfer:', error);
@@ -168,7 +163,6 @@ export async function createTransferForSenderAndRecord(
 ) {
   try {
     const response = await createTransferForSender(userId, accountId, amount);
-    console.log(response.transfer, "agdyuwad");
     const transferStatus = response.transfer.status;
     const senderStatus = await getTransferStatusByName(transferStatus);
     const receiverStatus = await getTransferStatusByName('pending');
@@ -236,7 +230,6 @@ export async function checkAndProcessReceiveTransfer(
         receiverAccountId,
         amount
       );
-      // console.log('Receiver transfer initiated:', receiverTransfer);
     } else {
       const receiverStatus = await getTransferStatusByName('completed');
 
@@ -272,7 +265,6 @@ export async function getTransfer(
       access_token: accessToken,
       transfer_id: transferId,
     });
-    // console.log(response, 'response.data.transfer?');
     return response;
   } catch (error) {
     console.error('Error retrieving transfer:', error);

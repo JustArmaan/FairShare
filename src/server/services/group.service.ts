@@ -442,7 +442,6 @@ export const addMember = async (
         await getGroupWithEqualSplitTypeTransactionsAndMembers(groupId);
 
       const groupWithMembers = await getGroupWithMembers(groupId);
-      console.log(groupWithMembers, 'groupWithMembers');
       if (equalSplitGroupTransactionsWithAllOwed && groupWithMembers) {
         const equalSplitGroupTransactions = filterUniqueTransactions(
           equalSplitGroupTransactionsWithAllOwed
@@ -459,21 +458,9 @@ export const addMember = async (
                 transaction.transaction.id,
                 equalSplitAmount * -1
               );
-              console.log(
-                'Updated owed for member:',
-                member.id,
-                transaction.transaction.id,
-                equalSplitAmount * -1
-              );
             } else if (member.id === transaction.transactionOwner.id) {
               await updateOwedForGroupTransaction(
                 groupId,
-                member.id,
-                transaction.transaction.id,
-                equalSplitAmount * (groupWithMembers.members.length - 1)
-              );
-              console.log(
-                'Updated owed for owner:',
                 member.id,
                 transaction.transaction.id,
                 equalSplitAmount * (groupWithMembers.members.length - 1)
@@ -566,6 +553,7 @@ export async function deleteMemberByGroup(userId: string, groupId: string) {
     return false;
   }
 }
+
 export async function addTransactionsToGroup(
   transactionId: string,
   groupId: string
@@ -834,5 +822,27 @@ export async function updateOwedForGroupTransaction(
     }
   } catch (error) {
     console.error(error);
+  }
+}
+
+export async function getUserTotalOwedForGroup(
+  userId: string,
+  groupId: string
+) {
+  try {
+    const userGroup = await getUserGroupId(userId, groupId);
+    if (!userGroup) {
+      return null;
+    }
+
+    const results = await db
+      .select()
+      .from(groupTransactionToUsersToGroups)
+      .where(eq(groupTransactionToUsersToGroups.usersToGroupsId, userGroup.id));
+
+    return results.reduce((sum, result) => sum + result.amount, 0);
+  } catch (error) {
+    console.error(error);
+    return null;
   }
 }

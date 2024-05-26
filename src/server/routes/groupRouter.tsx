@@ -13,6 +13,7 @@ import {
   updateUsersToGroup,
   setGroupTransactionStatePending,
   getGroupIdFromOwed,
+  getUserTotalOwedForGroup,
 } from '../services/group.service';
 import {
   findUser,
@@ -53,6 +54,7 @@ import {
   getAccountsWithItemsForUser,
 } from '../services/account.service.ts';
 import { AccountSelector } from '../views/pages/Groups/components/AccountSelector.tsx';
+import { get } from 'http';
 
 const router = express.Router();
 
@@ -584,7 +586,6 @@ router.post('/edit/:groupId', async (req, res) => {
     for (const memberEmail of newMembers) {
       const user = await getUserByEmailOnly(memberEmail);
       if (user) {
-        console.log("RANNNNN");
         await addMember(currentGroup.id, user.id, 'Invited');
       } else {
         return res.status(400).send(`User with email ${memberEmail} not found`);
@@ -611,6 +612,18 @@ router.post('/deleteMember/:userID/:groupID', async (req, res) => {
   try {
     const userID = req.params.userID;
     const groupID = req.params.groupID;
+
+    const totalOwed = await getUserTotalOwedForGroup(userID, groupID);
+
+    if (!totalOwed) {
+      return res.status(500).send('An error occured when removing a member');
+    }
+    if (totalOwed < 0) {
+      return res
+        .status(400)
+        .send('You cannot remove a member that still owes money');
+    }
+    
     await deleteMemberByGroup(userID, groupID);
     res.status(204).send();
   } catch (error) {

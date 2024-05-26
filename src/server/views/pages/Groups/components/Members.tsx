@@ -32,7 +32,6 @@ function calculateTotalOwedAll(
   const combinedOwed = owedPerMember.reduce((total, owedPerMember) => {
     return [...total, ...owedPerMember];
   }, [] as { userId: string; amount: number }[]);
-  // console.log(owedPerMember.length, members.length);
   const noOwedMembers = members.filter(
     (member) => !combinedOwed.some((owed) => owed.userId === member.id)
   );

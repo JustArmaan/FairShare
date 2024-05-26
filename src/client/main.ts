@@ -7,7 +7,6 @@ splitTransfer();
 
 document.body.addEventListener('htmx:afterSwap', (event) => {
   if (!(event.target instanceof HTMLElement)) return;
-  console.log(event.target);
   const excludeListId = new Set(['institutionSelector']);
   if (excludeListId.has(event.target.id)) return;
   window.scrollTo({ top: 0 });

@@ -5,7 +5,6 @@ export const InstitutionDropDown = (props: {
   items: AccountWithItem['item'][];
   selectedItem: AccountWithItem['item'] | null;
 }) => {
-  console.log(props.items, props.open, 'items');
   return (
     <div id="institutionSelector">
       <div

@@ -248,8 +248,6 @@ router.get(
 router.post('/splitOptions/edit', async (req, res) => {
   const { splitType, memberId, groupId, transactionId } = req.body;
 
-  console.log(req.body, 'req.body');
-
   if (!splitType) {
     console.log('Error: Required parameters are missing');
     return res.status(400).send('Required parameters are missing');
@@ -257,7 +255,6 @@ router.post('/splitOptions/edit', async (req, res) => {
 
   let memberList;
   if (splitType === 'equal') {
-    console.log('Split type is equal');
     const groupAndMembers = await getGroupWithMembers(groupId);
     if (!groupAndMembers) {
       console.log('No such group found');
@@ -315,7 +312,6 @@ router.post('/splitOptions/edit', async (req, res) => {
     const normalizedPercentInput = Array.isArray(percentInput)
       ? percentInput
       : [percentInput];
-    console.log(normalizedPercentInput, 'normalizedPercentInput');
     if (
       !normalizedPercentInput ||
       !Array.isArray(normalizedPercentInput) ||
@@ -337,7 +333,6 @@ router.post('/splitOptions/edit', async (req, res) => {
         amount: parseFloat(amount.toFixed(2)) * -1,
       };
     });
-    console.log(totalAmounts, 'totalAmounts');
 
     await Promise.all(
       totalAmounts.map(async ({ memberId, amount }) => {
@@ -475,14 +470,6 @@ router.post('/initiate/transfer/sender', async (req, res) => {
   const receiverIdList = receiverIds.split(',');
   const userId = req.user!.id;
 
-  console.log(
-    receiverIdList,
-    'receiverIdList',
-    userId,
-    'userId',
-    'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'
-  );
-
   const owedInfo = await getAllOwedForGroupTransactionWithMemberInfo(
     groupId,
     transactionId
@@ -512,8 +499,6 @@ router.post('/initiate/transfer/sender', async (req, res) => {
     groupId,
     transactionId
   );
-
-  console.log(req.body, 'init transfer for sender');
 });
 
 export const transferRouter = router;

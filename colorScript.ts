@@ -41,4 +41,3 @@ function shuffle(array) {
 }
 
 const result = generateColors(100, 65, 17);
-result.forEach((item) => console.log(item));

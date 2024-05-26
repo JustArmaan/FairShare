@@ -63,8 +63,6 @@ export async function createNotificationForUserInGroups(
   try {
     const userToGroup = await getUsersToGroup(groupId, userId);
 
-    console.log(userToGroup, 'userToGroupAHAHAHAHAHAHAHAHAHHAAH');
-
     if (!userToGroup) {
       return null;
     }
