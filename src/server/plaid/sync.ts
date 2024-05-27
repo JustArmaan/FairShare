@@ -26,7 +26,7 @@ async function syncTransaction({
   item: Item;
   userId: string;
 }) {
-  const count = 500;
+  const count = 10;
   let cursor: string | undefined = item.nextCursor
     ? item.nextCursor
     : undefined;
@@ -63,6 +63,7 @@ async function syncTransaction({
       'sync trans resp'
     );
     const { accounts } = response;
+    console.log(accounts, 'accounts');
     if (!accountsAdded && accounts) {
       await Promise.all(
         accounts.map(async (account) => {
@@ -153,6 +154,8 @@ async function addTransactions(transactions: AddedPlaidTransaction[]) {
       const locationIsNull = Object.values(transaction.location).some(
         (value) => value === null
       );
+      console.log(transaction.account_id, 'account id sync');
+      console.log(categoryId, 'category id');
       return {
         id: transaction.transaction_id,
         address: locationIsNull
@@ -175,6 +178,7 @@ async function addTransactions(transactions: AddedPlaidTransaction[]) {
       };
     })
   );
+  console.log(newTransactions, 'newTransactions');
   newTransactions.length > 0 && createTransactions(newTransactions);
 }
 

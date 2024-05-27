@@ -19,6 +19,7 @@ router.get('/connected', getUser, async (req, res) => {
   }
 
   const items = await getItemsForUser(req.user.id);
+  console.log(items, 'itmes connected');
   const connected = items.length > 0;
   return res.json({
     error: null,
@@ -66,6 +67,18 @@ router.post('/sync', getUser, async (req, res) => {
     console.log('synced up');
     syncTransactionsForUser(req.user.id);
   }
+  return res.status(200).send();
+});
+
+router.get('/sync', getUser, async (req, res) => {
+  if (!req.user) {
+    return res.json({
+      error: 'Not logged in.',
+      data: null,
+    });
+  }
+
+  await syncTransactionsForUser(req.user.id);
   return res.status(200).send();
 });
 
