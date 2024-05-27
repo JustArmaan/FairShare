@@ -66,4 +66,13 @@ router.get('/onboard', (req, res) => {
   }
 });
 
+router.post('/webhook', (req, res) => {
+  const event = req.body;
+
+  console.log('Received webhook event:', event);
+
+  res.status(200).send('Webhook received');
+});
+
+
 export const indexRouter = router;

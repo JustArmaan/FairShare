@@ -19,6 +19,7 @@ router.get('/connected', getUser, async (req, res) => {
   }
 
   const items = await getItemsForUser(req.user.id);
+  console.log(items, 'itmes connected');
   const connected = items.length > 0;
   return res.json({
     error: null,
@@ -50,6 +51,25 @@ router.get('/has-accounts', getUser, async (req, res) => {
     });
 });
 
+router.post('/sync', getUser, async (req, res) => {
+  if (!req.user) {
+    return res.json({
+      error: 'Not logged in.',
+      data: null,
+    });
+  }
+
+  if (
+    req.body.webhook_code === 'SYNC_UPDATES_AVAILABLE' ||
+    req.body.webhook_code === 'DEFAULT_UPDATE' ||
+    req.body.webhook_code === 'NEW_ACCOUNTS_AVAILABLE'
+  ) {
+    console.log('synced up');
+    await syncTransactionsForUser(req.user.id);
+  }
+  return res.status(200).send();
+});
+
 router.get('/sync', getUser, async (req, res) => {
   if (!req.user) {
     return res.json({
@@ -57,8 +77,8 @@ router.get('/sync', getUser, async (req, res) => {
       data: null,
     });
   }
-  await syncTransactionsForUser(req.user.id);
 
+  await syncTransactionsForUser(req.user.id);
   return res.status(200).send();
 });
 
@@ -108,5 +128,14 @@ router.post('/plaid-public-token', getUser, async (req, res) => {
     return res.json({ error: error, data: null });
   }
 });
+
+interface SyncResponse {
+  environment: string;
+  historical_update_complete: boolean;
+  initial_update_complete: boolean;
+  item_id: string;
+  webhook_code: string;
+  webhook_type: string;
+}
 
 export const apiRouterV0 = router;

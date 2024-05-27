@@ -26,12 +26,11 @@ async function syncTransaction({
   item: Item;
   userId: string;
 }) {
-  const count = 500;
+  const count = 10;
   let cursor: string | undefined = item.nextCursor
     ? item.nextCursor
     : undefined;
 
-  let accountsAdded = false;
   while (true) {
     const response = (await plaidRequest('/transactions/sync', {
       access_token: item.plaidAccessToken,
@@ -55,20 +54,21 @@ async function syncTransaction({
       next_cursor: string;
       has_more: boolean;
     };
+    console.log(
+      response.added.length,
+      response.modified.length,
+      response.removed.length,
+      response.has_more,
+      'sync trans resp'
+    );
     const { accounts } = response;
-    if (!accountsAdded) {
+    if (accounts) {
       await Promise.all(
         accounts.map(async (account) => {
           const accountTypeId = await getAccountTypeIdByName(account.type);
           if (!accountTypeId) return;
           const acc = await getAccount(account.account_id);
           if (!acc) {
-            /*
-            const legalName = await findUserLegalNameForAccount(
-              userId,
-              account.account_id
-            );
-            */
             await addAccount({
               id: account.account_id,
               name: account.name,
@@ -77,12 +77,11 @@ async function syncTransaction({
                 account.balances.current)!.toString(),
               currencyCodeId: null, // account.balances.iso_currency_code,
               itemId: item.id,
-              legalName: "",
+              legalName: '',
             });
           }
         })
       );
-      accountsAdded = true;
     }
     const { added, modified, removed, next_cursor, has_more } = response;
     await addTransactions(added);
@@ -143,12 +142,13 @@ async function addTransactions(transactions: AddedPlaidTransaction[]) {
         transaction.personal_finance_category.primary
       );
       if (!categoryId) {
-
         throw new Error('No such category!');
       }
       const locationIsNull = Object.values(transaction.location).some(
         (value) => value === null
       );
+      console.log(transaction.account_id, 'account id sync');
+      console.log(categoryId, 'category id');
       return {
         id: transaction.transaction_id,
         address: locationIsNull
@@ -171,6 +171,7 @@ async function addTransactions(transactions: AddedPlaidTransaction[]) {
       };
     })
   );
+  console.log(newTransactions, 'newTransactions');
   newTransactions.length > 0 && createTransactions(newTransactions);
 }
 
