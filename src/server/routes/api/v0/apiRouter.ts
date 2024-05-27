@@ -1,5 +1,8 @@
 import { Router } from 'express';
-import { getAccessToken, getLinkToken } from '../../../plaid/link';
+import {
+  getAccessToken,
+  getLinkToken,
+} from '../../../plaid/link';
 import {
   addItemToUser,
   getAccountsForUser,
@@ -57,7 +60,9 @@ router.get('/sync', getUser, async (req, res) => {
       data: null,
     });
   }
-  await syncTransactionsForUser(req.user.id);
+
+  const syncedTransactions = await syncTransactionsForUser(req.user.id);
+  console.log(syncedTransactions, 'synced transactions');
 
   return res.status(200).send();
 });
@@ -108,5 +113,14 @@ router.post('/plaid-public-token', getUser, async (req, res) => {
     return res.json({ error: error, data: null });
   }
 });
+
+interface SyncResponse {
+  environment: string;
+  historical_update_complete: boolean;
+  initial_update_complete: boolean;
+  item_id: string;
+  webhook_code: string;
+  webhook_type: string;
+}
 
 export const apiRouterV0 = router;

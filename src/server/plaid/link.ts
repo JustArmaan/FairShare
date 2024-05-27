@@ -32,32 +32,26 @@ export async function getLinkToken(user: { id: string; email: string }) {
   });
 }
 
-export async function simulateWebhook(
-  accessToken: string,
-  webhookCode: string
-) {
-  return await plaidRequest('/sandbox/item/fire_webhook', {
-    access_token: accessToken,
-    webhook_code: webhookCode,
-  });
-}
+// export async function simulateWebhook(
+//   accessToken: string,
+//   webhookCode: string
+// ) {
+//   const result = await plaidRequest('/sandbox/item/fire_webhook', {
+//     access_token: accessToken,
+//     webhook_code: webhookCode,
+//   });
+//   console.log('SOMETHING BROKE', result);
+// }
 
-export async function simulatWebhookAndGetAccessToken(publicToken: string) {
-  const accessToken = await getAccessToken(publicToken);
-  console.log(accessToken, 'access');
-  simulateWebhook(accessToken, 'SYNC_UPDATES_AVAILABLE')
-    .then((response) => console.log('Webhook simulation response:', response))
-    .catch((error) => console.error('Error simulating webhook:', error));
-}
+// simulateWebhook(
+//   'access-sandbox-2a53e72e-8631-4e4c-aa28-9664f639d21a',
+//   'DEFAULT_UPDATE'
+// )
+//   .then((response) => console.log('Webhook simulation response:', response))
+//   .catch((error) => console.error('Error simulating webhook:', error));
 
 export async function getAccessToken(publicToken: string) {
   return await plaidRequest('/item/public_token/exchange', {
     public_token: publicToken,
   });
 }
-
-console.log(
-  await simulatWebhookAndGetAccessToken(
-    'access-sandbox-d695ae55-d1d9-49a4-8d4b-1152b4e138db'
-  )
-);
