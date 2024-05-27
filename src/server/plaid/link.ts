@@ -22,6 +22,7 @@ export async function getLinkToken(user: { id: string; email: string }) {
   return await plaidRequest('/link/token/create', {
     client_name: 'FairShare',
     language: 'en',
+    webhook: 'https://fairshare-idsp-1.onrender.com/api/v0/sync',
     country_codes: ['CA'],
     user: {
       client_user_id: user.id,

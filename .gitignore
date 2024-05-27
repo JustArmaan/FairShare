@@ -198,3 +198,4 @@ error.log
 ./src/server/database/dev.db
 ./src/server/database/dev.db-wal
 ./src/server/database/dev.db-shm
+/drizzle
