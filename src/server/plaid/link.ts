@@ -22,13 +22,13 @@ export async function getLinkToken(user: { id: string; email: string }) {
   return await plaidRequest('/link/token/create', {
     client_name: 'FairShare',
     language: 'en',
-    webhook: 'http://localhost:3000/api/v0/sync',
+    webhook: 'https://webhook-test.com/6e01dd32c49260f243275fbab1f5e123',
     country_codes: ['CA'],
     user: {
       client_user_id: user.id,
       email_address: user.email,
     },
-    products: ['transactions', 'identity', 'transfer'],
+    products: ['transactions'],
   });
 }
 
@@ -40,11 +40,11 @@ export async function getLinkToken(user: { id: string; email: string }) {
 //     access_token: accessToken,
 //     webhook_code: webhookCode,
 //   });
-//   console.log('SOMETHING BROKE', result);
+//   console.log(result);
 // }
 
 // simulateWebhook(
-//   'access-sandbox-2a53e72e-8631-4e4c-aa28-9664f639d21a',
+//   'access-sandbox-82093563-4f0c-46da-b2e0-0226c23f6118',
 //   'DEFAULT_UPDATE'
 // )
 //   .then((response) => console.log('Webhook simulation response:', response))

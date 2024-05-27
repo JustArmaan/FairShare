@@ -1,8 +1,5 @@
 import { Router } from 'express';
-import {
-  getAccessToken,
-  getLinkToken,
-} from '../../../plaid/link';
+import { getAccessToken, getLinkToken } from '../../../plaid/link';
 import {
   addItemToUser,
   getAccountsForUser,
@@ -53,7 +50,7 @@ router.get('/has-accounts', getUser, async (req, res) => {
     });
 });
 
-router.get('/sync', getUser, async (req, res) => {
+router.post('/sync', getUser, async (req, res) => {
   if (!req.user) {
     return res.json({
       error: 'Not logged in.',
@@ -61,9 +58,14 @@ router.get('/sync', getUser, async (req, res) => {
     });
   }
 
-  const syncedTransactions = await syncTransactionsForUser(req.user.id);
-  console.log(syncedTransactions, 'synced transactions');
-
+  if (
+    req.body.webhook_code === 'SYNC_UPDATES_AVAILABLE' ||
+    req.body.webhook_code === 'DEFAULT_UPDATE' ||
+    req.body.webhook_code === 'NEW_ACCOUNTS_AVAILABLE'
+  ) {
+    console.log('synced up');
+    syncTransactionsForUser(req.user.id);
+  }
   return res.status(200).send();
 });
 
