@@ -65,7 +65,7 @@ router.post('/sync', getUser, async (req, res) => {
     req.body.webhook_code === 'NEW_ACCOUNTS_AVAILABLE'
   ) {
     console.log('synced up');
-    syncTransactionsForUser(req.user.id);
+    await syncTransactionsForUser(req.user.id);
   }
   return res.status(200).send();
 });

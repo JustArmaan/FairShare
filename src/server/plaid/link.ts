@@ -22,7 +22,7 @@ export async function getLinkToken(user: { id: string; email: string }) {
   return await plaidRequest('/link/token/create', {
     client_name: 'FairShare',
     language: 'en',
-    webhook: 'https://webhook-test.com/6e01dd32c49260f243275fbab1f5e123',
+    webhook: `${env.baseUrl}/api/v0/sync`,
     country_codes: ['CA'],
     user: {
       client_user_id: user.id,

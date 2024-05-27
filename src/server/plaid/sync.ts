@@ -31,7 +31,6 @@ async function syncTransaction({
     ? item.nextCursor
     : undefined;
 
-  let accountsAdded = false;
   while (true) {
     const response = (await plaidRequest('/transactions/sync', {
       access_token: item.plaidAccessToken,
@@ -63,8 +62,7 @@ async function syncTransaction({
       'sync trans resp'
     );
     const { accounts } = response;
-    console.log(accounts, 'accounts');
-    if (!accountsAdded && accounts) {
+    if (accounts) {
       await Promise.all(
         accounts.map(async (account) => {
           const accountTypeId = await getAccountTypeIdByName(account.type);
@@ -88,7 +86,6 @@ async function syncTransaction({
           }
         })
       );
-      accountsAdded = true;
     }
     const { added, modified, removed, next_cursor, has_more } = response;
     await addTransactions(added);
@@ -161,7 +158,7 @@ async function addTransactions(transactions: AddedPlaidTransaction[]) {
         address: locationIsNull
           ? null
           : `${transaction.location.address!},  ${transaction.location
-              .city!}, ${transaction.location.region!}, ${transaction.location
+            .city!}, ${transaction.location.region!}, ${transaction.location
               .country!}`,
         accountId: transaction.account_id,
         categoryId: categoryId.id,
@@ -203,14 +200,14 @@ async function modifyTransaction(transaction: ModifiedPlaidTransaction) {
     company: transaction.merchant_name
       ? transaction.merchant_name
       : transaction.name
-      ? transaction.name
-      : undefined,
+        ? transaction.name
+        : undefined,
     amount: transaction.amount ? transaction.amount : undefined,
     timestamp: transaction.datetime
       ? transaction.datetime
       : transaction.date
-      ? transaction.date
-      : undefined,
+        ? transaction.date
+        : undefined,
     latitude: transaction.location.lat ? transaction.location.lat : undefined,
     longitude: transaction.location.lon ? transaction.location.lon : undefined,
   });
