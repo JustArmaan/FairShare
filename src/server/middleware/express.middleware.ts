@@ -30,21 +30,16 @@ export const configureApp = (app: Express) => {
       res: express.Response,
       next: express.NextFunction
     ) => {
-      try {
-        console.error(`Error status: ${error.status}`);
+      console.error(`Error status: ${error.status}`);
+      console.error(error, 'error caught in the global error handler');
 
-        console.error(error, 'error caught in the global error handler');
-
-        if (error.status === 404) {
-          return res.status(404).send('404 - Not Found');
-        }
-
-        error.status = error.status || 500;
-        res.status(error.status);
-        res.send(`${error.status} - Server Error`);
-      } catch (error) {
-        console.error(error);
+      if (error.status === 404) {
+        return res.status(404).send('404 - Not Found');
       }
+
+      error.status = error.status || 500;
+      res.status(error.status);
+      res.send(`${error.status} - Server Error`);
     }
   );
 };
