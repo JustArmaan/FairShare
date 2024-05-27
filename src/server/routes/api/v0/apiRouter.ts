@@ -5,12 +5,12 @@ import {
   getAccountsForUser,
   getItemsForUser,
 } from '../../../services/plaid.service';
-import { getUser } from '../../authRouter';
 import { syncTransactionsForUser } from '../../../plaid/sync';
+import { getUserByItemId } from '../../../services/user.service';
 
 const router = Router();
 
-router.get('/connected', getUser, async (req, res) => {
+router.get('/connected', async (req, res) => {
   if (!req.user) {
     return res.json({
       error: 'Not logged in.',
@@ -27,7 +27,7 @@ router.get('/connected', getUser, async (req, res) => {
   });
 });
 
-router.get('/has-accounts', getUser, async (req, res) => {
+router.get('/has-accounts', async (req, res) => {
   if (!req.user) {
     return res.json({
       error: 'Not logged in.',
@@ -51,26 +51,21 @@ router.get('/has-accounts', getUser, async (req, res) => {
     });
 });
 
-router.post('/sync', getUser, async (req, res) => {
-  if (!req.user) {
-    return res.json({
-      error: 'Not logged in.',
-      data: null,
-    });
-  }
-
+router.post('/sync', async (req, res) => {
+  const { item_id } = req.body as { [key: string]: string };
   if (
     req.body.webhook_code === 'SYNC_UPDATES_AVAILABLE' ||
     req.body.webhook_code === 'DEFAULT_UPDATE' ||
     req.body.webhook_code === 'NEW_ACCOUNTS_AVAILABLE'
   ) {
+    const { id } = (await getUserByItemId(item_id))!;
+    await syncTransactionsForUser(id);
     console.log('synced up');
-    await syncTransactionsForUser(req.user.id);
   }
   return res.status(200).send();
 });
 
-router.get('/sync', getUser, async (req, res) => {
+router.get('/sync', async (req, res) => {
   if (!req.user) {
     return res.json({
       error: 'Not logged in.',
@@ -82,7 +77,7 @@ router.get('/sync', getUser, async (req, res) => {
   return res.status(200).send();
 });
 
-router.get('/plaid-token', getUser, async (req, res) => {
+router.get('/plaid-token', async (req, res) => {
   if (!req.user) {
     return res.json({
       error: 'Not logged in.',
@@ -97,7 +92,7 @@ router.get('/plaid-token', getUser, async (req, res) => {
   });
 });
 
-router.post('/plaid-public-token', getUser, async (req, res) => {
+router.post('/plaid-public-token', async (req, res) => {
   if (!req.user) {
     return res.json({
       error: 'Not logged in.',

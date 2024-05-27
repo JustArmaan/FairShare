@@ -142,7 +142,8 @@ export async function getUser(req: Request, res: Response, next: NextFunction) {
       req.url.endsWith('.svg') ||
       req.url.endsWith('.png') ||
       req.url.endsWith('.css') ||
-      req.url.endsWith('client')
+      req.url.endsWith('client') ||
+      req.url.endsWith('sync')
     )
       return next();
     res.redirect('/');

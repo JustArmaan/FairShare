@@ -12,11 +12,23 @@ import {
   type Item,
 } from '../services/plaid.service';
 import { plaidRequest } from './link';
-import { findUserLegalNameForAccount } from './identity';
+
+const syncStore = new Set<string>();
+const syncQueue: string[] = [];
 
 export async function syncTransactionsForUser(userId: string) {
+  if (syncStore.has(userId)) {
+    syncQueue.push(userId);
+    return;
+  }
+  syncStore.add(userId);
   const items = await getItemsForUser(userId);
-  items.forEach((item) => syncTransaction({ ...item, userId }));
+  await Promise.all(items.map((item) => syncTransaction({ ...item, userId })));
+  syncStore.delete(userId);
+  if (syncQueue.length > 0) {
+    const nextUser = syncQueue.shift();
+    await syncTransactionsForUser(nextUser!);
+  }
 }
 
 async function syncTransaction({

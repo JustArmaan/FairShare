@@ -1,4 +1,5 @@
 import { getDB } from '../database/client';
+import { items } from '../database/schema/items';
 import { users } from '../database/schema/users';
 import { eq } from 'drizzle-orm';
 
@@ -50,6 +51,21 @@ export const getUserByEmailOnly = async (email: string) => {
     return results[0];
   } catch (err) {
     console.error(err);
+    return null;
+  }
+};
+
+export const getUserByItemId = async (itemId: string) => {
+  try {
+    const results = await db
+      .select({ user: users })
+      .from(users)
+      .innerJoin(items, eq(items.userId, users.id))
+      .where(eq(items.id, itemId));
+
+    return results[0].user;
+  } catch (err) {
+    console.error(err, 'at getUserByItemId');
     return null;
   }
 };
