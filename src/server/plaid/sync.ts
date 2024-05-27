@@ -14,26 +14,25 @@ import {
 import { plaidRequest } from './link';
 
 const syncStore = new Set<string>();
-const syncQueue: string[] = [];
+const syncQueue = new Set<string>();
 
 export async function syncTransactionsForUser(userId: string) {
   if (syncStore.has(userId)) {
-    syncQueue.push(userId);
+    syncQueue.add(userId);
     return;
   }
   syncStore.add(userId);
   const items = await getItemsForUser(userId);
   await Promise.all(items.map((item) => syncTransaction({ ...item, userId })));
   syncStore.delete(userId);
-  if (syncQueue.length > 0) {
-    const nextUser = syncQueue.shift();
-    await syncTransactionsForUser(nextUser!);
+  if (syncQueue.has(userId)) {
+    syncQueue.delete(userId);
+    await syncTransactionsForUser(userId);
   }
 }
 
 async function syncTransaction({
   item,
-  userId,
 }: {
   item: Item;
   userId: string;
