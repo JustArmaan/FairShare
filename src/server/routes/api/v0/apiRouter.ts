@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { getAccessToken, getLinkToken } from '../../../plaid/link';
+import { getAccessToken, getLinkToken, simulateWebhook } from '../../../plaid/link';
 import {
   addItemToUser,
   getAccountsForUser,
