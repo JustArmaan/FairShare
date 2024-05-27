@@ -58,6 +58,7 @@ router.post('/sync', async (req, res) => {
     req.body.webhook_code === 'DEFAULT_UPDATE' ||
     req.body.webhook_code === 'NEW_ACCOUNTS_AVAILABLE'
   ) {
+    if (!item_id) return res.status(400).send();
     const { id } = (await getUserByItemId(item_id))!;
     await syncTransactionsForUser(id);
     console.log('synced up');
