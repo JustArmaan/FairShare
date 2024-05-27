@@ -16,8 +16,6 @@ const router = express.Router();
 router.get('/page', async (req, res) => {
   const userId = req.user!.id;
 
-  await syncTransactionsForUser(userId);
-
   const accounts = await getAccountsForUser(userId);
   if (!accounts || accounts.length === 0) {
     const html = renderToHtml(<ConnectAccount />);
