@@ -27,7 +27,7 @@
     "@vitejs/plugin-react": "^4.2.1",
     "cookie-parser": "^1.4.6",
     "dotenv": "^16.4.5",
-    "drizzle-kit": "^0.21.1",
+    "drizzle-kit": "^0.21.4",
     "drizzle-orm": "^0.30.6",
     "express": "^4.19.2",
     "jsxte": "^3.3.1",

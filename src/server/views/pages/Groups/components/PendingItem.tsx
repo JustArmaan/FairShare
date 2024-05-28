@@ -90,7 +90,6 @@ export const PendingItems = ({
                   >
                     Confirm
                   </button>
-                  )
                 </div>
                 {index !== transactions.length - 1 && (
                   <div class="mt-4 h-[1px] bg-primary-grey rounded w-full"></div>

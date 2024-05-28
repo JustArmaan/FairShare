@@ -72,7 +72,7 @@ export const ViewGroups = ({
           <Members
             memberDetails={members}
             currentUser={currentUser}
-            owedPerMember={owedPerMember}
+            owedPerMember={owedPerMember.map(owedPerMember => owedPerMember.filter(owed => !owed.pending))}
           />
         </div>
         {selectedDepositAccountId && (
