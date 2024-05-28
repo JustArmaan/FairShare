@@ -237,11 +237,30 @@ router.get('/addButton', async (req, res) => {
       tailwindColorClass={transaction.category.color}
       transaction={transaction}
       checked={!(checked === 'true')}
-      route="AddTransaction"
+      route='AddTransaction'
       groupId={groupId as string}
     />
   );
   res.send(html);
+});
+
+router.get('transaction/:transactionId', async (req, res) => {
+  const transaction = await getTransaction(req.params.transactionId);
+  if (!transaction) return res.status(404).send('404');
+
+  const html = renderToHtml(
+    <Transaction
+      transaction={transaction}
+      tailwindColorClass={transaction.category.color}
+    />
+  );
+  res.send(html);
+});
+
+router.get('/account/:accountId', async (req, res) => {
+  const accountId = req.params.accountId;
+
+  
 });
 
 export const transactionRouter = router;

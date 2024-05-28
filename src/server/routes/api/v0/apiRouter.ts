@@ -122,13 +122,4 @@ router.post('/plaid-public-token', async (req, res) => {
   }
 });
 
-interface SyncResponse {
-  environment: string;
-  historical_update_complete: boolean;
-  initial_update_complete: boolean;
-  item_id: string;
-  webhook_code: string;
-  webhook_type: string;
-}
-
 export const apiRouterV0 = router;
