@@ -19,97 +19,125 @@ const syncQueue = new Set<string>();
 export async function syncTransactionsForUser(userId: string) {
   if (syncStore.has(userId)) {
     syncQueue.add(userId);
+    console.log(syncQueue, 'added to queue, exiting');
     return;
   }
   syncStore.add(userId);
+  console.log('added to syncStore', syncStore);
   const items = await getItemsForUser(userId);
   await Promise.all(items.map((item) => syncTransaction({ ...item, userId })));
   syncStore.delete(userId);
+  console.log('del from sync store');
+  console.log('sync queue', syncQueue);
   if (syncQueue.has(userId)) {
     syncQueue.delete(userId);
+    console.log('del from sync queue, sync');
     await syncTransactionsForUser(userId);
   }
 }
 
-async function syncTransaction({
-  item,
-}: {
-  item: Item;
-  userId: string;
-}) {
-  const count = 10;
+async function updateAccounts(
+  accounts: SyncResponse['accounts'],
+  itemId: string
+) {
+  await Promise.all(
+    accounts.map(async (account) => {
+      const accountTypeId = await getAccountTypeIdByName(account.type);
+      if (!accountTypeId) return;
+      const acc = await getAccount(account.account_id);
+      if (!acc) {
+        await addAccount({
+          id: account.account_id,
+          name: account.name,
+          accountTypeId: accountTypeId.id,
+          balance: (account.balances.available ||
+            account.balances.current)!.toString(),
+          currencyCodeId: null, // account.balances.iso_currency_code,
+          itemId: itemId,
+          legalName: '',
+        });
+      }
+    })
+  );
+}
+
+type SyncResponse = {
+  accounts: {
+    account_id: string;
+    balances: {
+      available: number | null;
+      current: number | null;
+      iso_currency_code: string | null;
+      limit: number | null;
+    };
+    name: string;
+    type: string;
+  }[];
+  added: AddedPlaidTransaction[];
+  removed: { transaction_id: string }[];
+  modified: ModifiedPlaidTransaction[];
+  next_cursor: string;
+  has_more: boolean;
+  error_code: string | undefined;
+};
+async function syncTransaction({ item }: { item: Item; userId: string }) {
+  const count = 1;
   let cursor: string | undefined = item.nextCursor
     ? item.nextCursor
     : undefined;
+  const originalCursor = cursor;
 
+  let toAdd: AddedPlaidTransaction[] = [];
+  let toModify: ModifiedPlaidTransaction[] = [];
+  let toRemove: { transaction_id: string }[] = [];
   while (true) {
     const response = (await plaidRequest('/transactions/sync', {
       access_token: item.plaidAccessToken,
       cursor,
       count,
-    })) as {
-      accounts: {
-        account_id: string;
-        balances: {
-          available: number | null;
-          current: number | null;
-          iso_currency_code: string | null;
-          limit: number | null;
-        };
-        name: string;
-        type: string;
-      }[];
-      added: AddedPlaidTransaction[];
-      removed: { transaction_id: string }[];
-      modified: ModifiedPlaidTransaction[];
-      next_cursor: string;
-      has_more: boolean;
-    };
+    })) as SyncResponse;
+
     console.log(
-      response.added.length,
-      response.modified.length,
-      response.removed.length,
-      response.has_more,
+      response?.added?.length,
+      response?.modified?.length,
+      response?.removed?.length,
+      response?.has_more,
       'sync trans resp'
     );
+
+    if (
+      response.error_code === 'TRANSACTIONS_SYNC_MUTATION_DURING_PAGINATION'
+    ) {
+      cursor = originalCursor;
+      toAdd = [];
+      toModify = [];
+      toRemove = [];
+      continue;
+    }
+
     const { accounts } = response;
     if (accounts) {
-      await Promise.all(
-        accounts.map(async (account) => {
-          const accountTypeId = await getAccountTypeIdByName(account.type);
-          if (!accountTypeId) return;
-          const acc = await getAccount(account.account_id);
-          if (!acc) {
-            await addAccount({
-              id: account.account_id,
-              name: account.name,
-              accountTypeId: accountTypeId.id,
-              balance: (account.balances.available ||
-                account.balances.current)!.toString(),
-              currencyCodeId: null, // account.balances.iso_currency_code,
-              itemId: item.id,
-              legalName: '',
-            });
-          }
-        })
-      );
+      await updateAccounts(accounts, item.id);
     }
     const { added, modified, removed, next_cursor, has_more } = response;
-    await addTransactions(added);
-    await Promise.all(modified.map(modifyTransaction));
-    if (removed.length > 0) {
-      await deleteTransactions(
-        removed.map((removed) => removed.transaction_id)
-      );
-    }
-    if (!has_more) {
-      updateItem(item.id, {
-        nextCursor: next_cursor,
-      });
+    added.forEach((added) => toAdd.push(added));
+    modified.forEach((modified) => toModify.push(modified));
+    removed.forEach((removed) => toRemove.push(removed));
+    cursor = next_cursor;
+    if (!has_more && next_cursor) {
       break;
     }
-    cursor = next_cursor;
   }
+
+  toAdd.length > 0 && (await addTransactions(toAdd));
+  toModify.length > 0 && (await Promise.all(toModify.map(modifyTransaction)));
+  toRemove.length > 0 &&
+    (await deleteTransactions(
+      toRemove.map((removed) => removed.transaction_id)
+    ));
+  updateItem(item.id, {
+    nextCursor: cursor
+  });
 }
 
 interface PlaidTransactionGeneral {
@@ -158,8 +186,6 @@ async function addTransactions(transactions: AddedPlaidTransaction[]) {
       const locationIsNull = Object.values(transaction.location).some(
         (value) => value === null
       );
-      console.log(transaction.account_id, 'account id sync');
-      console.log(categoryId, 'category id');
       return {
         id: transaction.transaction_id,
         address: locationIsNull
@@ -182,12 +208,10 @@ async function addTransactions(transactions: AddedPlaidTransaction[]) {
       };
     })
   );
-  console.log(newTransactions, 'newTransactions');
   newTransactions.length > 0 && createTransactions(newTransactions);
 }
 
 async function modifyTransaction(transaction: ModifiedPlaidTransaction) {
-  console.log('modifiying');
   let categoryId: { id: string } | undefined | null = undefined;
   if (transaction.personal_finance_category) {
     categoryId = await getCategoryIdByName(

@@ -50,13 +50,6 @@ export async function createGroupTransfer(
       transfer.groupTransactionToUsersToGroupsId
     );
 
-    console.log(
-      groupId,
-      transfer.senderAccountId,
-      transfer.receiverAccountId,
-      'notifs data'
-    );
-
     const notif1 = await createNotificationForUserInGroups(
       groupId,
       senderName!.user.id,

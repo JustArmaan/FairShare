@@ -36,7 +36,6 @@ router.get('/has-accounts', async (req, res) => {
   }
 
   const accounts = await getAccountsForUser(req.user.id);
-  // console.log(accounts);
   const connected = accounts && accounts.length > 0;
   return res
     .set({
@@ -102,8 +101,6 @@ router.post('/plaid-public-token', async (req, res) => {
   }
 
   const { publicToken } = req.body;
-  // console.log(req.body, 'body');
-
   if (!publicToken) {
     return res.json({ error: 'Missing public token.', data: null });
   }

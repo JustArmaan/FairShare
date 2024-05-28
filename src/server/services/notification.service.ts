@@ -1,16 +1,11 @@
-import { getDB } from "../database/client";
-import { usersToGroups } from "../database/schema/usersToGroups";
-import { eq } from "drizzle-orm";
-import { v4 as uuidv4 } from "uuid";
-import { users } from "../database/schema/users";
-import type { UserSchemaWithMemberType } from "../interface/types";
-import type { ExtractFunctionReturnType } from "./user.service";
-import { transactionsToGroups } from "../database/schema/transactionsToGroups";
-import { transactions } from "../database/schema/transaction";
-import { groupTransactionState } from "../database/schema/groupTransactionState";
-import { getUsersToGroup } from "./group.service";
-import { notifications } from "../database/schema/notifications";
-import { type ArrayElement } from "../interface/types";
+import { getDB } from '../database/client';
+import { usersToGroups } from '../database/schema/usersToGroups';
+import { eq } from 'drizzle-orm';
+import { v4 as uuidv4 } from 'uuid';
+import type { ExtractFunctionReturnType } from './user.service';
+import { getUsersToGroup } from './group.service';
+import { notifications } from '../database/schema/notifications';
+import { type ArrayElement } from '../interface/types';
 
 let db = getDB();
 
@@ -63,22 +58,19 @@ export type Notification = ArrayElement<
 export async function createNotificationForUserInGroups(
   groupId: string,
   userId: string,
-  notification: Omit<Notification, "id" | "userGroupId">
+  notification: Omit<Notification, 'id' | 'userGroupId'>
 ) {
   try {
     const userToGroup = await getUsersToGroup(groupId, userId);
 
-    console.log(userToGroup, 'userToGroupAHAHAHAHAHAHAHAHAHHAAH');
-    
     if (!userToGroup) {
-        return null
+      return null;
     }
 
-
     const results = await db
-    .insert(notifications)
-    .values({ ...notification, id: uuidv4(), userGroupId: userToGroup.id })
-    .returning()
+      .insert(notifications)
+      .values({ ...notification, id: uuidv4(), userGroupId: userToGroup.id })
+      .returning();
     return results[0];
   } catch (error) {
     console.error(error);

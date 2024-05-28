@@ -69,22 +69,6 @@ const sessionManager = (req: Request, res: Response): SessionManager => ({
   },
 });
 
-// const sessionManager: SessionManager = {
-//   async getSessionItem(key: string) {
-//     return store[key];
-//   },
-//   async setSessionItem(key: string, value: unknown) {
-//     console.log(value, 'value here');
-//     store[key] = value;
-//   },
-//   async removeSessionItem(key: string) {
-//     delete store[key];
-//   },
-//   async destroySession() {
-//     store = {};
-//   },
-// };
-
 router.get('/login', async (req, res) => {
   const loginUrl = await kindeClient.login(sessionManager(req, res));
   return res.redirect(loginUrl.toString());
