@@ -10,9 +10,13 @@ import { apiRouterV0 } from './routes/api/v0/apiRouter';
 import { authRouter } from './routes/authRouter';
 import { transferRouter } from './routes/transferRouter';
 import { notificationRouter } from './routes/notificationRouter';
+import http from 'http';
+import { Server } from 'socket.io';
+import { WebsocketManager } from './websockets/WebsocketManager';
 const PORT = process.env.PORT || 3000;
 
 const app = express();
+const server = http.createServer(app);
 
 configureApp(app);
 
@@ -24,10 +28,23 @@ app.use('/transactions', transactionRouter);
 app.use('/groups', groupRouter);
 app.use('/auth', authRouter);
 app.use('/transfer', transferRouter);
-app.use('/notification', notificationRouter )
+app.use('/notification', notificationRouter);
 
+// sockets
+const io = new Server(server);
+io.on('connection', (socket) => {
+  WebsocketManager.addConnection(socket.id, socket)
+  console.log('a user connected');
+});
 
+const runningServer = server.listen(PORT as number, () => {
+  console.log(`Server is running on port ${PORT}...`);
+});
 
+ViteExpress.bind(app, runningServer);
+
+/*
 ViteExpress.listen(app, PORT as number, () =>
   console.log(`Server is running on port ${PORT}...`)
 );
+*/
