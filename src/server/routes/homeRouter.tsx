@@ -1,8 +1,6 @@
 import express from 'express';
 import { renderToHtml } from 'jsxte';
-import {
-  getTransactionsForUser,
-} from '../services/transaction.service';
+import { getTransactionsForUser } from '../services/transaction.service';
 import { syncTransactionsForUser } from '../plaid/sync';
 import {
   getAccountWithTransactions,
@@ -17,7 +15,6 @@ router.get('/page', async (req, res) => {
   const userId = req.user!.id;
 
   await syncTransactionsForUser(userId);
-
   const accounts = await getAccountsForUser(userId);
   if (!accounts || accounts.length === 0) {
     const html = renderToHtml(<ConnectAccount />);

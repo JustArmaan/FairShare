@@ -70,9 +70,7 @@ export type Transaction = ExtractFunctionReturnType<
 
 export async function createTransactions(newTransactions: Transaction[]) {
   try {
-    await db
-      .insert(transactions)
-      .values(newTransactions.map((transaction) => ({ ...transaction })));
+    await db.insert(transactions).values(newTransactions);
   } catch (error) {
     console.error(error);
   }
