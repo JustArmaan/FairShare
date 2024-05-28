@@ -122,7 +122,7 @@ export async function getUser(req: Request, res: Response, next: NextFunction) {
       await createUser({
         id,
         firstName: given_name,
-        lastName: family_name,
+        lastName: family_name ? family_name : null,
         email,
         color: faker.helpers.arrayElement(colors),
       });
