@@ -27,7 +27,7 @@ export const TransactionList = (props: {
   }
 
   return (
-    <div class='animate-fade-in'>
+    <div id={`transactionList-${props.account.id}`} class='animate-fade-in'>
       {sortTransactionsByTimestamp(props.account.transactions).map(
         (transaction) => (
           <Transaction
