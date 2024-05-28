@@ -7,12 +7,13 @@ import { homeRouter } from './routes/homeRouter';
 import { transactionRouter } from './routes/transactionRouter';
 import { groupRouter } from './routes/groupRouter';
 import { apiRouterV0 } from './routes/api/v0/apiRouter';
-import { authRouter } from './routes/authRouter';
+import { authRouter, kindeClient, sessionManager } from './routes/authRouter';
 import { transferRouter } from './routes/transferRouter';
 import { notificationRouter } from './routes/notificationRouter';
 import http from 'http';
 import { Server } from 'socket.io';
 import { WebsocketManager } from './websockets/WebsocketManager';
+import { setupSocketConnectionListener } from './websockets/connection';
 const PORT = process.env.PORT || 3000;
 
 const app = express();
@@ -31,11 +32,9 @@ app.use('/transfer', transferRouter);
 app.use('/notification', notificationRouter);
 
 // sockets
-const io = new Server(server);
-io.on('connection', (socket) => {
-  WebsocketManager.addConnection(socket.id, socket)
-  console.log('a user connected');
-});
+
+export const io = new Server(server);
+setupSocketConnectionListener(io);
 
 const runningServer = server.listen(PORT as number, () => {
   console.log(`Server is running on port ${PORT}...`);
