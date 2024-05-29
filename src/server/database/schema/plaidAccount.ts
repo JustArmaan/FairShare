@@ -4,7 +4,7 @@ import { accountType } from "./accountType";
 import { currencyCode } from "./currencyCode";
 import { accounts } from "./accounts";
 
-export const plaidAccount = sqliteTable("accounts", {
+export const plaidAccount = sqliteTable("plaidAccount", {
   id: text("id").primaryKey(),
   balance: numeric("balance"),
   currencyCodeId: text("currency_code_id").references(() => currencyCode.id),

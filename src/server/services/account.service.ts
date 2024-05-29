@@ -16,7 +16,16 @@ export async function addAccount(account: Account) {
   }
 }
 
+export async function addPlaidAccount(account: PlaidAccount) {
+  try {
+
+  } catch (error) {
+    console.error(error, 'in addPlaidAccount');
+  
+}
+
 export type Account = ExtractFunctionReturnType<typeof getAccount>;
+export type PlaidAccount = ExtractFunctionReturnType<typeof getPlaidAccount>;
 
 export async function getAccount(accountId: string) {
   try {
