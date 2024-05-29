@@ -472,6 +472,7 @@ export const addMember = async (
     //     }
     //   }
     // }
+    
   } catch (error) {
     console.error('Failed to add member:', error);
     return false;

@@ -6,11 +6,11 @@ export function setupSocketListener() {
     const socket = io();
 
     socket.on('connect', () => {
-      console.log(socket.id);
+      console.log(socket.id, 'connected');
     });
 
     socket.on('disconnect', () => {
-      console.log(socket.id);
+      console.log(socket.id, 'disconnected');
     });
 
     socket.on('newTransaction', (data) => {
@@ -37,6 +37,31 @@ export function setupSocketListener() {
       if (accountOverview && newTransactions) {
         htmx.ajax('GET', `/home/accountOverview/${newTransactions.accountId}`, {
           target: `accountOverview-${newTransactions.accountId}`,
+          swap: 'outerHTML',
+          event: 'load',
+        });
+      }
+    });
+
+    socket.on('groupInvite', (data) => {
+      console.log(data, 'groupInvite');
+      const groupId: string = data.groupId;
+      const notificationIcon = document.querySelector('#notification-icon');
+      const notificationList = document.querySelector('#notificationList');
+      console.log(data, notificationIcon, notificationList, 'groupInvite');
+
+      if (notificationIcon) {
+        console.log('notificationIcon', notificationIcon);
+        htmx.ajax('GET', `/notification/notificationIcon`, {
+          target: '#notification-icon',
+          swap: 'outerHTML',
+          event: 'load',
+        });
+      }
+
+      if (notificationList) {
+        htmx.ajax('GET', `/notification/notificationList/${groupId}`, {
+          target: '#notification-list',
           swap: 'outerHTML',
           event: 'load',
         });

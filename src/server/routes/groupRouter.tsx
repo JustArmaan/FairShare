@@ -54,8 +54,8 @@ import {
   getAccountsWithItemsForUser,
 } from '../services/account.service.ts';
 import { AccountSelector } from '../views/pages/Groups/components/AccountSelector.tsx';
-import { get } from 'http';
-import { io } from 'socket.io-client';
+import { io } from '../../server/main.ts';
+import { createNotificationForUserInGroups } from '../services/notification.service.ts';
 
 const router = express.Router();
 
@@ -417,8 +417,27 @@ router.post('/create', async (req, res) => {
         if (user.id !== currentUser.id) {
           const invitedMember = await addMember(group.id, user.id, 'Invited');
           if (invitedMember) {
-            io.to(user.id).emit('group-invite', { groupId: group.id });
-            console.log('Invited member', invitedMember);
+            try {
+              const newNotif = await createNotificationForUserInGroups(
+                group.id,
+                user.id,
+                {
+                  timestamp: new Date().toISOString(),
+                  message: `You have been invited to join the group ${group.name} by ${currentUser.email}`,
+                  route: `/groups/${group.id}`,
+                }
+              );
+              if (!newNotif) {
+                console.error('Failed to create notification');
+              }
+              io.to(invitedMember.userId).emit(
+                'groupInvite',
+                JSON.stringify({ groupId: invitedMember.groupId })
+              );
+              console.log('Invited member', invitedMember);
+            } catch (error) {
+              console.error('Error handling group invitation:', error);
+            }
           }
         } else if (user.id === currentUser.id) {
           await addMember(group.id, user.id, 'Owner');
@@ -591,7 +610,24 @@ router.post('/edit/:groupId', async (req, res) => {
     for (const memberEmail of newMembers) {
       const user = await getUserByEmailOnly(memberEmail);
       if (user) {
-        await addMember(currentGroup.id, user.id, 'Invited');
+        const invitedMember = await addMember(
+          currentGroup.id,
+          user.id,
+          'Invited'
+        );
+        if (invitedMember) {
+          await createNotificationForUserInGroups(currentGroup.id, user.id, {
+            timestamp: new Date().toISOString(),
+            message: `You have been invited to join the group ${currentGroup.name} by ${currentUser.email}`,
+            route: `/groups/${currentGroup.id}`,
+          });
+          io.to(invitedMember.userId).emit(
+            'groupInvite',
+            JSON.stringify({ groupId: invitedMember.groupId })
+          );
+
+          console.log('Invited member', invitedMember);
+        }
       } else {
         return res.status(400).send(`User with email ${memberEmail} not found`);
       }
@@ -703,5 +739,9 @@ router.get('/getTransactions/:groupId/', async (req, res) => {
   );
   res.send(html);
 });
+
+router.post('/:groupId/:approval', async (req, res) => {
+  
+})
 
 export const groupRouter = router;

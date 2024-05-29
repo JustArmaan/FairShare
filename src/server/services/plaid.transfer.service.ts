@@ -56,6 +56,7 @@ export async function createGroupTransfer(
       {
         message: `Your transfer to ${recieverName?.user.firstName} has been started`,
         timestamp: new Date().toISOString(),
+        route: null,
       }
     );
     const notif2 = await createNotificationForUserInGroups(
@@ -66,6 +67,7 @@ export async function createGroupTransfer(
           groupTransaction![0].amount
         ).toFixed(2)}`,
         timestamp: new Date().toISOString(),
+        route: null,
       }
     );
   } catch (err) {

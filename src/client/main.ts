@@ -1,9 +1,11 @@
 import { main } from './group';
 import { CustomizeMap } from './map/customizeMap';
+import { setupSocketListener } from './socket.io/socket.io';
 import { splitTransfer } from './splitTransfer/splitTransfer';
 
 main();
 splitTransfer();
+setupSocketListener();
 
 document.body.addEventListener('htmx:afterSwap', (event) => {
   if (!(event.target instanceof HTMLElement)) return;
