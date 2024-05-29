@@ -54,7 +54,7 @@ async function updateAccounts(
           id: account.account_id,
           name: account.name,
           accountTypeId: accountTypeId.id,
-          currencyCodeId: null, // account.balances.iso_currency_code,
+          currencyCodeId: null,
         });
         await addPlaidAccount({
           id: account.account_id,
@@ -62,11 +62,8 @@ async function updateAccounts(
           balance: (account.balances.available ||
             account.balances.current)!.toString(),
           itemId: itemId,
-<<<<<<< HEAD
-=======
           currencyCodeId: null,
           accountsId: account.account_id,
->>>>>>> 0216daf22d0dd9e44ef051b4f93fe97316273a8f
         });
       }
     })
