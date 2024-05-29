@@ -72,12 +72,13 @@ export const ViewGroups = ({
           <Members
             memberDetails={members}
             currentUser={currentUser}
-            owedPerMember={owedPerMember.map(owedPerMember => owedPerMember.filter(owed => !owed.pending))}
+            owedPerMember={owedPerMember.map((owedPerMember) =>
+              owedPerMember.filter((owed) => !owed.pending)
+            )}
           />
         </div>
-        {selectedDepositAccountId && (
         <>
-        <p class="text-font-off-white text-2xl pt-3">Pending</p>
+          <p class="text-font-off-white text-2xl pt-3">Pending</p>
           <PendingItems
             memberDetails={members}
             currentUser={currentUser}
@@ -86,17 +87,7 @@ export const ViewGroups = ({
             groupId={groupId}
             selectedAccountId={selectedDepositAccountId}
           />
-          </>
-        )}
-        <div class="text-font-off-white mt-3">
-          <h2 class="text-2xl pb-3">Select deposit account</h2>
-          <div
-            class="h-80"
-            hx-get={`/groups/account-selector/select?accountId=${selectedDepositAccountId}&isDepositAccount=true&groupId=${groupId}`}
-            hx-trigger="load"
-            hx-swap="outerHTML"
-          ></div>{' '}
-        </div>{' '}
+        </>
         <p class="text-font-off-white text-2xl pt-3 mt-2">Owing</p>
         <OwedGroup
           memberDetails={members}

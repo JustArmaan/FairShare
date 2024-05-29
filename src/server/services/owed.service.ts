@@ -61,7 +61,7 @@ export async function createOwed(group: Omit<Owed, 'id'>) {
   }
 }
 
-async function getOwed(id: string) {
+export async function getOwed(id: string) {
   try {
     const results = await db
       .select()
@@ -106,7 +106,11 @@ export async function getAllOwedForGroupTransactionWithMemberInfo(
 ) {
   try {
     const results = await db
-      .select({ user: users, amount: groupTransactionToUsersToGroups.amount })
+      .select({
+        user: users,
+        amount: groupTransactionToUsersToGroups.amount,
+        owedId: groupTransactionToUsersToGroups.id,
+      })
       .from(transactionsToGroups)
       .innerJoin(
         groupTransactionState,

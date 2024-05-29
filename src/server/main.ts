@@ -12,14 +12,13 @@ import { transferRouter } from './routes/transferRouter';
 import { notificationRouter } from './routes/notificationRouter';
 import http from 'http';
 import { Server } from 'socket.io';
-import { WebsocketManager } from './websockets/WebsocketManager';
 import { setupSocketConnectionListener } from './websockets/connection';
 const PORT = process.env.PORT || 3000;
 
 const app = express();
 const server = http.createServer(app);
 
-configureApp(app);
+await configureApp(app);
 
 app.use(indexRouter);
 app.use('/api/v0', apiRouterV0);

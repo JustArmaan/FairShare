@@ -1,12 +1,14 @@
 import { Router } from 'express';
-import { getAccessToken, getLinkToken } from '../../../plaid/link';
+import { getAccessToken, getLinkToken } from '../../../integrations/plaid/link';
 import {
   addItemToUser,
   getAccountsForUser,
   getItemsForUser,
 } from '../../../services/plaid.service';
-import { syncTransactionsForUser } from '../../../plaid/sync';
+import { syncTransactionsForUser } from '../../../integrations/plaid/sync';
 import { getUserByItemId } from '../../../services/user.service';
+import crypto from 'crypto';
+import { env } from '../../../../../env';
 
 const router = Router();
 
@@ -119,6 +121,24 @@ router.post('/plaid-public-token', async (req, res) => {
     res.status(200).send();
   } catch (error) {
     return res.json({ error: error, data: null });
+  }
+});
+
+function calculateKey(apiSharedSecret: string, transactionID: string): string {
+  return crypto
+    .createHash('sha1')
+    .update(apiSharedSecret + transactionID)
+    .digest('hex');
+}
+
+router.post('/vopay-transactions-webhook', (req, res) => {
+  try {
+    const payload = req.body as { TransactionID: string; Status: string, ValidationKey: string };
+    // lifecycle: requested -> pending -> sent -> successful
+    if (payload.ValidationKey !== calculateKey(env.vopaySharedSecret!, payload.TransactionID)) return res.status(404).send(); // simulate an empty route
+    console.log(req.body, 'vopay transaction received');
+  } catch (e) {
+    console.error(e);
   }
 });
 

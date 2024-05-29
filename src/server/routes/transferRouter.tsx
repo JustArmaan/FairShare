@@ -2,14 +2,11 @@ import express from 'express';
 import { renderToHtml } from 'jsxte';
 import {
   getGroupTransactionStateId,
-  getGroupTransactionToUserToGroupById,
   getGroupTransactionWithSplitType,
-  getGroupTransactions,
   getGroupWithMembers,
   getSplitOptions,
   getTransactionsForGroup,
   getUsersToGroup,
-  setGroupTransactionStatePending,
   updateGroupTransactionToUserToGroup,
   updateSplitType,
 } from '../services/group.service';
@@ -20,17 +17,17 @@ import {
 } from '../services/owed.service';
 import { FullSelector } from '../views/pages/Transfers/components/FullSelector';
 import { getSplitTypeById } from '../services/transfer.service';
-import { GroupPage } from '../views/pages/Groups/GroupPage';
 import {
   findUser,
   type ExtractFunctionReturnType,
 } from '../services/user.service';
 import { ViewGroups } from '../views/pages/Groups/components/ViewGroup';
 import { getAccountsForUser } from '../services/plaid.service';
-import { createTransferForSenderAndRecord } from '../plaid/transfer';
-import { group } from 'console';
-import { createNotificationForUserInGroups } from '../services/notification.service';
-import { groupTransactionState } from '../database/schema/groupTransactionState';
+import { createTransferForSender } from '../integrations/vopay/transfer';
+import {
+  requestInteracTransfer,
+  sendInteracTransfer,
+} from '../integrations/vopay/interac';
 
 const router = express.Router();
 
@@ -66,30 +63,30 @@ router.get(
     const html = renderToHtml(
       <div
         hx-get={`/transfer/splitTransaction/splitOptions/closed/${transaction.transaction.id}/${req.params.groupId}/${selectedType.type}`}
-        hx-trigger='click'
-        hx-target='#split-swapper'
-        hx-swap='innerHTML'
-        class='w-full'
+        hx-trigger="click"
+        hx-target="#split-swapper"
+        hx-swap="innerHTML"
+        class="w-full"
       >
-        <div class='flex py-2 hover:opacity-80 pointer-cursor px-4 justify-between text-left text-font-off-white bg-primary-black rounded-lg mt-2 w-full'>
+        <div class="flex py-2 hover:opacity-80 pointer-cursor px-4 justify-between text-left text-font-off-white bg-primary-black rounded-lg mt-2 w-full">
           <input
-            id='select-split-options'
-            type='button'
-            name='select-split-options'
+            id="select-split-options"
+            type="button"
+            name="select-split-options"
             value={uppercaseFirstLetter(selectedType.type)}
           />
-          <img src='/activeIcons/expand_more.svg' alt='expandable' />
+          <img src="/activeIcons/expand_more.svg" alt="expandable" />
         </div>
         {splitTypes.map(
           (splitType) =>
             splitType.type !== selectedType.type && (
               <div
                 hx-get={`/transfer/fullSelector/${req.params.groupId}/${transaction.transaction.id}/${splitType.id}`}
-                hx-trigger='click'
-                hx-target='#swap-full-selector'
-                hx-swap='innerHTML'
+                hx-trigger="click"
+                hx-target="#swap-full-selector"
+                hx-swap="innerHTML"
                 data-split-option={`${splitType.id}`}
-                class='flex items-center p-2 mt-2 bg-card-black rounded-lg hover:bg-primary-faded-black w-full animation-fade-in'
+                class="flex items-center p-2 mt-2 bg-card-black rounded-lg hover:bg-primary-faded-black w-full animation-fade-in"
               >
                 {uppercaseFirstLetter(splitType.type)}
               </div>
@@ -130,21 +127,21 @@ router.get(
     const html = renderToHtml(
       <div
         hx-get={`/transfer/splitTransaction/splitOptions/open/${transaction.transaction.id}/${req.params.groupId}/${selectedSplitType.type}`}
-        hx-trigger='click'
-        hx-target='#split-swapper'
-        hx-swap='innerHTML'
-        class='w-full'
+        hx-trigger="click"
+        hx-target="#split-swapper"
+        hx-swap="innerHTML"
+        class="w-full"
       >
-        <div class='flex py-2 hover:opacity-80 pointer-cursor px-4 justify-between text-left text-font-off-white bg-primary-black rounded-lg mt-2 w-full'>
+        <div class="flex py-2 hover:opacity-80 pointer-cursor px-4 justify-between text-left text-font-off-white bg-primary-black rounded-lg mt-2 w-full">
           <input
-            id='select-split-options'
-            type='button'
-            name='select-split-options'
+            id="select-split-options"
+            type="button"
+            name="select-split-options"
             value={uppercaseFirstLetter(
               selectedSplitType.type ? selectedSplitType.type : transaction.type
             )}
           />
-          <img src='/activeIcons/expand_more.svg' alt='expandable' />
+          <img src="/activeIcons/expand_more.svg" alt="expandable" />
         </div>
       </div>
     );
@@ -253,7 +250,7 @@ router.post('/splitOptions/edit', async (req, res) => {
     return res.status(400).send('Required parameters are missing');
   }
 
-  let memberList;
+  let memberList: string[];
   if (splitType === 'equal') {
     const groupAndMembers = await getGroupWithMembers(groupId);
     if (!groupAndMembers) {
@@ -466,7 +463,9 @@ router.post('/splitOptions/edit', async (req, res) => {
 });
 
 router.post('/initiate/transfer/sender', async (req, res) => {
-  const { selectedAccountId, transactionId, groupId, receiverIds } = req.body;
+  const { transactionId, groupId, receiverIds } = req.body as {
+    [key: string]: string;
+  };
   const receiverIdList = receiverIds.split(',');
   const userId = req.user!.id;
 
@@ -475,29 +474,31 @@ router.post('/initiate/transfer/sender', async (req, res) => {
     transactionId
   );
 
-  const userToGroup = (await getUsersToGroup(groupId, receiverIdList[0]))!;
-
-  if (!userToGroup.depositAccountId) {
-    return res
-      .status(400)
-      .send(
-        'No deposit account found for the owner of this transaction was found'
-      );
-  }
-
   const currentUser = owedInfo?.find((owed) => owed.user.id === userId);
 
   if (!currentUser) {
     return res.status(403).send('You need to be signed in to use this feature');
   }
 
-  await createTransferForSenderAndRecord(
+  const parsedAmount = Math.floor(Math.abs(currentUser!.amount) * 100) / 100;
+
+  await createTransferForSender(
     userId,
-    selectedAccountId,
-    userToGroup.depositAccountId,
-    Math.abs(currentUser?.amount).toFixed(2),
+    receiverIdList[0],
+    parsedAmount,
     groupId,
-    transactionId
+    owedInfo!.find((owed) => owed.user.id === userId)!.owedId
+  );
+
+  res.send(
+    renderToHtml(
+      <div
+        hx-get={`/groups/view/${groupId}`}
+        hx-trigger="load"
+        hx-swap="innerHTML"
+        hx-target="#app"
+      ></div>
+    )
   );
 });
 

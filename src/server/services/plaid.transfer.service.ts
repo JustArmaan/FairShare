@@ -41,33 +41,29 @@ export async function createGroupTransfer(
       .insert(groupTransfer)
       .values({ id: uuidv4(), ...transfer } as GroupTransfer);
 
-    const senderName = await getUserInfoFromAccount(transfer.senderAccountId);
-    const recieverName = await getUserInfoFromAccount(
-      transfer.receiverAccountId
-    );
+    const sender = await findUser(transfer.senderUserId);
+    const receiver = await findUser(transfer.receiverUserId);
 
+    await createNotificationForUserInGroups(groupId, sender!.id, {
+      message: `Your transfer to ${receiver!.firstName} has been started. Please check your email at ${sender!.email} to confirm.`,
+      timestamp: new Date().toISOString(),
+    });
+    /*
     const groupTransaction = await getGroupTransactionToUserToGroupById(
       transfer.groupTransactionToUsersToGroupsId
     );
 
-    const notif1 = await createNotificationForUserInGroups(
+    await createNotificationForUserInGroups(
       groupId,
-      senderName!.user.id,
+      receiver!.id,
       {
-        message: `Your transfer to ${recieverName?.user.firstName} has been started`,
-        timestamp: new Date().toISOString(),
-      }
-    );
-    const notif2 = await createNotificationForUserInGroups(
-      groupId,
-      recieverName!.user.id,
-      {
-        message: `${senderName?.user.firstName} has sent you ${Math.abs(
+        message: `${sender!.firstName} has sent you ${Math.abs(
           groupTransaction![0].amount
         ).toFixed(2)}`,
         timestamp: new Date().toISOString(),
       }
     );
+    */
   } catch (err) {
     console.error(err);
   }
@@ -148,12 +144,9 @@ export async function getUserGroupTransaction(
   }
 }
 
-export async function getTransferStatusByName(name: string) {
+export async function getAllTransferStatuses() {
   try {
-    const result = await db
-      .select()
-      .from(groupTransferStatus)
-      .where(eq(groupTransferStatus.status, name));
+    const result = await db.select().from(groupTransferStatus);
     return result;
   } catch (error) {
     console.error(error);
@@ -161,32 +154,26 @@ export async function getTransferStatusByName(name: string) {
   }
 }
 
-export async function updateGroupTransferToReceive(
+export async function updateGroupTransfer(
   id: string,
-  receiverStatusId: string,
-  senderStatusId: string,
-  senderCompletedTimestamp: string | null
+  newGroupTransfer: Omit<Partial<GroupTransfer>, 'id'>
 ) {
   try {
     await db
       .update(groupTransfer)
-      .set({
-        groupTransferReceiverStatusId: receiverStatusId,
-        groupTransferSenderStatusId: senderStatusId,
-        senderCompletedTimestamp: senderCompletedTimestamp,
-      })
+      .set(newGroupTransfer)
       .where(eq(groupTransfer.id, id));
   } catch (error) {
     console.error(error);
   }
 }
 
-export async function getSenderTransferStatus(senderAccountId: string) {
+export async function getSenderTransferStatus(senderUserId: string) {
   try {
     const result = await db
       .select()
       .from(groupTransfer)
-      .where(eq(groupTransfer.senderAccountId, senderAccountId))
+      .where(eq(groupTransfer.senderUserId, senderUserId))
       .innerJoin(
         groupTransferStatus,
         eq(groupTransfer.groupTransferSenderStatusId, groupTransferStatus.id)

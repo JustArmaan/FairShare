@@ -1,6 +1,6 @@
 import { sqliteTable, text } from 'drizzle-orm/sqlite-core';
 import { groupTransactionToUsersToGroups } from './groupTransactionToUsersToGroups';
-import { accounts } from './accounts';
+import { users } from './users';
 import { groupTransferStatus } from './groupTransferStatus';
 
 export const groupTransfer = sqliteTable('groupTransfer', {
@@ -18,14 +18,16 @@ export const groupTransfer = sqliteTable('groupTransfer', {
   groupTransferSenderStatusId: text('group_transfer_sender_status_id')
     .references(() => groupTransferStatus.id)
     .notNull(),
-  senderAccountId: text('sender_account_id')
-    .references(() => accounts.id, { onDelete: 'cascade' })
+  senderUserId: text('sender_user_id')
+    .references(() => users.id, { onDelete: 'cascade' })
     .notNull(),
-  receiverAccountId: text('receiver_account_id')
-    .references(() => accounts.id, { onDelete: 'cascade' })
+  receiverUserId: text('receiver_user_id')
+    .references(() => users.id, { onDelete: 'cascade' })
     .notNull(),
   senderCompletedTimestamp: text('sender_completed_timestamp'),
   senderInitiatedTimestamp: text('sender_initiated_timestamp').notNull(),
   receiverCompletedTimestamp: text('receiver_completed_timestamp'),
-  receiverInitiatedTimestamp: text('receiver_initiated_timestamp').notNull(),
+  receiverInitiatedTimestamp: text('receiver_initiated_timestamp'),
+  senderVopayTransferId: text('sender_vopay_transfer_id').notNull(),
+  receiverVopayTransferId: text('receiver_vopay_transfer_id'),
 });

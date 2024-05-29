@@ -135,10 +135,14 @@ const accountTypes = [
 ];
 
 const groupTransferStatusValues = [
+  // keep parity with the interact vopay api status strings
   { status: 'pending' },
-  { status: 'completed' },
+  { status: 'requested' },
+  { status: 'failed' },
+  { status: 'cancelled' },
+  { status: 'successful' },
   { status: 'not-initiated' },
-];
+] as const;
 
 const splitTypes = [
   { type: 'percentage' },

@@ -1,18 +1,18 @@
-import { addAccount, getAccount } from '../services/account.service';
-import { getAccountTypeIdByName } from '../services/accountType.service';
-import { getCategoryIdByName } from '../services/category.service';
+import { addAccount, getAccount } from '../../services/account.service';
+import { getAccountTypeIdByName } from '../../services/accountType.service';
+import { getCategoryIdByName } from '../../services/category.service';
 import {
   createTransactions,
   deleteTransactions,
   updateTransaction,
-} from '../services/transaction.service';
+} from '../../services/transaction.service';
 import {
   getItemsForUser,
   updateItem,
   type Item,
-} from '../services/plaid.service';
+} from '../../services/plaid.service';
 import { plaidRequest } from './link';
-import { io } from '../main';
+import { io } from '../../main';
 
 const syncStore = new Set<string>();
 const syncQueue = new Set<string>();
@@ -138,7 +138,7 @@ type TransactionEvent = { transactionIds: string[]; accountId: string };
 function parseTransactionsIntoWebsocketMessage(
   acc: TransactionEvent[],
   currentTransaction: { transaction_id: string; account_id: string },
-  _: number,
+  _: number
 ) {
   const index = acc.findIndex(
     (item) => item.accountId === currentTransaction.account_id
@@ -175,15 +175,12 @@ function handleTransactionWebsocketEvents(
 
   console.log('potentially sending websocket sync/update events');
   if (addedMessage.length > 0) {
-    console.log(addedMessage);
     io.to(userId).emit('newTransaction', JSON.stringify(addedMessage));
   }
   if (modifiedMessage.length > 0) {
-    console.log(modifiedMessage);
     io.to(userId).emit('newTransaction', JSON.stringify(modifiedMessage));
   }
   if (removedMessage.length > 0) {
-    console.log(removedMessage);
     io.to(userId).emit('newTransaction', JSON.stringify(removedMessage));
   }
 }

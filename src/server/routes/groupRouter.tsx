@@ -15,11 +15,7 @@ import {
   getGroupIdFromOwed,
   getUserTotalOwedForGroup,
 } from '../services/group.service';
-import {
-  findUser,
-  getUserByEmailOnly,
-  updateUser,
-} from '../services/user.service.ts';
+import { findUser, getUserByEmailOnly } from '../services/user.service.ts';
 import { AddedMember } from '../views/pages/Groups/components/Member.tsx';
 import {
   createGroup,
@@ -142,6 +138,7 @@ router.get('/view/:groupId', async (req, res) => {
     const account = await getAccountsForUser(userId);
     const accountId = account ? account[0].id : '';
     const { depositAccountId } = (await getUsersToGroup(group.id, userId))!;
+    console.log(owedPerMember, 'owed');
 
     const html = renderToHtml(
       <ViewGroups
@@ -182,9 +179,9 @@ router.get('/confirm-transaction', async (req, res) => {
   const html = renderToHtml(
     <div
       hx-get={`/groups/view/${groupId}`}
-      hx-swap='innerHTML'
-      hx-trigger='load'
-      hx-target='#app'
+      hx-swap="innerHTML"
+      hx-trigger="load"
+      hx-target="#app"
     />
   );
   res.send(html);
@@ -623,7 +620,7 @@ router.post('/deleteMember/:userID/:groupID', async (req, res) => {
         .status(400)
         .send('You cannot remove a member that still owes money');
     }
-    
+
     await deleteMemberByGroup(userID, groupID);
     res.status(204).send();
   } catch (error) {
@@ -633,9 +630,8 @@ router.post('/deleteMember/:userID/:groupID', async (req, res) => {
 
 router.get('/transactions/:groupId', async (req, res) => {
   const groupId = req.params.groupId;
-  const groupWithTransactions = await getGroupWithMembersAndTransactions(
-    groupId
-  );
+  const groupWithTransactions =
+    await getGroupWithMembersAndTransactions(groupId);
   const html = renderToHtml(
     <GroupTransactionsListPage
       group={groupWithTransactions as GroupMembersTransactions}
@@ -659,7 +655,7 @@ router.get(
     const html = renderToHtml(
       <TransactionList
         account={account}
-        route='AddTransaction'
+        route="AddTransaction"
         groupId={req.params.groupId}
         groupTransactionIds={groupTransactionIds}
       />

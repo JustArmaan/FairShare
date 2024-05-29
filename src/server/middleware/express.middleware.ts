@@ -2,6 +2,7 @@ import express, { type Express } from 'express';
 import cookieParser from 'cookie-parser';
 import type { UserSchema } from '../interface/types';
 import { getUser } from '../routes/authRouter';
+import { setupVopayTransactionWebhook } from '../integrations/vopay/transfer';
 
 declare module 'express-serve-static-core' {
   interface Request {
@@ -13,7 +14,7 @@ interface ErrorWithStatus extends Error {
   status?: number;
 }
 
-export const configureApp = (app: Express) => {
+export const configureApp = async (app: Express) => {
   app.use(express.json());
   app.use(express.urlencoded({ extended: false }));
   app.use(express.static('~/public'));
@@ -22,6 +23,8 @@ export const configureApp = (app: Express) => {
   app.use('/', getUser, (_, __, next) => {
     next();
   });
+
+  await setupVopayTransactionWebhook();
 
   app.use(
     (

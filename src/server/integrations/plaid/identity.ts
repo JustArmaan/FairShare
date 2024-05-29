@@ -1,5 +1,5 @@
 import { plaidRequest } from './link';
-import { getItemsForUser } from '../services/plaid.service';
+import { getItemsForUser } from '../../services/plaid.service';
 
 export async function findUserLegalNameForAccount(userId: string, accountId: string) {
   try {

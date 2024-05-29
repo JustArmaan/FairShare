@@ -8,7 +8,6 @@ export const PendingItems = ({
   transactions,
   owedPerMember,
   groupId,
-  selectedAccountId,
 }: {
   selectedAccountId: string | null;
   memberDetails: UserSchema[];
@@ -42,7 +41,6 @@ export const PendingItems = ({
               (owedList) =>
                 owedList.find((owed) => owed.userId === currentUser.id)!
             )
-            .filter((owed) => owed.pending && owed.amount > 0)
             .map((owedList) => ({
               ...owedList,
               transaction: transactions.find(
