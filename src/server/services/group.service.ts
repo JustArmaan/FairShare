@@ -437,39 +437,41 @@ export const addMember = async (
       })
       .returning();
 
-    if (newMember) {
-      const equalSplitGroupTransactionsWithAllOwed =
-        await getGroupWithEqualSplitTypeTransactionsAndMembers(groupId);
+    return newMember[0];
+    // TODO: Implement this somewhere else. The user hasnt accepted the invite yet
+    // if (newMember) {
+    //   const equalSplitGroupTransactionsWithAllOwed =
+    //     await getGroupWithEqualSplitTypeTransactionsAndMembers(groupId);
 
-      const groupWithMembers = await getGroupWithMembers(groupId);
-      if (equalSplitGroupTransactionsWithAllOwed && groupWithMembers) {
-        const equalSplitGroupTransactions = filterUniqueTransactions(
-          equalSplitGroupTransactionsWithAllOwed
-        );
+    //   const groupWithMembers = await getGroupWithMembers(groupId);
+    //   if (equalSplitGroupTransactionsWithAllOwed && groupWithMembers) {
+    //     const equalSplitGroupTransactions = filterUniqueTransactions(
+    //       equalSplitGroupTransactionsWithAllOwed
+    //     );
 
-        for (const transaction of equalSplitGroupTransactions) {
-          const equalSplitAmount =
-            transaction.transaction.amount / groupWithMembers.members.length;
-          groupWithMembers.members.forEach(async (member) => {
-            if (member.id !== transaction.transactionOwner.id) {
-              const newMemberUpdate = await updateOwedForGroupTransaction(
-                groupId,
-                member.id,
-                transaction.transaction.id,
-                equalSplitAmount * -1
-              );
-            } else if (member.id === transaction.transactionOwner.id) {
-              await updateOwedForGroupTransaction(
-                groupId,
-                member.id,
-                transaction.transaction.id,
-                equalSplitAmount * (groupWithMembers.members.length - 1)
-              );
-            }
-          });
-        }
-      }
-    }
+    //     for (const transaction of equalSplitGroupTransactions) {
+    //       const equalSplitAmount =
+    //         transaction.transaction.amount / groupWithMembers.members.length;
+    //       groupWithMembers.members.forEach(async (member) => {
+    //         if (member.id !== transaction.transactionOwner.id) {
+    //           const newMemberUpdate = await updateOwedForGroupTransaction(
+    //             groupId,
+    //             member.id,
+    //             transaction.transaction.id,
+    //             equalSplitAmount * -1
+    //           );
+    //         } else if (member.id === transaction.transactionOwner.id) {
+    //           await updateOwedForGroupTransaction(
+    //             groupId,
+    //             member.id,
+    //             transaction.transaction.id,
+    //             equalSplitAmount * (groupWithMembers.members.length - 1)
+    //           );
+    //         }
+    //       });
+    //     }
+    //   }
+    // }
   } catch (error) {
     console.error('Failed to add member:', error);
     return false;

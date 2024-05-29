@@ -55,6 +55,7 @@ import {
 } from '../services/account.service.ts';
 import { AccountSelector } from '../views/pages/Groups/components/AccountSelector.tsx';
 import { get } from 'http';
+import { io } from 'socket.io-client';
 
 const router = express.Router();
 
@@ -414,7 +415,11 @@ router.post('/create', async (req, res) => {
       const user = await getUserByEmailOnly(memberEmail);
       if (user) {
         if (user.id !== currentUser.id) {
-          await addMember(group.id, user.id, 'Invited');
+          const invitedMember = await addMember(group.id, user.id, 'Invited');
+          if (invitedMember) {
+            io.to(user.id).emit('group-invite', { groupId: group.id });
+            console.log('Invited member', invitedMember);
+          }
         } else if (user.id === currentUser.id) {
           await addMember(group.id, user.id, 'Owner');
         }
@@ -623,7 +628,7 @@ router.post('/deleteMember/:userID/:groupID', async (req, res) => {
         .status(400)
         .send('You cannot remove a member that still owes money');
     }
-    
+
     await deleteMemberByGroup(userID, groupID);
     res.status(204).send();
   } catch (error) {
