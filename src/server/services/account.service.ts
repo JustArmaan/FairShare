@@ -16,7 +16,31 @@ export async function addAccount(account: Account) {
   }
 }
 
+<<<<<<< HEAD
+=======
+export async function addPlaidAccount(account: PlaidAccount) {
+  try {
+    await db.insert(plaidAccount).values(account);
+  } catch (error) {
+    console.error(error, 'in addAccount');
+  }
+}
+
+>>>>>>> 0216daf22d0dd9e44ef051b4f93fe97316273a8f
 export type Account = ExtractFunctionReturnType<typeof getAccount>;
+
+export async function getPlaidAccount(accountId: string) {
+  try {
+    const results = await db
+      .select()
+      .from(plaidAccount)
+      .where(eq(plaidAccount.accountsId, accountId));
+    return results[0];
+  } catch (err) {
+    console.error(err, 'in getPlaidAccountId');
+    return null;
+  }
+}
 
 export async function getAccount(accountId: string) {
   try {
