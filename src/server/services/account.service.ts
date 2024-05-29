@@ -16,16 +16,7 @@ export async function addAccount(account: Account) {
   }
 }
 
-export async function addPlaidAccount(account: PlaidAccount) {
-  try {
-
-  } catch (error) {
-    console.error(error, 'in addPlaidAccount');
-  
-}
-
 export type Account = ExtractFunctionReturnType<typeof getAccount>;
-export type PlaidAccount = ExtractFunctionReturnType<typeof getPlaidAccount>;
 
 export async function getAccount(accountId: string) {
   try {
@@ -34,7 +25,16 @@ export async function getAccount(accountId: string) {
       .from(accounts)
       .innerJoin(plaidAccount, eq(accounts.id, plaidAccount.accountsId))
       .where(eq(accounts.id, accountId));
-    return results[0].accounts;
+      const mappedResults = results.map((result) => {return ({
+        id: result.accounts.id,
+        name: result.accounts.name,
+        accountTypeId: result.plaidAccount.accountTypeId,
+        balance: result.plaidAccount.balance,
+        currencyCodeId: result.plaidAccount.currencyCodeId,
+        itemId: result.plaidAccount.itemId,
+      })})
+
+    return mappedResults[0];
   } catch (error) {
     console.error(error, 'in getAccount');
     return null;

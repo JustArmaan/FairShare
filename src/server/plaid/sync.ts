@@ -54,7 +54,6 @@ async function updateAccounts(
             account.balances.current)!.toString(),
           currencyCodeId: null, // account.balances.iso_currency_code,
           itemId: itemId,
-          legalName: '',
         });
       }
     })
