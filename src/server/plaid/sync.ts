@@ -81,7 +81,7 @@ type SyncResponse = {
   error_code: string | undefined;
 };
 async function syncTransaction({ item }: { item: Item; userId: string }) {
-  const count = 1;
+  const count = 500;
   let cursor: string | undefined = item.nextCursor
     ? item.nextCursor
     : undefined;

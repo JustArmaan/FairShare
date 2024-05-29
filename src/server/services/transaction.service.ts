@@ -6,6 +6,7 @@ import { v4 as uuid } from 'uuid';
 import type { ExtractFunctionReturnType } from './user.service';
 import { accounts } from '../database/schema/accounts';
 import { items } from '../database/schema/items';
+import { plaidAccount } from '../database/schema/plaidAccount';
 
 const db = getDB();
 
@@ -222,7 +223,8 @@ export async function getAccountForUserWithMostTransactions(userId: string) {
       .select()
       .from(transactions)
       .innerJoin(accounts, eq(accounts.id, transactions.accountId))
-      .innerJoin(items, eq(items.id, accounts.itemId))
+      .innerJoin(plaidAccount, eq(accounts.id, plaidAccount.accountsId))
+      .innerJoin(items, eq(items.id, plaidAccount.itemId))
       .where(eq(items.userId, userId));
 
     const grouped = allUserTransactions.reduce((acc, transaction) => {

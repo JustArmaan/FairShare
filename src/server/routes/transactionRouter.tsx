@@ -7,6 +7,7 @@ import {
   getTransactionsForUser,
   searchTransactions,
   getTransactionsByMonth,
+  createTransaction,
 } from '../services/transaction.service';
 
 import Transaction from '../views/pages/transactions/components/Transaction';
@@ -23,6 +24,7 @@ import { AccountPickerForm } from '../views/pages/transactions/components/Accoun
 import {
   addTransactionsToGroup,
   deleteTransactionFromGroup,
+  getCategories,
   getGroupTransactionStateId,
   getGroupWithMembers,
   getTransactionsToGroup,
@@ -35,6 +37,8 @@ import {
 } from '../services/owed.service';
 import { getAccountTypeById } from '../services/accountType.service';
 import { getAccount } from '../services/account.service';
+import { CreateTransaction } from '../views/pages/Groups/components/ManualAdd';
+import { findUser } from '../services/user.service';
 
 const router = express.Router();
 
@@ -244,4 +248,77 @@ router.get('/addButton', async (req, res) => {
   res.send(html);
 });
 
+
+router.get('/createTransaction', async (req, res) => {
+  try {
+    const { id } = req.user!;
+    let databaseUser = await findUser(id);
+    if (!databaseUser) throw new Error('failed to create user');
+
+    const categories = await getCategories();
+    if(!categories) throw new Error('No categories found');
+  
+    const html = renderToHtml(<CreateTransaction icons={categories} currentUser={{ ...databaseUser, type: 'Owner' }}/>);
+    res.send(html);
+  } catch (error) {
+    console.error('Error loading create transaction page', error);
+    res.status(500).send('Error loading create transaction page');
+  }
+});
+
+router.post('/createTransaction', async (req, res) => {
+  try {
+    const { id } = req.user!;
+    if (!id) {
+      return res.set('HX-Redirect', '/login').send();
+    }
+
+    const currentUser = await findUser(id);
+
+    if (!currentUser) {
+      return res.status(500).send('Failed to get user');
+    }
+
+    const {
+      transactionName,
+      transactionAmount,
+      selectedCategoryId,
+      selectedColor,
+    } = req.body;
+
+    if (
+      !transactionName ||
+      transactionName === '' ||
+      !transactionAmount ||
+      transactionAmount === '' ||
+      !selectedCategoryId ||
+      selectedCategoryId === '' ||
+      !selectedColor ||
+      selectedColor === ''
+    ) {
+      return res.status(400).send('Please fill out all fields.');
+    }
+
+    if (!selectedCategoryId) {
+      return res.status(400).send('Category not found.');
+    }
+    console.log(transactionName, selectedColor, selectedCategoryId, currentUser.id, transactionAmount);
+
+    // const transaction = await createTransaction(
+    //   transactionName,
+    //   selectedColor,
+    //   selectedCategoryId,
+    //   isTemp.toString()
+    // );
+
+    // if (!group) {
+    //   return res.status(500).send('Failed to create group.');
+    // }
+    // const html = renderToHtml(<GroupPage groups={allGroupsForCurrentUser} />);
+    // return res.status(200).send(html);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).send('An error occurred while creating a transaction.');
+  }
+});
 export const transactionRouter = router;
