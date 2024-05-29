@@ -8,7 +8,7 @@ import { plaidAccount } from '../database/schema/plaidAccount';
 
 const db = getDB();
 
-export async function addAccount(account: Account) {
+export async function addAccount(account: AccountDetails) {
   try {
     await db.insert(accounts).values(account);
   } catch (error) {
@@ -16,7 +16,17 @@ export async function addAccount(account: Account) {
   }
 }
 
+export async function addPlaidAccount(account: PlaidAccount) {
+  try {
+    await db.insert(plaidAccount).values(account);
+  } catch (error) {
+    console.error(error, 'in addAccount');
+  }
+}
+
 export type Account = ExtractFunctionReturnType<typeof getAccount>;
+export type PlaidAccount = ExtractFunctionReturnType<typeof getPlaidAccount>;
+export type AccountDetails = ExtractFunctionReturnType<typeof getAccountDetails>;
 
 export async function getPlaidAccount(accountId: string) {
   try {
@@ -30,6 +40,20 @@ export async function getPlaidAccount(accountId: string) {
     return null;
   }
 }
+
+async function getAccountDetails(id: string) {
+  try {
+    const results = await db
+      .select()
+      .from(accounts)
+      .where(eq(accounts.id, id));
+    return results[0];
+  } catch (error) {
+    console.error(error, 'in getAccount');
+    return null;
+  }
+}
+
 
 export async function getAccount(accountId: string) {
   try {
