@@ -18,14 +18,27 @@ export async function addAccount(account: Account) {
 
 export async function addPlaidAccount(account: PlaidAccount) {
   try {
-
+    await db.insert(plaidAccount).values(account);
   } catch (error) {
-    console.error(error, 'in addPlaidAccount');
-  
+    console.error(error, 'in addAccount');
+  }
 }
 
 export type Account = ExtractFunctionReturnType<typeof getAccount>;
 export type PlaidAccount = ExtractFunctionReturnType<typeof getPlaidAccount>;
+
+export async function getPlaidAccount(accountId: string) {
+  try {
+    const results = await db
+      .select()
+      .from(plaidAccount)
+      .where(eq(plaidAccount.accountsId, accountId));
+    return results[0];
+  } catch (err) {
+    console.error(err, 'in getPlaidAccountId');
+    return null;
+  }
+}
 
 export async function getAccount(accountId: string) {
   try {

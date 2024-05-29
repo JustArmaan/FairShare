@@ -1,4 +1,8 @@
-import { addAccount, getAccount } from '../services/account.service';
+import {
+  addAccount,
+  addPlaidAccount,
+  getAccount,
+} from '../services/account.service';
 import { getAccountTypeIdByName } from '../services/accountType.service';
 import { getCategoryIdByName } from '../services/category.service';
 import {
@@ -50,11 +54,16 @@ async function updateAccounts(
           id: account.account_id,
           name: account.name,
           accountTypeId: accountTypeId.id,
+          currencyCodeId: null, // account.balances.iso_currency_code,
+        });
+        await addPlaidAccount({
+          id: account.account_id,
+          accountTypeId: accountTypeId.id,
           balance: (account.balances.available ||
             account.balances.current)!.toString(),
-          currencyCodeId: null, // account.balances.iso_currency_code,
           itemId: itemId,
-          legalName: '',
+          currencyCodeId: null,
+          accountsId: account.account_id,
         });
       }
     })
@@ -136,7 +145,7 @@ async function syncTransaction({ item }: { item: Item; userId: string }) {
       toRemove.map((removed) => removed.transaction_id)
     ));
   updateItem(item.id, {
-    nextCursor: cursor
+    nextCursor: cursor,
   });
 }
 
@@ -191,7 +200,7 @@ async function addTransactions(transactions: AddedPlaidTransaction[]) {
         address: locationIsNull
           ? null
           : `${transaction.location.address!},  ${transaction.location
-            .city!}, ${transaction.location.region!}, ${transaction.location
+              .city!}, ${transaction.location.region!}, ${transaction.location
               .country!}`,
         accountId: transaction.account_id,
         categoryId: categoryId.id,
@@ -231,14 +240,14 @@ async function modifyTransaction(transaction: ModifiedPlaidTransaction) {
     company: transaction.merchant_name
       ? transaction.merchant_name
       : transaction.name
-        ? transaction.name
-        : undefined,
+      ? transaction.name
+      : undefined,
     amount: transaction.amount ? transaction.amount : undefined,
     timestamp: transaction.datetime
       ? transaction.datetime
       : transaction.date
-        ? transaction.date
-        : undefined,
+      ? transaction.date
+      : undefined,
     latitude: transaction.location.lat ? transaction.location.lat : undefined,
     longitude: transaction.location.lon ? transaction.location.lon : undefined,
   });
