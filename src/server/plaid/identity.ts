@@ -1,7 +1,10 @@
 import { plaidRequest } from './link';
 import { getItemsForUser } from '../services/plaid.service';
 
-export async function findUserLegalNameForAccount(userId: string, accountId: string) {
+export async function findUserLegalNameForAccount(
+  userId: string,
+  accountId: string
+) {
   try {
     const items = await getItemsForUser(userId);
     if (!items || items.length === 0) {
