@@ -14,6 +14,8 @@ import {
   setGroupTransactionStatePending,
   getGroupIdFromOwed,
   getUserTotalOwedForGroup,
+  changeMemberTypeInGroup,
+  getGroupOwner,
 } from '../services/group.service';
 import { findUser, getUserByEmailOnly } from '../services/user.service.ts';
 import { AddedMember } from '../views/pages/Groups/components/Member.tsx';
@@ -50,7 +52,13 @@ import {
   getAccountsWithItemsForUser,
 } from '../services/account.service.ts';
 import { AccountSelector } from '../views/pages/Groups/components/AccountSelector.tsx';
-import { get } from 'http';
+import { io } from '../../server/main.ts';
+import {
+  createNotificationForUserInGroups,
+  deleteNotificationForUserInGroup,
+} from '../services/notification.service.ts';
+import { createNotificationWithWebsocket } from '../utils/createNotification.ts';
+import { group } from 'console';
 
 const router = express.Router();
 
@@ -410,7 +418,16 @@ router.post('/create', async (req, res) => {
       const user = await getUserByEmailOnly(memberEmail);
       if (user) {
         if (user.id !== currentUser.id) {
-          await addMember(group.id, user.id, 'Invited');
+          const invitedMember = await addMember(group.id, user.id, 'Invited');
+          if (invitedMember) {
+            await createNotificationWithWebsocket(
+              group.id,
+              `You have been invited to join the group ${group.name} by ${currentUser.email}`,
+              user.id,
+              'groupInvite',
+              `/groups/${group.id}`
+            );
+          }
         } else if (user.id === currentUser.id) {
           await addMember(group.id, user.id, 'Owner');
         }
@@ -582,7 +599,20 @@ router.post('/edit/:groupId', async (req, res) => {
     for (const memberEmail of newMembers) {
       const user = await getUserByEmailOnly(memberEmail);
       if (user) {
-        await addMember(currentGroup.id, user.id, 'Invited');
+        const invitedMember = await addMember(
+          currentGroup.id,
+          user.id,
+          'Invited'
+        );
+        if (invitedMember) {
+          await createNotificationWithWebsocket(
+            currentGroup.id,
+            `You have been invited to join the group ${currentGroup.name} by ${currentUser.email}`,
+            user.id,
+            'groupInvite',
+            `/groups/${currentGroup.id}`
+          );
+        }
       } else {
         return res.status(400).send(`User with email ${memberEmail} not found`);
       }
@@ -691,6 +721,59 @@ router.get('/getTransactions/:groupId/', async (req, res) => {
         ))}
     </>
   );
+  res.send(html);
+});
+
+router.post('/member/:approval', async (req, res) => {
+  const { groupId, notificationId } = req.body;
+  const userId = req.user!.id;
+  const isApproved = req.params.approval === 'accept';
+
+  const user = await findUser(userId);
+
+  const owner = await getGroupOwner(groupId);
+
+  if (!owner) {
+    return res.status(500).send('An error occured when accepting the invite');
+  }
+
+  if (isApproved) {
+    await changeMemberTypeInGroup(userId, groupId, 'Member');
+    await deleteNotificationForUserInGroup(groupId, userId, notificationId);
+    await createNotificationWithWebsocket(
+      groupId,
+      `${user?.firstName} has accepted the invite to join the group`,
+      owner.userId,
+      'groupInvite'
+    );
+  } else {
+    await deleteMemberByGroup(userId, groupId);
+    await deleteNotificationForUserInGroup(groupId, userId, notificationId);
+    await createNotificationWithWebsocket(
+      groupId,
+      `${user?.firstName} has declined the invite to join the group`,
+      owner.userId,
+      'groupInvite'
+    );
+  }
+
+  const html = renderToHtml(
+    <>
+      <div
+        hx-get='notification/notificationIcon'
+        hx-target='#notification-icon'
+        hx-swap='outerHTML'
+        hx-trigger='load'
+      ></div>
+      <div
+        hx-get={`/notification/page`}
+        hx-swap='innerHTML'
+        hx-trigger='load'
+        hx-target='#app'
+      ></div>
+    </>
+  );
+
   res.send(html);
 });
 
