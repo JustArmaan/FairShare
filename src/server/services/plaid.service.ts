@@ -1,6 +1,6 @@
 import { getDB } from '../database/client.ts';
 import { v4 as uuidv4 } from 'uuid';
-import { eq } from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
 import { items } from '../database/schema/items.ts';
 import { users } from '../database/schema/users.ts';
 import { currencyCode } from '../database/schema/currencyCode.ts';
@@ -17,6 +17,8 @@ import { groupTransactionToUsersToGroups } from '../database/schema/groupTransac
 import { groupTransfer } from '../database/schema/groupTransfer.ts';
 import { groupTransferStatus } from '../database/schema/groupTransferStatus.ts';
 import { plaidAccount } from '../database/schema/plaidAccount.ts';
+import { accountType } from '../database/schema/accountType.ts';
+import { cashAccount } from '../database/schema/cashAccount.ts';
 
 const db = getDB();
 
@@ -104,6 +106,21 @@ export async function getAccountsForUser(userId: string) {
   }
 }
 
+export async function getCashAccountForUser(userId: string) {
+  try {
+    const results = await db
+      .select({ account: accounts, transactions: transactions })
+      .from(accounts)
+      .innerJoin(cashAccount, eq(accounts.id, cashAccount.account_id))
+      .innerJoin(users, eq(cashAccount.userId, users.id))
+      .innerJoin(transactions, eq(accounts.id, transactions.accountId))
+      .where(eq(cashAccount.userId, userId));
+    return results.map((result) => result)[0]; 
+  } catch (e) {
+    console.error(e, 'in getCashAccountForUser');
+  }
+}
+
 export type AccountWithTransactions = ExtractFunctionReturnType<
   typeof getAccountWithTransactions
 >;
@@ -124,7 +141,6 @@ export async function getAccountWithTransactions(accountId: string) {
       .where(eq(accounts.id, accountId));
 
     const account = await getAccount(accountId);
-
     if (!account) return null;
 
     const accountType = account.accountTypeId
@@ -141,6 +157,32 @@ export async function getAccountWithTransactions(accountId: string) {
     };
   } catch (e) {
     console.error(e, 'at getAccountWithTransactions');
+    return null;
+  }
+}
+
+export async function getCashAccountWithTransaction(accountId: string) {
+  try {
+    const result = await db
+      .select({
+        account: accounts,
+        transaction: transactions,
+        categories: categories,
+      })
+      .from(accounts)
+      .innerJoin(transactions, eq(accounts.id, transactions.accountId))
+      .innerJoin(categories, eq(transactions.categoryId, categories.id))
+      .innerJoin(cashAccount, eq(accounts.id, cashAccount.account_id))
+      .where(eq(accounts.id, accountId))
+      console.log(result, 'result')
+    return {
+      ...result[0].account,
+      transactions: result.map((result) => ({
+        ...result.transaction,
+        category: { ...result.categories },
+      })),
+    };
+  } catch (e) {
     return null;
   }
 }

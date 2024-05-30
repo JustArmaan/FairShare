@@ -33,6 +33,7 @@ import { AddTransaction } from '../views/pages/Groups/components/AddTransaction.
 import {
   getAccountWithTransactions,
   getAccountsForUser,
+  getCashAccountForUser,
 } from '../services/plaid.service';
 import type { ExtractFunctionReturnType } from '../services/user.service';
 import { GroupTransactionsListPage } from '../views/pages/Groups/TransactionsListGroupsPage.tsx';
@@ -145,6 +146,13 @@ router.get('/view/:groupId', async (req, res) => {
     );
 
     const account = await getAccountsForUser(userId);
+    const cashAccount = await getCashAccountForUser(userId);
+    // const accounts = account?.map(acc => {
+    //   return (
+    //     ...acc,
+    //      cashAccount
+    //   )
+    // })
     const accountId = account ? account[0].id : '';
     const { depositAccountId } = (await getUsersToGroup(group.id, userId))!;
     console.log(owedPerMember, 'owed');

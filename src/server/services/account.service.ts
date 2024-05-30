@@ -5,6 +5,8 @@ import { type ExtractFunctionReturnType } from './user.service';
 import { items } from '../database/schema/items';
 import { users } from '../database/schema/users';
 import { plaidAccount } from '../database/schema/plaidAccount';
+import { cashAccount } from '../database/schema/cashAccount';
+import { accountType } from '../database/schema/accountType';
 
 const db = getDB();
 
@@ -75,6 +77,24 @@ export async function getAccount(accountId: string) {
     return mappedResults[0];
   } catch (error) {
     console.error(error, 'in getAccount');
+    return null;
+  }
+}
+
+export async function getCashAccount(accountId: string) {
+  try {
+    const results = await db
+      .select()
+      .from(accounts)
+      .innerJoin(cashAccount, eq(accounts.id, cashAccount.account_id))
+      .where(eq(accounts.id, accountId));
+      const mappedResults = results.map((result) => {return ({
+        id: result.accounts.id,
+        name: result.accounts.name,
+      })})
+    return mappedResults[0];
+  } catch (error) {
+    console.error(error, 'in getCashAccount');
     return null;
   }
 }
