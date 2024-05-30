@@ -47,6 +47,7 @@ export async function createGroupTransfer(
     await createNotificationForUserInGroups(groupId, sender!.id, {
       message: `Your transfer to ${receiver!.firstName} has been started. Please check your email at ${sender!.email} to confirm.`,
       timestamp: new Date().toISOString(),
+      route: null,
     });
     /*
     const groupTransaction = await getGroupTransactionToUserToGroupById(
@@ -57,10 +58,20 @@ export async function createGroupTransfer(
       groupId,
       receiver!.id,
       {
-        message: `${sender!.firstName} has sent you ${Math.abs(
+        message: `Your transfer to ${recieverName?.user.firstName} has been started`,
+        timestamp: new Date().toISOString(),
+        route: null,
+      }
+    );
+    const notif2 = await createNotificationForUserInGroups(
+      groupId,
+      recieverName!.user.id,
+      {
+        message: `${senderName?.user.firstName} has sent you ${Math.abs(
           groupTransaction![0].amount
         ).toFixed(2)}`,
         timestamp: new Date().toISOString(),
+        route: null,
       }
     );
     */
