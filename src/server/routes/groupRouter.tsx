@@ -14,6 +14,7 @@ import {
   setGroupTransactionStatePending,
   getGroupIdFromOwed,
   getUserTotalOwedForGroup,
+  changeMemberTypeInGroup,
 } from '../services/group.service';
 import {
   findUser,
@@ -55,7 +56,10 @@ import {
 } from '../services/account.service.ts';
 import { AccountSelector } from '../views/pages/Groups/components/AccountSelector.tsx';
 import { io } from '../../server/main.ts';
-import { createNotificationForUserInGroups } from '../services/notification.service.ts';
+import {
+  createNotificationForUserInGroups,
+  deleteNotificationForUserInGroup,
+} from '../services/notification.service.ts';
 
 const router = express.Router();
 
@@ -740,8 +744,31 @@ router.get('/getTransactions/:groupId/', async (req, res) => {
   res.send(html);
 });
 
-router.post('/:groupId/:approval', async (req, res) => {
-  
-})
+router.post('/member/:approval', async (req, res) => {
+  const { groupId, notificationId } = req.body;
+  const userId = req.user!.id;
+  const isApproved = req.params.approval === 'accept';
+
+  if (isApproved) {
+    await changeMemberTypeInGroup(userId, groupId, 'Member');
+    console.log('Member accepted the invite');
+    await deleteNotificationForUserInGroup(groupId, userId, notificationId);
+  } else {
+    await deleteMemberByGroup(userId, groupId);
+    console.log('Member declined the invite');
+    await deleteNotificationForUserInGroup(groupId, userId, notificationId);
+  }
+
+  const html = renderToHtml(
+    <div
+      hx-get={`/notification/page`}
+      hx-swap='innerHTML'
+      hx-trigger='load'
+      hx-target='#app'
+    />
+  );
+
+  res.send(html);
+});
 
 export const groupRouter = router;

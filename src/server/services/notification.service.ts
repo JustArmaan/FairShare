@@ -1,6 +1,6 @@
 import { getDB } from '../database/client';
 import { usersToGroups } from '../database/schema/usersToGroups';
-import { eq } from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
 import { v4 as uuidv4 } from 'uuid';
 import type { ExtractFunctionReturnType } from './user.service';
 import { getUsersToGroup } from './group.service';
@@ -75,5 +75,30 @@ export async function createNotificationForUserInGroups(
   } catch (error) {
     console.error(error);
     return null;
+  }
+}
+
+export async function deleteNotificationForUserInGroup(
+  groupId: string,
+  userId: string,
+  notificationId: string
+) {
+  try {
+    const userToGroup = await getUsersToGroup(groupId, userId);
+
+    if (!userToGroup) {
+      return null;
+    }
+
+    await db
+      .delete(notifications)
+      .where(
+        and(
+          eq(notifications.userGroupId, userToGroup.id),
+          eq(notifications.id, notificationId)
+        )
+      );
+  } catch (error) {
+    console.error(error);
   }
 }

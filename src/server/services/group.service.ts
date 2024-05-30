@@ -472,7 +472,6 @@ export const addMember = async (
     //     }
     //   }
     // }
-    
   } catch (error) {
     console.error('Failed to add member:', error);
     return false;
@@ -847,5 +846,32 @@ export async function getUserTotalOwedForGroup(
   } catch (error) {
     console.error(error);
     return null;
+  }
+}
+
+export async function changeMemberTypeInGroup(
+  userId: string,
+  groupId: string,
+  type: string
+) {
+  try {
+    const memberType = await getMemberType(type);
+
+    if (!memberType) {
+      return null;
+    }
+
+    const userGroup = await getUserGroupId(userId, groupId);
+
+    if (!userGroup) {
+      return null;
+    }
+
+    await db
+      .update(usersToGroups)
+      .set({ memberTypeId: memberType.id })
+      .where(eq(usersToGroups.id, userGroup.id));
+  } catch (error) {
+    console.error(error);
   }
 }
