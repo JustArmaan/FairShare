@@ -66,6 +66,7 @@ export async function createTransferForSender(
 export async function createTransferForReceiver(
   transferId: string,
   receiverId: string,
+  transactionIdReceiver: string,
   question: string,
   answer: string
 ) {
@@ -96,6 +97,7 @@ export async function createTransferForReceiver(
         )!.id,
         senderCompletedTimestamp: new Date().toISOString(),
         receiverInitiatedTimestamp: new Date().toISOString(),
+        receiverVopayTransferId: transactionIdReceiver,
       });
     }
   } catch (error) {

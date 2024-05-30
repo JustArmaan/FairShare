@@ -259,8 +259,6 @@ router.get('transaction/:transactionId', async (req, res) => {
 
 router.get('/account/:accountId', async (req, res) => {
   const accountId = req.params.accountId;
-
-  
 });
 
 export const transactionRouter = router;

@@ -1,10 +1,11 @@
 import { type Notification } from '../../../../services/notification.service';
 
 export const Reminder = (props: { notifications: Notification }) => {
-  const timeAgo = (timestamp: number) => {
+  const timeAgo = (timestamp: string) => {
     const now = Date.now();
-    //@ts-ignore
-    const diff = Math.floor((now - new Date(timestamp)) / 1000);
+    const date = new Date(timestamp);
+    const dateMillis = date.getTime();
+    const diff = Math.floor((now - dateMillis) / 1000);
 
     if (diff < 60) return `${diff} seconds ago`;
     const minutes = Math.floor(diff / 60);
@@ -14,6 +15,7 @@ export const Reminder = (props: { notifications: Notification }) => {
     const days = Math.floor(hours / 24);
     return `${days} days ago`;
   };
+
   const groupId = props.notifications.route?.split('/')[2];
   return (
     <div class='animate-fade-in'>
@@ -30,7 +32,7 @@ export const Reminder = (props: { notifications: Notification }) => {
                 {props.notifications.message}
               </p>
               <span class='text-xs text-font-grey m-2.5 items-end right-0 top-0 absolute'>
-                {timeAgo(parseInt(props.notifications.timestamp))}
+                {timeAgo(props.notifications.timestamp)}
               </span>
             </div>
             <div class='flex justify-end mt-4'>

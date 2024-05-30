@@ -18,6 +18,7 @@ import { groupTransactionToUsersToGroups } from '../database/schema/groupTransac
 import { filterUniqueTransactions } from '../utils/filter';
 import { create } from 'domain';
 import { createNotificationWithWebsocket } from '../utils/createNotification';
+import { splitEqualTransactions } from '../utils/equalSplit';
 
 const db = getDB();
 
@@ -150,6 +151,24 @@ export type MemberTypeSchema = NonNullable<
   Awaited<ReturnType<typeof getMemberType>>
 >;
 
+export async function getGroupByOwedId(owedId: string) {
+  try {
+    const group = await db
+      .select({ group: groups })
+      .from(groupTransactionToUsersToGroups)
+      .innerJoin(
+        usersToGroups,
+        eq(groupTransactionToUsersToGroups.usersToGroupsId, usersToGroups.id)
+      )
+      .innerJoin(groups, eq(usersToGroups.groupId, groups.id))
+      .where(eq(groupTransactionToUsersToGroups.id, owedId));
+    return group[0].group;
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
+}
+
 export async function getGroupWithMembers(groupId: string) {
   try {
     const result = await db
@@ -210,25 +229,28 @@ export async function getGroupWithAcceptedMembers(groupId: string) {
         and(eq(groups.id, groupId), eq(memberType.id, memberTypeForMember.id))
       );
 
-    return result.reduce((groups, currentResult) => {
-      const groupIndex = groups.findIndex(
-        (group) => group.id === currentResult.group.id
-      );
-      if (groupIndex === -1) {
-        groups.push({
-          ...currentResult.group,
-          members: [
-            { ...currentResult.members, type: currentResult.memberType.type },
-          ],
-        });
-      } else {
-        groups[groupIndex].members.push({
-          ...currentResult.members,
-          type: currentResult.memberType.type,
-        });
-      }
-      return groups;
-    }, [] as (GroupSchema & { members: UserSchemaWithMemberType[] })[])[0];
+    return result.reduce(
+      (groups, currentResult) => {
+        const groupIndex = groups.findIndex(
+          (group) => group.id === currentResult.group.id
+        );
+        if (groupIndex === -1) {
+          groups.push({
+            ...currentResult.group,
+            members: [
+              { ...currentResult.members, type: currentResult.memberType.type },
+            ],
+          });
+        } else {
+          groups[groupIndex].members.push({
+            ...currentResult.members,
+            type: currentResult.memberType.type,
+          });
+        }
+        return groups;
+      },
+      [] as (GroupSchema & { members: UserSchemaWithMemberType[] })[]
+    )[0];
   } catch (error) {
     console.error(error);
     return null;
@@ -275,10 +297,13 @@ export async function setGroupTransactionStatePending(
         .where(eq(groupTransactionToUsersToGroups.id, owedId))
     )[0];
 
-    await db
+    const updatedState = await db
       .update(groupTransactionState)
       .set({ pending })
-      .where(eq(groupTransactionState.id, groupTransactionStateResult.id));
+      .where(eq(groupTransactionState.id, groupTransactionStateResult.id))
+      .returning();
+
+    return updatedState[0];
   } catch (e) {
     console.error(e);
     return;
@@ -895,35 +920,11 @@ export async function changeMemberTypeInGroup(
           equalSplitGroupTransactionsWithAllOwed
         );
 
-        for (const transaction of equalSplitGroupTransactions) {
-          const equalSplitAmount =
-            transaction.transaction.amount / groupWithMembers.members.length;
-          groupWithMembers.members.forEach(async (member) => {
-            if (member.id !== transaction.transactionOwner.id) {
-              const newMemberUpdate = await updateOwedForGroupTransaction(
-                groupId,
-                member.id,
-                transaction.transaction.id,
-                equalSplitAmount * -1
-              );
-              await createNotificationWithWebsocket(
-                groupId,
-                `You owe ${
-                  transaction.transactionOwner.firstName
-                } ${equalSplitAmount.toFixed(2)}`,
-                member.id,
-                'groupInvite'
-              );
-            } else if (member.id === transaction.transactionOwner.id) {
-              await updateOwedForGroupTransaction(
-                groupId,
-                member.id,
-                transaction.transaction.id,
-                equalSplitAmount * (groupWithMembers.members.length - 1)
-              );
-            }
-          });
-        }
+        await splitEqualTransactions(
+          equalSplitGroupTransactions,
+          groupId,
+          groupWithMembers
+        );
       }
     }
   } catch (error) {

@@ -6,17 +6,20 @@ import {
   getItemsForUser,
 } from '../../../services/plaid.service';
 import { syncTransactionsForUser } from '../../../integrations/plaid/sync';
-import { getUserByItemId } from '../../../services/user.service';
+import { findUser, getUserByItemId } from '../../../services/user.service';
 import crypto from 'crypto';
 import { env } from '../../../../../env';
 import {
   completeTransfer,
   createTransferForReceiver,
 } from '../../../integrations/vopay/transfer';
+import { getGroupTransferByTransactionId } from '../../../services/plaid.transfer.service';
+import { createNotificationWithWebsocket } from '../../../utils/createNotification';
 import {
-  getGroupTransferByOwedId,
-  getGroupTransferByTransactionId,
-} from '../../../services/plaid.transfer.service';
+  getGroupByOwedId,
+  getGroupWithMembers,
+} from '../../../services/group.service';
+import { getOwed } from '../../../services/owed.service';
 
 const router = Router();
 
@@ -158,12 +161,14 @@ function calculateKey(apiSharedSecret: string, transactionID: string): string {
 
 router.post('/vopay-transactions-webhook', async (req, res) => {
   console.log('WEBHOOK RECEIVED');
+  console.log(req.body);
   try {
     const payload = req.body as {
       TransactionID: string;
       Status: string;
       ValidationKey: string;
       TransactionType: string;
+      TransactionAmount: number;
     };
     if (
       payload.ValidationKey !==
@@ -172,7 +177,7 @@ router.post('/vopay-transactions-webhook', async (req, res) => {
       return res.status(404).send(); // simulate an empty route
     if (
       payload.TransactionType === 'moneyrequest' &&
-      payload.Status === 'successful'
+      (payload.Status === 'successful' || payload.Status === "sent")
     ) {
       const groupTransfer = (await getGroupTransferByTransactionId(
         payload.TransactionID
@@ -180,16 +185,21 @@ router.post('/vopay-transactions-webhook', async (req, res) => {
       await createTransferForReceiver(
         groupTransfer.id,
         groupTransfer.receiverUserId,
+        payload.TransactionID,
         'test question',
         'test answer'
       );
-    }
-
-    if (
-      payload.TransactionType === 'bulkpayout' &&
-      payload.Status === 'in progress'
-    ) {
-      // payout has been sent, notify user
+      const group = await getGroupByOwedId(
+        groupTransfer.groupTransactionToUsersToGroupsId
+      );
+      const sender = await findUser(groupTransfer.senderUserId);
+      await createNotificationWithWebsocket(
+        group!.id,
+        `${sender!.firstName} has sent you $${payload.TransactionAmount
+        }, please check your email for details.`,
+        groupTransfer.receiverUserId,
+        'groupInvite'
+      );
     }
 
     if (
@@ -200,8 +210,28 @@ router.post('/vopay-transactions-webhook', async (req, res) => {
         payload.TransactionID
       ))!;
       await completeTransfer(groupTransfer.id);
+
+      const group = await getGroupByOwedId(
+        groupTransfer.groupTransactionToUsersToGroupsId
+      );
+
+      const sender = await findUser(groupTransfer.senderUserId);
+      const receiver = await findUser(groupTransfer.receiverUserId);
+      await createNotificationWithWebsocket(
+        group!.id,
+        `Your transfer to ${receiver!.firstName} of $${payload.TransactionAmount
+        } has been completed!`,
+        groupTransfer.senderUserId,
+        'groupInvite'
+      );
+
+      await createNotificationWithWebsocket(
+        group!.id,
+        `${sender!.firstName}'s transfer to your account has been completed!`,
+        groupTransfer.receiverUserId,
+        'groupInvite'
+      );
     }
-    console.log(req.body, 'vopay transaction received');
   } catch (e) {
     console.error(e);
   }
