@@ -1,4 +1,3 @@
-import { group } from "console";
 import { type UserSchema } from "../../../../interface/types";
 import { type GroupWithTransactions } from "../../../../services/group.service";
 import type { getAllOwedForGroupTransactionWithTransactionId } from "../../../../services/owed.service";
@@ -23,7 +22,7 @@ export const OwedGroup = ({
   }
   const owedForThisMember = owedPerMember
     .map((owedList) => owedList.find((owed) => owed.userId === currentUser.id)!)
-    .filter((owed) => !owed.pending);
+    .filter((owed) => owed && !owed.pending);
   return (
     <div class="flex-col w-full justify-evenly rounded-lg py-1.5 px-4 mt-3 flex items-center bg-primary-black relative">
       {transactions &&

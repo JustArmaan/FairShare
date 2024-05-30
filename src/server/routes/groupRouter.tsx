@@ -16,6 +16,8 @@ import {
   getUserTotalOwedForGroup,
   changeMemberTypeInGroup,
   getGroupOwner,
+  getGroupWithEqualSplitTypeTransactionsAndMembers,
+  getGroupWithAcceptedMembers,
 } from '../services/group.service';
 import { findUser, getUserByEmailOnly } from '../services/user.service.ts';
 import { AddedMember } from '../views/pages/Groups/components/Member.tsx';
@@ -61,6 +63,8 @@ import {
 } from '../services/notification.service.ts';
 import { createNotificationWithWebsocket } from '../utils/createNotification.ts';
 import { group } from 'console';
+import { splitEqualTransactions } from '../utils/equalSplit.ts';
+import { filterUniqueTransactions } from '../utils/filter.ts';
 
 const router = express.Router();
 
@@ -155,7 +159,6 @@ router.get('/view/:groupId', async (req, res) => {
     // })
     const accountId = account ? account[0].id : '';
     const { depositAccountId } = (await getUsersToGroup(group.id, userId))!;
-    console.log(owedPerMember, 'owed');
 
     const html = renderToHtml(
       <ViewGroups
@@ -193,6 +196,11 @@ router.get('/confirm-transaction', async (req, res) => {
   };
   await setGroupTransactionStatePending(owedId, null);
   const groupId = await getGroupIdFromOwed(owedId);
+
+  if (!groupId) {
+    return res.status(404).send('Group ID not found');
+  }
+
   const html = renderToHtml(
     <div
       hx-get={`/groups/view/${groupId}`}
@@ -803,16 +811,16 @@ router.post('/member/:approval', async (req, res) => {
   const html = renderToHtml(
     <>
       <div
-        hx-get='notification/notificationIcon'
-        hx-target='#notification-icon'
-        hx-swap='outerHTML'
-        hx-trigger='load'
+        hx-get="notification/notificationIcon"
+        hx-target="#notification-icon"
+        hx-swap="outerHTML"
+        hx-trigger="load"
       ></div>
       <div
         hx-get={`/notification/page`}
-        hx-swap='innerHTML'
-        hx-trigger='load'
-        hx-target='#app'
+        hx-swap="innerHTML"
+        hx-trigger="load"
+        hx-target="#app"
       ></div>
     </>
   );

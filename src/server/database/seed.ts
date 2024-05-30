@@ -143,6 +143,7 @@ const groupTransferStatusValues = [
   { status: 'cancelled' },
   { status: 'successful' },
   { status: 'not-initiated' },
+  { status: 'complete' },
 ] as const;
 
 const splitTypes = [

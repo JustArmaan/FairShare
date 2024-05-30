@@ -24,10 +24,7 @@ import {
 import { ViewGroups } from '../views/pages/Groups/components/ViewGroup';
 import { getAccountsForUser } from '../services/plaid.service';
 import { createTransferForSender } from '../integrations/vopay/transfer';
-import {
-  requestInteracTransfer,
-  sendInteracTransfer,
-} from '../integrations/vopay/interac';
+import { createNotificationWithWebsocket } from '../utils/createNotification';
 
 const router = express.Router();
 
@@ -488,6 +485,26 @@ router.post('/initiate/transfer/sender', async (req, res) => {
     parsedAmount,
     groupId,
     owedInfo!.find((owed) => owed.user.id === userId)!.owedId
+  );
+
+  const receiver = await findUser(receiverIdList[0]);
+
+  await createNotificationWithWebsocket(
+    groupId,
+    `A request of $${parsedAmount.toFixed(2)} to ${
+      receiver!.firstName
+    } for an Interac e transfer has been sent to your email.`,
+    userId,
+    'groupInvite'
+  );
+
+  await createNotificationWithWebsocket(
+    groupId,
+    `${receiver!.firstName} has initiated a transfer of $${parsedAmount.toFixed(
+      2
+    )}. We'll notify you when the transfer is complete.`,
+    receiverIdList[0],
+    'groupInvite'
   );
 
   res.send(

@@ -1,6 +1,6 @@
 import { getDB } from '../database/client';
 import { groupTransfer } from '../database/schema/groupTransfer';
-import { eq } from 'drizzle-orm';
+import { eq, or } from 'drizzle-orm';
 import { findUser, type ExtractFunctionReturnType } from './user.service';
 import { usersToGroups } from '../database/schema/usersToGroups';
 import { groupTransactionToUsersToGroups } from '../database/schema/groupTransactionToUsersToGroups';
@@ -23,8 +23,41 @@ export async function getGroupTransferById(id: string) {
       .where(eq(groupTransfer.id, id));
     return result[0];
   } catch (error) {
-    console.error(error);
+    console.error(error, 'at getGroupTransferById');
     return null;
+  }
+}
+
+export async function getGroupTransferByTransactionId(
+  vopayTransactionId: string
+) {
+  try {
+    const result = await db
+      .select()
+      .from(groupTransfer)
+      .limit(1)
+      .where(
+        or(
+          eq(groupTransfer.senderVopayTransferId, vopayTransactionId),
+          eq(groupTransfer.receiverVopayTransferId, vopayTransactionId)
+        )
+      );
+    return result[0];
+  } catch (e) {
+    console.error(e, 'at getGroupTransferByOwedId');
+  }
+}
+
+export async function getGroupTransferByOwedId(owedId: string) {
+  try {
+    const result = await db
+      .select({ id: groupTransfer.id })
+      .from(groupTransfer)
+      .limit(1)
+      .where(eq(groupTransfer.groupTransactionToUsersToGroupsId, owedId));
+    return result[0].id;
+  } catch (e) {
+    console.error(e, 'at getGroupTransferByOwedId');
   }
 }
 
@@ -40,41 +73,6 @@ export async function createGroupTransfer(
     await db
       .insert(groupTransfer)
       .values({ id: uuidv4(), ...transfer } as GroupTransfer);
-
-    const sender = await findUser(transfer.senderUserId);
-    const receiver = await findUser(transfer.receiverUserId);
-
-    await createNotificationForUserInGroups(groupId, sender!.id, {
-      message: `Your transfer to ${receiver!.firstName} has been started. Please check your email at ${sender!.email} to confirm.`,
-      timestamp: new Date().toISOString(),
-      route: null,
-    });
-    /*
-    const groupTransaction = await getGroupTransactionToUserToGroupById(
-      transfer.groupTransactionToUsersToGroupsId
-    );
-
-    await createNotificationForUserInGroups(
-      groupId,
-      receiver!.id,
-      {
-        message: `Your transfer to ${recieverName?.user.firstName} has been started`,
-        timestamp: new Date().toISOString(),
-        route: null,
-      }
-    );
-    const notif2 = await createNotificationForUserInGroups(
-      groupId,
-      recieverName!.user.id,
-      {
-        message: `${senderName?.user.firstName} has sent you ${Math.abs(
-          groupTransaction![0].amount
-        ).toFixed(2)}`,
-        timestamp: new Date().toISOString(),
-        route: null,
-      }
-    );
-    */
   } catch (err) {
     console.error(err);
   }

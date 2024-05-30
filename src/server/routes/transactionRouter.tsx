@@ -265,8 +265,6 @@ router.get('transaction/:transactionId', async (req, res) => {
 
 router.get('/account/:accountId', async (req, res) => {
   const accountId = req.params.accountId;
-
-  
 });
 
 router.get("/createTransaction/:groupId", async (req, res) => {
