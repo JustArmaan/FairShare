@@ -187,9 +187,9 @@ router.get('/confirm-transaction', async (req, res) => {
   const html = renderToHtml(
     <div
       hx-get={`/groups/view/${groupId}`}
-      hx-swap="innerHTML"
-      hx-trigger="load"
-      hx-target="#app"
+      hx-swap='innerHTML'
+      hx-trigger='load'
+      hx-target='#app'
     />
   );
   res.send(html);
@@ -660,8 +660,9 @@ router.post('/deleteMember/:userID/:groupID', async (req, res) => {
 
 router.get('/transactions/:groupId', async (req, res) => {
   const groupId = req.params.groupId;
-  const groupWithTransactions =
-    await getGroupWithMembersAndTransactions(groupId);
+  const groupWithTransactions = await getGroupWithMembersAndTransactions(
+    groupId
+  );
   const html = renderToHtml(
     <GroupTransactionsListPage
       group={groupWithTransactions as GroupMembersTransactions}
@@ -685,7 +686,7 @@ router.get(
     const html = renderToHtml(
       <TransactionList
         account={account}
-        route="AddTransaction"
+        route='AddTransaction'
         groupId={req.params.groupId}
         groupTransactionIds={groupTransactionIds}
       />

@@ -45,7 +45,11 @@ export async function createGroupTransfer(
     const receiver = await findUser(transfer.receiverUserId);
 
     await createNotificationForUserInGroups(groupId, sender!.id, {
-      message: `Your transfer to ${receiver!.firstName} has been started. Please check your email at ${sender!.email} to confirm.`,
+      message: `Your transfer to ${
+        receiver!.firstName
+      } has been started. Please check your email at ${
+        sender!.email
+      } to confirm.`,
       timestamp: new Date().toISOString(),
       route: null,
     });

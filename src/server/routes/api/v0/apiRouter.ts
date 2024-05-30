@@ -133,9 +133,17 @@ function calculateKey(apiSharedSecret: string, transactionID: string): string {
 
 router.post('/vopay-transactions-webhook', (req, res) => {
   try {
-    const payload = req.body as { TransactionID: string; Status: string, ValidationKey: string };
+    const payload = req.body as {
+      TransactionID: string;
+      Status: string;
+      ValidationKey: string;
+    };
     // lifecycle: requested -> pending -> sent -> successful
-    if (payload.ValidationKey !== calculateKey(env.vopaySharedSecret!, payload.TransactionID)) return res.status(404).send(); // simulate an empty route
+    if (
+      payload.ValidationKey !==
+      calculateKey(env.vopaySharedSecret!, payload.TransactionID)
+    )
+      return res.status(404).send(); // simulate an empty route
     console.log(req.body, 'vopay transaction received');
   } catch (e) {
     console.error(e);

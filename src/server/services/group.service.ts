@@ -910,7 +910,7 @@ export async function changeMemberTypeInGroup(
                 groupId,
                 `You owe ${
                   transaction.transactionOwner.firstName
-                } ${equalSplitAmount.toFixed(2)}`,
+                } $${equalSplitAmount.toFixed(2)}`,
                 member.id,
                 'groupInvite'
               );
