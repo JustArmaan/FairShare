@@ -23,11 +23,18 @@ import {
 } from '../services/user.service';
 import { ViewGroups } from '../views/pages/Groups/components/ViewGroup';
 import { getAccountsForUser } from '../services/plaid.service';
-import { createTransferForSender } from '../integrations/vopay/transfer';
+import {
+  createTransferForReceiver,
+  createTransferForSender,
+} from '../integrations/vopay/transfer';
 import {
   requestInteracTransfer,
   sendInteracTransfer,
 } from '../integrations/vopay/interac';
+import {
+  getGroupTransferById,
+  getGroupTransferByOwedId,
+} from '../services/plaid.transfer.service';
 
 const router = express.Router();
 

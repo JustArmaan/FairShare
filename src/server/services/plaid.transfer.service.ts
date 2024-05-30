@@ -1,6 +1,6 @@
 import { getDB } from '../database/client';
 import { groupTransfer } from '../database/schema/groupTransfer';
-import { eq } from 'drizzle-orm';
+import { eq, or } from 'drizzle-orm';
 import { findUser, type ExtractFunctionReturnType } from './user.service';
 import { usersToGroups } from '../database/schema/usersToGroups';
 import { groupTransactionToUsersToGroups } from '../database/schema/groupTransactionToUsersToGroups';
@@ -23,8 +23,36 @@ export async function getGroupTransferById(id: string) {
       .where(eq(groupTransfer.id, id));
     return result[0];
   } catch (error) {
-    console.error(error);
+    console.error(error, 'at getGroupTransferById');
     return null;
+  }
+}
+
+export async function getGroupTransferByTransactionId(
+  vopayTransactionId: string
+) {
+  try {
+    const result = await db
+      .select()
+      .from(groupTransfer)
+      .limit(1)
+      .where(or(eq(groupTransfer.senderVopayTransferId, vopayTransactionId), eq(groupTransfer.receiverVopayTransferId, vopayTransactionId)));
+    return result[0];
+  } catch (e) {
+    console.error(e, 'at getGroupTransferByOwedId');
+  }
+}
+
+export async function getGroupTransferByOwedId(owedId: string) {
+  try {
+    const result = await db
+      .select({ id: groupTransfer.id })
+      .from(groupTransfer)
+      .limit(1)
+      .where(eq(groupTransfer.groupTransactionToUsersToGroupsId, owedId));
+    return result[0].id;
+  } catch (e) {
+    console.error(e, 'at getGroupTransferByOwedId');
   }
 }
 
@@ -45,7 +73,9 @@ export async function createGroupTransfer(
     const receiver = await findUser(transfer.receiverUserId);
 
     await createNotificationForUserInGroups(groupId, sender!.id, {
-      message: `Your transfer to ${receiver!.firstName} has been started. Please check your email at ${sender!.email} to confirm.`,
+      message: `Your transfer to ${receiver!.firstName
+        } has been started. Please check your email at ${sender!.email
+        } to confirm.`,
       timestamp: new Date().toISOString(),
     });
     /*

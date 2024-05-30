@@ -5,15 +5,22 @@ const shasum = crypto.createHash('sha1');
 
 const key = env.vopayKey!;
 const secret = env.vopaySharedSecret!;
+let signatureDate = new Date().toISOString();
+let storedSignature: string | null = null;
 
 function generateVopaySignature() {
   let date: Date | string = new Date();
+  if (signatureDate === date.toISOString().split('T')[0] && storedSignature) {
+    return storedSignature;
+  }
 
   // convert to yyyy-mm-dd
   date = date.toISOString().split('T')[0];
+  signatureDate = date;
 
   shasum.update(key + secret + date);
   const signature = shasum.digest('hex');
+  storedSignature = signature;
   return signature;
 }
 

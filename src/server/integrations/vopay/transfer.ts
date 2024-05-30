@@ -32,6 +32,7 @@ export async function createTransferForSender(
     );
     const transferStatus = await getAllTransferStatuses();
     console.log(transferStatus, 'all');
+    console.log(response, 'create transfer response');
 
     if (response?.Success) {
       await createGroupTransfer(
@@ -62,10 +63,9 @@ export async function createTransferForSender(
   }
 }
 
-async function createTransferForReceiver(
+export async function createTransferForReceiver(
   transferId: string,
   receiverId: string,
-  groupId: string,
   question: string,
   answer: string
 ) {
@@ -76,7 +76,7 @@ async function createTransferForReceiver(
 
     // const idempotencyKey = uuid(); // use someday
     const response = await sendInteracTransfer(
-      owed!.amount,
+      Math.abs(owed!.amount),
       'CAD',
       receiver!.email,
       receiver!.firstName,
@@ -85,8 +85,9 @@ async function createTransferForReceiver(
     );
     const transferStatuses = await getAllTransferStatuses();
 
+    console.log(response, 'create transfer response receiver');
     if (response.Success) {
-      await updateGroupTransfer(groupId, {
+      await updateGroupTransfer(transfer!.id, {
         groupTransferSenderStatusId: transferStatuses!.find(
           ({ status }) => status === 'complete'
         )!.id,
@@ -105,15 +106,22 @@ async function createTransferForReceiver(
 
 export async function setupVopayTransactionWebhook() {
   const response = await vopayRequest('account/webhook-url', {
-    WebHookUrl: 'https://webhook-test.com/115f55d816912a1734d813efa0f4a24c',
+    WebHookUrl:
+      'https://73bf-142-232-219-22.ngrok-free.app/api/v0/vopay-transactions-webhook',
     Type: 'transaction',
   });
   console.log(response, 'webhook setup response');
 }
 
-export async function checkAndUpdateTransfer(transferId: string) {
+export async function completeTransfer(transferId: string) {
   try {
-    // check
+    const transferStatuses = (await getAllTransferStatuses())!;
+    await updateGroupTransfer(transferId, {
+      groupTransferReceiverStatusId: transferStatuses.find(
+        (transfer) => transfer.status === 'sent'
+      )!.id,
+      receiverCompletedTimestamp: new Date().toISOString(),
+    });
   } catch (e) {
     console.error(e);
   }

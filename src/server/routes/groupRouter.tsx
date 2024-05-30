@@ -138,7 +138,6 @@ router.get('/view/:groupId', async (req, res) => {
     const account = await getAccountsForUser(userId);
     const accountId = account ? account[0].id : '';
     const { depositAccountId } = (await getUsersToGroup(group.id, userId))!;
-    console.log(owedPerMember, 'owed');
 
     const html = renderToHtml(
       <ViewGroups
