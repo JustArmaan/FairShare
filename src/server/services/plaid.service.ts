@@ -16,6 +16,7 @@ import { groups } from '../database/schema/group.ts';
 import { groupTransactionToUsersToGroups } from '../database/schema/groupTransactionToUsersToGroups.ts';
 import { groupTransfer } from '../database/schema/groupTransfer.ts';
 import { groupTransferStatus } from '../database/schema/groupTransferStatus.ts';
+import { plaidAccount } from '../database/schema/plaidAccount.ts';
 
 const db = getDB();
 
@@ -50,8 +51,8 @@ export const addItemToUser = async (
 
 export async function getItem(id: string) {
   try {
-    const result = await db.select().from(items).where(eq(items.id, id));
-    return result[0];
+    const result = await db.select({items: items}).from(items).innerJoin(plaidAccount, eq(items.id, plaidAccount.itemId)).where(eq(items.id, id));
+    return result[0].items;
   } catch (error) {
     console.error(error);
   }
@@ -93,7 +94,8 @@ export async function getAccountsForUser(userId: string) {
     const results = await db
       .select({ accounts })
       .from(accounts)
-      .innerJoin(items, eq(accounts.itemId, items.id))
+      .innerJoin(plaidAccount, eq(accounts.id, plaidAccount.accountsId))
+      .innerJoin(items, eq(plaidAccount.itemId, items.id))
       .where(eq(items.userId, userId));
     return results.map((result) => result.accounts);
   } catch (e) {

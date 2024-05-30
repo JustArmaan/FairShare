@@ -46,6 +46,7 @@ import { AccountPickerForm } from '../views/pages/transactions/components/Accoun
 import Transaction from '../views/pages/transactions/components/Transaction.tsx';
 import { getTransaction } from '../services/transaction.service.ts';
 import { ViewAndPayPage } from '../views/pages/Groups/ViewAndPayPage.tsx';
+import { Details } from '../views/pages/Groups/Details.tsx';
 import { InstitutionDropDown } from '../views/pages/Groups/components/InstitutionDropDown.tsx';
 import {
   getAccountWithItem,
@@ -216,6 +217,39 @@ router.get(
     // const selectedAccount = wait for schema
     const html = renderToHtml(
       <ViewAndPayPage
+        owed={owed!}
+        transaction={transaction}
+        accounts={accounts!}
+        groupId={req.params.groupId}
+      />
+    );
+
+    return res.send(html);
+  }
+);
+
+
+router.get(
+  '/details/:groupTransactionToUsersToGroupsId/:groupId',
+  async (req, res) => {
+    const result = await getGroupIdAndTransactionIdForOwed(
+      req.params.groupTransactionToUsersToGroupsId
+    );
+
+    if (!result) {
+      return res.status(404).send('Group ID and Transaction ID not found');
+    }
+
+    const { groupId, transactionId } = result;
+    const owed = await getAllOwedForGroupTransactionWithMemberInfo(
+      groupId,
+      transactionId
+    );
+    const transaction = await getTransaction(transactionId);
+    const accounts = await getAccountsWithItemsForUser(req.user!.id);
+    // const selectedAccount = wait for schema
+    const html = renderToHtml(
+      <Details
         owed={owed!}
         transaction={transaction}
         accounts={accounts!}

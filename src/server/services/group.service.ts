@@ -18,6 +18,7 @@ import { groupTransactionToUsersToGroups } from '../database/schema/groupTransac
 import { filterUniqueTransactions } from '../utils/filter';
 import { create } from 'domain';
 import { createNotificationWithWebsocket } from '../utils/createNotification';
+import { plaidAccount } from '../database/schema/plaidAccount';
 
 const db = getDB();
 
@@ -317,7 +318,8 @@ export async function getTransactionsForGroup(groupId: string) {
       )
       .innerJoin(splitType, eq(splitType.id, groupTransactionState.splitTypeId))
       .innerJoin(accounts, eq(accounts.id, transactions.accountId))
-      .innerJoin(items, eq(items.id, accounts.itemId))
+      .innerJoin(plaidAccount, eq(plaidAccount.accountsId, accounts.id))
+      .innerJoin(items, eq(items.id, plaidAccount.itemId))
       .innerJoin(users, eq(items.userId, users.id))
       .where(eq(transactionsToGroups.groupsId, groupId));
 
@@ -626,7 +628,8 @@ export async function getGroupTransactionWithSplitType(
       .innerJoin(splitType, eq(groupTransactionState.splitTypeId, splitType.id))
       .innerJoin(transactions, eq(transactions.id, transactionId))
       .innerJoin(accounts, eq(transactions.accountId, accounts.id))
-      .innerJoin(items, eq(accounts.itemId, items.id))
+      .innerJoin(plaidAccount, eq(accounts.id, plaidAccount.accountsId))
+      .innerJoin(items, eq(plaidAccount.itemId, items.id))
       .innerJoin(users, eq(items.userId, users.id))
       .where(
         and(
@@ -761,7 +764,8 @@ export async function getGroupWithEqualSplitTypeTransactionsAndMembers(
         eq(transactionsToGroups.transactionId, transactions.id)
       )
       .innerJoin(accounts, eq(transactions.accountId, accounts.id))
-      .innerJoin(items, eq(accounts.itemId, items.id))
+      .innerJoin(plaidAccount, eq(accounts.id, plaidAccount.accountsId))
+      .innerJoin(items, eq(plaidAccount.itemId, items.id))
       .innerJoin(users, eq(items.userId, users.id))
       .innerJoin(splitType, eq(groupTransactionState.splitTypeId, splitType.id))
       .innerJoin(

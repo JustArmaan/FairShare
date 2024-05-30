@@ -30,7 +30,7 @@ export const AddTransaction = (props: {
         id='modal-bg'
         class='fixed inset-0 bg-primary-black bg-opacity-40 z-10 hidden'
       ></div>
-      <div class='flex justify-start p-4'>
+      <div class='flex justify-between'>
         <div class='hidden rotate-90'></div>
         <div
           hx-get={`/groups/accountPicker/${props.selectedAccountId}/${props.groupId}`}
@@ -46,6 +46,16 @@ export const AddTransaction = (props: {
             id='account-select-image'
           />
         </div>
+        <div class="flex justify-between">
+        <button
+          class={`rounded-2xl py-3 px-4 bg-accent-blue text-font-off-white`}
+          hx-get={`/transactions/createTransaction/${props.groupId}`}
+          hx-swap="innerHTML"
+          hx-target="#app"
+        >
+          <span class="text-base font-semibold">Add transaction</span>
+        </button>
+      </div>
       </div>
       <div
         id='errorContainer'
