@@ -132,6 +132,7 @@ const accountTypes = [
   { type: 'depository' },
   { type: 'loan' },
   { type: 'other' },
+  { type: 'cash'},
 ];
 
 const groupTransferStatusValues = [

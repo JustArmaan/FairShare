@@ -1,6 +1,6 @@
-import express from 'express';
-import { renderToHtml } from 'jsxte';
-import TransactionDetailsPage from '../views/pages/transactions/TransactionDetails';
+import express from "express";
+import { renderToHtml } from "jsxte";
+import TransactionDetailsPage from "../views/pages/transactions/TransactionDetails";
 import {
   getTransaction,
   getTransactionLocation,
@@ -8,19 +8,21 @@ import {
   searchTransactions,
   getTransactionsByMonth,
   createTransaction,
-} from '../services/transaction.service';
+  getCashAccountForUser,
+  createCashAccount,
+} from "../services/transaction.service";
 
-import Transaction from '../views/pages/transactions/components/Transaction';
-import TransactionsPage from '../views/pages/transactions/TransactionPage';
-import { getUser } from './authRouter';
-import { env } from '../../../env';
+import Transaction from "../views/pages/transactions/components/Transaction";
+import TransactionsPage from "../views/pages/transactions/TransactionPage";
+import { getUser } from "./authRouter";
+import { env } from "../../../env";
 import {
   getAccountWithTransactions,
   getAccountsForUser,
   getItem,
-} from '../services/plaid.service';
-import { TransactionList } from '../views/pages/transactions/components/TransactionList';
-import { AccountPickerForm } from '../views/pages/transactions/components/AccountPickerForm';
+} from "../services/plaid.service";
+import { TransactionList } from "../views/pages/transactions/components/TransactionList";
+import { AccountPickerForm } from "../views/pages/transactions/components/AccountPickerForm";
 import {
   addTransactionsToGroup,
   deleteTransactionFromGroup,
@@ -29,22 +31,22 @@ import {
   getGroupWithMembers,
   getTransactionsToGroup,
   getUsersToGroup,
-} from '../services/group.service';
+} from "../services/group.service";
 import {
   createGroupTransactionState,
   createOwed,
   getAllOwedForGroupTransaction,
-} from '../services/owed.service';
-import { getAccountTypeById } from '../services/accountType.service';
-import { getAccount } from '../services/account.service';
-import { CreateTransaction } from '../views/pages/Groups/components/ManualAdd';
-import { findUser } from '../services/user.service';
-
+} from "../services/owed.service";
+import { getAccountTypeById, getAccountTypeIdByName } from "../services/accountType.service";
+import { addAccount, getAccount } from "../services/account.service";
+import { CreateTransaction } from "../views/pages/Groups/components/ManualAdd";
+import { findUser } from "../services/user.service";
+import { v4 as uuid} from "uuid";
 const router = express.Router();
 
-router.get('/accountPicker/:accountId', getUser, async (req, res) => {
+router.get("/accountPicker/:accountId", getUser, async (req, res) => {
   const accounts = await getAccountsForUser(req.user!.id);
-  if (!accounts) throw new Error('Missing accounts for user');
+  if (!accounts) throw new Error("Missing accounts for user");
   const html = renderToHtml(
     <AccountPickerForm
       accounts={accounts}
@@ -54,23 +56,23 @@ router.get('/accountPicker/:accountId', getUser, async (req, res) => {
   res.send(html);
 });
 
-router.get('/transactionList/:accountId', getUser, async (req, res) => {
+router.get("/transactionList/:accountId", getUser, async (req, res) => {
   const account = await getAccountWithTransactions(req.params.accountId);
-  if (!account) throw new Error('404');
+  if (!account) throw new Error("404");
   const html = renderToHtml(<TransactionList account={account} />);
   res.send(html);
 });
 
-router.get('/page/:selectedAccountId', getUser, async (req, res) => {
+router.get("/page/:selectedAccountId", getUser, async (req, res) => {
   try {
     const accounts = await getAccountsForUser(req.user!.id);
-    if (!accounts) throw new Error('no accounts for user!');
+    if (!accounts) throw new Error("no accounts for user!");
 
     const html = renderToHtml(
       <TransactionsPage
         accounts={accounts}
         selectedAccountId={
-          req.params.selectedAccountId !== 'debug'
+          req.params.selectedAccountId !== "debug"
             ? req.params.selectedAccountId
             : accounts[0].id
         }
@@ -82,26 +84,26 @@ router.get('/page/:selectedAccountId', getUser, async (req, res) => {
   }
 });
 
-router.get('/details/:transactionId', async (req, res) => {
+router.get("/details/:transactionId", async (req, res) => {
   try {
     const transactionId = req.params.transactionId;
     const transaction = await getTransaction(transactionId);
     const account = await getAccount(transaction.accountId);
 
-    if (!transaction || !account) return res.status(404).send('404');
+    if (!transaction || !account) return res.status(404).send("404");
 
     const accountType = await getAccountTypeById(
-      account.accountTypeId ? account.accountTypeId : 'Unknown'
+      account.accountTypeId ? account.accountTypeId : "Unknown"
     );
 
     const item = await getItem(account.itemId);
-    if (!item) return res.status(404).send('404');
+    if (!item) return res.status(404).send("404");
 
     const html = renderToHtml(
       <TransactionDetailsPage
         transaction={transaction}
-        accountType={accountType ? accountType : 'Unknown'}
-        institution={item.institutionName ? item.institutionName : 'Unknown'}
+        accountType={accountType ? accountType : "Unknown"}
+        institution={item.institutionName ? item.institutionName : "Unknown"}
       />
     );
     res.send(html);
@@ -110,7 +112,7 @@ router.get('/details/:transactionId', async (req, res) => {
   }
 });
 
-router.post('/search/:selectedAccountId', getUser, async (req, res) => {
+router.post("/search/:selectedAccountId", getUser, async (req, res) => {
   try {
     const query = req.body.search;
     const accountId = req.params.selectedAccountId;
@@ -129,12 +131,12 @@ router.post('/search/:selectedAccountId', getUser, async (req, res) => {
 
     res.send(html);
   } catch (error) {
-    console.error('Error searching transactions:', error);
-    res.status(500).send('Error searching transactions');
+    console.error("Error searching transactions:", error);
+    res.status(500).send("Error searching transactions");
   }
 });
 
-router.post('/date/:selectedAcoountId', getUser, async (req, res) => {
+router.post("/date/:selectedAcoountId", getUser, async (req, res) => {
   try {
     const userId = req.user!.id;
     const accountId = req.params.selectedAcoountId;
@@ -148,7 +150,7 @@ router.post('/date/:selectedAcoountId', getUser, async (req, res) => {
       transactions = await getTransactionsForUser(userId, 999999);
     }
 
-    month = month.padStart(2, '0');
+    month = month.padStart(2, "0");
 
     transactions = await getTransactionsByMonth(accountId, year, month);
 
@@ -165,17 +167,17 @@ router.post('/date/:selectedAcoountId', getUser, async (req, res) => {
 
     res.send(html);
   } catch (error) {
-    console.error('Error getting transactions by month:', error);
-    res.status(500).send('Error getting transactions by month');
+    console.error("Error getting transactions by month:", error);
+    res.status(500).send("Error getting transactions by month");
   }
 });
 
-router.get('/location/:transactionId', async (req, res) => {
+router.get("/location/:transactionId", async (req, res) => {
   try {
     const transactionId = req.params.transactionId;
     const transaction = await getTransactionLocation(transactionId);
 
-    if (!transaction) return res.status(404).send('404');
+    if (!transaction) return res.status(404).send("404");
 
     const location = {
       lat: transaction.latitude,
@@ -188,7 +190,7 @@ router.get('/location/:transactionId', async (req, res) => {
   }
 });
 
-router.get('/addButton', async (req, res) => {
+router.get("/addButton", async (req, res) => {
   // sorry jeremy ^^^^
   const { checked, transactionId, groupId } = req.query as {
     [key: string]: string;
@@ -198,7 +200,7 @@ router.get('/addButton', async (req, res) => {
   // add/remove the transaction to group relationship
 
   const { members } = (await getGroupWithMembers(groupId))!;
-  if (checked === 'false') {
+  if (checked === "false") {
     const groupTransactions = await addTransactionsToGroup(
       transaction.id,
       groupId
@@ -222,7 +224,7 @@ router.get('/addButton', async (req, res) => {
         });
       })
     );
-  } else if (checked === 'true') {
+  } else if (checked === "true") {
     const allTransactions = await getAllOwedForGroupTransaction(
       groupId,
       transaction.id
@@ -240,7 +242,7 @@ router.get('/addButton', async (req, res) => {
     <Transaction
       tailwindColorClass={transaction.category.color}
       transaction={transaction}
-      checked={!(checked === 'true')}
+      checked={!(checked === "true")}
       route="AddTransaction"
       groupId={groupId as string}
     />
@@ -248,35 +250,41 @@ router.get('/addButton', async (req, res) => {
   res.send(html);
 });
 
-
-router.get('/createTransaction', async (req, res) => {
+router.get("/createTransaction/:groupId", async (req, res) => {
   try {
+    const groupId = req.params.groupId;
     const { id } = req.user!;
     let databaseUser = await findUser(id);
-    if (!databaseUser) throw new Error('failed to create user');
+    if (!databaseUser) throw new Error("failed to create user");
 
     const categories = await getCategories();
-    if(!categories) throw new Error('No categories found');
-  
-    const html = renderToHtml(<CreateTransaction icons={categories} currentUser={{ ...databaseUser, type: 'Owner' }}/>);
+    if (!categories) throw new Error("No categories found");
+
+    const html = renderToHtml(
+      <CreateTransaction
+        icons={categories}
+        currentUser={{ ...databaseUser, type: "Owner" }}
+        groupId={groupId}
+      />
+    );
     res.send(html);
   } catch (error) {
-    console.error('Error loading create transaction page', error);
-    res.status(500).send('Error loading create transaction page');
+    console.error("Error loading create transaction page", error);
+    res.status(500).send("Error loading create transaction page");
   }
 });
 
-router.post('/createTransaction', async (req, res) => {
+router.post("/createTransaction/:groupId", async (req, res) => {
   try {
     const { id } = req.user!;
     if (!id) {
-      return res.set('HX-Redirect', '/login').send();
+      return res.set("HX-Redirect", "/login").send();
     }
 
     const currentUser = await findUser(id);
 
     if (!currentUser) {
-      return res.status(500).send('Failed to get user');
+      return res.status(500).send("Failed to get user");
     }
 
     const {
@@ -285,40 +293,73 @@ router.post('/createTransaction', async (req, res) => {
       selectedCategoryId,
       selectedColor,
     } = req.body;
+    console.log(req.body);
 
     if (
       !transactionName ||
-      transactionName === '' ||
+      transactionName === "" ||
       !transactionAmount ||
-      transactionAmount === '' ||
+      transactionAmount === "" ||
       !selectedCategoryId ||
-      selectedCategoryId === '' ||
-      !selectedColor ||
-      selectedColor === ''
+      selectedCategoryId === ""
     ) {
-      return res.status(400).send('Please fill out all fields.');
+      return res.status(400).send("Please fill out all fields.");
     }
 
     if (!selectedCategoryId) {
-      return res.status(400).send('Category not found.');
+      return res.status(400).send("Category not found.");
     }
-    console.log(transactionName, selectedColor, selectedCategoryId, currentUser.id, transactionAmount);
-
-    // const transaction = await createTransaction(
-    //   transactionName,
-    //   selectedColor,
-    //   selectedCategoryId,
-    //   isTemp.toString()
-    // );
-
-    // if (!group) {
-    //   return res.status(500).send('Failed to create group.');
+    // const cashTransaciton = await createTransaction ({
+    //   accountId: currentUser.id,
+    //   amount: transactionAmount,
+    //   name: transactionName,
+    //   categoryId: selectedCategoryId,
     // }
-    // const html = renderToHtml(<GroupPage groups={allGroupsForCurrentUser} />);
-    // return res.status(200).send(html);
+    // );
+    const groupId = req.params.groupId;
+    const account = await getAccountsForUser(id);
+    const accountId = account ? account[0].id : "";
+
+    const getCashAccount = await getCashAccountForUser(id);
+    console.log(getCashAccount)
+
+    if (!getCashAccount) {
+      const accountType = await getAccountTypeIdByName('cash');
+      const newAccount = await addAccount({ id: uuid() ,name: "Cash Account", accountTypeId: accountType!.id, currencyCodeId: null });
+      await createCashAccount({ userId: id, account_id: newAccount!.id });
+    }
+
+    const cashAccount = await getCashAccountForUser(id);
+    if (!cashAccount) {
+      return res.status(500).send("No cash account found");
+    }
+
+    await createTransaction({
+      accountId: cashAccount.account_id,
+      amount: transactionAmount,
+      company: transactionName,
+      categoryId: selectedCategoryId,
+      timestamp: new Date().toISOString(),
+      address: null,
+      latitude: null,
+      longitude: null,
+      pending: false,
+    });
+
+    const html = renderToHtml(
+      <div
+        hx-get={`/groups/addTransaction/${accountId}/${groupId}`}
+        hx-swap="innerHTML"
+        hx-trigger="load"
+        hx-target="#app"
+      />
+    );
+    res.send(html);
   } catch (error) {
     console.error(error);
-    return res.status(500).send('An error occurred while creating a transaction.');
+    return res
+      .status(500)
+      .send("An error occurred while creating a transaction.");
   }
 });
 export const transactionRouter = router;

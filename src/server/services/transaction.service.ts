@@ -1,12 +1,14 @@
-import { getDB } from '../database/client';
-import { categories } from '../database/schema/category';
-import { transactions } from '../database/schema/transaction';
-import { eq, desc, like, and, or, gte, lt, inArray, count } from 'drizzle-orm';
-import { v4 as uuid } from 'uuid';
-import type { ExtractFunctionReturnType } from './user.service';
-import { accounts } from '../database/schema/accounts';
-import { items } from '../database/schema/items';
-import { plaidAccount } from '../database/schema/plaidAccount';
+import { getDB } from "../database/client";
+import { categories } from "../database/schema/category";
+import { transactions } from "../database/schema/transaction";
+import { eq, desc, like, and, or, gte, lt, inArray, count } from "drizzle-orm";
+import { v4 as uuid } from "uuid";
+import type { ExtractFunctionReturnType } from "./user.service";
+import { accounts } from "../database/schema/accounts";
+import { items } from "../database/schema/items";
+import { plaidAccount } from "../database/schema/plaidAccount";
+import { cashAccount } from "../database/schema/cashAccount";
+import { users } from "../database/schema/users";
 
 const db = getDB();
 
@@ -52,7 +54,7 @@ export async function getTransaction(transactionId: string) {
     };
   });
 
-  if (!joined[0]) throw new Error('no such transaction');
+  if (!joined[0]) throw new Error("no such transaction");
   return joined[0];
 }
 
@@ -76,22 +78,62 @@ export async function createTransactions(newTransactions: Transaction[]) {
     console.error(error);
   }
 }
-
-export async function createTransaction(transaction: Omit<Transaction, 'id'>) {
+export async function getCashAccount(accountId: string) {
   try {
-    const newTransaction = await db.insert(transactions).values({
+    const result = await db
+      .select()
+      .from(cashAccount)
+      .where(eq(cashAccount.id, accountId));
+    return result[0];
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
+}
+
+export async function getCashAccountForUser(userId: string) {
+  try {
+    const result = await db
+      .select({ cashAccount: cashAccount })
+      .from(cashAccount)
+      .innerJoin(users, eq(users.id, cashAccount.userId))
+      .where(eq(cashAccount.userId, userId));
+    if (result.length === 0) return null;
+    return result[0].cashAccount;
+  } catch (error) {
+    console.error(error, "in getCashAccountForUser");
+    return null;
+  }
+}
+
+export async function createCashAccount(account: Omit<cashAccount, "id">) {
+  try {
+    await db.insert(cashAccount).values({
       id: uuid(),
-      ...transaction,
+      userId: account.userId,
+      account_id: account.account_id,
     });
-    return newTransaction;
   } catch (error) {
     console.error(error);
   }
 }
 
+export type cashAccount = ExtractFunctionReturnType<typeof getCashAccount>;
+
+export async function createTransaction(transaction: Omit<Transaction, "id">) {
+  try {
+    await db.insert(transactions).values({
+      id: uuid(),
+      ...transaction,
+    });
+  } catch (error) {
+    console.error(error, "in createTransaction");
+  }
+}
+
 export async function updateTransaction(
   id: string,
-  transaction: Partial<Omit<Transaction, 'id'>>
+  transaction: Partial<Omit<Transaction, "id">>
 ) {
   try {
     const newTransaction = await db
@@ -176,7 +218,7 @@ function getNextMonthYear(year: string, month: string) {
   }
   return {
     nextYear: nextYear.toString(),
-    nextMonth: nextMonth.toString().padStart(2, '0'),
+    nextMonth: nextMonth.toString().padStart(2, "0"),
   };
 }
 export async function getTransactionsByMonth(
@@ -185,7 +227,7 @@ export async function getTransactionsByMonth(
   month: string
 ) {
   try {
-    const paddedMonth = month.padStart(2, '0');
+    const paddedMonth = month.padStart(2, "0");
     const startDate = `${year}-${paddedMonth}-01`;
     const { nextYear, nextMonth } = getNextMonthYear(year, paddedMonth);
     const endDate = `${nextYear}-${nextMonth}-01`;
@@ -212,7 +254,7 @@ export async function getTransactionsByMonth(
 
     return joined;
   } catch (error) {
-    console.error('Error retrieving transactions:', error);
+    console.error("Error retrieving transactions:", error);
     return [];
   }
 }
@@ -243,7 +285,7 @@ export async function getAccountForUserWithMostTransactions(userId: string) {
 
     return accountId;
   } catch (error) {
-    console.error(error);
+    console.error(error), "in getAccountForUserWithMostTransactions";
     return null;
   }
 }

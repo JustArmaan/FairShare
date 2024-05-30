@@ -10,7 +10,8 @@ const db = getDB();
 
 export async function addAccount(account: AccountDetails) {
   try {
-    await db.insert(accounts).values(account);
+    const result = await db.insert(accounts).values(account).returning();
+    return result[0]
   } catch (error) {
     console.error(error, 'in addAccount');
   }
@@ -85,7 +86,7 @@ export type AccountWithItem = ExtractFunctionReturnType<
 export async function getAccountWithItem(accountId: string) {
   try {
     const results = await db
-      .select({ account: accounts, item: items })
+      .select({ account: accounts, item: items, plaidAccount: plaidAccount })
       .from(accounts)
       .innerJoin(plaidAccount, eq(accounts.id, plaidAccount.accountsId))
       .innerJoin(items, eq(plaidAccount.itemId, items.id))
@@ -93,6 +94,7 @@ export async function getAccountWithItem(accountId: string) {
     return results.map((account) => ({
       ...account.account,
       item: account.item,
+      plaidAccount: account.plaidAccount,
     }))[0];
   } catch (e) {
     console.log(e, 'in getAccountWithItem');
@@ -103,7 +105,7 @@ export async function getAccountWithItem(accountId: string) {
 export async function getAccountsWithItemsForUser(userId: string) {
   try {
     const results = await db
-      .select({ account: accounts, item: items })
+      .select({ account: accounts, item: items, plaidAccount: plaidAccount })
       .from(accounts)
       .innerJoin(plaidAccount, eq(accounts.id, plaidAccount.accountsId))
       .innerJoin(items, eq(plaidAccount.itemId, items.id))
@@ -112,6 +114,7 @@ export async function getAccountsWithItemsForUser(userId: string) {
     return results.map((account) => ({
       ...account.account,
       item: account.item,
+      plaidAccount: account.plaidAccount,
     }));
   } catch (e) {
     console.log(e, 'in getAccountsWithItemsForUser');

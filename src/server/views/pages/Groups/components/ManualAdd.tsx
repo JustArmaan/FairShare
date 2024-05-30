@@ -3,9 +3,11 @@ import { type CategoriesSchema } from "../../../../services/group.service";
 
 export const CreateTransaction = ({
   icons,
+  groupId,
   currentUser,
 }: {
   icons: CategoriesSchema;
+  groupId: string;
   currentUser: UserSchemaWithMemberType;
 }) => {
   return (
@@ -25,7 +27,6 @@ export const CreateTransaction = ({
           />
         </a>
       </div>
-      <form>
       <div class="flex flex-col my-8 bg-primary-black bg-opacity-40 rounded-lg p-4">
         <label class="text-font-off-white justify-start bold pb-2">
           Transaction Name
@@ -34,6 +35,7 @@ export const CreateTransaction = ({
           class="py-1 px-4 justify-center items-center text-font-grey bg-primary-black rounded-lg mt-2"
           type="text"
           name="transactionName"
+          id="transactionName"
           placeholder="Enter Transaction Name"
         />
         <label class="text-font-off-white justify-start bold">
@@ -41,8 +43,9 @@ export const CreateTransaction = ({
         </label>
         <input
           class="py-1 px-4 justify-center items-center text-font-grey bg-primary-black rounded-lg mt-2"
-          type="text"
+          type="number"
           name="transactionAmount"
+          id="transactionAmount"
           placeholder="Enter Transaction Amount"
         />
         <label class="text-font-off-white justify-start bold mt-4 cursor-pointer">
@@ -61,7 +64,7 @@ export const CreateTransaction = ({
           {icons.map((icon) => (
             <button
               type="button"
-              data-category-id={icon.icon}
+              data-category-id={icon.id}
               class="category-button flex items-center p-2 mt-2 bg-card-black rounded-lg hover:bg-primary-faded-black focus:outline-none focus:ring-2 focus:ring-accent-blue w-full animation-fade-in"
             >
               <img
@@ -73,7 +76,7 @@ export const CreateTransaction = ({
             </button>
           ))}
         </div>
-        <label class="text-font-off-white justify-start font-bold mt-4 cursor-pointer">
+        {/* <label class="text-font-off-white justify-start font-bold mt-4 cursor-pointer">
           Select Color
         </label>
 
@@ -113,7 +116,7 @@ export const CreateTransaction = ({
             data-color="card-red"
           ></button>
           <div class="ring-2 ring-offset-2 ring-accent-blue hidden"></div>
-        </div>
+        </div> */}
         <input
           type="hidden"
           name="selectedCategoryId"
@@ -128,17 +131,17 @@ export const CreateTransaction = ({
         <div class="flex justify-center items-center mt-3 mb-4">
           <button
             type="button"
-            hx-post="/transactions/createTransaction"
+            hx-post={`/transactions/createTransaction/${groupId}`}
             hx-target="#app"
             hx-swap="innerHTML"
+            hx-include="#selectedCategoryId, [name='transactionName'], [name='transactionAmount'], #selectedColor"
             class="rounded-lg w-32 h-10 bg-accent-blue justify-center text-font-off-white text-sm mt-4"
           >
-            Create Group
+            Create Transaction
           </button>
         </div>
       </div>
       <div class="mb-20"></div>
-    </form>
     </div>
   );
 };
