@@ -16,6 +16,8 @@ import {
   getUserTotalOwedForGroup,
   changeMemberTypeInGroup,
   getGroupOwner,
+  getGroupWithEqualSplitTypeTransactionsAndMembers,
+  getGroupWithAcceptedMembers,
 } from '../services/group.service';
 import { findUser, getUserByEmailOnly } from '../services/user.service.ts';
 import { AddedMember } from '../views/pages/Groups/components/Member.tsx';
@@ -40,6 +42,8 @@ import {
   getAllOwedForGroupTransactionWithMemberInfo,
   getAllOwedForGroupTransactionWithTransactionId,
   getGroupIdAndTransactionIdForOwed,
+  getAllOwedForGroupTransactionNotPendingWithMemberInfo,
+  getAllOwedForGroupPendingTransactionWithTransactionId,
 } from '../services/owed.service.ts';
 import { TransactionList } from '../views/pages/transactions/components/TransactionList.tsx';
 import { AccountPickerForm } from '../views/pages/transactions/components/AccountPickerForm.tsx';
@@ -59,6 +63,8 @@ import {
 } from '../services/notification.service.ts';
 import { createNotificationWithWebsocket } from '../utils/createNotification.ts';
 import { group } from 'console';
+import { splitEqualTransactions } from '../utils/equalSplit.ts';
+import { filterUniqueTransactions } from '../utils/filter.ts';
 
 const router = express.Router();
 
@@ -143,10 +149,23 @@ router.get('/view/:groupId', async (req, res) => {
         .filter((owed) => owed !== null)
     );
 
+    const owedPerMemberPending = await Promise.all(
+      transactions
+        .map(async (transaction) => {
+          return (await getAllOwedForGroupPendingTransactionWithTransactionId(
+            group.id,
+            transaction.id
+          )) as ExtractFunctionReturnType<
+            typeof getAllOwedForGroupTransactionWithTransactionId
+          >;
+        })
+        .filter((owed) => owed !== null)
+    );
+
     const account = await getAccountsForUser(userId);
     const accountId = account ? account[0].id : '';
     const { depositAccountId } = (await getUsersToGroup(group.id, userId))!;
-    console.log(owedPerMember, 'owed');
+    console.log(owedPerMember, 'owed', owedPerMemberPending, 'owedPending');
 
     const html = renderToHtml(
       <ViewGroups
@@ -158,6 +177,19 @@ router.get('/view/:groupId', async (req, res) => {
         owedPerMember={
           owedPerMember && owedPerMember.length > 0
             ? owedPerMember
+            : [
+                group.members.map((member) => ({
+                  transactionId: '',
+                  userId: member.id,
+                  amount: 0,
+                  groupTransactionToUsersToGroupsId: '',
+                  pending: true,
+                })),
+              ]
+        }
+        owedPerMemberPending={
+          owedPerMemberPending && owedPerMemberPending.length > 0
+            ? owedPerMemberPending
             : [
                 group.members.map((member) => ({
                   transactionId: '',
@@ -184,6 +216,11 @@ router.get('/confirm-transaction', async (req, res) => {
   };
   await setGroupTransactionStatePending(owedId, null);
   const groupId = await getGroupIdFromOwed(owedId);
+
+  if (!groupId) {
+    return res.status(404).send('Group ID not found');
+  }
+
   const html = renderToHtml(
     <div
       hx-get={`/groups/view/${groupId}`}

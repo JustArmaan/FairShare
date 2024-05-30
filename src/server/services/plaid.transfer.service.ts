@@ -53,32 +53,6 @@ export async function createGroupTransfer(
       timestamp: new Date().toISOString(),
       route: null,
     });
-    /*
-    const groupTransaction = await getGroupTransactionToUserToGroupById(
-      transfer.groupTransactionToUsersToGroupsId
-    );
-
-    await createNotificationForUserInGroups(
-      groupId,
-      receiver!.id,
-      {
-        message: `Your transfer to ${recieverName?.user.firstName} has been started`,
-        timestamp: new Date().toISOString(),
-        route: null,
-      }
-    );
-    const notif2 = await createNotificationForUserInGroups(
-      groupId,
-      recieverName!.user.id,
-      {
-        message: `${senderName?.user.firstName} has sent you ${Math.abs(
-          groupTransaction![0].amount
-        ).toFixed(2)}`,
-        timestamp: new Date().toISOString(),
-        route: null,
-      }
-    );
-    */
   } catch (err) {
     console.error(err);
   }

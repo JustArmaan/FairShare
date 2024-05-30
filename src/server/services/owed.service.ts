@@ -1,4 +1,4 @@
-import { and, eq } from 'drizzle-orm';
+import { and, eq, ne } from 'drizzle-orm';
 import { getDB } from '../database/client';
 import { groupTransactionToUsersToGroups } from '../database/schema/groupTransactionToUsersToGroups';
 import { transactionsToGroups } from '../database/schema/transactionsToGroups';
@@ -146,6 +146,53 @@ export async function getAllOwedForGroupTransactionWithMemberInfo(
   }
 }
 
+export async function getAllOwedForGroupTransactionNotPendingWithMemberInfo(
+  groupId: string,
+  transactionId: string
+) {
+  try {
+    const results = await db
+      .select({
+        user: users,
+        amount: groupTransactionToUsersToGroups.amount,
+        owedId: groupTransactionToUsersToGroups.id,
+      })
+      .from(transactionsToGroups)
+      .innerJoin(
+        groupTransactionState,
+        eq(groupTransactionState.groupTransactionId, transactionsToGroups.id)
+      )
+      .innerJoin(
+        groupTransactionToUsersToGroups,
+        eq(
+          groupTransactionState.id,
+          groupTransactionToUsersToGroups.groupTransactionStateId
+        )
+      )
+      .innerJoin(
+        usersToGroups,
+        eq(usersToGroups.id, groupTransactionToUsersToGroups.usersToGroupsId)
+      )
+      .innerJoin(users, eq(usersToGroups.userId, users.id))
+      .where(
+        and(
+          eq(transactionsToGroups.transactionId, transactionId),
+          eq(transactionsToGroups.groupsId, groupId),
+          eq(groupTransactionState.pending, false)
+        )
+      );
+
+    return [
+      ...results.map((result) => ({
+        ...result,
+      })),
+    ];
+  } catch (e) {
+    console.error(e, 'at getOwed');
+    return null;
+  }
+}
+
 export type OwedTransactionWithMember = NonNullable<
   Awaited<ReturnType<typeof getAllOwedForGroupTransactionWithMemberInfo>>
 >;
@@ -218,7 +265,55 @@ export async function getAllOwedForGroupTransactionWithTransactionId(
       .where(
         and(
           eq(transactionsToGroups.transactionId, transactionId),
-          eq(transactionsToGroups.groupsId, groupId)
+          eq(transactionsToGroups.groupsId, groupId),
+          ne(groupTransactionState.pending, true)
+        )
+      );
+
+    return [
+      ...results.map((result) => ({
+        amount: result.groupTransactionToUsersToGroups.amount,
+        userId: result.usersToGroups.userId,
+        transactionId: result.transactionsToGroups.transactionId,
+        pending: result.groupTransactionState.pending,
+        groupTransactionToUsersToGroupsId:
+          result.groupTransactionToUsersToGroups.id,
+      })),
+    ];
+  } catch (e) {
+    console.error(e, 'at getOwed');
+    return null;
+  }
+}
+
+export async function getAllOwedForGroupPendingTransactionWithTransactionId(
+  groupId: string,
+  transactionId: string
+) {
+  try {
+    const results = await db
+      .select()
+      .from(transactionsToGroups)
+      .innerJoin(
+        groupTransactionState,
+        eq(transactionsToGroups.id, groupTransactionState.groupTransactionId)
+      )
+      .innerJoin(
+        groupTransactionToUsersToGroups,
+        eq(
+          groupTransactionState.id,
+          groupTransactionToUsersToGroups.groupTransactionStateId
+        )
+      )
+      .innerJoin(
+        usersToGroups,
+        eq(usersToGroups.id, groupTransactionToUsersToGroups.usersToGroupsId)
+      )
+      .where(
+        and(
+          eq(transactionsToGroups.transactionId, transactionId),
+          eq(transactionsToGroups.groupsId, groupId),
+          eq(groupTransactionState.pending, true)
         )
       );
 
