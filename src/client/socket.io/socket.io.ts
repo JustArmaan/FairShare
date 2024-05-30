@@ -51,7 +51,6 @@ export function setupSocketListener() {
       console.log(data, notificationIcon, notificationList, 'groupInvite');
 
       if (notificationIcon) {
-        console.log('notificationIcon', notificationIcon);
         htmx.ajax('GET', `/notification/notificationIcon`, {
           target: '#notification-icon',
           swap: 'outerHTML',

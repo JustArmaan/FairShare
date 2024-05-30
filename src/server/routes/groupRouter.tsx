@@ -15,6 +15,7 @@ import {
   getGroupIdFromOwed,
   getUserTotalOwedForGroup,
   changeMemberTypeInGroup,
+  getGroupOwner,
 } from '../services/group.service';
 import {
   findUser,
@@ -60,6 +61,8 @@ import {
   createNotificationForUserInGroups,
   deleteNotificationForUserInGroup,
 } from '../services/notification.service.ts';
+import { createNotificationWithWebsocket } from '../utils/createNotification.ts';
+import { group } from 'console';
 
 const router = express.Router();
 
@@ -421,27 +424,13 @@ router.post('/create', async (req, res) => {
         if (user.id !== currentUser.id) {
           const invitedMember = await addMember(group.id, user.id, 'Invited');
           if (invitedMember) {
-            try {
-              const newNotif = await createNotificationForUserInGroups(
-                group.id,
-                user.id,
-                {
-                  timestamp: new Date().toISOString(),
-                  message: `You have been invited to join the group ${group.name} by ${currentUser.email}`,
-                  route: `/groups/${group.id}`,
-                }
-              );
-              if (!newNotif) {
-                console.error('Failed to create notification');
-              }
-              io.to(invitedMember.userId).emit(
-                'groupInvite',
-                JSON.stringify({ groupId: invitedMember.groupId })
-              );
-              console.log('Invited member', invitedMember);
-            } catch (error) {
-              console.error('Error handling group invitation:', error);
-            }
+            await createNotificationWithWebsocket(
+              group.id,
+              `You have been invited to join the group ${group.name} by ${currentUser.email}`,
+              user.id,
+              'groupInvite',
+              `/groups/${group.id}`
+            );
           }
         } else if (user.id === currentUser.id) {
           await addMember(group.id, user.id, 'Owner');
@@ -620,17 +609,13 @@ router.post('/edit/:groupId', async (req, res) => {
           'Invited'
         );
         if (invitedMember) {
-          await createNotificationForUserInGroups(currentGroup.id, user.id, {
-            timestamp: new Date().toISOString(),
-            message: `You have been invited to join the group ${currentGroup.name} by ${currentUser.email}`,
-            route: `/groups/${currentGroup.id}`,
-          });
-          io.to(invitedMember.userId).emit(
+          await createNotificationWithWebsocket(
+            currentGroup.id,
+            `You have been invited to join the group ${currentGroup.name} by ${currentUser.email}`,
+            user.id,
             'groupInvite',
-            JSON.stringify({ groupId: invitedMember.groupId })
+            `/groups/${currentGroup.id}`
           );
-
-          console.log('Invited member', invitedMember);
         }
       } else {
         return res.status(400).send(`User with email ${memberEmail} not found`);
@@ -749,23 +734,49 @@ router.post('/member/:approval', async (req, res) => {
   const userId = req.user!.id;
   const isApproved = req.params.approval === 'accept';
 
+  const user = await findUser(userId);
+
+  const owner = await getGroupOwner(groupId);
+
+  if (!owner) {
+    return res.status(500).send('An error occured when accepting the invite');
+  }
+
   if (isApproved) {
     await changeMemberTypeInGroup(userId, groupId, 'Member');
-    console.log('Member accepted the invite');
     await deleteNotificationForUserInGroup(groupId, userId, notificationId);
+    await createNotificationWithWebsocket(
+      groupId,
+      `${user?.firstName} has accepted the invite to join the group`,
+      owner.userId,
+      'groupInvite'
+    );
   } else {
     await deleteMemberByGroup(userId, groupId);
-    console.log('Member declined the invite');
     await deleteNotificationForUserInGroup(groupId, userId, notificationId);
+    await createNotificationWithWebsocket(
+      groupId,
+      `${user?.firstName} has declined the invite to join the group`,
+      owner.userId,
+      'groupInvite'
+    );
   }
 
   const html = renderToHtml(
-    <div
-      hx-get={`/notification/page`}
-      hx-swap='innerHTML'
-      hx-trigger='load'
-      hx-target='#app'
-    />
+    <>
+      <div
+        hx-get='notification/notificationIcon'
+        hx-target='#notification-icon'
+        hx-swap='outerHTML'
+        hx-trigger='load'
+      ></div>
+      <div
+        hx-get={`/notification/page`}
+        hx-swap='innerHTML'
+        hx-trigger='load'
+        hx-target='#app'
+      ></div>
+    </>
   );
 
   res.send(html);

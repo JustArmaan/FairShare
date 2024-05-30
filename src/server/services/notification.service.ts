@@ -102,3 +102,13 @@ export async function deleteNotificationForUserInGroup(
     console.error(error);
   }
 }
+
+export async function deleteAllNotificationsForUser(userGroupId: string) {
+  try {
+    await db
+      .delete(notifications)
+      .where(eq(notifications.userGroupId, userGroupId));
+  } catch (error) {
+    console.error(error);
+  }
+}
