@@ -177,7 +177,7 @@ router.post('/vopay-transactions-webhook', async (req, res) => {
       return res.status(404).send(); // simulate an empty route
     if (
       payload.TransactionType === 'moneyrequest' &&
-      (payload.Status === 'successful' || payload.Status === "sent")
+      (payload.Status === 'successful' || payload.Status === 'sent')
     ) {
       const groupTransfer = (await getGroupTransferByTransactionId(
         payload.TransactionID
