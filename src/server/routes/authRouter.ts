@@ -100,7 +100,9 @@ router.get('/callback', async (req, res) => {
 });
 
 export async function getUser(req: Request, res: Response, next: NextFunction) {
-  if (req.url.includes('render') && !req.url.includes('localhost')) {
+  console.log(req.get('host'));
+  if (req.get('host')?.includes('render') && !req.get('host')?.includes('localhost')) {
+    console.log('redirect');
     return res.redirect('https://myfairshare.ca');
   }
   try {
