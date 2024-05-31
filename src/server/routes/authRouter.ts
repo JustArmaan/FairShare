@@ -18,8 +18,23 @@ const colors = [
   'accent-red',
   'accent-yellow',
   'accent-green',
-  'negative-number',
-  'card-red',
+  'category-color-0',
+  'category-color-1',
+  'category-color-2',
+  'category-color-3',
+  'category-color-4',
+  'category-color-5',
+  'category-color-6',
+  'category-color-7',
+  'category-color-8',
+  'category-color-9',
+  'category-color-10',
+  'category-color-11',
+  'category-color-12',
+  'category-color-13',
+  'category-color-14',
+  'category-color-15',
+  'category-color-16',
 ];
 
 const router = express.Router();
@@ -100,8 +115,10 @@ router.get('/callback', async (req, res) => {
 });
 
 export async function getUser(req: Request, res: Response, next: NextFunction) {
-  console.log(req.get('host'));
-  if (req.get('host')?.includes('render') && !req.get('host')?.includes('localhost')) {
+  if (
+    req.get('host')?.includes('render') &&
+    !req.get('host')?.includes('localhost')
+  ) {
     console.log('redirect');
     return res.redirect('https://myfairshare.ca');
   }
