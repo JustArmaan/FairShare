@@ -100,47 +100,54 @@ router.get('/callback', async (req, res) => {
 });
 
 export async function getUser(req: Request, res: Response, next: NextFunction) {
-  const isAuthenticated = await kindeClient.isAuthenticated(
-    sessionManager(req, res)
-  );
-  if (isAuthenticated && !req.url.includes('logout')) {
-    const profile = await kindeClient.getUserProfile(sessionManager(req, res));
-    if (!profile) {
-      const logoutUrl = await kindeClient.logout(sessionManager(req, res));
-      return res.redirect(logoutUrl.toString());
-    }
-    const user = await findUser(profile.id);
-    if (!user) {
-      const { id, given_name, family_name, email } = profile;
-      await createUser({
-        id,
-        firstName: given_name,
-        lastName: family_name ? family_name : null,
-        email,
-        color: faker.helpers.arrayElement(colors),
-      });
-      // await seedFakeTransactions(id, 20);
-      if (!(await findUser(id))) throw new Error('failed to create user');
-      next();
+  try {
+    const isAuthenticated = await kindeClient.isAuthenticated(
+      sessionManager(req, res)
+    );
+    if (isAuthenticated && !req.url.includes('logout')) {
+      const profile = await kindeClient.getUserProfile(
+        sessionManager(req, res)
+      );
+      if (!profile) {
+        const logoutUrl = await kindeClient.logout(sessionManager(req, res));
+        return res.redirect(logoutUrl.toString());
+      }
+      const user = await findUser(profile.id);
+      if (!user) {
+        const { id, given_name, family_name, email } = profile;
+        await createUser({
+          id,
+          firstName: given_name,
+          lastName: family_name ? family_name : null,
+          email,
+          color: faker.helpers.arrayElement(colors),
+        });
+        // await seedFakeTransactions(id, 20);
+        if (!(await findUser(id))) throw new Error('failed to create user');
+        next();
+      } else {
+        req.user = user;
+        next();
+      }
     } else {
-      req.user = user;
-      next();
+      if (req.url.includes('auth')) return next();
+      if (
+        req.url === '/' ||
+        req.url.includes('onboard') ||
+        req.url.includes('images') ||
+        req.url.endsWith('.svg') ||
+        req.url.endsWith('.png') ||
+        req.url.endsWith('.css') ||
+        req.url.endsWith('client') ||
+        req.url.endsWith('sync') ||
+        req.url.endsWith('vopay-transactions-webhook')
+      )
+        return next();
+      res.redirect('/');
     }
-  } else {
-    if (req.url.includes('auth')) return next();
-    if (
-      req.url === '/' ||
-      req.url.includes('onboard') ||
-      req.url.includes('images') ||
-      req.url.endsWith('.svg') ||
-      req.url.endsWith('.png') ||
-      req.url.endsWith('.css') ||
-      req.url.endsWith('client') ||
-      req.url.endsWith('sync') ||
-      req.url.endsWith('vopay-transactions-webhook')
-    )
-      return next();
-    res.redirect('/');
+  } catch (e) {
+    console.error(e);
+    return res.status(500).send();
   }
 }
 

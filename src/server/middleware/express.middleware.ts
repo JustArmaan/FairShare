@@ -20,7 +20,10 @@ export const configureApp = async (app: Express) => {
   app.use(express.static('~/public'));
   app.use(cookieParser());
 
-  app.use('/', getUser, (_, __, next) => {
+  app.use('/', getUser, (req, res, next) => {
+    if (req.url.includes('render') && !req.url.includes('localhost')) {
+      return res.redirect('https://myfairshare.ca');
+    }
     next();
   });
 
