@@ -1,7 +1,7 @@
 import express from 'express';
 import { renderToHtml } from 'jsxte';
 import { getTransactionsForUser } from '../services/transaction.service';
-import { syncTransactionsForUser } from '../plaid/sync';
+import { syncTransactionsForUser } from '../integrations/plaid/sync';
 import {
   getAccountWithTransactions,
   getAccountsForUser,

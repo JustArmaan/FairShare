@@ -24,13 +24,16 @@ const colors = [
 
 const router = express.Router();
 
-const kindeClient = createKindeServerClient(GrantType.AUTHORIZATION_CODE, {
-  authDomain: env.kindeAuthDomain!,
-  clientId: env.kindeClientId!,
-  clientSecret: env.kindeSecret!,
-  redirectURL: `${env.baseUrl}/auth/callback`,
-  logoutRedirectURL: env.baseUrl!,
-});
+export const kindeClient = createKindeServerClient(
+  GrantType.AUTHORIZATION_CODE,
+  {
+    authDomain: env.kindeAuthDomain!,
+    clientId: env.kindeClientId!,
+    clientSecret: env.kindeSecret!,
+    redirectURL: `${env.baseUrl}/auth/callback`,
+    logoutRedirectURL: env.baseUrl!,
+  }
+);
 
 const cookieOptions = {
   maxAge: 24 * 60 * 60 * 1000,
@@ -39,12 +42,16 @@ const cookieOptions = {
   sameSite: 'lax',
 } as const;
 
-const sessionManager = (req: Request, res: Response): SessionManager => ({
+export const sessionManager = (
+  req: Request | { cookies: Record<string, any> },
+  res?: Response
+): SessionManager => ({
   async getSessionItem(key: string) {
     if (req.cookies[key] && req.cookies[key] !== '') return req.cookies[key];
     return undefined;
   },
   async setSessionItem(key: string, value: unknown) {
+    if (!res) throw new Error('cannot set session without valid res');
     if (typeof value === 'string') {
       res.cookie(key, value, cookieOptions);
     } else {
@@ -52,10 +59,12 @@ const sessionManager = (req: Request, res: Response): SessionManager => ({
     }
   },
   async removeSessionItem(key: string) {
+    if (!res) throw new Error('cannot operate on session without valid res');
     console.log('clearing cookie', key);
     res.clearCookie(key, cookieOptions);
   },
   async destroySession() {
+    if (!res) throw new Error('cannot operate on session without valid res');
     [
       'ac-state-key',
       'id_token',
@@ -127,7 +136,8 @@ export async function getUser(req: Request, res: Response, next: NextFunction) {
       req.url.endsWith('.png') ||
       req.url.endsWith('.css') ||
       req.url.endsWith('client') ||
-      req.url.endsWith('sync')
+      req.url.endsWith('sync') ||
+      req.url.endsWith('vopay-transactions-webhook')
     )
       return next();
     res.redirect('/');

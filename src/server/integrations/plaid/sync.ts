@@ -1,17 +1,18 @@
-import { addAccount, getAccount } from '../services/account.service';
-import { getAccountTypeIdByName } from '../services/accountType.service';
-import { getCategoryIdByName } from '../services/category.service';
+import { addAccount, getAccount } from '../../services/account.service';
+import { getAccountTypeIdByName } from '../../services/accountType.service';
+import { getCategoryIdByName } from '../../services/category.service';
 import {
   createTransactions,
   deleteTransactions,
   updateTransaction,
-} from '../services/transaction.service';
+} from '../../services/transaction.service';
 import {
   getItemsForUser,
   updateItem,
   type Item,
-} from '../services/plaid.service';
+} from '../../services/plaid.service';
 import { plaidRequest } from './link';
+import { io } from '../../main';
 
 const syncStore = new Set<string>();
 const syncQueue = new Set<string>();
@@ -19,19 +20,16 @@ const syncQueue = new Set<string>();
 export async function syncTransactionsForUser(userId: string) {
   if (syncStore.has(userId)) {
     syncQueue.add(userId);
-    console.log(syncQueue, 'added to queue, exiting');
     return;
   }
   syncStore.add(userId);
-  console.log('added to syncStore', syncStore);
+
   const items = await getItemsForUser(userId);
   await Promise.all(items.map((item) => syncTransaction({ ...item, userId })));
+
   syncStore.delete(userId);
-  console.log('del from sync store');
-  console.log('sync queue', syncQueue);
   if (syncQueue.has(userId)) {
     syncQueue.delete(userId);
-    console.log('del from sync queue, sync');
     await syncTransactionsForUser(userId);
   }
 }
@@ -80,6 +78,7 @@ type SyncResponse = {
   has_more: boolean;
   error_code: string | undefined;
 };
+
 async function syncTransaction({ item }: { item: Item; userId: string }) {
   const count = 500;
   let cursor: string | undefined = item.nextCursor
@@ -97,14 +96,6 @@ async function syncTransaction({ item }: { item: Item; userId: string }) {
       count,
     })) as SyncResponse;
 
-    console.log(
-      response?.added?.length,
-      response?.modified?.length,
-      response?.removed?.length,
-      response?.has_more,
-      'sync trans resp'
-    );
-
     if (
       response.error_code === 'TRANSACTIONS_SYNC_MUTATION_DURING_PAGINATION'
     ) {
@@ -116,9 +107,8 @@ async function syncTransaction({ item }: { item: Item; userId: string }) {
     }
 
     const { accounts } = response;
-    if (accounts) {
-      await updateAccounts(accounts, item.id);
-    }
+    if (accounts) await updateAccounts(accounts, item.id);
+
     const { added, modified, removed, next_cursor, has_more } = response;
     added.forEach((added) => toAdd.push(added));
     modified.forEach((modified) => toModify.push(modified));
@@ -135,9 +125,64 @@ async function syncTransaction({ item }: { item: Item; userId: string }) {
     (await deleteTransactions(
       toRemove.map((removed) => removed.transaction_id)
     ));
-  updateItem(item.id, {
-    nextCursor: cursor
+
+  await updateItem(item.id, {
+    nextCursor: cursor,
   });
+
+  handleTransactionWebsocketEvents(toAdd, toModify, toRemove, item.userId);
+}
+
+type TransactionEvent = { transactionIds: string[]; accountId: string };
+
+function parseTransactionsIntoWebsocketMessage(
+  acc: TransactionEvent[],
+  currentTransaction: { transaction_id: string; account_id: string },
+  _: number
+) {
+  const index = acc.findIndex(
+    (item) => item.accountId === currentTransaction.account_id
+  );
+  if (index === -1) {
+    acc.push({
+      accountId: currentTransaction.account_id,
+      transactionIds: [currentTransaction.account_id],
+    });
+  } else {
+    acc[index].transactionIds.push(currentTransaction.transaction_id);
+  }
+  return acc;
+}
+
+function handleTransactionWebsocketEvents(
+  added: AddedPlaidTransaction[],
+  modified: ModifiedPlaidTransaction[],
+  removed: { transaction_id: string }[],
+  userId: string
+) {
+  const addedMessage = added.reduce(
+    parseTransactionsIntoWebsocketMessage,
+    [] as TransactionEvent[]
+  );
+  const modifiedMessage = (modified as PlaidTransactionGeneral[]).reduce(
+    parseTransactionsIntoWebsocketMessage,
+    [] as TransactionEvent[]
+  );
+  const removedMessage = (removed as PlaidTransactionGeneral[]).reduce(
+    parseTransactionsIntoWebsocketMessage,
+    [] as TransactionEvent[]
+  );
+
+  console.log('potentially sending websocket sync/update events');
+  if (addedMessage.length > 0) {
+    io.to(userId).emit('newTransaction', JSON.stringify(addedMessage));
+  }
+  if (modifiedMessage.length > 0) {
+    io.to(userId).emit('newTransaction', JSON.stringify(modifiedMessage));
+  }
+  if (removedMessage.length > 0) {
+    io.to(userId).emit('newTransaction', JSON.stringify(removedMessage));
+  }
 }
 
 interface PlaidTransactionGeneral {

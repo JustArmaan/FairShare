@@ -14,6 +14,10 @@ export const env = {
   plaidSecret: process.env.VITE_PLAID_SECRET,
   plaidApiUrl: process.env.VITE_PLAID_API_URL,
   googleMapsApiKey: process.env.VITE_GOOGLE_MAPS_API_KEY,
+  vopayAccountId: process.env.VITE_VOPAY_ACCOUNT_ID,
+  vopaySharedSecret: process.env.VITE_VOPAY_API_SHARED_SECRET,
+  vopayKey: process.env.VITE_VOPAY_API_KEY,
+  vopayUrl: process.env.VITE_VOPAY_URL,
 };
 
 Object.entries(env).forEach(([key, value]) => {

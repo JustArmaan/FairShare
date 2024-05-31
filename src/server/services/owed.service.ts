@@ -1,4 +1,4 @@
-import { and, eq } from 'drizzle-orm';
+import { and, eq, ne } from 'drizzle-orm';
 import { getDB } from '../database/client';
 import { groupTransactionToUsersToGroups } from '../database/schema/groupTransactionToUsersToGroups';
 import { transactionsToGroups } from '../database/schema/transactionsToGroups';
@@ -61,7 +61,7 @@ export async function createOwed(group: Omit<Owed, 'id'>) {
   }
 }
 
-async function getOwed(id: string) {
+export async function getOwed(id: string) {
   try {
     const results = await db
       .select()
@@ -106,7 +106,11 @@ export async function getAllOwedForGroupTransactionWithMemberInfo(
 ) {
   try {
     const results = await db
-      .select({ user: users, amount: groupTransactionToUsersToGroups.amount })
+      .select({
+        user: users,
+        amount: groupTransactionToUsersToGroups.amount,
+        owedId: groupTransactionToUsersToGroups.id,
+      })
       .from(transactionsToGroups)
       .innerJoin(
         groupTransactionState,
@@ -128,6 +132,53 @@ export async function getAllOwedForGroupTransactionWithMemberInfo(
         and(
           eq(transactionsToGroups.transactionId, transactionId),
           eq(transactionsToGroups.groupsId, groupId)
+        )
+      );
+
+    return [
+      ...results.map((result) => ({
+        ...result,
+      })),
+    ];
+  } catch (e) {
+    console.error(e, 'at getOwed');
+    return null;
+  }
+}
+
+export async function getAllOwedForGroupTransactionNotPendingWithMemberInfo(
+  groupId: string,
+  transactionId: string
+) {
+  try {
+    const results = await db
+      .select({
+        user: users,
+        amount: groupTransactionToUsersToGroups.amount,
+        owedId: groupTransactionToUsersToGroups.id,
+      })
+      .from(transactionsToGroups)
+      .innerJoin(
+        groupTransactionState,
+        eq(groupTransactionState.groupTransactionId, transactionsToGroups.id)
+      )
+      .innerJoin(
+        groupTransactionToUsersToGroups,
+        eq(
+          groupTransactionState.id,
+          groupTransactionToUsersToGroups.groupTransactionStateId
+        )
+      )
+      .innerJoin(
+        usersToGroups,
+        eq(usersToGroups.id, groupTransactionToUsersToGroups.usersToGroupsId)
+      )
+      .innerJoin(users, eq(usersToGroups.userId, users.id))
+      .where(
+        and(
+          eq(transactionsToGroups.transactionId, transactionId),
+          eq(transactionsToGroups.groupsId, groupId),
+          eq(groupTransactionState.pending, false)
         )
       );
 
@@ -215,6 +266,53 @@ export async function getAllOwedForGroupTransactionWithTransactionId(
         and(
           eq(transactionsToGroups.transactionId, transactionId),
           eq(transactionsToGroups.groupsId, groupId)
+        )
+      );
+
+    return [
+      ...results.map((result) => ({
+        amount: result.groupTransactionToUsersToGroups.amount,
+        userId: result.usersToGroups.userId,
+        transactionId: result.transactionsToGroups.transactionId,
+        pending: result.groupTransactionState.pending,
+        groupTransactionToUsersToGroupsId:
+          result.groupTransactionToUsersToGroups.id,
+      })),
+    ];
+  } catch (e) {
+    console.error(e, 'at getOwed');
+    return null;
+  }
+}
+
+export async function getAllOwedForGroupPendingTransactionWithTransactionId(
+  groupId: string,
+  transactionId: string
+) {
+  try {
+    const results = await db
+      .select()
+      .from(transactionsToGroups)
+      .innerJoin(
+        groupTransactionState,
+        eq(transactionsToGroups.id, groupTransactionState.groupTransactionId)
+      )
+      .innerJoin(
+        groupTransactionToUsersToGroups,
+        eq(
+          groupTransactionState.id,
+          groupTransactionToUsersToGroups.groupTransactionStateId
+        )
+      )
+      .innerJoin(
+        usersToGroups,
+        eq(usersToGroups.id, groupTransactionToUsersToGroups.usersToGroupsId)
+      )
+      .where(
+        and(
+          eq(transactionsToGroups.transactionId, transactionId),
+          eq(transactionsToGroups.groupsId, groupId),
+          eq(groupTransactionState.pending, true)
         )
       );
 

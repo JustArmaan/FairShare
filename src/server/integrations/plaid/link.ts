@@ -1,4 +1,4 @@
-import { env } from '../../../env';
+import { env } from '../../../../env';
 
 export async function plaidRequest(endpoint: string, body: any) {
   try {
@@ -31,24 +31,6 @@ export async function getLinkToken(user: { id: string; email: string }) {
     products: ['transactions'],
   });
 }
-
-// export async function simulateWebhook(
-//   accessToken: string,
-//   webhookCode: string
-// ) {
-//   const result = await plaidRequest('/sandbox/item/fire_webhook', {
-//     access_token: accessToken,
-//     webhook_code: webhookCode,
-//   });
-//   console.log(result);
-// }
-
-// simulateWebhook(
-//   'access-sandbox-82093563-4f0c-46da-b2e0-0226c23f6118',
-//   'DEFAULT_UPDATE'
-// )
-//   .then((response) => console.log('Webhook simulation response:', response))
-//   .catch((error) => console.error('Error simulating webhook:', error));
 
 export async function getAccessToken(publicToken: string) {
   return await plaidRequest('/item/public_token/exchange', {

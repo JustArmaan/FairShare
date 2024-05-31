@@ -48,7 +48,7 @@ function calculateTotalOwedAll(
       }),
     ...noOwedMembers.map((member) => ({
       ...member,
-      amount: 0.0,
+      amount: 0,
     })),
   ];
 }
@@ -84,7 +84,7 @@ export const Members = ({
                 <p class='text-font-off-white flex w-fit text-sm'>You</p>
               ) : (
                 <p class='text-negative-number flex w-fit text-sm'>
-                  <span
+                  {member.amount !== 0 && <span
                     class={`flex w-fit text-sm font-semibold ${
                       member.amount <= 0
                         ? 'text-positive-number'
@@ -92,7 +92,7 @@ export const Members = ({
                     }`}
                   >
                     ${(-1 * member.amount).toFixed(2)}
-                  </span>
+                  </span>}
                 </p>
               )}
             </div>

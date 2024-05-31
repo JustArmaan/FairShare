@@ -1,4 +1,4 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -16,6 +16,7 @@
       href="https://fonts.googleapis.com/css2?family=Work+Sans:ital,wght@0,100..900;1,100..900&display=swap"
       rel="stylesheet"
     />
+    <script src="https://unpkg.com/htmx.org@1.9.12/dist/ext/ws.js"></script>
   </head>
   <body class="bg-primary-black-page">
     <!-- <div
@@ -24,11 +25,11 @@
       hx-trigger="load"
       hx-swap="outerHTML"
     ></div> -->
-    <div
-      hx-get="/onboard"
-      hx-trigger="load"
-      hx-swap="outerHTML"
-    ></div>
+    <div hx-get="/onboard" hx-trigger="load" hx-swap="outerHTML"></div>
     <!-- <div id="nav" hx-get="/nav" hx-trigger="load" hx-swap="outerHTML"></div> -->
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+      const socket = io();
+    </script>
   </body>
 </html>
