@@ -21,9 +21,6 @@ export const configureApp = async (app: Express) => {
   app.use(cookieParser());
 
   app.use('/', getUser, (req, res, next) => {
-    if (req.url.includes('render') && !req.url.includes('localhost')) {
-      return res.redirect('https://myfairshare.ca');
-    }
     next();
   });
 

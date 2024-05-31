@@ -100,6 +100,9 @@ router.get('/callback', async (req, res) => {
 });
 
 export async function getUser(req: Request, res: Response, next: NextFunction) {
+  if (req.url.includes('render') && !req.url.includes('localhost')) {
+    return res.redirect('https://myfairshare.ca');
+  }
   try {
     const isAuthenticated = await kindeClient.isAuthenticated(
       sessionManager(req, res)
