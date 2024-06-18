@@ -108,8 +108,7 @@ export async function createTransferForReceiver(
 
 export async function setupVopayTransactionWebhook() {
   const response = await vopayRequest('account/webhook-url', {
-    WebHookUrl:
-      'https://73bf-142-232-219-22.ngrok-free.app/api/v0/vopay-transactions-webhook',
+    WebHookUrl: 'https://www.myfairshare.ca/api/v0/vopay-transactions-webhook',
     Type: 'transaction',
   });
   console.log(response, 'webhook setup response');

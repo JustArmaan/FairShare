@@ -500,7 +500,7 @@ router.post('/initiate/transfer/sender', async (req, res) => {
 
   await createNotificationWithWebsocket(
     groupId,
-    `${receiver!.firstName} has initiated a transfer of $${parsedAmount.toFixed(
+    `${req.user!.firstName} has initiated a transfer of $${parsedAmount.toFixed(
       2
     )}. We'll notify you when the transfer is complete.`,
     receiverIdList[0],
