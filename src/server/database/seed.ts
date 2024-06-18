@@ -183,6 +183,7 @@ console.log("Deleted all account types");
 console.log("Deleted all groups");
 
 (await db.select().from(splitType)).length > 0 && (await db.delete(splitType));
+console.log("Deleted all splitTypes");
 
 try {
   await db.transaction(async (trx) => {
