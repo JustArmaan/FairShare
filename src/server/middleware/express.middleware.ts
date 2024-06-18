@@ -1,12 +1,14 @@
-import express, { type Express } from 'express';
-import cookieParser from 'cookie-parser';
-import type { UserSchema } from '../interface/types';
-import { getUser } from '../routes/authRouter';
-import { setupVopayTransactionWebhook } from '../integrations/vopay/transfer';
+import express, { type Express } from "express";
+import cookieParser from "cookie-parser";
+import type { UserSchema } from "../interface/types";
+import { getUser } from "../routes/authRouter";
+import { setupVopayTransactionWebhook } from "../integrations/vopay/transfer";
+import { detectHTMX } from "../utils/checkHTMX";
 
-declare module 'express-serve-static-core' {
+declare module "express-serve-static-core" {
   interface Request {
     user?: UserSchema;
+    isHTMX?: boolean;
   }
 }
 
@@ -17,10 +19,10 @@ interface ErrorWithStatus extends Error {
 export const configureApp = async (app: Express) => {
   app.use(express.json());
   app.use(express.urlencoded({ extended: false }));
-  app.use(express.static('~/public'));
+  app.use(express.static("~/public"));
   app.use(cookieParser());
 
-  app.use('/', getUser, (req, res, next) => {
+  app.use("/", getUser, (req, res, next) => {
     next();
   });
 
@@ -34,10 +36,10 @@ export const configureApp = async (app: Express) => {
       next: express.NextFunction
     ) => {
       console.error(`Error status: ${error.status}`);
-      console.error(error, 'error caught in the global error handler');
+      console.error(error, "error caught in the global error handler");
 
       if (error.status === 404) {
-        return res.status(404).send('404 - Not Found');
+        return res.status(404).send("404 - Not Found");
       }
 
       error.status = error.status || 500;
@@ -45,4 +47,5 @@ export const configureApp = async (app: Express) => {
       res.send(`${error.status} - Server Error`);
     }
   );
+  app.use(detectHTMX);
 };

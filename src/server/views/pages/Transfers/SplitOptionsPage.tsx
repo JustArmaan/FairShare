@@ -28,6 +28,7 @@ export const SplitOptionsPage = ({
           hx-trigger='click'
           hx-target='#app'
           hx-swap='innerHTML'
+          hx-push-url={`/groups/view/${groupId}`}
           class='text-font-off-white text-4xl cursor-pointer w-fit'
         >
           <img
@@ -62,6 +63,7 @@ export const SplitOptionsPage = ({
               hx-trigger='click'
               hx-swap='innerHTML'
               hx-target='#app'
+              hx-push-url={`/transactions/details/${transactionId}`}
               class='hover:-translate-y-0.5 rotate-[0.0001deg] transition-transform font-semibold px-2.5 py-2.5 bg-accent-blue rounded-xl'
             >
               More Info

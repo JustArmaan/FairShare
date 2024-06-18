@@ -79,6 +79,7 @@ router.post('/clearNotifications', getUser, async (req, res) => {
         hx-swap='innerHTML'
         hx-target='#app'
         hx-trigger='load'
+        hx-push-url='/notification/page'
       ></div>
     </>
   );

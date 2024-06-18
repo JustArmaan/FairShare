@@ -45,6 +45,7 @@ export const ViewGroups = ({
           hx-trigger='click'
           hx-target='#app'
           hx-swap='innerHTML'
+          hx-push-url='/groups/page'
           class='text-font-off-white text-4xl cursor-pointer w-fit'
         >
           <img
@@ -58,6 +59,7 @@ export const ViewGroups = ({
           hx-trigger='click'
           hx-target='#app'
           hx-swap='innerHTML'
+          hx-push-url={`/groups/edit/${groupId}`}
           class='text-font-off-white text-4xl cursor-pointer flex '
         >
           <img
@@ -110,6 +112,7 @@ export const ViewGroups = ({
             hx-trigger='click'
             hx-target='#app'
             hx-swap='innerHTML'
+            hx-push-url={`/groups/transactions/${groupId}`}
             class='text-font-off-white cursor-pointer'
           >
             {' '}
@@ -128,6 +131,7 @@ export const ViewGroups = ({
         hx-trigger='click'
         hx-target='#app'
         hx-swap='innerHTML'
+        hx-push-url={`/groups/addTransaction/${accountId}/${groupId}`}
         class='fixed bottom-24 right-6 hover:-translate-y-0.5
             transition-transform bg-accent-blue text-font-off-white px-6
             py-3 rounded-full shadow-lg hover:bg-blue-600 flex flex-row

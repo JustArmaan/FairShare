@@ -1,6 +1,6 @@
-import { getGroupsAndAllMembersForUser } from '../../../services/group.service';
-import type { ExtractFunctionReturnType } from '../../../services/user.service';
-import { GroupItem } from './components/GroupItem';
+import { getGroupsAndAllMembersForUser } from "../../../services/group.service";
+import type { ExtractFunctionReturnType } from "../../../services/user.service";
+import { GroupItem } from "./components/GroupItem";
 
 export type Groups = ExtractFunctionReturnType<
   typeof getGroupsAndAllMembersForUser
@@ -17,6 +17,7 @@ export const GroupPage = (props: { edit?: boolean; groups: Groups }) => {
             hx-target="#app"
             hx-trigger="click"
             hx-swap="innerHTML"
+            hx-push-url="/groups/page"
           >
             <div class="cursor-pointer h-full text-font-off-white">
               <svg
@@ -39,7 +40,8 @@ export const GroupPage = (props: { edit?: boolean; groups: Groups }) => {
             hx-target="#app"
             hx-swap="innerHTML"
             hx-trigger="click"
-            class={props.groups.length === 0 ? 'hidden' : ''}
+            hx-push-url="/groups/edit"
+            class={props.groups.length === 0 ? "hidden" : ""}
           >
             <img class="h-4" src="/icons/edit.svg" alt="edit icon" />
           </button>
@@ -66,6 +68,7 @@ export const GroupPage = (props: { edit?: boolean; groups: Groups }) => {
           hx-get="/groups/create"
           hx-swap="innerHTML"
           hx-target="#app"
+          hx-push-url="/groups/create"
         >
           <span class="text-lg font-semibold">Create New Group</span>
         </button>

@@ -1,5 +1,5 @@
-import express from 'express';
-import { renderToHtml } from 'jsxte';
+import express from "express";
+import { renderToHtml } from "jsxte";
 import {
   getGroupTransactionStateId,
   getGroupTransactionWithSplitType,
@@ -9,22 +9,22 @@ import {
   getUsersToGroup,
   updateGroupTransactionToUserToGroup,
   updateSplitType,
-} from '../services/group.service';
-import { SplitOptionsPage } from '../views/pages/Transfers/SplitOptionsPage';
+} from "../services/group.service";
+import { SplitOptionsPage } from "../views/pages/Transfers/SplitOptionsPage";
 import {
   getAllOwedForGroupTransactionWithMemberInfo,
   getAllOwedForGroupTransactionWithTransactionId,
-} from '../services/owed.service';
-import { FullSelector } from '../views/pages/Transfers/components/FullSelector';
-import { getSplitTypeById } from '../services/transfer.service';
+} from "../services/owed.service";
+import { FullSelector } from "../views/pages/Transfers/components/FullSelector";
+import { getSplitTypeById } from "../services/transfer.service";
 import {
   findUser,
   type ExtractFunctionReturnType,
-} from '../services/user.service';
-import { ViewGroups } from '../views/pages/Groups/components/ViewGroup';
-import { getAccountsForUser } from '../services/plaid.service';
-import { createTransferForSender } from '../integrations/vopay/transfer';
-import { createNotificationWithWebsocket } from '../utils/createNotification';
+} from "../services/user.service";
+import { ViewGroups } from "../views/pages/Groups/components/ViewGroup";
+import { getAccountsForUser } from "../services/plaid.service";
+import { createTransferForSender } from "../integrations/vopay/transfer";
+import { createNotificationWithWebsocket } from "../utils/createNotification";
 
 const router = express.Router();
 
@@ -33,7 +33,7 @@ function uppercaseFirstLetter(string: string) {
 }
 
 router.get(
-  '/splitTransaction/splitOptions/open/:transactionId/:groupId/:selectedType',
+  "/splitTransaction/splitOptions/open/:transactionId/:groupId/:selectedType",
   async (req, res) => {
     const splitTypes = await getSplitOptions();
     const transaction = await getGroupTransactionWithSplitType(
@@ -42,11 +42,11 @@ router.get(
     );
 
     if (!transaction) {
-      return res.status(404).send('No such transaction');
+      return res.status(404).send("No such transaction");
     }
 
     if (!splitTypes) {
-      return res.status(404).send('No split options found');
+      return res.status(404).send("No split options found");
     }
 
     const selectedType = splitTypes.find(
@@ -54,7 +54,7 @@ router.get(
     );
 
     if (!selectedType) {
-      return res.status(404).send('No such split type');
+      return res.status(404).send("No such split type");
     }
 
     const html = renderToHtml(
@@ -97,7 +97,7 @@ router.get(
 );
 
 router.get(
-  '/splitTransaction/splitOptions/closed/:transactionId/:groupId/:splitTypeName',
+  "/splitTransaction/splitOptions/closed/:transactionId/:groupId/:splitTypeName",
   async (req, res) => {
     const splitTypes = await getSplitOptions();
     const transaction = await getGroupTransactionWithSplitType(
@@ -106,11 +106,11 @@ router.get(
     );
 
     if (!transaction) {
-      return res.status(404).send('No such transaction');
+      return res.status(404).send("No such transaction");
     }
 
     if (!splitTypes) {
-      return res.status(404).send('No split options found');
+      return res.status(404).send("No split options found");
     }
 
     const selectedSplitType = splitTypes.find(
@@ -118,7 +118,7 @@ router.get(
     );
 
     if (!selectedSplitType) {
-      return res.status(404).send('No such split type');
+      return res.status(404).send("No such split type");
     }
 
     const html = renderToHtml(
@@ -147,13 +147,13 @@ router.get(
   }
 );
 
-router.get('/splitTransaction/:groupId/:transactionId', async (req, res) => {
+router.get("/splitTransaction/:groupId/:transactionId", async (req, res) => {
   const groupId = req.params.groupId;
   const transactionId = req.params.transactionId;
   const groupWithMember = await getGroupWithMembers(groupId);
 
   if (!groupWithMember) {
-    return res.status(404).send('No such group');
+    return res.status(404).send("No such group");
   }
 
   const transactionDetails = await getGroupTransactionWithSplitType(
@@ -162,7 +162,7 @@ router.get('/splitTransaction/:groupId/:transactionId', async (req, res) => {
   );
 
   if (!transactionDetails) {
-    return res.status(404).send('No such transaction');
+    return res.status(404).send("No such transaction");
   }
 
   const owedInfo = await getAllOwedForGroupTransactionWithMemberInfo(
@@ -171,7 +171,7 @@ router.get('/splitTransaction/:groupId/:transactionId', async (req, res) => {
   );
 
   if (!owedInfo) {
-    return res.status(404).send('No owed info found');
+    return res.status(404).send("No owed info found");
   }
 
   const html = renderToHtml(
@@ -189,7 +189,7 @@ router.get('/splitTransaction/:groupId/:transactionId', async (req, res) => {
 });
 
 router.get(
-  '/fullSelector/:groupId/:transactionId/:selectedType',
+  "/fullSelector/:groupId/:transactionId/:selectedType",
   async (req, res) => {
     const groupId = req.params.groupId;
     const transactionId = req.params.transactionId;
@@ -199,11 +199,11 @@ router.get(
     const splitType = await getSplitTypeById(splitTypeId);
 
     if (!splitType) {
-      return res.status(404).send('No such split type');
+      return res.status(404).send("No such split type");
     }
 
     if (!groupWithMember) {
-      return res.status(404).send('No such group');
+      return res.status(404).send("No such group");
     }
 
     const transactionDetails = await getGroupTransactionWithSplitType(
@@ -212,7 +212,7 @@ router.get(
     );
 
     if (!transactionDetails) {
-      return res.status(404).send('No such transaction');
+      return res.status(404).send("No such transaction");
     }
 
     const owedInfo = await getAllOwedForGroupTransactionWithMemberInfo(
@@ -221,7 +221,7 @@ router.get(
     );
 
     if (!owedInfo) {
-      return res.status(404).send('No owed info found');
+      return res.status(404).send("No owed info found");
     }
 
     const html = renderToHtml(
@@ -239,24 +239,24 @@ router.get(
   }
 );
 
-router.post('/splitOptions/edit', async (req, res) => {
+router.post("/splitOptions/edit", async (req, res) => {
   const { splitType, memberId, groupId, transactionId } = req.body;
 
   if (!splitType) {
-    console.log('Error: Required parameters are missing');
-    return res.status(400).send('Required parameters are missing');
+    console.log("Error: Required parameters are missing");
+    return res.status(400).send("Required parameters are missing");
   }
 
   let memberList: string[];
-  if (splitType === 'equal') {
+  if (splitType === "equal") {
     const groupAndMembers = await getGroupWithMembers(groupId);
     if (!groupAndMembers) {
-      console.log('No such group found');
-      return res.status(404).send('No such group');
+      console.log("No such group found");
+      return res.status(404).send("No such group");
     }
     memberList = groupAndMembers.members.map((member) => member.id);
   } else {
-    console.log('Split type is not equal, processing memberId');
+    console.log("Split type is not equal, processing memberId");
 
     memberList = Array.isArray(memberId) ? memberId : [memberId];
   }
@@ -272,14 +272,14 @@ router.post('/splitOptions/edit', async (req, res) => {
   );
 
   if (!transactionState || !transaction) {
-    console.log('No such transaction found');
-    return res.status(404).send('No such transaction');
+    console.log("No such transaction found");
+    return res.status(404).send("No such transaction");
   }
 
   const allSplitTypes = await getSplitOptions();
   if (!allSplitTypes) {
-    console.log('No split options found');
-    return res.status(404).send('No split options found');
+    console.log("No split options found");
+    return res.status(404).send("No split options found");
   }
 
   const selectedSplitType = allSplitTypes.find(
@@ -287,8 +287,8 @@ router.post('/splitOptions/edit', async (req, res) => {
   );
 
   if (!selectedSplitType) {
-    console.log('No such split type found');
-    return res.status(404).send('No such split type');
+    console.log("No such split type found");
+    return res.status(404).send("No such split type");
   }
 
   const updatedSplitOptions = await updateSplitType(
@@ -297,11 +297,11 @@ router.post('/splitOptions/edit', async (req, res) => {
   );
 
   if (!updatedSplitOptions) {
-    console.log('Failed to update split options');
-    return res.status(500).send('Failed to update split options');
+    console.log("Failed to update split options");
+    return res.status(500).send("Failed to update split options");
   }
 
-  if (splitType === 'percentage') {
+  if (splitType === "percentage") {
     const { percentInput } = req.body;
     const normalizedPercentInput = Array.isArray(percentInput)
       ? percentInput
@@ -311,12 +311,12 @@ router.post('/splitOptions/edit', async (req, res) => {
       !Array.isArray(normalizedPercentInput) ||
       normalizedPercentInput.length === 0
     ) {
-      return res.status(400).send('Percentage input is missing or invalid');
+      return res.status(400).send("Percentage input is missing or invalid");
     }
     if (memberList.length !== normalizedPercentInput.length) {
       return res
         .status(400)
-        .send('Mismatch between member IDs and percentage inputs');
+        .send("Mismatch between member IDs and percentage inputs");
     }
 
     const totalAmounts = normalizedPercentInput.map((percent, index) => {
@@ -338,7 +338,7 @@ router.post('/splitOptions/edit', async (req, res) => {
         );
       })
     );
-  } else if (splitType === 'equal') {
+  } else if (splitType === "equal") {
     const equalShare = parseFloat(
       (transaction.transaction.amount / memberList.length).toFixed(2)
     );
@@ -354,7 +354,7 @@ router.post('/splitOptions/edit', async (req, res) => {
         }
       })
     );
-  } else if (splitType === 'amount') {
+  } else if (splitType === "amount") {
     const { amountInput } = req.body;
     const normalizedAmountInput = Array.isArray(amountInput)
       ? amountInput
@@ -364,12 +364,12 @@ router.post('/splitOptions/edit', async (req, res) => {
       !Array.isArray(normalizedAmountInput) ||
       normalizedAmountInput.length === 0
     ) {
-      return res.status(400).send('Amount input is missing or invalid');
+      return res.status(400).send("Amount input is missing or invalid");
     }
     if (memberList.length !== normalizedAmountInput.length) {
       return res
         .status(400)
-        .send('Mismatch between member IDs and amount inputs');
+        .send("Mismatch between member IDs and amount inputs");
     }
 
     const transactions = normalizedAmountInput.map((amount, index) => {
@@ -393,14 +393,14 @@ router.post('/splitOptions/edit', async (req, res) => {
 
   const groupTransactions = await getTransactionsForGroup(groupId);
   if (!groupTransactions) {
-    console.log('No transactions found for group');
-    return res.status(404).send('No transactions found');
+    console.log("No transactions found for group");
+    return res.status(404).send("No transactions found");
   }
 
   const groupMembers = await getGroupWithMembers(groupId);
   if (!groupMembers) {
-    console.log('No members found in group');
-    return res.status(404).send('No members found');
+    console.log("No members found in group");
+    return res.status(404).send("No members found");
   }
 
   const owedPerMember = await Promise.all(
@@ -423,12 +423,12 @@ router.post('/splitOptions/edit', async (req, res) => {
   const currentUser = await findUser(req.user?.id as string);
   const accountId = await getAccountsForUser(req.user?.id as string);
   if (!accountId) {
-    console.log('No account found for user');
-    return res.status(404).send('No account found');
+    console.log("No account found for user");
+    return res.status(404).send("No account found");
   }
   if (!currentUser) {
-    console.log('No such user found');
-    return res.status(404).send('No such user');
+    console.log("No such user found");
+    return res.status(404).send("No such user");
   }
 
   const html = renderToHtml(
@@ -443,10 +443,10 @@ router.post('/splitOptions/edit', async (req, res) => {
           ? owedPerMember
           : [
               groupMembers.members.map((member) => ({
-                transactionId: '',
+                transactionId: "",
                 userId: member.id,
                 amount: 0,
-                groupTransactionToUsersToGroupsId: '',
+                groupTransactionToUsersToGroupsId: "",
                 pending: null,
               })),
             ]
@@ -459,11 +459,11 @@ router.post('/splitOptions/edit', async (req, res) => {
   res.send(html);
 });
 
-router.post('/initiate/transfer/sender', async (req, res) => {
+router.post("/initiate/transfer/sender", async (req, res) => {
   const { transactionId, groupId, receiverIds } = req.body as {
     [key: string]: string;
   };
-  const receiverIdList = receiverIds.split(',');
+  const receiverIdList = receiverIds.split(",");
   const userId = req.user!.id;
 
   const owedInfo = await getAllOwedForGroupTransactionWithMemberInfo(
@@ -474,7 +474,7 @@ router.post('/initiate/transfer/sender', async (req, res) => {
   const currentUser = owedInfo?.find((owed) => owed.user.id === userId);
 
   if (!currentUser) {
-    return res.status(403).send('You need to be signed in to use this feature');
+    return res.status(403).send("You need to be signed in to use this feature");
   }
 
   const parsedAmount = Math.floor(Math.abs(currentUser!.amount) * 100) / 100;
@@ -495,7 +495,7 @@ router.post('/initiate/transfer/sender', async (req, res) => {
       receiver!.firstName
     } for an Interac e transfer has been sent to your email.`,
     userId,
-    'groupInvite'
+    "groupInvite"
   );
 
   await createNotificationWithWebsocket(
@@ -504,7 +504,7 @@ router.post('/initiate/transfer/sender', async (req, res) => {
       2
     )}. We'll notify you when the transfer is complete.`,
     receiverIdList[0],
-    'groupInvite'
+    "groupInvite"
   );
 
   res.send(
@@ -514,6 +514,7 @@ router.post('/initiate/transfer/sender', async (req, res) => {
         hx-trigger="load"
         hx-swap="innerHTML"
         hx-target="#app"
+        hx-push-url={`/groups/view/${groupId}`}
       ></div>
     )
   );

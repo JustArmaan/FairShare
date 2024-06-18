@@ -87,6 +87,7 @@ export const Overview = ({
               hx-swap="innerHTML"
               hx-get="/breakdown/page"
               hx-target="#app"
+              hx-push-url="/breakdown/page"
               // rotate 0.0001deg prevents strange subpixel snapping during animation when viewport is 430px wide. I spent 15 mins on this.
               // https://stackoverflow.com/questions/24854640/strange-pixel-shifting-jumping-in-firefox-with-css-transitions
               class="hover:-translate-y-0.5 rotate-[0.0001deg] transition-transform font-semibold px-12 py-2.5 bg-accent-blue rounded-xl w-2/3"
@@ -104,6 +105,7 @@ export const Overview = ({
             hx-trigger="click"
             hx-target="#app"
             hx-swap="innerHTML"
+            hx-push-url="/transactions/page/debug"
             class="text-font-off-white cursor-pointer hover:opacity-90 hover:-translate-y-px transition-transform"
           >
             View All

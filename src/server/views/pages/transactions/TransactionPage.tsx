@@ -1,28 +1,28 @@
-import { Transaction } from './components/Transaction';
-import { Card } from './components/Card';
+import { Transaction } from "./components/Transaction";
+import { Card } from "./components/Card";
 import {
   getAccountWithTransactions,
   getAccountsForUser,
-} from '../../../services/plaid.service';
-import type { ExtractFunctionReturnType } from '../../../services/user.service';
+} from "../../../services/plaid.service";
+import type { ExtractFunctionReturnType } from "../../../services/user.service";
 
 export const TransactionsPage = (props: {
   accounts: ExtractFunctionReturnType<typeof getAccountsForUser>;
   selectedAccountId: string;
 }) => {
   const months = [
-    'January',
-    'February',
-    'March',
-    'April',
-    'May',
-    'June',
-    'July',
-    'August',
-    'September',
-    'October',
-    'November',
-    'December',
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
   ];
   return (
     <div class="p-6 animate-fade-in">
@@ -129,6 +129,7 @@ export const TransactionsPage = (props: {
             hx-trigger="click"
             hx-target="#app"
             hx-swap="innerHTML"
+            hx-push-url={`/transactions/page/${props.selectedAccountId}`}
           />
         </form>
       </div>

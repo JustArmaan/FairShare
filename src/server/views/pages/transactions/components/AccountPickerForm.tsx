@@ -22,6 +22,11 @@ export const AccountPickerForm = (props: {
                   }
                   hx-swap="innerHTML"
                   hx-target="#app"
+                  hx-push-url={
+                    props.groupId // Add the missing declaration of the variable 'isGroupTransacrion'
+                      ? `/groups/addTransaction/${account.id}/${props.groupId}`
+                      : `/transactions/page/${account.id}`
+                  }
                 >
                   <label class="" for={account.name}>
                     {account.name}

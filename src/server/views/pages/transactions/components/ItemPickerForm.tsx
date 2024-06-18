@@ -17,6 +17,7 @@ export const ItemPickerForm = (props: {
                   hx-get={`/transactions/page/${item.id}`}
                   hx-swap="innerHTML"
                   hx-target="#app"
+                  hx-push-url={`/transactions/page/${item.id}`}
                 >
                   <label class="" for={item.institutionName}>
                     {item.institutionName}

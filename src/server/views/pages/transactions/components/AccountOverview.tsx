@@ -69,6 +69,7 @@ export const AccountOverview = ({
             hx-trigger='click'
             hx-swap='innerHTML'
             hx-target='#app'
+            hx-push-url={`/transactions/page/${account.id}`}
             class='text-font-off-white self-end mt-2 cursor-pointer'
           >
             View All
@@ -85,6 +86,7 @@ export const AccountOverview = ({
                   hx-swap='innerHTML'
                   hx-get={`/breakdown/page/${account.id}`}
                   hx-target='#app'
+                  hx-push-url={`/breakdown/page/${account.id}`}
                   class='hover:-translate-y-0.5 rotate-[0.0001deg] transition-transform font-semibold px-12 py-2.5 bg-accent-blue rounded-xl w-2/3'
                 >
                   More Info

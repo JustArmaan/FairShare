@@ -1,5 +1,5 @@
-import type { Groups } from '../GroupPage';
-import type { ArrayElement } from '../../transactions/components/Transaction';
+import type { Groups } from "../GroupPage";
+import type { ArrayElement } from "../../transactions/components/Transaction";
 
 export const GroupItem = (props: {
   group: ArrayElement<Groups>;
@@ -12,27 +12,28 @@ export const GroupItem = (props: {
         hx-get={`/groups/view/${props.group.id}`}
         hx-target="#app"
         hx-swap="innerHTML"
+        hx-push-url={`/groups/view/${props.group.id}`}
       >
         <div
           class={`${
-            props.group.temporary === 'true'
+            props.group.temporary === "true"
               ? `border-[3px] border-dashed border-${props.group.color} rounded-lg`
               : `bg-${props.group.color} rounded`
           }  w-14 h-14 aspect-square flex items-center justify-center`}
         >
           <div
             class={`${
-              props.group.temporary === 'true'
+              props.group.temporary === "true"
                 ? `text-${props.group.color}`
-                : 'text-card-black'
+                : "text-card-black"
             } `}
           >
             <img
               class="w-10 h-10"
               src={
-                props.group.icon.endsWith('svg')
+                props.group.icon.endsWith("svg")
                   ? props.group.icon
-                  : '/icons/bed.svg'
+                  : "/icons/bed.svg"
               }
               alt=""
             />
@@ -42,14 +43,14 @@ export const GroupItem = (props: {
           <div class="flex flex-col ml-4 h-full ">
             <p class="min-[340px]:text-lg font-semibold text-font-off-white leading-6 mb-1 text-sm truncate">
               {props.group.name}
-              {props.group.temporary === 'true' && (
+              {props.group.temporary === "true" && (
                 <span class="text-font-grey"> (TEMP)</span>
               )}
             </p>
             <p class="leading-3 text-xs text-font-off-white">
               {props.group.members.length} members
             </p>
-            {!(props.group.temporary === 'true') && (
+            {!(props.group.temporary === "true") && (
               <p class="text-xs text-font-off-white">1 budget</p>
             )}
           </div>
@@ -77,8 +78,8 @@ export const GroupItem = (props: {
                       class={`flex rounded-full bg-${member.color} h-12 w-12 m-2 justify-center`}
                     >
                       <span class="flex justify-center self-center text-center text-xl font-semibold">
-                        {member.firstName.split('', 1)}
-                        {member.lastName.split('', 1)}
+                        {member.firstName.split("", 1)}
+                        {member.lastName?.split("", 1)}
                       </span>
                     </div>
                   </div>
@@ -87,8 +88,8 @@ export const GroupItem = (props: {
                     class={`-ml-6 flex rounded-full bg-${member.color} h-12 w-12 m-2 justify-center`}
                   >
                     <span class="flex justify-center self-center text-center text-xl font-semibold">
-                      {member.firstName.split('', 1)}
-                      {member.lastName.split('', 1)}
+                      {member.firstName.split("", 1)}
+                      {member.lastName?.split("", 1)}
                     </span>
                   </div>
                 );

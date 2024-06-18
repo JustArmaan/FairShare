@@ -77,6 +77,7 @@ export const PendingItems = ({
                     hx-swap="innerHTML"
                     hx-get={`/transfer/splitTransaction/${groupId}/${result.transactionId}`}
                     hx-target="#app"
+                    hx-push-url={`/transfer/splitTransaction/${groupId}/${result.transactionId}`}
                     class="hover:-translate-y-0.5 rotate-[0.0001deg] transition-transform font-semibold py-1.5 w-1/2 border-4 border-accent-blue text-font-off-white rounded-xl h-fit"
                   >
                     Edit
@@ -86,6 +87,7 @@ export const PendingItems = ({
                     hx-swap="innerHTML"
                     hx-get={`/groups/confirm-transaction/?owedId=${result.groupTransactionToUsersToGroupsId}`}
                     hx-target="#app"
+                    hx-push-url={`/groups/confirm-transaction/?owedId=${result.groupTransactionToUsersToGroupsId}`}
                     class="hover:-translate-y-0.5 rotate-[0.0001deg] transition-transform font-semibold py-2.5 w-1/2 bg-accent-blue rounded-xl h-fit text-font-off-white"
                   >
                     Confirm

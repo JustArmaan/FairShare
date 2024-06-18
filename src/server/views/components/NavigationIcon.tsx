@@ -14,6 +14,7 @@ export const NotificationIcon = ({
         hx-target="#app"
         hx-trigger="click"
         hx-swap="innerHTML"
+        hx-push-url="/notification/page"
       >
         <div class="relative w-fit h-fit hover:child-hidden">
           {notificationCount > 0 && (

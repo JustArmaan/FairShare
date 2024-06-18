@@ -6,6 +6,7 @@ export const Header = () => {
         hx-trigger="click"
         hx-target="#app"
         hx-get="/home/page"
+        hx-push-url="/home/page"
       >
         <img src="/images/Logo.svg" alt="Logo" class="max-w-s"></img>
       </a>

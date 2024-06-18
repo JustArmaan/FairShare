@@ -11,6 +11,7 @@ export const GroupTransactionsListPage = (props: {
           hx-trigger='click'
           hx-target='#app'
           hx-swap='innerHTML'
+          hx-push-url={`/groups/view/${props.group.id}`}
           class='text-font-off-white text-4xl cursor-pointer'
         >
           <img

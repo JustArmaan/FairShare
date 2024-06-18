@@ -21,6 +21,7 @@ export const TransactionDetailsPage = ({
           hx-trigger="click"
           hx-target="#app"
           hx-swap="innerHTML"
+          hx-push-url="/home/page"
           class="text-font-off-white text-4xl cursor-pointer"
         >
           <img
