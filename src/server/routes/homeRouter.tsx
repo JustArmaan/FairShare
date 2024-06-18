@@ -1,26 +1,27 @@
-import express from 'express';
-import { renderToHtml } from 'jsxte';
-import { getTransactionsForUser } from '../services/transaction.service';
-import { syncTransactionsForUser } from '../integrations/plaid/sync';
+import express from "express";
+import { renderToHtml } from "jsxte";
+import { getTransactionsForUser } from "../services/transaction.service";
+import { syncTransactionsForUser } from "../integrations/plaid/sync";
 import {
   getAccountWithTransactions,
   getAccountsForUser,
-} from '../services/plaid.service';
-import MyAccountsPage from '../views/pages/transactions/MyAccountsPage';
-import { AccountOverview } from '../views/pages/transactions/components/AccountOverview';
-import { ConnectAccount } from '../views/pages/transactions/components/ConnectAccount';
+} from "../services/plaid.service";
+import MyAccountsPage from "../views/pages/transactions/MyAccountsPage";
+import { AccountOverview } from "../views/pages/transactions/components/AccountOverview";
+import { ConnectAccount } from "../views/pages/transactions/components/ConnectAccount";
 const router = express.Router();
 
-router.get('/page', async (req, res) => {
+router.get("/page", async (req, res) => {
   const userId = req.user!.id;
 
-  await syncTransactionsForUser(userId);
   const accounts = await getAccountsForUser(userId);
   if (!accounts || accounts.length === 0) {
     const html = renderToHtml(<ConnectAccount />);
     res.send(html);
     return;
   }
+
+  await syncTransactionsForUser(userId);
 
   const accountsWithTransactions = await Promise.all(
     accounts.map(async (account) => {
@@ -38,7 +39,7 @@ router.get('/page', async (req, res) => {
   const html = renderToHtml(
     <MyAccountsPage
       accountIds={sortedAccounts.map((account) => account.id)}
-      selectedAccountId={''}
+      selectedAccountId={""}
       username={req.user!.firstName}
     />
   );
@@ -60,7 +61,7 @@ router.get('/itemPicker/:itemId', async (req, res) => {
 });
 */
 
-router.get('/accountOverview/:accountId', async (req, res) => {
+router.get("/accountOverview/:accountId", async (req, res) => {
   const accountWithTransactions = await getAccountWithTransactions(
     req.params.accountId
   );
