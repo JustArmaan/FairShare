@@ -1,18 +1,20 @@
-import { type UserSchemaWithMemberType } from '../../../../interface/types';
-import { AddedMember } from './Member';
+import { type UserSchemaWithMemberType } from '../../../../interface/types'
+import { AddedMember } from './Member'
+import { colors, createGroupNameInput } from './EditGroup'
+import AddMembersComponent from './AddMemberForm'
 
 interface Icon {
-  id: string;
-  icon: string;
-  name: string;
+  id: string
+  icon: string
+  name: string
 }
 
 export const CreateGroup = ({
   icons,
   currentUser,
 }: {
-  icons: Icon[];
-  currentUser: UserSchemaWithMemberType;
+  icons: Icon[]
+  currentUser: UserSchemaWithMemberType
 }) => {
   return (
     <div class="p-6 animate-fade-in">
@@ -32,13 +34,7 @@ export const CreateGroup = ({
         </a>
       </div>
       <div class="flex flex-col my-8 bg-primary-black bg-opacity-40 rounded-lg p-4">
-        <label class="text-font-off-white justify-start bold">Group Name</label>
-        <input
-          class="py-1 px-4 justify-center items-center text-font-grey bg-primary-black rounded-lg mt-2"
-          type="text"
-          name="groupName"
-          placeholder="Enter group name"
-        />
+        {createGroupNameInput()}
         <label class="text-font-off-white justify-start bold mt-4 cursor-pointer">
           Select Icon
         </label>
@@ -74,102 +70,28 @@ export const CreateGroup = ({
         <input type="hidden" id="selectedColor" name="selectedColor" value="" />
 
         <div class="flex flex-wrap mt-2 gap-2">
-          <button
-            class="color-button h-10 w-10 rounded-full bg-accent-blue"
-            data-color="accent-blue"
-          ></button>
-          <button
-            class="color-button h-10 w-10 rounded-full bg-accent-purple"
-            data-color="accent-purple"
-          ></button>
-          <button
-            class="color-button h-10 w-10 rounded-full bg-accent-red"
-            data-color="accent-red"
-          ></button>
-          <button
-            class="color-button h-10 w-10 rounded-full bg-accent-yellow"
-            data-color="accent-yellow"
-          ></button>
-          <button
-            class="color-button h-10 w-10 rounded-full bg-accent-green"
-            data-color="accent-green"
-          ></button>
-          <button
-            class="color-button h-10 w-10 rounded-full bg-positive-number"
-            data-color="positive-number"
-          ></button>
-          <button
-            class="color-button h-10 w-10 rounded-full bg-negative-number"
-            data-color="negative-number"
-          ></button>
-          <button
-            class="color-button h-10 w-10 rounded-full bg-card-red"
-            data-color="card-red"
-          ></button>
-          <div class="ring-2 ring-offset-2 ring-accent-blue hidden"></div>
+          {colors.map((color) => (
+            <button
+              class={`color-button h-10 w-10 rounded-full ${color.bgClass}`}
+              data-color={color.name}
+            ></button>
+          ))}
         </div>
-        <h1 class="text-font-off-white justify-start bold text-lg mt-4">
-          Add Members
-        </h1>
-        <div
-          id="members"
-          class="bg-primary-black w-full rounded-lg flex p-6 flex-col text-xs justify-center items-center"
-        >
-          <div class="flex-col w-full">
-            <AddedMember user={{ ...currentUser, type: 'Owner' }} />
-            <div
-              id="memberContainer"
-              class="bg-primary-black w-full rounded-lg flex flex-col text-xs justify-center items-center"
-            ></div>
-          </div>
-
-          <div
-            id="addMemberForm"
-            class="rounded-md w-full h-14 bg-accent-blue flex justify-center items-center p-2 hidden" // This is on purpose
-          >
-            <div class="flex w-full h-9">
-              <input
-                type="email"
-                name="addEmail"
-                class="text-font-black bg-pure-white/75 rounded-lg w-full flex justify-center p-2"
-                placeholder="Enter member email"
-              ></input>
-              <button
-                id="enterEmailButton"
-                class="text-accent-blue bg-pure-white rounded-lg flex justify-center mx-1 items-center w-16"
-                hx-get={`/groups/addMember`}
-                hx-trigger="click"
-                hx-include="[name='addEmail']"
-                hx-swap="beforeend"
-                hx-target="#memberContainer"
-                hx-vals="js:{shouldSend: !isEmailDuplicated()}"
-              >
-                Invite
-              </button>
-            </div>
-          </div>
-
-          <button
-            id="addMemberButton"
-            class="rounded-lg w-24 h-8 bg-accent-blue justify-center text-font-off-white my-2"
-          >
-            Add
-          </button>
-          <div class="flex text-font-off-white items-center justify-center">
-            <p class="mr-2 ">Temporary Group?</p>
-            <img
-              class="w-4 hidden"
-              src="/activeIcons/info.svg"
-              alt="Hover for more info"
-            />
-          </div>
-          <input
-            type="checkbox"
-            name="temporaryGroup"
-            id="temporaryGroup"
-            class="ml-2 mt-2"
+        <AddMembersComponent currentUser={currentUser} isEditMode />
+        <div class="flex text-font-off-white items-center justify-center">
+          <p class="mr-2 ">Temporary Group?</p>
+          <img
+            class="w-4 hidden"
+            src="/activeIcons/info.svg"
+            alt="Hover for more info"
           />
         </div>
+        <input
+          type="checkbox"
+          name="temporaryGroup"
+          id="temporaryGroup"
+          class="ml-2 mt-2"
+        />
 
         <input
           type="hidden"
@@ -190,7 +112,7 @@ export const CreateGroup = ({
             hx-target="#app"
             hx-swap="innerHTML"
             hx-include="#selectedCategoryId, [name='groupName'], [name='temporaryGroup'], #memberEmails, #selectedColor"
-            class="rounded-lg w-32 h-10 bg-accent-blue justify-center text-font-off-white text-sm mt-4" 
+            class="rounded-lg w-32 h-10 bg-accent-blue justify-center text-font-off-white text-sm mt-4"
           >
             Create Group
           </button>
@@ -198,7 +120,7 @@ export const CreateGroup = ({
       </div>
       <div class="mb-20"></div>
     </div>
-  );
-};
+  )
+}
 
-export default CreateGroup;
+export default CreateGroup

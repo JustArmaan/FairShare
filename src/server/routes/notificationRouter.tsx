@@ -3,12 +3,11 @@ import { renderToHtml } from 'jsxte';
 import { getUser } from './authRouter.ts';
 import { NotificationPage } from '../views/pages/Notifications/NotificationsPage.tsx';
 import { NotificationList } from '../views/pages/Notifications/NotificationList.tsx';
-import { getAccountsForUser } from '../services/plaid.service';
 import {
   deleteAllNotificationsForUser,
   getAllGroupNotificationsForUser,
 } from '../services/notification.service.ts';
-import { NotificationIcon } from '../views/components/NavigationIcon.tsx';
+import { NotificationIcon } from '../views/components/NavigationIcon.tsx'; 
 
 const router = express.Router();
 

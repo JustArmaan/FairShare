@@ -1,18 +1,19 @@
-import { getDB } from './client';
-import { users } from './schema/users';
-import { transactions } from './schema/transaction';
-import { memberType } from './schema/memberType';
-import { categories } from './schema/category';
-import { v4 as uuid } from 'uuid';
-import { items } from './schema/items';
-import { accountType } from './schema/accountType';
-import { groupTransferStatus } from './schema/groupTransferStatus';
-import { splitType } from './schema/splitType';
+import { getDB } from './client'
+import { users } from './schema/users'
+import { transactions } from './schema/transaction'
+import { memberType } from './schema/memberType'
+import { categories } from './schema/category'
+import { v4 as uuid } from 'uuid'
+import { items } from './schema/items'
+import { accountType } from './schema/accountType'
+import { groupTransferStatus } from './schema/groupTransferStatus'
+import { splitType } from './schema/splitType'
+import { groups } from './schema/group'
 
-let db = getDB();
+let db = getDB()
 
 interface InsertedIdResult {
-  insertedId: string;
+  insertedId: string
 }
 
 const newCategoriesList = [
@@ -118,21 +119,21 @@ const newCategoriesList = [
     icon: '/icons/plus.svg',
     color: 'bg-category-color-16',
   },
-];
+]
 
 const memberTypes = [
   { type: 'Owner' },
   { type: 'Invited' },
   { type: 'Member' },
   { type: 'Admin' },
-];
+]
 
 const accountTypes = [
   { type: 'credit' },
   { type: 'depository' },
   { type: 'loan' },
   { type: 'other' },
-];
+]
 
 const groupTransferStatusValues = [
   // keep parity with the interact vopay api status strings
@@ -143,42 +144,37 @@ const groupTransferStatusValues = [
   { status: 'successful' },
   { status: 'not-initiated' },
   { status: 'complete' },
-] as const;
+] as const
 
 const splitTypes = [
   { type: 'percentage' },
   { type: 'amount' },
   { type: 'equal' },
-];
+]
 
-console.log('Starting deletions');
-(await db.select().from(categories)).length > 0 &&
-  (await db.delete(categories));
-console.log('Deleted all records from the categories table.');
-
-(await db.select().from(transactions)).length > 0 &&
-  (await db.delete(transactions));
-console.log('Deleted all records from the transactions table.');
-
-(await db.select().from(users)).length > 0 && (await db.delete(users));
-console.log('Deleted all records from the users table.');
-
-(await db.select().from(memberType)).length > 0 &&
-  (await db.delete(memberType));
-console.log('Deleted all records from the memberTypes table.');
-
-(await db.select().from(groupTransferStatus)).length > 0 &&
-  (await db.delete(groupTransferStatus));
-console.log('Deleted all records from the groupTransferStatus table.');
-
-(await db.select().from(items)).length > 0 && (await db.delete(items));
-console.log('Deleted all items');
-
-(await db.select().from(splitType)).length > 0 && (await db.delete(splitType));
+console.log('Starting deletions')
+;(await db.select().from(categories)).length > 0 &&
+  (await db.delete(categories))
+console.log('Deleted all records from the categories table.')
+;(await db.select().from(transactions)).length > 0 &&
+  (await db.delete(transactions))
+console.log('Deleted all records from the transactions table.')
+;(await db.select().from(users)).length > 0 && (await db.delete(users))
+console.log('Deleted all records from the users table.')
+;(await db.select().from(memberType)).length > 0 &&
+  (await db.delete(memberType))
+console.log('Deleted all records from the memberTypes table.')
+;(await db.select().from(groupTransferStatus)).length > 0 &&
+  (await db.delete(groupTransferStatus))
+console.log('Deleted all records from the groupTransferStatus table.')
+;(await db.select().from(items)).length > 0 && (await db.delete(items))
+console.log('Deleted all items')
+;(await db.select().from(splitType)).length > 0 && (await db.delete(splitType))
+;(await db.select().from(groups)).length > 0 && (await db.delete(groups))
 
 try {
   await db.transaction(async (trx) => {
-    console.log('Starting the seeding transaction.');
+    console.log('Starting the seeding transaction.')
 
     /*
      const userIds = [];
@@ -196,48 +192,48 @@ try {
      }
      */
 
-    const categoryIds = [];
+    const categoryIds = []
     for (const cat of newCategoriesList) {
       const results = (await trx
         .insert(categories)
         .values({ ...cat, id: uuid() })
-        .returning({ insertedId: categories.id })) as InsertedIdResult[];
-      const result = results[0];
-      categoryIds.push(result.insertedId);
+        .returning({ insertedId: categories.id })) as InsertedIdResult[]
+      const result = results[0]
+      categoryIds.push(result.insertedId)
     }
-    console.log(`Inserted categories`);
+    console.log(`Inserted categories`)
 
     for (const type of accountTypes) {
-      const typeId = uuid();
+      const typeId = uuid()
       await trx.insert(accountType).values({
         id: typeId,
         type: type.type,
-      });
+      })
     }
     for (const type of memberTypes) {
-      const typeId = uuid();
+      const typeId = uuid()
       await trx.insert(memberType).values({
         id: typeId,
         type: type.type,
-      });
-      console.log(`Inserted member type: ${type.type} with ID: ${typeId}`);
+      })
+      console.log(`Inserted member type: ${type.type} with ID: ${typeId}`)
     }
     for (const status of groupTransferStatusValues) {
-      const statusId = uuid();
+      const statusId = uuid()
       await trx.insert(groupTransferStatus).values({
         id: statusId,
         status: status.status,
-      });
+      })
     }
 
     for (const splitTyped of splitTypes) {
       await trx.insert(splitType).values({
         id: uuid(),
         type: splitTyped.type,
-      });
+      })
     }
-    console.log('Seeding transaction complete.');
-  });
+    console.log('Seeding transaction complete.')
+  })
 } catch (error) {
-  console.error('Seeding transaction failed:', error);
+  console.error('Seeding transaction failed:', error)
 }
