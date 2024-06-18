@@ -1,18 +1,18 @@
-import { addAccount, getAccount } from '../../services/account.service';
-import { getAccountTypeIdByName } from '../../services/accountType.service';
-import { getCategoryIdByName } from '../../services/category.service';
+import { addAccount, getAccount } from "../../services/account.service";
+import { getAccountTypeIdByName } from "../../services/accountType.service";
+import { getCategoryIdByName } from "../../services/category.service";
 import {
   createTransactions,
   deleteTransactions,
   updateTransaction,
-} from '../../services/transaction.service';
+} from "../../services/transaction.service";
 import {
   getItemsForUser,
   updateItem,
   type Item,
-} from '../../services/plaid.service';
-import { plaidRequest } from './link';
-import { io } from '../../main';
+} from "../../services/plaid.service";
+import { plaidRequest } from "./link";
+import { io } from "../../main";
 
 const syncStore = new Set<string>();
 const syncQueue = new Set<string>();
@@ -35,7 +35,7 @@ export async function syncTransactionsForUser(userId: string) {
 }
 
 async function updateAccounts(
-  accounts: SyncResponse['accounts'],
+  accounts: SyncResponse["accounts"],
   itemId: string
 ) {
   await Promise.all(
@@ -52,7 +52,7 @@ async function updateAccounts(
             account.balances.current)!.toString(),
           currencyCodeId: null, // account.balances.iso_currency_code,
           itemId: itemId,
-          legalName: '',
+          legalName: "",
         });
       }
     })
@@ -90,14 +90,14 @@ async function syncTransaction({ item }: { item: Item; userId: string }) {
   let toModify: ModifiedPlaidTransaction[] = [];
   let toRemove: { transaction_id: string }[] = [];
   while (true) {
-    const response = (await plaidRequest('/transactions/sync', {
+    const response = (await plaidRequest("/transactions/sync", {
       access_token: item.plaidAccessToken,
       cursor,
       count,
     })) as SyncResponse;
 
     if (
-      response.error_code === 'TRANSACTIONS_SYNC_MUTATION_DURING_PAGINATION'
+      response.error_code === "TRANSACTIONS_SYNC_MUTATION_DURING_PAGINATION"
     ) {
       cursor = originalCursor;
       toAdd = [];
@@ -110,9 +110,10 @@ async function syncTransaction({ item }: { item: Item; userId: string }) {
     if (accounts) await updateAccounts(accounts, item.id);
 
     const { added, modified, removed, next_cursor, has_more } = response;
-    added.forEach((added) => toAdd.push(added));
-    modified.forEach((modified) => toModify.push(modified));
-    removed.forEach((removed) => toRemove.push(removed));
+    !added && console.log(response, "sync response where added is undefined");
+    added && added.forEach((added) => toAdd.push(added));
+    modified && modified.forEach((modified) => toModify.push(modified));
+    removed && removed.forEach((removed) => toRemove.push(removed));
     cursor = next_cursor;
     if (!has_more && next_cursor) {
       break;
@@ -173,15 +174,15 @@ function handleTransactionWebsocketEvents(
     [] as TransactionEvent[]
   );
 
-  console.log('potentially sending websocket sync/update events');
+  console.log("potentially sending websocket sync/update events");
   if (addedMessage.length > 0) {
-    io.to(userId).emit('newTransaction', JSON.stringify(addedMessage));
+    io.to(userId).emit("newTransaction", JSON.stringify(addedMessage));
   }
   if (modifiedMessage.length > 0) {
-    io.to(userId).emit('newTransaction', JSON.stringify(modifiedMessage));
+    io.to(userId).emit("newTransaction", JSON.stringify(modifiedMessage));
   }
   if (removedMessage.length > 0) {
-    io.to(userId).emit('newTransaction', JSON.stringify(removedMessage));
+    io.to(userId).emit("newTransaction", JSON.stringify(removedMessage));
   }
 }
 
@@ -226,7 +227,7 @@ async function addTransactions(transactions: AddedPlaidTransaction[]) {
         transaction.personal_finance_category.primary
       );
       if (!categoryId) {
-        throw new Error('No such category!');
+        throw new Error("No such category!");
       }
       const locationIsNull = Object.values(transaction.location).some(
         (value) => value === null
@@ -262,12 +263,12 @@ async function modifyTransaction(transaction: ModifiedPlaidTransaction) {
     categoryId = await getCategoryIdByName(
       transaction.personal_finance_category.primary
     );
-    if (!categoryId) throw new Error('No such category!');
+    if (!categoryId) throw new Error("No such category!");
   }
 
   const transactionId = transaction.transaction_id
     ? transaction.transaction_id
-    : '';
+    : "";
   updateTransaction(transactionId, {
     // address: transaction.location ? locationToAddress(transaction.location) : undefined,
 
