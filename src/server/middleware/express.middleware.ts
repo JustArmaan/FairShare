@@ -21,6 +21,7 @@ export const configureApp = async (app: Express) => {
   app.use(express.urlencoded({ extended: false }));
   app.use(express.static("~/public"));
   app.use(cookieParser());
+  app.use(detectHTMX);
 
   app.use("/", getUser, (req, res, next) => {
     next();
@@ -47,5 +48,4 @@ export const configureApp = async (app: Express) => {
       res.send(`${error.status} - Server Error`);
     }
   );
-  app.use(detectHTMX);
 };

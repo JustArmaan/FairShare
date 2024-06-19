@@ -25,7 +25,10 @@ export const TransactionsPage = (props: {
     "December",
   ];
   return (
-    <div class="p-6 animate-fade-in">
+    <div
+      class="p-6 animate-fade-in"
+      hx-push-url={`/transactions/page/${props.selectedAccountId}`}
+    >
       <div
         id="modal-bg"
         class="fixed inset-0 bg-primary-black bg-opacity-40 z-10 hidden"

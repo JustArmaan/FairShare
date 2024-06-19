@@ -367,7 +367,7 @@ router.post("/create", async (req, res) => {
   try {
     const { id } = req.user!;
     if (!id) {
-      return res.set("HX-Redirect", "/login").send();
+      return res.set("HX-Redirect", "/auth/login").send();
     }
 
     const currentUser = await findUser(id);
@@ -549,7 +549,7 @@ router.post("/edit/:groupId", async (req, res) => {
     }
 
     if (!req.user) {
-      return res.set("HX-Redirect", `${env.baseUrl}/login`).send();
+      return res.set("HX-Redirect", `${env.baseUrl}/auth/login`).send();
     }
 
     const currentUser = await findUser(req.user.id);

@@ -32,7 +32,7 @@ export const GroupItem = (props: {
               class="w-10 h-10"
               src={
                 props.group.icon.endsWith("svg")
-                  ? props.group.icon
+                  ? props.group.icon.replace(".", "")
                   : "/icons/bed.svg"
               }
               alt=""

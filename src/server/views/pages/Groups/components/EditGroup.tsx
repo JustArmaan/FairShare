@@ -1,18 +1,18 @@
-import { type UserSchema } from '../../../../interface/types'
-import { AddedMember } from './Member'
-import { getGroupWithMembers } from '../../../../services/group.service'
-import AddMembersComponent from './AddMemberForm'
+import { type UserSchema } from "../../../../interface/types";
+import { AddedMember } from "./Member";
+import { getGroupWithMembers } from "../../../../services/group.service";
+import AddMembersComponent from "./AddMemberForm";
 
 export const colors = [
-  { name: 'accent-blue', bgClass: 'bg-accent-blue' },
-  { name: 'accent-purple', bgClass: 'bg-accent-purple' },
-  { name: 'accent-red', bgClass: 'bg-accent-red' },
-  { name: 'accent-yellow', bgClass: 'bg-accent-yellow' },
-  { name: 'accent-green', bgClass: 'bg-accent-green' },
-  { name: 'positive-number', bgClass: 'bg-positive-number' },
-  { name: 'negative-number', bgClass: 'bg-negative-number' },
-  { name: 'card-red', bgClass: 'bg-card-red' },
-]
+  { name: "accent-blue", bgClass: "bg-accent-blue" },
+  { name: "accent-purple", bgClass: "bg-accent-purple" },
+  { name: "accent-red", bgClass: "bg-accent-red" },
+  { name: "accent-yellow", bgClass: "bg-accent-yellow" },
+  { name: "accent-green", bgClass: "bg-accent-green" },
+  { name: "positive-number", bgClass: "bg-positive-number" },
+  { name: "negative-number", bgClass: "bg-negative-number" },
+  { name: "card-red", bgClass: "bg-card-red" },
+];
 
 export function createGroupNameInput(edit = false, groupName?: string) {
   if (edit) {
@@ -26,7 +26,7 @@ export function createGroupNameInput(edit = false, groupName?: string) {
           placeholder="Enter group name"
         />
       </>
-    )
+    );
   } else {
     return (
       <>
@@ -38,18 +38,18 @@ export function createGroupNameInput(edit = false, groupName?: string) {
           value={groupName}
         />
       </>
-    )
+    );
   }
 }
 
 export type UserGroupSchema = NonNullable<
   Awaited<ReturnType<typeof getGroupWithMembers>>
->
+>;
 
 interface Icon {
-  id: string
-  icon: string
-  name: string
+  id: string;
+  icon: string;
+  name: string;
 }
 
 export const EditGroupPage = ({
@@ -57,16 +57,16 @@ export const EditGroupPage = ({
   currentUser,
   group,
 }: {
-  icons: Icon[]
-  currentUser: UserSchema
-  group: UserGroupSchema
+  icons: Icon[];
+  currentUser: UserSchema;
+  group: UserGroupSchema;
 }) => {
   function findMatchedCategory(
     categoryPath: string,
     groupIcon: string,
     icons: Icon[]
   ) {
-    const selectedCategory = icons.find((icon) => icon.icon === categoryPath)
+    const selectedCategory = icons.find((icon) => icon.icon === categoryPath);
     if (selectedCategory && selectedCategory.icon === groupIcon) {
       return (
         <div id="selected-icon">
@@ -76,16 +76,16 @@ export const EditGroupPage = ({
             class="flex items-center p-2 mt-2 bg-card-black rounded-lg hover:bg-primary-faded-black focus:outline-none focus:ring-2 focus:ring-accent-blue w-full animation-fade-in"
           >
             <img
-              src={selectedCategory.icon}
+              src={selectedCategory.icon.replace(".", "")}
               alt={`${selectedCategory.name} icon`}
               class="h-6 w-6 mr-2"
             />
             <span class="text-font-off-white">{selectedCategory.name}</span>
           </button>
         </div>
-      )
+      );
     }
-    return <div id="selected-icon" class=""></div>
+    return <div id="selected-icon" class=""></div>;
   }
 
   return (
@@ -131,7 +131,7 @@ export const EditGroupPage = ({
                 class="category-button flex items-center p-2 mt-2 bg-card-black rounded-lg hover:bg-primary-faded-black focus:outline-none focus:ring-2 focus:ring-accent-blue w-full animation-fade-in"
               >
                 <img
-                  src={icon.icon}
+                  src={icon.icon.replace(".", "")}
                   alt={`${icon.name} icon`}
                   class="h-6 w-6 mr-2"
                 />
@@ -152,8 +152,8 @@ export const EditGroupPage = ({
             <button
               class={`color-button h-10 w-10 rounded-full ${color.bgClass} ${
                 group.color === color.name
-                  ? 'ring-2 ring-offset-2 ring-accent-blue'
-                  : ''
+                  ? "ring-2 ring-offset-2 ring-accent-blue"
+                  : ""
               }`}
               data-color={color.name}
             ></button>
@@ -169,14 +169,15 @@ export const EditGroupPage = ({
           <p class="mr-2 mt-3">Temporary Group?</p>
           <img src="/activeIcons/info.svg" alt="Hover for more info" />
         </div>
-        <input
-          type="checkbox"
-          name="temporaryGroup"
-          id="temporaryGroup"
-          class="ml-2 mt-2"
-          checked={group.temporary.toString() === 'true'}
-        />
-
+        <div class="flex text-font-off-white items-center justify-center">
+          <input
+            type="checkbox"
+            name="temporaryGroup"
+            id="temporaryGroup"
+            class="ml-2 mt-2"
+            checked={group.temporary.toString() === "true"}
+          />
+        </div>
         <input
           type="hidden"
           name="selectedCategoryId"
@@ -203,7 +204,7 @@ export const EditGroupPage = ({
       </div>
       <div class="mb-24"></div>
     </div>
-  )
-}
+  );
+};
 
-export default EditGroupPage
+export default EditGroupPage;

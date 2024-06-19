@@ -39,9 +39,15 @@ router.get("/empty", (req, res) => {
   res.send("");
 });
 
+router.get("/signin", (req, res) => {
+  const html = renderToHtml(<Login />);
+  return res.send(html);
+});
+
 router.get("/onboard", (req, res) => {
   if (!req.user) {
     const html = renderToHtml(<Login />);
+
     return res.send(html);
   } else {
     const html = renderToHtml(
@@ -57,6 +63,7 @@ router.get("/onboard", (req, res) => {
           hx-get="/home/page"
           hx-trigger="load"
           hx-swap="innerHTML"
+          hx-push-url="/home/page"
         ></div>
         <div class="h-24" /> {/* spacer div to make up for nav bar*/}
         <div id="nav" hx-get="/nav" hx-trigger="load" hx-swap="outerHTML"></div>
@@ -68,7 +75,6 @@ router.get("/onboard", (req, res) => {
 
 router.get("/layout", (req, res) => {
   const url = req.query.url as string;
-  console.log("2", url);
   if (!req.user) {
     const html = renderToHtml(<Login />);
     return res.send(html);
@@ -81,7 +87,13 @@ router.get("/layout", (req, res) => {
           hx-trigger="load"
           hx-swap="outerHTML"
         ></div>
-        <div id="app" hx-get={url} hx-trigger="load" hx-swap="innerHTML"></div>
+        <div
+          id="app"
+          hx-get={url}
+          hx-trigger="load"
+          hx-swap="innerHTML"
+          hx-push-url={url}
+        ></div>
         <div class="h-24" /> {/* spacer div to make up for nav bar*/}
         <div id="nav" hx-get="/nav" hx-trigger="load" hx-swap="outerHTML"></div>
       </>
@@ -93,34 +105,31 @@ router.get("/layout", (req, res) => {
 router.get("/fullPageLoad", (req, res) => {
   const url = req.query.url as string;
   const formattedUrl = url.split("/").slice(3).join("/");
-  console.log("1", formattedUrl);
   const html = `<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Fairshare</title>
-  <script type="module" src="/src/client/main.ts" defer></script>
-  <script src="https://unpkg.com/htmx.org@1.9.10"></script>
-  <script src="https://cdn.plaid.com/link/v2/stable/link-initialize.js"></script>
-  <link rel="stylesheet" href="/output.css" />
-  <link rel="stylesheet" href="/global.css" />
-  <link rel="icon" type="image/x-icon" href="/favicon.svg" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Work+Sans:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet" />
-  <script src="https://unpkg.com/htmx.org@1.9.12/dist/ext/ws.js"></script>
-</head>
-<body class="bg-primary-black-page">
-  <div id="app" hx-get="/layout?url=${encodeURIComponent(
-    formattedUrl
-  )}" hx-trigger="load" hx-swap="outerHTML"></div>
-  <script src="/socket.io/socket.io.js"></script>
-  <script>
-    const socket = io();
-  </script>
-</body>
-</html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title>Fairshare</title>
+      <script type="module" src="/src/client/main.ts" defer></script>
+      <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+      <script src="https://cdn.plaid.com/link/v2/stable/link-initialize.js"></script>
+      <link rel="stylesheet" href="/output.css" />
+      <link rel="stylesheet" href="/global.css" />
+      <link rel="icon" type="image/x-icon" href="/favicon.svg" />
+      <link rel="preconnect" href="https://fonts.googleapis.com" />
+      <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+      <link href="https://fonts.googleapis.com/css2?family=Work+Sans:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet" />
+      <script src="https://unpkg.com/htmx.org@1.9.12/dist/ext/ws.js"></script>
+    </head>
+    <body class="bg-primary-black-page">
+      <div id="app" hx-get="/layout?url=${formattedUrl}" hx-trigger="load" hx-swap="outerHTML"></div>
+      <script src="/socket.io/socket.io.js"></script>
+      <script>
+        const socket = io();
+      </script>
+    </body>
+    </html>
 `;
   res.send(html);
 });

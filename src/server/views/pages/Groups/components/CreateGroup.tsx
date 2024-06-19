@@ -1,20 +1,20 @@
-import { type UserSchemaWithMemberType } from '../../../../interface/types'
-import { AddedMember } from './Member'
-import { colors, createGroupNameInput } from './EditGroup'
-import AddMembersComponent from './AddMemberForm'
+import { type UserSchemaWithMemberType } from "../../../../interface/types";
+import { AddedMember } from "./Member";
+import { colors, createGroupNameInput } from "./EditGroup";
+import AddMembersComponent from "./AddMemberForm";
 
 interface Icon {
-  id: string
-  icon: string
-  name: string
+  id: string;
+  icon: string;
+  name: string;
 }
 
 export const CreateGroup = ({
   icons,
   currentUser,
 }: {
-  icons: Icon[]
-  currentUser: UserSchemaWithMemberType
+  icons: Icon[];
+  currentUser: UserSchemaWithMemberType;
 }) => {
   return (
     <div class="p-6 animate-fade-in">
@@ -56,7 +56,7 @@ export const CreateGroup = ({
               class="category-button flex items-center p-2 mt-2 bg-card-black rounded-lg hover:bg-primary-faded-black focus:outline-none focus:ring-2 focus:ring-accent-blue w-full animation-fade-in"
             >
               <img
-                src={icon.icon}
+                src={icon.icon.replace(".", "")}
                 alt={`${icon.name} icon`}
                 class="h-6 w-6 mr-2"
               />
@@ -87,13 +87,14 @@ export const CreateGroup = ({
             alt="Hover for more info"
           />
         </div>
-        <input
-          type="checkbox"
-          name="temporaryGroup"
-          id="temporaryGroup"
-          class="ml-2 mt-2"
-        />
-
+        <div class="flex text-font-off-white items-center justify-center">
+          <input
+            type="checkbox"
+            name="temporaryGroup"
+            id="temporaryGroup"
+            class="ml-2 mt-2"
+          />
+        </div>
         <input
           type="hidden"
           name="selectedCategoryId"
@@ -121,7 +122,7 @@ export const CreateGroup = ({
       </div>
       <div class="mb-20"></div>
     </div>
-  )
-}
+  );
+};
 
-export default CreateGroup
+export default CreateGroup;

@@ -4,11 +4,26 @@ export function detectHTMX(
   req: Request,
   res: Response,
   next: NextFunction,
-  reloadPath: string = "/fullPageReload" 
+  reloadPath: string = "/fullPageReload"
 ): void {
+  const referer = req.headers.referer;
   const requestedUrl = new URL(req.originalUrl, `http://${req.headers.host}`);
+  const contentType = req.headers["content-type"];
 
-  const excludePaths = ["svg", "@", "src", "node_modules", "vite", "css"];
+  const excludePaths = [
+    "svg",
+    "@",
+    "src",
+    "node_modules",
+    "vite",
+    "css",
+    "logout",
+    "login",
+    "register",
+    "api",
+    "kinde",
+    "auth",
+  ];
 
   const shouldExclude = (url: string) =>
     excludePaths.some((exclude) => url.includes(exclude));
@@ -18,19 +33,31 @@ export function detectHTMX(
     return;
   }
 
-  if (req.headers["hx-request"] === "true") {
+  if (contentType && !contentType.includes("text/html")) {
+    next();
+    return;
+  }
 
+  if (!referer) {
+    req.isHTMX = false;
+    next();
+    return;
+  }
+
+  if (referer && req.url === "/") {
+    next();
+    return;
+  }
+
+  if (req.headers["hx-request"] === "true") {
     req.isHTMX = true;
     next();
   } else {
     req.isHTMX = false;
-    console.log("Internal navigation or refresh detected.");
 
     if (!requestedUrl.pathname.includes(reloadPath)) {
       requestedUrl.pathname = reloadPath;
-      requestedUrl.searchParams.set("url", req.originalUrl);
-      console.log("Redirecting to full page reload:", requestedUrl.toString());
-      console.log("Original URL:", req.originalUrl);
+      requestedUrl.searchParams.set("url", req.originalUrl); // this sets the url query param
       res.redirect(requestedUrl.toString());
     } else {
       next();
