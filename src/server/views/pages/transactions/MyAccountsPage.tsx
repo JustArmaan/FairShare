@@ -1,5 +1,7 @@
 import type { getCashAccountForUser } from "../../../services/plaid.service";
 import type { ExtractFunctionReturnType } from "../../../services/user.service";
+import InstitutionCard from "./components/institutionCard";
+import Institutions from "./components/instututions";
 
 type CashAccount = ExtractFunctionReturnType<
   NonNullable<typeof getCashAccountForUser>
@@ -46,9 +48,10 @@ export const MyAccountsPage = (props: {
   return (
     <div class="p-6 animate-fade-in pb-24">
       <div
-        hx-get={`/home/itemPicker/${props.selectedAccountId}`}
-        hx-target=".account-selector-form"
-        hx-swap="innerHTML"
+          hx-get={`/home/institutionPicker/${props.selectedAccountId}`}
+          hx-target='#app'
+          hx-trigger='click'
+          hx-swap='innerHTML'
         class="mb-2 flex justify-start w-fit items-center hover:-translate-y-0.5 transition-transform cursor-pointer"
       >
         <p class="text-font-off-white mr-3 text-xl">Change Institution</p>

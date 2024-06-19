@@ -7,10 +7,12 @@ import {
   getAccountsForUser,
   getCashAccountForUser,
   getCashAccountWithTransaction,
+  getItemsForUser,
 } from "../services/plaid.service";
 import MyAccountsPage from "../views/pages/transactions/MyAccountsPage";
 import { AccountOverview } from "../views/pages/transactions/components/AccountOverview";
 import { ConnectAccount } from "../views/pages/transactions/components/ConnectAccount";
+import InstitutionsPage from "../views/pages/transactions/InstitutionPage";
 const router = express.Router();
 
 router.get("/page", async (req, res) => {
@@ -93,5 +95,26 @@ router.get("/accountOverview/cashAccount/:cashAccountId", async (req, res) => {
   const html = renderToHtml(<AccountOverview account={account} />);
   res.send(html);
 });
+
+router.get("/institutionPicker", async (req, res) => {
+  try {
+    const info = await getItemsForUser(req.user!.id);
+    const html = renderToHtml(<InstitutionsPage info={info ? info : []} />)
+    res.send(html);
+  } catch (err) {
+    console.error(err);
+  }
+});
+
+
+router.get('/institutions/edit', async (req, res) => {
+  try {
+    const info = await getItemsForUser(req.user!.id);
+    const html = renderToHtml(<InstitutionsPage info={info ? info : []} edit />)
+    res.send(html)
+  } catch (err) {
+    console.error(err)
+  }
+})
 
 export const homeRouter = router;
