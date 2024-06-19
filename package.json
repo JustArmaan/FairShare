@@ -12,7 +12,8 @@
     "migrate": "drizzle-kit migrate",
     "push": "drizzle-kit push",
     "studio": "drizzle-kit studio",
-    "turso-local": "turso dev"
+    "turso-local": "turso dev",
+    "typecheck": "tsc --noEmit"
   },
   "typings": "/index.d.ts",
   "dependencies": {

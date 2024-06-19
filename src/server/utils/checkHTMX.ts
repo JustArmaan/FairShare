@@ -6,8 +6,6 @@ export function detectHTMX(
   next: NextFunction,
   reloadPath: string = "/fullPageReload" 
 ): void {
-  const referer = req.headers.referer;
-  const host = req.headers.host;
   const requestedUrl = new URL(req.originalUrl, `http://${req.headers.host}`);
 
   const excludePaths = ["svg", "@", "src", "node_modules", "vite", "css"];
