@@ -1,4 +1,4 @@
-import { env } from '../../../../env';
+import { env } from "../../../../env";
 
 export async function plaidRequest(endpoint: string, body: any) {
   try {
@@ -6,9 +6,9 @@ export async function plaidRequest(endpoint: string, body: any) {
     const secret = env.plaidSecret as string;
 
     const response = await fetch(`${env.plaidApiUrl}/${endpoint}`, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({ client_id: clientId, secret, ...body }),
     });
@@ -19,21 +19,34 @@ export async function plaidRequest(endpoint: string, body: any) {
 }
 
 export async function getLinkToken(user: { id: string; email: string }) {
-  return await plaidRequest('/link/token/create', {
-    client_name: 'FairShare',
-    language: 'en',
+  return await plaidRequest("/link/token/create", {
+    client_name: "FairShare",
+    language: "en",
     webhook: `${env.baseUrl}/api/v0/sync`,
-    country_codes: ['CA'],
+    country_codes: ["CA"],
     user: {
       client_user_id: user.id,
       email_address: user.email,
     },
-    products: ['transactions'],
+    products: ["transactions"],
   });
 }
 
 export async function getAccessToken(publicToken: string) {
-  return await plaidRequest('/item/public_token/exchange', {
+  return await plaidRequest("/item/public_token/exchange", {
     public_token: publicToken,
   });
+}
+
+export async function getInstitutionName(accessToken: string) {
+  const { institution_id } = (
+    await plaidRequest("/item/get", { access_token: accessToken })
+  ).item;
+  const { name } = (
+    await plaidRequest("/institutions/get_by_id", {
+      institution_id,
+      country_codes: ["CA"],
+    })
+  ).institution;
+  return name;
 }

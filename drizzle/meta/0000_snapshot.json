@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "35d85c69-1671-4bb0-9f26-249499614be9",
+  "id": "a7cb9f12-bdba-428a-803e-73facefd0557",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "accounts": {
@@ -357,7 +357,7 @@
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
+          "onDelete": "cascade",
           "onUpdate": "no action"
         }
       },
@@ -395,15 +395,15 @@
           "notNull": true,
           "autoincrement": false
         },
-        "sender_account_id": {
-          "name": "sender_account_id",
+        "sender_user_id": {
+          "name": "sender_user_id",
           "type": "text",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
-        "receiver_account_id": {
-          "name": "receiver_account_id",
+        "receiver_user_id": {
+          "name": "receiver_user_id",
           "type": "text",
           "primaryKey": false,
           "notNull": true,
@@ -434,7 +434,21 @@
           "name": "receiver_initiated_timestamp",
           "type": "text",
           "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "sender_vopay_transfer_id": {
+          "name": "sender_vopay_transfer_id",
+          "type": "text",
+          "primaryKey": false,
           "notNull": true,
+          "autoincrement": false
+        },
+        "receiver_vopay_transfer_id": {
+          "name": "receiver_vopay_transfer_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
           "autoincrement": false
         }
       },
@@ -479,12 +493,12 @@
           "onDelete": "no action",
           "onUpdate": "no action"
         },
-        "groupTransfer_sender_account_id_accounts_id_fk": {
-          "name": "groupTransfer_sender_account_id_accounts_id_fk",
+        "groupTransfer_sender_user_id_users_id_fk": {
+          "name": "groupTransfer_sender_user_id_users_id_fk",
           "tableFrom": "groupTransfer",
-          "tableTo": "accounts",
+          "tableTo": "users",
           "columnsFrom": [
-            "sender_account_id"
+            "sender_user_id"
           ],
           "columnsTo": [
             "id"
@@ -492,12 +506,12 @@
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
-        "groupTransfer_receiver_account_id_accounts_id_fk": {
-          "name": "groupTransfer_receiver_account_id_accounts_id_fk",
+        "groupTransfer_receiver_user_id_users_id_fk": {
+          "name": "groupTransfer_receiver_user_id_users_id_fk",
           "tableFrom": "groupTransfer",
-          "tableTo": "accounts",
+          "tableTo": "users",
           "columnsFrom": [
-            "receiver_account_id"
+            "receiver_user_id"
           ],
           "columnsTo": [
             "id"
@@ -642,6 +656,13 @@
           "type": "text",
           "primaryKey": false,
           "notNull": true,
+          "autoincrement": false
+        },
+        "route": {
+          "name": "route",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
           "autoincrement": false
         }
       },

@@ -1,5 +1,5 @@
-import { type TransactionSchema } from '../../../interface/types';
-import { env } from '../../../../../env';
+import { type TransactionSchema } from "../../../interface/types";
+import { env } from "../../../../../env";
 
 export const TransactionDetailsPage = ({
   transaction,
@@ -17,7 +17,7 @@ export const TransactionDetailsPage = ({
     <div class="p-6 animate-fade-in">
       <div class="flex justify-start w-fit items-center mb-1">
         <a
-          hx-get={'/home/page'}
+          hx-get={"/home/page/default"}
           hx-trigger="click"
           hx-target="#app"
           hx-swap="innerHTML"
@@ -32,15 +32,15 @@ export const TransactionDetailsPage = ({
       </div>
       <div class="flex justify-center flex-col items-center">
         <p class="text-3xl text-font-off-white font-semibold mb-1">
-          {(transaction.amount > 0 ? '-$' : '+$') +
+          {(transaction.amount > 0 ? "-$" : "+$") +
             Math.abs(transaction.amount).toFixed(2)}
         </p>
         <div class="text-font-grey text-md mb-3">{transaction.address}</div>
         <div class="bg-primary-black rounded-lg shadow-lg px-4 py-2 w-full">
           <div class="text-font-off-white text-lg font-semibold">
-            Status:{' '}
+            Status:{" "}
             <span class="text-green-600">
-              {transaction.pending ? 'Pending' : 'Approved'}
+              {transaction.pending ? "Pending" : "Approved"}
             </span>
           </div>
           <div class="text-font-off-white mb-2">
@@ -48,7 +48,9 @@ export const TransactionDetailsPage = ({
           </div>
           <div class="flex text-font-off-white justify-between bg-primary-black">
             <span class="text-lg font-semibold">Total</span>
-            <span class="text-lg font-semibold">${transaction.amount.toFixed(2)}</span>
+            <span class="text-lg font-semibold">
+              ${transaction.amount.toFixed(2)}
+            </span>
           </div>
         </div>
         <div class="mt-6 w-full h-auto rounded-lg bg-primary-black">

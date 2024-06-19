@@ -54,7 +54,7 @@ router.get("/onboard", (req, res) => {
         ></div>
         <div
           id="app"
-          hx-get="/home/page"
+          hx-get="/home/page/default"
           hx-trigger="load"
           hx-swap="innerHTML"
         ></div>

@@ -1,4 +1,4 @@
-import type { AccountSchema } from '../../../../services/plaid.service';
+import type { AccountSchema } from "../../../../services/plaid.service";
 
 export const AccountPickerForm = (props: {
   accounts: AccountSchema[];
@@ -18,7 +18,7 @@ export const AccountPickerForm = (props: {
                   hx-get={
                     props.groupId // Add the missing declaration of the variable 'isGroupTransacrion'
                       ? `/groups/addTransaction/${account.id}/${props.groupId}`
-                      : `/transactions/page/${account.id}`
+                      : `/transactions/page/${props.accounts.find((account) => account.id === props.selectedAccountId)!.itemId}/${account.id}`
                   }
                   hx-swap="innerHTML"
                   hx-target="#app"

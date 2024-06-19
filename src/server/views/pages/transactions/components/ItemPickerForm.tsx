@@ -1,8 +1,8 @@
-import type { Item } from '../../../../services/plaid.service';
+import type { Item } from "../../../../services/plaid.service";
 
 export const ItemPickerForm = (props: {
   items: Item[];
-  selectedAccountId: string;
+  selectedItemId: string;
 }) => {
   return (
     <div class="picker-container">
@@ -18,13 +18,11 @@ export const ItemPickerForm = (props: {
                   hx-swap="innerHTML"
                   hx-target="#app"
                 >
-                  <label class="" for={item.institutionName}>
-                    {item.institutionName}
-                  </label>
+                  <label>{item.institutionName}</label>
                   <input
                     type="radio"
                     class="radio-picker w-6 h-6 cursor-pointer"
-                    checked={item.id === props.selectedAccountId}
+                    checked={item.id === props.selectedItemId}
                   />
                 </div>
                 {index !== props.items.length - 1 && (

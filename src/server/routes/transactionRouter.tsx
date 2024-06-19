@@ -1,25 +1,25 @@
-import express from 'express';
-import { renderToHtml } from 'jsxte';
-import TransactionDetailsPage from '../views/pages/transactions/TransactionDetails';
+import express from "express";
+import { renderToHtml } from "jsxte";
+import TransactionDetailsPage from "../views/pages/transactions/TransactionDetails";
 import {
   getTransaction,
   getTransactionLocation,
   getTransactionsForUser,
   searchTransactions,
   getTransactionsByMonth,
-} from '../services/transaction.service';
+} from "../services/transaction.service";
 
-import Transaction from '../views/pages/transactions/components/Transaction';
-import TransactionsPage from '../views/pages/transactions/TransactionPage';
-import { getUser } from './authRouter';
-import { env } from '../../../env';
+import Transaction from "../views/pages/transactions/components/Transaction";
+import TransactionsPage from "../views/pages/transactions/TransactionPage";
+import { getUser } from "./authRouter";
+import { env } from "../../../env";
 import {
   getAccountWithTransactions,
   getAccountsForUser,
   getItem,
-} from '../services/plaid.service';
-import { TransactionList } from '../views/pages/transactions/components/TransactionList';
-import { AccountPickerForm } from '../views/pages/transactions/components/AccountPickerForm';
+} from "../services/plaid.service";
+import { TransactionList } from "../views/pages/transactions/components/TransactionList";
+import { AccountPickerForm } from "../views/pages/transactions/components/AccountPickerForm";
 import {
   addTransactionsToGroup,
   deleteTransactionFromGroup,
@@ -27,20 +27,20 @@ import {
   getGroupWithMembers,
   getTransactionsToGroup,
   getUsersToGroup,
-} from '../services/group.service';
+} from "../services/group.service";
 import {
   createGroupTransactionState,
   createOwed,
   getAllOwedForGroupTransaction,
-} from '../services/owed.service';
-import { getAccountTypeById } from '../services/accountType.service';
-import { getAccount } from '../services/account.service';
+} from "../services/owed.service";
+import { getAccountTypeById } from "../services/accountType.service";
+import { getAccount, getAccountWithItem } from "../services/account.service";
 
 const router = express.Router();
 
-router.get('/accountPicker/:accountId', getUser, async (req, res) => {
-  const accounts = await getAccountsForUser(req.user!.id);
-  if (!accounts) throw new Error('Missing accounts for user');
+router.get("/accountPicker/:itemId/:accountId", getUser, async (req, res) => {
+  const accounts = await getAccountsForUser(req.user!.id, req.params.itemId);
+  if (!accounts) throw new Error("Missing accounts for user");
   const html = renderToHtml(
     <AccountPickerForm
       accounts={accounts}
@@ -50,26 +50,22 @@ router.get('/accountPicker/:accountId', getUser, async (req, res) => {
   res.send(html);
 });
 
-router.get('/transactionList/:accountId', getUser, async (req, res) => {
+router.get("/transactionList/:accountId", getUser, async (req, res) => {
   const account = await getAccountWithTransactions(req.params.accountId);
-  if (!account) throw new Error('404');
+  if (!account) throw new Error("404");
   const html = renderToHtml(<TransactionList account={account} />);
   res.send(html);
 });
 
-router.get('/page/:selectedAccountId', getUser, async (req, res) => {
+router.get("/page/:itemId/:selectedAccountId", getUser, async (req, res) => {
   try {
-    const accounts = await getAccountsForUser(req.user!.id);
-    if (!accounts) throw new Error('no accounts for user!');
+    const accounts = await getAccountsForUser(req.user!.id, req.params.itemId);
+    if (!accounts) throw new Error("no accounts for user!");
 
     const html = renderToHtml(
       <TransactionsPage
         accounts={accounts}
-        selectedAccountId={
-          req.params.selectedAccountId !== 'debug'
-            ? req.params.selectedAccountId
-            : accounts[0].id
-        }
+        selectedAccountId={req.params.selectedAccountId}
       />
     );
     res.send(html);
@@ -78,26 +74,26 @@ router.get('/page/:selectedAccountId', getUser, async (req, res) => {
   }
 });
 
-router.get('/details/:transactionId', async (req, res) => {
+router.get("/details/:transactionId", async (req, res) => {
   try {
     const transactionId = req.params.transactionId;
     const transaction = await getTransaction(transactionId);
     const account = await getAccount(transaction.accountId);
 
-    if (!transaction || !account) return res.status(404).send('404');
+    if (!transaction || !account) return res.status(404).send("404");
 
     const accountType = await getAccountTypeById(
-      account.accountTypeId ? account.accountTypeId : 'Unknown'
+      account.accountTypeId ? account.accountTypeId : "Unknown"
     );
 
     const item = await getItem(account.itemId);
-    if (!item) return res.status(404).send('404');
+    if (!item) return res.status(404).send("404");
 
     const html = renderToHtml(
       <TransactionDetailsPage
         transaction={transaction}
-        accountType={accountType ? accountType : 'Unknown'}
-        institution={item.institutionName ? item.institutionName : 'Unknown'}
+        accountType={accountType ? accountType : "Unknown"}
+        institution={item.institutionName ? item.institutionName : "Unknown"}
       />
     );
     res.send(html);
@@ -106,7 +102,7 @@ router.get('/details/:transactionId', async (req, res) => {
   }
 });
 
-router.post('/search/:selectedAccountId', getUser, async (req, res) => {
+router.post("/search/:selectedAccountId", getUser, async (req, res) => {
   try {
     const query = req.body.search;
     const accountId = req.params.selectedAccountId;
@@ -125,12 +121,12 @@ router.post('/search/:selectedAccountId', getUser, async (req, res) => {
 
     res.send(html);
   } catch (error) {
-    console.error('Error searching transactions:', error);
-    res.status(500).send('Error searching transactions');
+    console.error("Error searching transactions:", error);
+    res.status(500).send("Error searching transactions");
   }
 });
 
-router.post('/date/:selectedAcoountId', getUser, async (req, res) => {
+router.post("/date/:selectedAcoountId", getUser, async (req, res) => {
   try {
     const userId = req.user!.id;
     const accountId = req.params.selectedAcoountId;
@@ -144,7 +140,7 @@ router.post('/date/:selectedAcoountId', getUser, async (req, res) => {
       transactions = await getTransactionsForUser(userId, 999999);
     }
 
-    month = month.padStart(2, '0');
+    month = month.padStart(2, "0");
 
     transactions = await getTransactionsByMonth(accountId, year, month);
 
@@ -161,17 +157,17 @@ router.post('/date/:selectedAcoountId', getUser, async (req, res) => {
 
     res.send(html);
   } catch (error) {
-    console.error('Error getting transactions by month:', error);
-    res.status(500).send('Error getting transactions by month');
+    console.error("Error getting transactions by month:", error);
+    res.status(500).send("Error getting transactions by month");
   }
 });
 
-router.get('/location/:transactionId', async (req, res) => {
+router.get("/location/:transactionId", async (req, res) => {
   try {
     const transactionId = req.params.transactionId;
     const transaction = await getTransactionLocation(transactionId);
 
-    if (!transaction) return res.status(404).send('404');
+    if (!transaction) return res.status(404).send("404");
 
     const location = {
       lat: transaction.latitude,
@@ -184,7 +180,7 @@ router.get('/location/:transactionId', async (req, res) => {
   }
 });
 
-router.get('/addButton', async (req, res) => {
+router.get("/addButton", async (req, res) => {
   // sorry jeremy ^^^^
   const { checked, transactionId, groupId } = req.query as {
     [key: string]: string;
@@ -194,7 +190,7 @@ router.get('/addButton', async (req, res) => {
   // add/remove the transaction to group relationship
 
   const { members } = (await getGroupWithMembers(groupId))!;
-  if (checked === 'false') {
+  if (checked === "false") {
     const groupTransactions = await addTransactionsToGroup(
       transaction.id,
       groupId
@@ -218,7 +214,7 @@ router.get('/addButton', async (req, res) => {
         });
       })
     );
-  } else if (checked === 'true') {
+  } else if (checked === "true") {
     const allTransactions = await getAllOwedForGroupTransaction(
       groupId,
       transaction.id
@@ -236,17 +232,17 @@ router.get('/addButton', async (req, res) => {
     <Transaction
       tailwindColorClass={transaction.category.color}
       transaction={transaction}
-      checked={!(checked === 'true')}
-      route='AddTransaction'
+      checked={!(checked === "true")}
+      route="AddTransaction"
       groupId={groupId as string}
     />
   );
   res.send(html);
 });
 
-router.get('transaction/:transactionId', async (req, res) => {
+router.get("transaction/:transactionId", async (req, res) => {
   const transaction = await getTransaction(req.params.transactionId);
-  if (!transaction) return res.status(404).send('404');
+  if (!transaction) return res.status(404).send("404");
 
   const html = renderToHtml(
     <Transaction
@@ -257,7 +253,7 @@ router.get('transaction/:transactionId', async (req, res) => {
   res.send(html);
 });
 
-router.get('/account/:accountId', async (req, res) => {
+router.get("/account/:accountId", async (req, res) => {
   const accountId = req.params.accountId;
 });
 
