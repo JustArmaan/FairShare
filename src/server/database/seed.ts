@@ -129,10 +129,11 @@ const memberTypes = [
 ];
 
 const accountTypes = [
-  { type: "credit" },
-  { type: "depository" },
-  { type: "loan" },
-  { type: "other" },
+  { type: 'credit' },
+  { type: 'depository' },
+  { type: 'loan' },
+  { type: 'other' },
+  { type: 'cash' },
 ];
 
 const groupTransferStatusValues = [

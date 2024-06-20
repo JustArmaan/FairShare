@@ -37,7 +37,7 @@ export const configureApp = async (app: Express) => {
       console.error(error, 'error caught in the global error handler');
 
       if (error.status === 404) {
-        return res.status(404).send('404 - Not Found');
+        return res.redirect('/notfound');
       }
 
       error.status = error.status || 500;

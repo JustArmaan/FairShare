@@ -1,6 +1,10 @@
-import { addAccount, getAccount } from "../../services/account.service";
-import { getAccountTypeIdByName } from "../../services/accountType.service";
-import { getCategoryIdByName } from "../../services/category.service";
+import {
+  addAccount,
+  addPlaidAccount,
+  getAccount,
+} from '../../services/account.service';
+import { getAccountTypeIdByName } from '../../services/accountType.service';
+import { getCategoryIdByName } from '../../services/category.service';
 import {
   createTransactions,
   deleteTransactions,
@@ -48,11 +52,16 @@ async function updateAccounts(
           id: account.account_id,
           name: account.name,
           accountTypeId: accountTypeId.id,
+          currencyCodeId: null,
+        });
+        await addPlaidAccount({
+          id: account.account_id,
+          accountTypeId: accountTypeId.id,
           balance: (account.balances.available ||
             account.balances.current)!.toString(),
-          currencyCodeId: null, // account.balances.iso_currency_code,
           itemId: itemId,
-          legalName: "",
+          currencyCodeId: null,
+          accountsId: account.account_id,
         });
       }
     })
