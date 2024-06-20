@@ -9,4 +9,5 @@ export const items = sqliteTable("items", {
     .references(() => users.id, { onDelete: "cascade" })
     .notNull(),
   nextCursor: text("next_cursor"),
+  logo: text("logo"),
 });

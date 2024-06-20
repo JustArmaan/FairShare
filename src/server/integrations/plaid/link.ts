@@ -38,15 +38,31 @@ export async function getAccessToken(publicToken: string) {
   });
 }
 
-export async function getInstitutionName(accessToken: string) {
+export async function getInstitutionDetails(accessToken: string) {
   const { institution_id } = (
     await plaidRequest("/item/get", { access_token: accessToken })
   ).item;
-  const { name } = (
+  const institutionDetails = (
     await plaidRequest("/institutions/get_by_id", {
       institution_id,
       country_codes: ["CA"],
+      include_optional_metadata: true,
     })
   ).institution;
-  return name;
+  const { name, logo } = institutionDetails;
+  return { name, logo };
 }
+
+// export async function getInstitutionLogo(accessToken: string) {
+//   const { institution_id } = (
+//     await plaidRequest("/item/get", { access_token: accessToken })
+//   ).item;
+//   const { logo } = (
+//     await plaidRequest("/institutions/get_by_id", {
+//       institution_id,
+//       country_codes: ["CA"],
+//       include_optional_metadata: true,
+//     })
+//   ).institution;
+//   return logo;
+// }

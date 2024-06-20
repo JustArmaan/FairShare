@@ -1,7 +1,7 @@
 import { Router } from "express";
 import {
   getAccessToken,
-  getInstitutionName,
+  getInstitutionDetails,
   getLinkToken,
 } from "../../../integrations/plaid/link";
 import {
@@ -132,13 +132,14 @@ router.post("/plaid-public-token", async (req, res) => {
       return res.json({ error: "Institution already connected.", data: null });
     }
 
-    const name = await getInstitutionName(access_token);
-    console.log(name, "institution name!");
+    const details = await getInstitutionDetails(access_token);
+    console.log(details, "institution name!");
     await addItemToUser(req.user.id, {
       id: item_id as string,
       plaidAccessToken: access_token,
       nextCursor: null,
-      institutionName: name,
+      institutionName: details.name,
+      logo: details.logo,
     });
     console.log("added!");
     res.status(200).send();
@@ -206,7 +207,8 @@ router.post("/vopay-transactions-webhook", async (req, res) => {
       const sender = await findUser(groupTransfer.senderUserId);
       await createNotificationWithWebsocket(
         group!.id,
-        `${sender!.firstName} has sent you $${payload.TransactionAmount
+        `${sender!.firstName} has sent you $${
+          payload.TransactionAmount
         }, please check your email for details.`,
         groupTransfer.receiverUserId,
         "groupInvite"
@@ -230,7 +232,8 @@ router.post("/vopay-transactions-webhook", async (req, res) => {
       const receiver = await findUser(groupTransfer.receiverUserId);
       await createNotificationWithWebsocket(
         group!.id,
-        `Your transfer to ${receiver!.firstName} of $${payload.TransactionAmount
+        `Your transfer to ${receiver!.firstName} of $${
+          payload.TransactionAmount
         } has been completed!`,
         groupTransfer.senderUserId,
         "groupInvite"
