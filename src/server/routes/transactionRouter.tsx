@@ -20,6 +20,7 @@ import {
   getAccountWithTransactions,
   getAccountsForUser,
   getItem,
+  getItemsForUser,
 } from "../services/plaid.service";
 import { TransactionList } from "../views/pages/transactions/components/TransactionList";
 import { AccountPickerForm } from "../views/pages/transactions/components/AccountPickerForm";
@@ -102,12 +103,14 @@ router.get("/details/:transactionId", async (req, res) => {
 
     const item = await getItem(account.itemId);
     if (!item) return res.status(404).send("404");
+    const info = await getItemsForUser(req.user!.id);
 
     const html = renderToHtml(
       <TransactionDetailsPage
         transaction={transaction}
         accountType={accountType ? accountType : "Unknown"}
         institution={item.institutionName ? item.institutionName : "Unknown"}
+        info={info[0] ? info : []}
       />
     );
     res.send(html);

@@ -49,8 +49,9 @@ export async function getInstitutionDetails(accessToken: string) {
       include_optional_metadata: true,
     },
   });
-  const { name, logo } = response.institution;
-  return { name, logo };
+  console.log(response);
+  const { name, logo, url } = response.institution;
+  return { name, logo, url };
 }
 
 // export async function getInstitutionLogo(accessToken: string) {
