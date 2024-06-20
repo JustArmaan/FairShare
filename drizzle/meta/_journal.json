@@ -15,6 +15,13 @@
       "when": 1718901993234,
       "tag": "0001_superb_psynapse",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1718906888457,
+      "tag": "0002_tranquil_steve_rogers",
+      "breakpoints": true
     }
   ]
 }

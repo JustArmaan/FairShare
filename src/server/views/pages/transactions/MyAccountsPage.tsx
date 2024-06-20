@@ -62,7 +62,7 @@ export const MyAccountsPage = (props: {
           SOMETHING
         </div>
       )}
-      <div class="account-selector-form" />
+      <div class="item-selector-form" />
     </div>
   );
 };
