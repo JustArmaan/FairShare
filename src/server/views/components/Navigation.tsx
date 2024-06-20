@@ -6,7 +6,7 @@ export const Nav = () => {
   return (
     <nav class="bg-font-black w-full fixed bottom-0">
       <ul class="flex justify-between items-center px-4 py-5">
-        <li class="group w-1/6 ">
+        <li class="group w-1/6">
           <a
             class="parent hover:child-hidden flex flex-col items-center text-font-off-white dark:text-white group-hover:text-accent-yellow"
             hx-get="/home/page"
@@ -17,22 +17,25 @@ export const Nav = () => {
           >
             <img
               id="homeIconInactive"
-              class="h-6 hidden"
+              class="h-6 hidden group-hover:block"
               src="/images/home.svg"
               alt="home icon"
             />
             <img
               id="homeIconActive"
-              class="h-6"
+              class="h-6 group-hover:hidden"
               src="/activeIcons/home.svg"
               alt="home icon"
             />
-            <p id="homeText" class="mt-1 text-xs">Home</p>
+            <p id="homeText" class="mt-1 text-xs">
+              Home
+            </p>
           </a>
         </li>
+
         <li class="group w-1/6">
           <a
-            class="parent hover:child-hidden flex flex-col items-center text-font-off-white dark:text-white group-hover:text-accent-purple"
+            class="parent hover:child-hidden flex flex-col items-center text-font-off-white dark:text-white group-hover:text-accent-purple hover:text-accent-purple"
             hx-get="/groups/page"
             hx-target="#app"
             hx-trigger="click"
@@ -51,7 +54,9 @@ export const Nav = () => {
               src="/activeIcons/group.svg"
               alt="group icon"
             />
-            <p id="groupsText" class="mt-1 text-xs">Groups</p>
+            <p id="groupsText" class="mt-1 text-xs">
+              Groups
+            </p>
           </a>
         </li>
         <div class="rounded-full bg-accent-blue size-12">

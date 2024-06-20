@@ -27,7 +27,7 @@ export function highlightNavigationIcons() {
     section.inactive?.classList.add("block");
     section.active?.classList.add("hidden");
     section.active?.classList.remove("block");
-    
+
     section.text?.classList.remove("text-accent-yellow");
     section.text?.classList.remove("text-accent-purple");
     section.text?.classList.remove("text-accent-green");
