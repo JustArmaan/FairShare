@@ -54,7 +54,7 @@ export const Menu = (props: { value: boolean }) => {
           id="menuIconInactive"
         />
         <img
-          src="/images/menu.svg"
+          src="/activeIcons/menu.svg"
           alt="Menu Icon Active"
           class="h-6 p-1 hidden group-hover:block"
           id="menuIconActive"
