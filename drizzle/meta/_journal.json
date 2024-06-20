@@ -8,6 +8,13 @@
       "when": 1718909910045,
       "tag": "0000_powerful_meltdown",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1718910816001,
+      "tag": "0001_cute_master_chief",
+      "breakpoints": true
     }
   ]
 }

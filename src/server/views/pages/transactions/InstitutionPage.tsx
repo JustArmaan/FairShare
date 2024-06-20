@@ -1,6 +1,6 @@
 import type { getItemsForUser } from "../../../services/plaid.service";
 import type { ExtractFunctionReturnType } from "../../../services/user.service";
-import Institutions from "./components/instututions";
+import { InstitutionList } from "./components/InstitutionList";
 
 export type Info = ExtractFunctionReturnType<typeof getItemsForUser>;
 export const InstitutionsPage = (props: { edit?: boolean; info: Info }) => {
@@ -49,7 +49,7 @@ export const InstitutionsPage = (props: { edit?: boolean; info: Info }) => {
       )}
       {props.info.map((item) => (
         <>
-          <Institutions info={item} edit={props.edit} />
+          <InstitutionList info={item} edit={props.edit} />
         </>
       ))}
       <div class="flex flex-col text-font-off-white font-semibold text-lg mt-8 justify-center items-center">

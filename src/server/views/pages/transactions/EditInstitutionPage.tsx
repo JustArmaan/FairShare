@@ -1,4 +1,4 @@
-import Institutions from "./components/instututions";
+import Institutions from "./components/InstitutionList";
 import type { getItemsForUser } from "../../../services/plaid.service";
 import type { ExtractFunctionReturnType } from "../../../services/user.service";
 

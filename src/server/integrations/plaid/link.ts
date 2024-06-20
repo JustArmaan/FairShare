@@ -42,14 +42,14 @@ export async function getInstitutionDetails(accessToken: string) {
   const { institution_id } = (
     await plaidRequest("/item/get", { access_token: accessToken })
   ).item;
-  const institutionDetails = (
-    await plaidRequest("/institutions/get_by_id", {
-      institution_id,
-      country_codes: ["CA"],
+  const response = await plaidRequest("/institutions/get_by_id", {
+    institution_id,
+    country_codes: ["CA"],
+    options: {
       include_optional_metadata: true,
-    })
-  ).institution;
-  const { name, logo } = institutionDetails;
+    },
+  });
+  const { name, logo } = response.institution;
   return { name, logo };
 }
 
