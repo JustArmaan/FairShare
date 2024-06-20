@@ -1,7 +1,7 @@
 import type { Info } from "../InstitutionPage";
 import type { ArrayElement } from "./Transaction";
 
-export const InstitutionList = (props: {
+export const InstitutionItem = (props: {
   edit?: boolean;
   info: ArrayElement<Info>;
 }) => {
@@ -25,7 +25,7 @@ export const InstitutionList = (props: {
       </div>
       {props.edit ? (
         <img
-          hx-get={`/institution/delete`}
+          hx-post={`/institutions/delete/${props.info.item.id}`}
           hx-target="#app"
           hx-swap="innerHTML"
           class=""

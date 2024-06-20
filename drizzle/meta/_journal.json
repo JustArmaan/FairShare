@@ -5,22 +5,8 @@
     {
       "idx": 0,
       "version": "6",
-      "when": 1718909910045,
-      "tag": "0000_powerful_meltdown",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "6",
-      "when": 1718910816001,
-      "tag": "0001_cute_master_chief",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "6",
-      "when": 1718731667507,
-      "tag": "0001_kind_kid_colt",
+      "when": 1718922374275,
+      "tag": "0000_modern_adam_destine",
       "breakpoints": true
     }
   ]

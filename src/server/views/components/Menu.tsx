@@ -19,7 +19,7 @@ export const Menu = (props: { value: boolean }) => {
               </li>
               <li>
                 <a
-                  hx-get="/home/institutionPicker"
+                  hx-get="/institutions/page"
                   hx-target="#app"
                   hx-swap="innerHTML"
                   hx-trigger="click"

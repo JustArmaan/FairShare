@@ -1,7 +1,6 @@
 import express from "express";
 import { renderToHtml } from "jsxte";
 import { getTransactionsForUser } from "../services/transaction.service";
-import { syncTransactionsForUser } from "../integrations/plaid/sync";
 import {
   getAccountWithTransactions,
   getAccountsForUser,
@@ -15,8 +14,6 @@ import { AccountOverview } from "../views/pages/transactions/components/AccountO
 import { ConnectAccount } from "../views/pages/transactions/components/ConnectAccount";
 import { ItemPickerForm } from "../views/pages/transactions/components/ItemPickerForm";
 const router = express.Router();
-
-import InstitutionsPage from "../views/pages/transactions/InstitutionPage";
 
 router.get("/page/:itemId", async (req, res, next) => {
   const userId = req.user!.id;
@@ -114,28 +111,6 @@ router.get("/accountOverview/cashAccount/:cashAccountId", async (req, res) => {
 
   const html = renderToHtml(<AccountOverview account={account} />);
   res.send(html);
-});
-
-router.get("/institutionPicker", async (req, res) => {
-  try {
-    const info = await getItemsForUser(req.user!.id);
-    const html = renderToHtml(<InstitutionsPage info={info ? info : []} />);
-    res.send(html);
-  } catch (err) {
-    console.error(err);
-  }
-});
-
-router.get("/institutions/edit", async (req, res) => {
-  try {
-    const info = await getItemsForUser(req.user!.id);
-    const html = renderToHtml(
-      <InstitutionsPage info={info ? info : []} edit />
-    );
-    res.send(html);
-  } catch (err) {
-    console.error(err);
-  }
 });
 
 export const homeRouter = router;

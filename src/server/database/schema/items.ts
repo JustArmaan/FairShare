@@ -10,4 +10,5 @@ export const items = sqliteTable("items", {
     .notNull(),
   nextCursor: text("next_cursor"),
   logo: text("logo"),
+  url: text("url"),
 });
