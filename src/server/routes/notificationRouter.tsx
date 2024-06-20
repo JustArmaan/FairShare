@@ -1,6 +1,5 @@
 import express from 'express';
 import { renderToHtml } from 'jsxte';
-import { getUser } from './authRouter.ts';
 import { NotificationPage } from '../views/pages/Notifications/NotificationsPage.tsx';
 import { NotificationList } from '../views/pages/Notifications/NotificationList.tsx';
 import {
@@ -11,7 +10,7 @@ import { NotificationIcon } from '../views/components/NavigationIcon.tsx';
 
 const router = express.Router();
 
-router.get('/page', getUser, async (req, res) => {
+router.get('/page', async (req, res) => {
   try {
     const userId = req.user!.id;
     if (!userId) {
@@ -25,7 +24,7 @@ router.get('/page', getUser, async (req, res) => {
   }
 });
 
-router.get('/notificationList/:userId', getUser, async (req, res) => {
+router.get('/notificationList/:userId', async (req, res) => {
   try {
     const notifications = await getAllGroupNotificationsForUser(req.user!.id);
 
@@ -42,7 +41,7 @@ router.get('/notificationList/:userId', getUser, async (req, res) => {
   }
 });
 
-router.get('/notificationIcon', getUser, async (req, res) => {
+router.get('/notificationIcon', async (req, res) => {
   try {
     const userId = req.user!.id;
     if (!userId) {
@@ -63,7 +62,7 @@ router.get('/notificationIcon', getUser, async (req, res) => {
   }
 });
 
-router.post('/clearNotifications', getUser, async (req, res) => {
+router.post('/clearNotifications',  async (req, res) => {
   await deleteAllNotificationsForUser(req.body.userToGroupId);
 
   const html = renderToHtml(

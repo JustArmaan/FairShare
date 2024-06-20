@@ -60,7 +60,7 @@ router.get("/onboard", (req, res) => {
         ></div>
         <div
           id="app"
-          hx-get="/home/page"
+          hx-get="/home/page/default"
           hx-trigger="load"
           hx-swap="innerHTML"
           hx-push-url="/home/page"
@@ -92,7 +92,6 @@ router.get("/layout", (req, res) => {
           hx-get={url}
           hx-trigger="load"
           hx-swap="innerHTML"
-          hx-push-url={url}
         ></div>
         <div class="h-24" /> {/* spacer div to make up for nav bar*/}
         <div id="nav" hx-get="/nav" hx-trigger="load" hx-swap="outerHTML"></div>

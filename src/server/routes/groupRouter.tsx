@@ -145,9 +145,8 @@ router.get("/view/:groupId", async (req, res) => {
         .filter((owed) => owed !== null)
     );
 
-    const account = await getAccountsForUser(userId);
-    const accountId = account ? account[0].id : "";
-    const { depositAccountId } = (await getUsersToGroup(group.id, userId))!;
+    // const account = await getAccountsForUser(userId);
+    // const accountId = account ? account[0].id : "";
 
     const html = renderToHtml(
       <ViewGroups
@@ -169,7 +168,7 @@ router.get("/view/:groupId", async (req, res) => {
                 })),
               ]
         }
-        accountId={accountId}
+        accountId={accountId} // refactor me!
         selectedDepositAccountId={depositAccountId}
       />
     );
@@ -366,9 +365,6 @@ router.get("/addMember/:groupId", async (req, res) => {
 router.post("/create", async (req, res) => {
   try {
     const { id } = req.user!;
-    if (!id) {
-      return res.set("HX-Redirect", "/auth/login").send();
-    }
 
     const currentUser = await findUser(id);
 
@@ -548,11 +544,7 @@ router.post("/edit/:groupId", async (req, res) => {
       res.status(403).send("Only the owner can edit a group.");
     }
 
-    if (!req.user) {
-      return res.set("HX-Redirect", `${env.baseUrl}/auth/login`).send();
-    }
-
-    const currentUser = await findUser(req.user.id);
+    const currentUser = await findUser(req.user!.id);
 
     if (!currentUser) {
       return res.status(500).send("Failed to get user");
@@ -667,9 +659,8 @@ router.post("/deleteMember/:userID/:groupID", async (req, res) => {
 
 router.get("/transactions/:groupId", async (req, res) => {
   const groupId = req.params.groupId;
-  const groupWithTransactions = await getGroupWithMembersAndTransactions(
-    groupId
-  );
+  const groupWithTransactions =
+    await getGroupWithMembersAndTransactions(groupId);
   const html = renderToHtml(
     <GroupTransactionsListPage
       group={groupWithTransactions as GroupMembersTransactions}
@@ -702,8 +693,8 @@ router.get(
   }
 );
 
-router.get("/accountPicker/:accountId/:groupId", async (req, res) => {
-  const accounts = await getAccountsForUser(req.user!.id);
+router.get("/accountPicker/:itemId/:accountId/:groupId", async (req, res) => {
+  const accounts = await getAccountsForUser(req.user!.id, req.params.itemId);
   if (!accounts) throw new Error("Missing accounts for user");
   const html = renderToHtml(
     <AccountPickerForm

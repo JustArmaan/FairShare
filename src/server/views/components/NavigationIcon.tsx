@@ -9,7 +9,7 @@ export const NotificationIcon = ({
     <li class="group w-1/6 relative" id="notification-icon">
       <a
         href=""
-        class="parent relative  flex flex-col items-center text-font-off-white dark:text-white text-sm group-hover:text-accent-green"
+        class="parent relative hover:child-hidden flex flex-col items-center text-font-off-white dark:text-white text-sm group-hover:text-accent-green"
         hx-get="/notification/page"
         hx-target="#app"
         hx-trigger="click"
@@ -29,12 +29,19 @@ export const NotificationIcon = ({
             alt="notifications icon"
           />
           <img
-            class="h-6"
+            id="notificationsIconInactive"
+            class="h-6 hidden child"
+            src="/activeIcons/notif.svg"
+            alt="notifications icon"
+          />
+          <img
+            id="notificationsIconActive"
+            class="h-6 block"
             src="/activeIcons/notif.svg"
             alt="notifications icon"
           />
         </div>
-        <p class="mt-1 text-xs">Notifications</p>
+        <p id="notificationsText" class="mt-1 text-xs">Notifications</p>
       </a>
     </li>
   );

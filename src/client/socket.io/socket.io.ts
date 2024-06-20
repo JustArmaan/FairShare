@@ -35,7 +35,7 @@ export function setupSocketListener() {
       }
 
       if (accountOverview && newTransactions) {
-        htmx.ajax('GET', `/home/accountOverview/${newTransactions.accountId}`, {
+        htmx.ajax('GET', `/home/accountOverview/account/${newTransactions.accountId}`, {
           target: `accountOverview-${newTransactions.accountId}`,
           swap: 'outerHTML',
           event: 'load',

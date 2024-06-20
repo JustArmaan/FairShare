@@ -15,6 +15,5 @@ export const usersToGroups = sqliteTable("usersToGroups", {
   memberTypeId: text("member_type_id")
     .references(() => memberType.id)
     .notNull(),
-  depositAccountId: text("deposit_account_id")
-    .references(() => accounts.id),
+  depositAccountId: text("deposit_account_id").references(() => accounts.id),
 });

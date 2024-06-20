@@ -2,12 +2,15 @@ import { main } from "./group";
 import { CustomizeMap } from "./map/customizeMap";
 import { setupSocketListener } from "./socket.io/socket.io";
 import { splitTransfer } from "./splitTransfer/splitTransfer";
+import { highlightNavigationIcons } from "./nav/nav";
+import htmx from "htmx.org";
 
 main();
 splitTransfer();
 setupSocketListener();
 
 document.body.addEventListener("htmx:afterSwap", (event) => {
+  highlightNavigationIcons();
   if (!(event.target instanceof HTMLElement)) return;
   const excludeListId = new Set(["institutionSelector"]);
   if (excludeListId.has(event.target.id)) return;
@@ -65,6 +68,34 @@ async function hasAccounts(): Promise<boolean> {
   return data.connected;
 }
 
+async function addNewInstitution() {
+  try {
+    const publicToken = await getToken();
+    const response = await fetch(`/api/v${apiVersion}/plaid-public-token`, {
+      method: "POST",
+      body: JSON.stringify({ publicToken }),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    if (response.status === 200) {
+      console.log("Token pushed succesfully");
+      const response = await fetch(`/api/v${apiVersion}/sync`);
+      if (response.status === 200) {
+        // run htmx ajax call to fetch new institution
+        htmx.ajax("GET", "/institutions/page", {
+          target: "#app",
+          swap: "innerHTML",
+        });
+      }
+    } else {
+      console.log((await response.json()).error);
+    }
+  } catch (error) {
+    console.log(error);
+  }
+}
+
 async function runLinkSetup() {
   try {
     const connected = await isConnectedToPlaid();
@@ -106,6 +137,7 @@ async function initMap() {
 
     const { lat, lng } = await response.json();
 
+    // @ts-ignore
     let customMap = new CustomizeMap("map", new google.maps.LatLng(lat, lng));
     customMap.addTransactionMarker();
   } catch (error) {
@@ -115,7 +147,10 @@ async function initMap() {
 
 function attachButton(event: Event) {
   if (event.currentTarget instanceof HTMLButtonElement) {
-    if (event.currentTarget.innerText !== "Loading...") {
+    if (event.currentTarget.innerText === "Add a new institution") {
+      addNewInstitution();
+      event.currentTarget.innerText = "Loading...";
+    } else if (event.currentTarget.innerText !== "Loading...") {
       runLinkSetup();
       event.currentTarget.innerText = "Loading...";
     }
