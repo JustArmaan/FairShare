@@ -1,11 +1,9 @@
-import Institutions from './components/instututions'
-import type { getItemsForUser } from '../../../services/plaid.service';
-import type { ExtractFunctionReturnType } from '../../../services/user.service';
+import Institutions from "./components/instututions";
+import type { getItemsForUser } from "../../../services/plaid.service";
+import type { ExtractFunctionReturnType } from "../../../services/user.service";
 
-export type Info = ExtractFunctionReturnType<
-  typeof getItemsForUser
->;
-export const EditInstitution = (props: {edit?: boolean; info: Info }) => {
+export type Info = ExtractFunctionReturnType<typeof getItemsForUser>;
+export const EditInstitution = (props: { edit?: boolean; info: Info }) => {
   return (
     <div class="p-6 animate-fade-in">
       <img
@@ -15,19 +13,20 @@ export const EditInstitution = (props: {edit?: boolean; info: Info }) => {
         id="modify-institution-icon"
       />
       {props.info.map((item) => (
-          <>
-            <Institutions info={item} edit={props.edit} />
-          </>
-        ))}
+        <>
+          <Institutions info={item} edit={props.edit} />
+        </>
+      ))}
       <div class="flex flex-col text-font-off-white font-semibold text-lg mt-8 justify-center items-center">
-            <a href="">
-              <button class="hover:-translate-y-0.5 transition-all bg-accent-blue rounded-3xl w-72 py-[0.5rem] mt-4">
-                Add a new institution
-              </button>
-            </a>
-          </div>
+        <button
+          id="connect-to-plaid"
+          class="hover:-translate-y-0.5 transition-all bg-accent-blue rounded-3xl w-72 py-[0.5rem] mt-4"
+        >
+          Add a new institution
+        </button>
+      </div>
     </div>
-  )
-}
+  );
+};
 
-export default EditInstitution
+export default EditInstitution;

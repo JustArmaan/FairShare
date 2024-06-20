@@ -14,7 +14,7 @@ export const ItemPickerForm = (props: {
               <>
                 <div
                   class="w-full flex justify-between p-4 hover:opacity-80 cursor-pointer"
-                  hx-get={`/transactions/page/${item.id}`}
+                  hx-get={`/home/page/${item.id}`}
                   hx-swap="innerHTML"
                   hx-target="#app"
                 >

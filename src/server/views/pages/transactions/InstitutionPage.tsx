@@ -1,14 +1,12 @@
-import type { getItemsForUser } from '../../../services/plaid.service';
-import type { ExtractFunctionReturnType } from '../../../services/user.service';
-import Institutions from './components/instututions'
+import type { getItemsForUser } from "../../../services/plaid.service";
+import type { ExtractFunctionReturnType } from "../../../services/user.service";
+import Institutions from "./components/instututions";
 
-export type Info = ExtractFunctionReturnType<
-  typeof getItemsForUser
->;
-export const InstitutionsPage = (props: {edit?: boolean; info: Info }) => {
+export type Info = ExtractFunctionReturnType<typeof getItemsForUser>;
+export const InstitutionsPage = (props: { edit?: boolean; info: Info }) => {
   return (
     <div class="p-6 animate-fade-in">
-             <div class="flex items-center justify-between">
+      <div class="flex items-center justify-between">
         <h2 class="text-2xl text-font-off-white">Institutions</h2>
         {props.edit ? (
           <button
@@ -45,24 +43,25 @@ export const InstitutionsPage = (props: {edit?: boolean; info: Info }) => {
         )}
       </div>
       {props.info.length === 0 && (
-          <p class="text-font-off-white text-lg">
-            No Institutions found! Add one by using the button below.
-          </p>
-        )}
-        {props.info.map((item) => (
-          <>
-            <Institutions info={item} edit={props.edit} />
-          </>
-        ))}
+        <p class="text-font-off-white text-lg">
+          No Institutions found! Add one by using the button below.
+        </p>
+      )}
+      {props.info.map((item) => (
+        <>
+          <Institutions info={item} edit={props.edit} />
+        </>
+      ))}
       <div class="flex flex-col text-font-off-white font-semibold text-lg mt-8 justify-center items-center">
-            <a href="">
-              <button class="hover:-translate-y-0.5 transition-all bg-accent-blue rounded-3xl w-72 py-[0.5rem] mt-4">
-                Add a new institution
-              </button>
-            </a>
-          </div>
+        <button
+          id="connect-to-plaid"
+          class="hover:-translate-y-0.5 transition-all bg-accent-blue rounded-3xl w-72 py-[0.5rem] mt-4"
+        >
+          Add a new institution
+        </button>
+      </div>
     </div>
-  )
-}
+  );
+};
 
-export default InstitutionsPage
+export default InstitutionsPage;

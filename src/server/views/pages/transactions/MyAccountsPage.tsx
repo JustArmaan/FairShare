@@ -1,4 +1,7 @@
-import type { getCashAccountForUser } from "../../../services/plaid.service";
+import type {
+  Item,
+  getCashAccountForUser,
+} from "../../../services/plaid.service";
 import type { ExtractFunctionReturnType } from "../../../services/user.service";
 
 type CashAccount = ExtractFunctionReturnType<
@@ -8,19 +11,20 @@ type CashAccount = ExtractFunctionReturnType<
 export const MyAccountsPage = (props: {
   accountIds: string[];
   selectedItemId: string;
+  selectedItem: Item;
   username: string;
   cashAccount?: CashAccount;
 }) => {
   return (
     <div class="p-6 animate-fade-in pb-24">
       <div
-        hx-get={`/home/itemPicker/${props.selectedItemId}`}
-        hx-target=".item-selector-form"
+        hx-get="/home/institutionPicker"
+        hx-target="#app"
         hx-swap="innerHTML"
         class="mb-2 flex justify-start w-fit items-center hover:-translate-y-0.5 transition-transform cursor-pointer"
       >
-        <p class="text-font-off-white mr-3 text-xl">Change Institution</p>
-        <img class="h-3" src="/images/right-triangle.svg" alt="triangle icon" />
+        <p class="text-font-off-white mr-1 text-xl">My Institutions</p>
+        <img class="h-5" src="/icons/add_circle.svg" alt="" />
         {/*
           hx-get={`/home/institutionPicker/${props.selectedAccountId}`}
           hx-target='#app'
@@ -37,15 +41,18 @@ export const MyAccountsPage = (props: {
         />
         */}
       </div>
-      <div class="header flex items-center mb-2 mt-4 justify-between">
-        <h1 class="text-xl text-font-off-white h-fit font-semibold">
-          {" "}
-          Welcome, {props.username}
-        </h1>{" "}
-        <h1 class="text-font-off-white font-semibold text-xl mr-2 h-fit">
-          My Accounts
+      <div
+        hx-get={`/home/itemPicker/${props.selectedItemId}`}
+        hx-target=".item-selector-form"
+        hx-swap="innerHTML"
+        class="header flex items-center mb-1 mt-4 justify-center hover:-translate-y-0.5 transition-transform cursor-pointer"
+      >
+        <h1 class="text-font-off-white mr-2 font-semibold text-2xl">
+          {props.selectedItem.institutionName}
         </h1>
+        <img class="h-3" src="/images/right-triangle.svg" alt="triangle icon" />
       </div>
+      <div class="h-0.5 bg-primary-dark-grey w-full mx-2 mb-0 mt-2" />
       {props.accountIds.map((id) => (
         <div
           hx-get={`/home/accountOverview/${id}`}
@@ -58,9 +65,7 @@ export const MyAccountsPage = (props: {
           hx-get={`/home/accountOverview/cashAccount/${props.cashAccount.account.id}`}
           hx-trigger="load"
           hx-swap="outerHTML"
-        >
-          SOMETHING
-        </div>
+        ></div>
       )}
       <div class="item-selector-form" />
     </div>

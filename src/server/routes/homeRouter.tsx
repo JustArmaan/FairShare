@@ -7,6 +7,7 @@ import {
   getAccountsForUser,
   getCashAccountForUser,
   getCashAccountWithTransaction,
+  getItem,
   getItemsForUser,
 } from "../services/plaid.service";
 import MyAccountsPage from "../views/pages/transactions/MyAccountsPage";
@@ -33,6 +34,7 @@ router.get("/page/:itemId", async (req, res, next) => {
         />
       );
       res.send(html);
+      return;
     } else {
       const html = renderToHtml(<ConnectAccount />);
       res.send(html);
@@ -56,11 +58,14 @@ router.get("/page/:itemId", async (req, res, next) => {
   const sortedAccounts = accountsWithTransactions.sort((a, b) => {
     return (b.transactions.length || 0) - (a.transactions.length || 0);
   });
+  console.log(req.params.itemId);
+  const selectedItem = await getItem(req.params.itemId);
   // This will now get the account with the most transactions first to display nicer graphs
   const html = renderToHtml(
     <MyAccountsPage
       accountIds={sortedAccounts.map((account) => account.id)}
       selectedItemId={req.params.itemId}
+      selectedItem={selectedItem!}
       username={req.user!.firstName}
       cashAccount={cashAccount}
     />
