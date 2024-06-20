@@ -1,6 +1,7 @@
-import type { AccountSchema } from '../../../../services/plaid.service'
+import type { Info } from '../InstitutionPage';
+import type { ArrayElement } from '../../transactions/components/Transaction';
 
-export const Institutions = (props: { edit?: boolean }) => {
+export const Institutions = (props: { edit?: boolean; info: ArrayElement<Info>}) => {
   return (
     <button class="bg-primary-black text-font-off-white py-3 px-4 rounded-lg shadow-lg my-4 flex justify-between items-center w-full text-left">
       <div class="flex flex-col">
