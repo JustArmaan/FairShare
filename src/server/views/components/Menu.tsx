@@ -28,22 +28,6 @@ export const Menu = (props: { value: boolean }) => {
                   Manage Institutions
                 </a>
               </li>
-              {/* <li>
-            <a
-              href=""
-              class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
-            >
-              Settings
-            </a>
-          </li>
-          <li>
-            <a
-              href=""
-              class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
-            >
-              Earnings
-            </a>
-          </li> */}
             </ul>
             <div class="py-1">
               <a
@@ -57,7 +41,7 @@ export const Menu = (props: { value: boolean }) => {
         </>
       )}
       <a
-        class="parent hover:child-hidden flex flex-col items-center text-font-off-white dark:text-white group-hover:text-accent-red"
+        class="parent flex flex-col items-center text-font-off-white dark:text-white group cursor-pointer group-hover:text-accent-red"
         hx-get={`/menu?open=${!props.value}`}
         hx-target="#menuContainer"
         hx-trigger="click"
@@ -65,11 +49,17 @@ export const Menu = (props: { value: boolean }) => {
       >
         <img
           src="/images/menu.svg"
-          alt="Menu Icon"
-          class="h-6 p-1"
-          id="moreIcon"
-        ></img>
-        <p class="mt-1 text-xs">More</p>
+          alt="Menu Icon Inactive"
+          class="h-6 p-1 block group-hover:hidden"
+          id="menuIconInactive"
+        />
+        <img
+          src="/images/menu.svg"
+          alt="Menu Icon Active"
+          class="h-6 p-1 hidden group-hover:block"
+          id="menuIconActive"
+        />
+        <p class="mt-1 text-xs group-hover:text-accent-red">More</p>
       </a>
     </div>
   );

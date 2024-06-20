@@ -14,13 +14,15 @@ export function highlightNavigationIcons() {
       text: document.getElementById("groupsText"),
       color: "accent-purple",
     },
-    notifications: {
+    notification: {
       inactive: document.getElementById("notificationsIconInactive"),
       active: document.getElementById("notificationsIconActive"),
       text: document.getElementById("notificationsText"),
       color: "accent-green",
     },
   };
+
+  console.log("icons", icons.notification, icons.groups);
 
   Object.values(icons).forEach((section) => {
     section.inactive?.classList.remove("hidden");

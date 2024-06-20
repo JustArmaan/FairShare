@@ -8,7 +8,7 @@ export const Nav = () => {
       <ul class="flex justify-between items-center px-4 py-5">
         <li class="group w-1/6">
           <a
-            class="parent hover:child-hidden flex flex-col items-center text-font-off-white dark:text-white group-hover:text-accent-yellow"
+            class="parent flex flex-col items-center text-font-off-white dark:text-white group-hover:text-accent-yellow cursor-pointer"
             hx-get="/home/page/default"
             hx-target="#app"
             hx-trigger="click"
@@ -17,13 +17,13 @@ export const Nav = () => {
           >
             <img
               id="homeIconInactive"
-              class="h-6 hidden group-hover:block"
+              class="h-6 block group-hover:hidden"
               src="/images/home.svg"
               alt="home icon"
             />
             <img
               id="homeIconActive"
-              class="h-6 group-hover:hidden"
+              class="h-6 hidden group-hover:block"
               src="/activeIcons/home.svg"
               alt="home icon"
             />
@@ -35,7 +35,7 @@ export const Nav = () => {
 
         <li class="group w-1/6">
           <a
-            class="parent hover:child-hidden flex flex-col items-center text-font-off-white dark:text-white group-hover:text-accent-purple hover:text-accent-purple"
+            class="parent flex flex-col items-center text-font-off-white dark:text-white group-hover:text-accent-purple cursor-pointer"
             hx-get="/groups/page"
             hx-target="#app"
             hx-trigger="click"
@@ -44,13 +44,13 @@ export const Nav = () => {
           >
             <img
               id="groupsIconInactive"
-              class="h-6 hidden"
+              class="h-6 block group-hover:hidden"
               src="/images/group.svg"
               alt="group icon"
             />
             <img
               id="groupsIconActive"
-              class="h-6 block"
+              class="h-6 hidden group-hover:block"
               src="/activeIcons/group.svg"
               alt="group icon"
             />
@@ -59,6 +59,7 @@ export const Nav = () => {
             </p>
           </a>
         </li>
+
         <div class="rounded-full bg-accent-blue size-12">
           <li class="flex justify-center items-center">
             <a
