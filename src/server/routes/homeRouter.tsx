@@ -114,9 +114,7 @@ router.get("/accountOverview/cashAccount/:cashAccountId", async (req, res) => {
 router.get("/institutionPicker", async (req, res) => {
   try {
     const info = await getItemsForUser(req.user!.id);
-    const html = renderToHtml(
-      <InstitutionsPage info={info ? info[0].item : []} />
-    );
+    const html = renderToHtml(<InstitutionsPage info={info ? info : []} />);
     res.send(html);
   } catch (err) {
     console.error(err);
