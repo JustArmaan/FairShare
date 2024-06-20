@@ -1,17 +1,23 @@
-import type { Info } from '../InstitutionPage';
-import type { ArrayElement } from '../../transactions/components/Transaction';
+import type { Info } from "../InstitutionPage";
+import type { ArrayElement } from "../../transactions/components/Transaction";
 
-export const Institutions = (props: { edit?: boolean; info: ArrayElement<Info>}) => {
+export const Institutions = (props: {
+  edit?: boolean;
+  info: ArrayElement<Info>;
+}) => {
   return (
     <button class="bg-primary-black text-font-off-white py-3 px-4 rounded-lg shadow-lg my-4 flex justify-between items-center w-full text-left">
       <div class="flex flex-col">
         <div class="flex justify-between items-center mb-4">
           <span class="text-font-off-white mr-2">Institution Name:</span>
-          <span class="text-lg font-semibold">Scotia Bank</span>
+          <span class="text-lg font-semibold">
+            {props.info.item.institutionName}
+          </span>
         </div>
         <div class="flex justify-between items-center">
-          <span class="text-font-off-white mr-2">Institution Holder:</span>
-          <span class="text-lg font-semibold">Joe Burden</span>
+          <span class="text-lg font-semibold">
+            <img src={`${props.info.item.logo}`}></img>
+          </span>
         </div>
       </div>
       {props.edit ? (
@@ -32,7 +38,7 @@ export const Institutions = (props: { edit?: boolean; info: ArrayElement<Info>})
         />
       )}
     </button>
-  )
-}
+  );
+};
 
-export default Institutions
+export default Institutions;
