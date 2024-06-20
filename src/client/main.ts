@@ -2,12 +2,14 @@ import { main } from "./group";
 import { CustomizeMap } from "./map/customizeMap";
 import { setupSocketListener } from "./socket.io/socket.io";
 import { splitTransfer } from "./splitTransfer/splitTransfer";
+import { highlightNavigationIcons } from "./nav/nav";
 
 main();
 splitTransfer();
 setupSocketListener();
 
 document.body.addEventListener("htmx:afterSwap", (event) => {
+  highlightNavigationIcons();
   if (!(event.target instanceof HTMLElement)) return;
   const excludeListId = new Set(["institutionSelector"]);
   if (excludeListId.has(event.target.id)) return;
