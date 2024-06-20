@@ -18,28 +18,13 @@ export const MyAccountsPage = (props: {
   return (
     <div class="p-6 animate-fade-in pb-24">
       <div
-        hx-get="/home/institutionPicker"
+        hx-get="/institutions/page"
         hx-target="#app"
         hx-swap="innerHTML"
         class="mb-2 flex justify-start w-fit items-center hover:-translate-y-0.5 transition-transform cursor-pointer"
       >
         <p class="text-font-off-white mr-1 text-xl">My Institutions</p>
         <img class="h-5" src="/icons/add_circle.svg" alt="" />
-        {/*
-          hx-get={`/home/institutionPicker/${props.selectedAccountId}`}
-          hx-target='#app'
-          hx-trigger='click'
-          hx-swap='innerHTML'
-        class="mb-2 flex justify-start w-fit items-center hover:-translate-y-0.5 transition-transform cursor-pointer"
-      >
-        <p class="text-font-off-white mr-3 text-xl">Change Institution</p>
-        <img
-          class="h-3"
-          src="/images/right-triangle.svg"
-          alt="triangle icon"
-          id="account-select-image"
-        />
-        */}
       </div>
       <div
         hx-get={`/home/itemPicker/${props.selectedItemId}`}

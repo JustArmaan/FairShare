@@ -83,7 +83,7 @@ async function addNewInstitution() {
       const response = await fetch(`/api/v${apiVersion}/sync`);
       if (response.status === 200) {
         // run htmx ajax call to fetch new institution
-        htmx.ajax("GET", "/home/institutionPicker", {
+        htmx.ajax("GET", "/institutions/page", {
           target: "#app",
           swap: "innerHTML",
         });

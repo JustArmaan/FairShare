@@ -1,6 +1,6 @@
 import type { getItemsForUser } from "../../../services/plaid.service";
 import type { ExtractFunctionReturnType } from "../../../services/user.service";
-import { InstitutionList } from "./components/InstitutionList";
+import { InstitutionItem } from "./components/InstitutionItem";
 
 export type Info = ExtractFunctionReturnType<typeof getItemsForUser>;
 export const InstitutionsPage = (props: { edit?: boolean; info: Info }) => {
@@ -10,10 +10,11 @@ export const InstitutionsPage = (props: { edit?: boolean; info: Info }) => {
         <h2 class="text-2xl text-font-off-white">Institutions</h2>
         {props.edit ? (
           <button
-            hx-get="/home/institutionPicker"
+            hx-get="/institutions/page"
             hx-target="#app"
             hx-trigger="click"
             hx-swap="innerHTML"
+            class="hover:opacity-80 cursor-pointer"
           >
             <div class="cursor-pointer h-full text-font-off-white">
               <svg
@@ -32,11 +33,11 @@ export const InstitutionsPage = (props: { edit?: boolean; info: Info }) => {
           </button>
         ) : (
           <button
-            hx-get="/home/institutions/edit"
+            hx-get="/institutions/edit"
             hx-target="#app"
             hx-swap="innerHTML"
             hx-trigger="click"
-            // class={props.institution.length === 0 ? 'hidden' : ''}
+            class={`hover:opacity-80 cursor-pointer ${props.info.length === 0 ? "hidden" : ""}`}
           >
             <img class="h-5" src="/icons/modify.svg" alt="modify icon" />
           </button>
@@ -48,9 +49,7 @@ export const InstitutionsPage = (props: { edit?: boolean; info: Info }) => {
         </p>
       )}
       {props.info.map((item) => (
-        <>
-          <InstitutionList info={item} edit={props.edit} />
-        </>
+        <InstitutionItem info={item} edit={props.edit} />
       ))}
       <div class="flex flex-col text-font-off-white font-semibold text-lg mt-8 justify-center items-center">
         <button
