@@ -2,9 +2,9 @@ import {
   addAccount,
   addPlaidAccount,
   getAccount,
-} from '../../services/account.service';
-import { getAccountTypeIdByName } from '../../services/accountType.service';
-import { getCategoryIdByName } from '../../services/category.service';
+} from "../../services/account.service";
+import { getAccountTypeIdByName } from "../../services/accountType.service";
+import { getCategoryIdByName } from "../../services/category.service";
 import {
   createTransactions,
   deleteTransactions,

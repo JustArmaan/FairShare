@@ -19,11 +19,7 @@ import {
 } from "../../../integrations/vopay/transfer";
 import { getGroupTransferByTransactionId } from "../../../services/plaid.transfer.service";
 import { createNotificationWithWebsocket } from "../../../utils/createNotification";
-import {
-  getGroupByOwedId,
-  getGroupWithMembers,
-} from "../../../services/group.service";
-import { getOwed } from "../../../services/owed.service";
+import { getGroupByOwedId } from "../../../services/group.service";
 
 const router = Router();
 
@@ -115,7 +111,7 @@ router.get("/plaid-token", async (req, res) => {
 
 router.post("/plaid-public-token", async (req, res) => {
   if (!req.user) {
-    return res.json({
+    return res.status(403).json({
       error: "Not logged in.",
       data: null,
     });
@@ -123,13 +119,19 @@ router.post("/plaid-public-token", async (req, res) => {
 
   const { publicToken } = req.body;
   if (!publicToken) {
-    return res.json({ error: "Missing public token.", data: null });
+    return res.status(400).json({ error: "Missing public token.", data: null });
   }
 
   try {
     const { access_token, item_id } = await getAccessToken(
       publicToken as string
     );
+
+    const existingItemResults = await getItemsForUser(req.user.id);
+    if (existingItemResults.some((result) => result.item.id === item_id)) {
+      return res.json({ error: "Institution already connected.", data: null });
+    }
+
     const name = await getInstitutionName(access_token);
     console.log(name, "institution name!");
     await addItemToUser(req.user.id, {

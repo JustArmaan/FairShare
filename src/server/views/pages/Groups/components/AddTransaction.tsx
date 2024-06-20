@@ -30,8 +30,8 @@ export const AddTransaction = (props: {
         id="modal-bg"
         class="fixed inset-0 bg-primary-black bg-opacity-40 z-10 hidden"
       ></div>
-      <div class='flex justify-between'>
-        <div class='hidden rotate-90'></div>
+      <div class="flex justify-between">
+        <div class="hidden rotate-90"></div>
         <div
           hx-get={`/groups/accountPicker/${props.accounts.find((account) => account.id === props.selectedAccountId)!.itemId}/${props.selectedAccountId}/${props.groupId}`}
           hx-target=".account-selector-form"
@@ -46,15 +46,15 @@ export const AddTransaction = (props: {
           />
         </div>
         <div class="flex justify-between">
-        <button
-          class={`rounded-2xl py-3 px-4 bg-accent-blue text-font-off-white`}
-          hx-get={`/transactions/createTransaction/${props.groupId}`}
-          hx-swap="innerHTML"
-          hx-target="#app"
-        >
-          <span class="text-base font-semibold">Add transaction</span>
-        </button>
-      </div>
+          <button
+            class={`rounded-2xl py-3 px-4 bg-accent-blue text-font-off-white`}
+            hx-get={`/transactions/createTransaction/${props.groupId}`}
+            hx-swap="innerHTML"
+            hx-target="#app"
+          >
+            <span class="text-base font-semibold">Add transaction</span>
+          </button>
+        </div>
       </div>
       <div
         id="errorContainer"

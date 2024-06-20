@@ -37,13 +37,19 @@ import {
   createOwed,
   getAllOwedForGroupTransaction,
 } from "../services/owed.service";
-import { getAccountTypeIdByName , getAccountTypeById} from "../services/accountType.service";
-import { addAccount, getAccount, getAccountWithItem } from "../services/account.service";
+import {
+  getAccountTypeIdByName,
+  getAccountTypeById,
+} from "../services/accountType.service";
+import {
+  addAccount,
+  getAccount,
+  getAccountWithItem,
+} from "../services/account.service";
 import { CreateTransaction } from "../views/pages/Groups/components/ManualAdd";
 import { findUser } from "../services/user.service";
-import { v4 as uuid} from "uuid";
+import { v4 as uuid } from "uuid";
 const router = express.Router();
-
 
 router.get("/accountPicker/:itemId/:accountId", getUser, async (req, res) => {
   const accounts = await getAccountsForUser(req.user!.id, req.params.itemId);
@@ -336,11 +342,16 @@ router.post("/createTransaction/:groupId", async (req, res) => {
     const accountId = account ? account[0].id : "";
 
     const getCashAccount = await getCashAccountForUser(id);
-    console.log(getCashAccount)
+    console.log(getCashAccount);
 
     if (!getCashAccount) {
-      const accountType = await getAccountTypeIdByName('cash');
-      const newAccount = await addAccount({ id: uuid() ,name: "Cash Account", accountTypeId: accountType!.id, currencyCodeId: null });
+      const accountType = await getAccountTypeIdByName("cash");
+      const newAccount = await addAccount({
+        id: uuid(),
+        name: "Cash Account",
+        accountTypeId: accountType!.id,
+        currencyCodeId: null,
+      });
       await createCashAccount({ userId: id, account_id: newAccount!.id });
     }
 

@@ -11,8 +11,8 @@ import { accounts } from "../database/schema/accounts.ts";
 import { categories } from "../database/schema/category.ts";
 import { getAccountTypeById } from "./accountType.service.ts";
 import { getAccount } from "./account.service.ts";
-import { plaidAccount } from '../database/schema/plaidAccount.ts';
-import { cashAccount } from '../database/schema/cashAccount.ts';
+import { plaidAccount } from "../database/schema/plaidAccount.ts";
+import { cashAccount } from "../database/schema/cashAccount.ts";
 
 const db = getDB();
 
@@ -47,10 +47,22 @@ export const addItemToUser = async (
 
 export async function getItem(id: string) {
   try {
-    const result = await db.select({ items: items }).from(items).innerJoin(plaidAccount, eq(items.id, plaidAccount.itemId)).where(eq(items.id, id));
+    const result = await db
+      .select({ items: items })
+      .from(items)
+      .innerJoin(plaidAccount, eq(items.id, plaidAccount.itemId))
+      .where(eq(items.id, id));
     return result[0].items;
   } catch (error) {
-    console.error(error);
+    console.error(error, "at getItem");
+  }
+}
+
+export async function deleteItem(itemId: string) {
+  try {
+    await db.delete(items).where(eq(items.id, itemId));
+  } catch (e) {
+    console.error(e, "at deleteItem");
   }
 }
 
@@ -111,7 +123,7 @@ export async function getCashAccountForUser(userId: string) {
       .where(eq(cashAccount.userId, userId));
     return results.map((result) => result)[0];
   } catch (e) {
-    console.error(e, 'in getCashAccountForUser');
+    console.error(e, "in getCashAccountForUser");
   }
 }
 
@@ -167,8 +179,7 @@ export async function getCashAccountWithTransaction(accountId: string) {
       .innerJoin(transactions, eq(accounts.id, transactions.accountId))
       .innerJoin(categories, eq(transactions.categoryId, categories.id))
       .innerJoin(cashAccount, eq(accounts.id, cashAccount.account_id))
-      .where(eq(accounts.id, accountId))
-    console.log(result, 'result')
+      .where(eq(accounts.id, accountId));
     return {
       ...result[0].account,
       transactions: result.map((result) => ({

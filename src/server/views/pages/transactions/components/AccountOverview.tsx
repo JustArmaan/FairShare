@@ -1,4 +1,7 @@
-import type { AccountWithTransactions, getCashAccountWithTransaction } from '../../../../services/plaid.service';
+import type {
+  AccountWithTransactions,
+  getCashAccountWithTransaction,
+} from "../../../../services/plaid.service";
 import {
   generatePathStyles,
   mapTransactionsToCategories,
@@ -91,7 +94,6 @@ export const AccountOverview = ({
                 </button>
               </div>
             </>
-        
           ) : (
             <p class="text-xl font-semibold">No transactions to show</p>
           )}

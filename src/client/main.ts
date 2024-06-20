@@ -1,15 +1,15 @@
-import { main } from './group';
-import { CustomizeMap } from './map/customizeMap';
-import { setupSocketListener } from './socket.io/socket.io';
-import { splitTransfer } from './splitTransfer/splitTransfer';
+import { main } from "./group";
+import { CustomizeMap } from "./map/customizeMap";
+import { setupSocketListener } from "./socket.io/socket.io";
+import { splitTransfer } from "./splitTransfer/splitTransfer";
 
 main();
 splitTransfer();
 setupSocketListener();
 
-document.body.addEventListener('htmx:afterSwap', (event) => {
+document.body.addEventListener("htmx:afterSwap", (event) => {
   if (!(event.target instanceof HTMLElement)) return;
-  const excludeListId = new Set(['institutionSelector']);
+  const excludeListId = new Set(["institutionSelector"]);
   if (excludeListId.has(event.target.id)) return;
   window.scrollTo({ top: 0 });
 });
@@ -30,7 +30,7 @@ async function getToken() {
         resolve(public_token);
       },
       onLoad: () => {
-        console.log('loaded');
+        console.log("loaded");
       },
       onExit: (err: any | null, metadata: any) => {
         if (err) reject(err);
@@ -65,20 +65,44 @@ async function hasAccounts(): Promise<boolean> {
   return data.connected;
 }
 
+async function addNewInstitution() {
+  try {
+    const publicToken = await getToken();
+    const response = await fetch(`/api/v${apiVersion}/plaid-public-token`, {
+      method: "POST",
+      body: JSON.stringify({ publicToken }),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    if (response.status === 200) {
+      console.log("Token pushed succesfully");
+      const response = await fetch(`/api/v${apiVersion}/sync`);
+      if (response.status === 200) {
+        // run htmx ajax call to fetch new institution
+      }
+    } else {
+      console.log((await response.json()).error);
+    }
+  } catch (error) {
+    console.log(error);
+  }
+}
+
 async function runLinkSetup() {
   try {
     const connected = await isConnectedToPlaid();
     if (!connected) {
       const publicToken = await getToken();
       const response = await fetch(`/api/v${apiVersion}/plaid-public-token`, {
-        method: 'POST',
+        method: "POST",
         body: JSON.stringify({ publicToken }),
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
       });
       if (response.status === 200) {
-        console.log('Token pushed succesfully');
+        console.log("Token pushed succesfully");
         const response = await fetch(`/api/v${apiVersion}/sync`);
         if (response.status === 200) {
           setInterval(async () => {
@@ -96,53 +120,56 @@ async function runLinkSetup() {
 async function initMap() {
   try {
     const transactionId = document
-      .getElementById('transaction-id')
-      ?.getAttribute('data-transactionId');
+      .getElementById("transaction-id")
+      ?.getAttribute("data-transactionId");
 
     const response = await fetch(`/transactions/location/${transactionId}`);
     if (!response.ok) {
-      throw new Error('Failed to fetch transaction location');
+      throw new Error("Failed to fetch transaction location");
     }
 
     const { lat, lng } = await response.json();
 
-    let customMap = new CustomizeMap('map', new google.maps.LatLng(lat, lng));
+    // @ts-ignore
+    let customMap = new CustomizeMap("map", new google.maps.LatLng(lat, lng));
     customMap.addTransactionMarker();
   } catch (error) {
-    console.error('Error initializing map:', error);
+    console.error("Error initializing map:", error);
   }
 }
 
 function attachButton(event: Event) {
   if (event.currentTarget instanceof HTMLButtonElement) {
-    if (event.currentTarget.innerText !== 'Loading...') {
+    if (event.currentTarget.innerText === "Add a new institution") {
+      addNewInstitution();
+    } else if (event.currentTarget.innerText !== "Loading...") {
       runLinkSetup();
-      event.currentTarget.innerText = 'Loading...';
+      event.currentTarget.innerText = "Loading...";
     }
   }
 }
 
-document.addEventListener('htmx:afterSwap', () => {
-  const dateSelectorForm = document.getElementById('date-selector-form');
-  const filterSelector = document.getElementById('filter-selector');
+document.addEventListener("htmx:afterSwap", () => {
+  const dateSelectorForm = document.getElementById("date-selector-form");
+  const filterSelector = document.getElementById("filter-selector");
 
   if (filterSelector && !filterSelector.dataset.listenerAttached) {
-    filterSelector?.addEventListener('click', () => {
-      dateSelectorForm?.classList.toggle('hidden');
+    filterSelector?.addEventListener("click", () => {
+      dateSelectorForm?.classList.toggle("hidden");
     });
-    filterSelector.dataset.listenerAttached = 'true';
+    filterSelector.dataset.listenerAttached = "true";
   }
 
-  const connectButton = document.querySelector('#connect-to-plaid');
+  const connectButton = document.querySelector("#connect-to-plaid");
   if (connectButton && connectButton instanceof HTMLElement) {
-    connectButton.addEventListener('click', attachButton);
+    connectButton.addEventListener("click", attachButton);
   }
 });
 
-document.addEventListener('htmx:beforeSwap', () => {
-  const connectButton = document.querySelector('#connect-to-plaid');
+document.addEventListener("htmx:beforeSwap", () => {
+  const connectButton = document.querySelector("#connect-to-plaid");
   if (connectButton && connectButton instanceof HTMLElement) {
-    connectButton.removeEventListener('click', attachButton);
+    connectButton.removeEventListener("click", attachButton);
   }
 });
 
