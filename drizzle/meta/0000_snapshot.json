@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "35d85c69-1671-4bb0-9f26-249499614be9",
+  "id": "34b4b98b-7ef2-4ed8-89da-4a3590062025",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "accounts": {
@@ -21,23 +21,9 @@
           "notNull": true,
           "autoincrement": false
         },
-        "item_id": {
-          "name": "item_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
         "account_type_id": {
           "name": "account_type_id",
           "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "balance": {
-          "name": "balance",
-          "type": "numeric",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
@@ -48,30 +34,10 @@
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
-        },
-        "legal_name": {
-          "name": "legal_name",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
         }
       },
       "indexes": {},
       "foreignKeys": {
-        "accounts_item_id_items_id_fk": {
-          "name": "accounts_item_id_items_id_fk",
-          "tableFrom": "accounts",
-          "tableTo": "items",
-          "columnsFrom": [
-            "item_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
         "accounts_account_type_id_account_type_id_fk": {
           "name": "accounts_account_type_id_account_type_id_fk",
           "tableFrom": "accounts",
@@ -122,6 +88,63 @@
       },
       "indexes": {},
       "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "cashAccount": {
+      "name": "cashAccount",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "account_id": {
+          "name": "account_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "userId": {
+          "name": "userId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "cashAccount_account_id_accounts_id_fk": {
+          "name": "cashAccount_account_id_accounts_id_fk",
+          "tableFrom": "cashAccount",
+          "tableTo": "accounts",
+          "columnsFrom": [
+            "account_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "cashAccount_userId_users_id_fk": {
+          "name": "cashAccount_userId_users_id_fk",
+          "tableFrom": "cashAccount",
+          "tableTo": "users",
+          "columnsFrom": [
+            "userId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
@@ -357,7 +380,7 @@
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
+          "onDelete": "cascade",
           "onUpdate": "no action"
         }
       },
@@ -395,15 +418,15 @@
           "notNull": true,
           "autoincrement": false
         },
-        "sender_account_id": {
-          "name": "sender_account_id",
+        "sender_user_id": {
+          "name": "sender_user_id",
           "type": "text",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
-        "receiver_account_id": {
-          "name": "receiver_account_id",
+        "receiver_user_id": {
+          "name": "receiver_user_id",
           "type": "text",
           "primaryKey": false,
           "notNull": true,
@@ -434,7 +457,21 @@
           "name": "receiver_initiated_timestamp",
           "type": "text",
           "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "sender_vopay_transfer_id": {
+          "name": "sender_vopay_transfer_id",
+          "type": "text",
+          "primaryKey": false,
           "notNull": true,
+          "autoincrement": false
+        },
+        "receiver_vopay_transfer_id": {
+          "name": "receiver_vopay_transfer_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
           "autoincrement": false
         }
       },
@@ -479,12 +516,12 @@
           "onDelete": "no action",
           "onUpdate": "no action"
         },
-        "groupTransfer_sender_account_id_accounts_id_fk": {
-          "name": "groupTransfer_sender_account_id_accounts_id_fk",
+        "groupTransfer_sender_user_id_users_id_fk": {
+          "name": "groupTransfer_sender_user_id_users_id_fk",
           "tableFrom": "groupTransfer",
-          "tableTo": "accounts",
+          "tableTo": "users",
           "columnsFrom": [
-            "sender_account_id"
+            "sender_user_id"
           ],
           "columnsTo": [
             "id"
@@ -492,12 +529,12 @@
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
-        "groupTransfer_receiver_account_id_accounts_id_fk": {
-          "name": "groupTransfer_receiver_account_id_accounts_id_fk",
+        "groupTransfer_receiver_user_id_users_id_fk": {
+          "name": "groupTransfer_receiver_user_id_users_id_fk",
           "tableFrom": "groupTransfer",
-          "tableTo": "accounts",
+          "tableTo": "users",
           "columnsFrom": [
-            "receiver_account_id"
+            "receiver_user_id"
           ],
           "columnsTo": [
             "id"
@@ -553,7 +590,7 @@
           "name": "institution_name",
           "type": "text",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "autoincrement": false
         },
         "user_id": {
@@ -565,6 +602,13 @@
         },
         "next_cursor": {
           "name": "next_cursor",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "logo": {
+          "name": "logo",
           "type": "text",
           "primaryKey": false,
           "notNull": false,
@@ -643,6 +687,13 @@
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
+        },
+        "route": {
+          "name": "route",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
         }
       },
       "indexes": {},
@@ -653,6 +704,110 @@
           "tableTo": "usersToGroups",
           "columnsFrom": [
             "fk_user_group_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "plaidAccount": {
+      "name": "plaidAccount",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "balance": {
+          "name": "balance",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "currency_code_id": {
+          "name": "currency_code_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "account_type_id": {
+          "name": "account_type_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "item_id": {
+          "name": "item_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "accounts_id": {
+          "name": "accounts_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "plaidAccount_currency_code_id_currency_code_id_fk": {
+          "name": "plaidAccount_currency_code_id_currency_code_id_fk",
+          "tableFrom": "plaidAccount",
+          "tableTo": "currency_code",
+          "columnsFrom": [
+            "currency_code_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "plaidAccount_account_type_id_account_type_id_fk": {
+          "name": "plaidAccount_account_type_id_account_type_id_fk",
+          "tableFrom": "plaidAccount",
+          "tableTo": "account_type",
+          "columnsFrom": [
+            "account_type_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "plaidAccount_item_id_items_id_fk": {
+          "name": "plaidAccount_item_id_items_id_fk",
+          "tableFrom": "plaidAccount",
+          "tableTo": "items",
+          "columnsFrom": [
+            "item_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "plaidAccount_accounts_id_accounts_id_fk": {
+          "name": "plaidAccount_accounts_id_accounts_id_fk",
+          "tableFrom": "plaidAccount",
+          "tableTo": "accounts",
+          "columnsFrom": [
+            "accounts_id"
           ],
           "columnsTo": [
             "id"

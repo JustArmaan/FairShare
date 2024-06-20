@@ -2,39 +2,39 @@ import {
   createKindeServerClient,
   GrantType,
   type SessionManager,
-} from '@kinde-oss/kinde-typescript-sdk';
-import { env } from '../../../env';
+} from "@kinde-oss/kinde-typescript-sdk";
+import { env } from "../../../env";
 import express, {
   type Request,
   type Response,
   type NextFunction,
-} from 'express';
-import { createUser, findUser } from '../services/user.service';
-import { faker } from '@faker-js/faker';
+} from "express";
+import { createUser, findUser } from "../services/user.service";
+import { faker } from "@faker-js/faker";
 
 const colors = [
-  'accent-blue',
-  'accent-purple',
-  'accent-red',
-  'accent-yellow',
-  'accent-green',
-  'category-color-0',
-  'category-color-1',
-  'category-color-2',
-  'category-color-3',
-  'category-color-4',
-  'category-color-5',
-  'category-color-6',
-  'category-color-7',
-  'category-color-8',
-  'category-color-9',
-  'category-color-10',
-  'category-color-11',
-  'category-color-12',
-  'category-color-13',
-  'category-color-14',
-  'category-color-15',
-  'category-color-16',
+  "accent-blue",
+  "accent-purple",
+  "accent-red",
+  "accent-yellow",
+  "accent-green",
+  "category-color-0",
+  "category-color-1",
+  "category-color-2",
+  "category-color-3",
+  "category-color-4",
+  "category-color-5",
+  "category-color-6",
+  "category-color-7",
+  "category-color-8",
+  "category-color-9",
+  "category-color-10",
+  "category-color-11",
+  "category-color-12",
+  "category-color-13",
+  "category-color-14",
+  "category-color-15",
+  "category-color-16",
 ];
 
 const router = express.Router();
@@ -54,7 +54,7 @@ const cookieOptions = {
   maxAge: 24 * 60 * 60 * 1000,
   httpOnly: true,
   secure: true,
-  sameSite: 'lax',
+  sameSite: "lax",
 } as const;
 
 export const sessionManager = (
@@ -62,71 +62,71 @@ export const sessionManager = (
   res?: Response
 ): SessionManager => ({
   async getSessionItem(key: string) {
-    if (req.cookies[key] && req.cookies[key] !== '') return req.cookies[key];
+    if (req.cookies[key] && req.cookies[key] !== "") return req.cookies[key];
     return undefined;
   },
   async setSessionItem(key: string, value: unknown) {
-    if (!res) throw new Error('cannot set session without valid res');
-    if (typeof value === 'string') {
+    if (!res) throw new Error("cannot set session without valid res");
+    if (typeof value === "string") {
       res.cookie(key, value, cookieOptions);
     } else {
       res.cookie(key, JSON.stringify(value), cookieOptions);
     }
   },
   async removeSessionItem(key: string) {
-    if (!res) throw new Error('cannot operate on session without valid res');
-    console.log('clearing cookie', key);
+    if (!res) throw new Error("cannot operate on session without valid res");
+    console.log("clearing cookie", key);
     res.clearCookie(key, cookieOptions);
   },
   async destroySession() {
-    if (!res) throw new Error('cannot operate on session without valid res');
+    if (!res) throw new Error("cannot operate on session without valid res");
     [
-      'ac-state-key',
-      'id_token',
-      'access_token',
-      'user',
-      'refresh_token',
+      "ac-state-key",
+      "id_token",
+      "access_token",
+      "user",
+      "refresh_token",
     ].forEach((key) => {
-      console.log('clearing cookies', key);
+      console.log("clearing cookies", key);
       res.clearCookie(key, cookieOptions);
     });
   },
 });
 
-router.get('/login', async (req, res) => {
+router.get("/login", async (req, res) => {
   const loginUrl = await kindeClient.login(sessionManager(req, res));
   return res.redirect(loginUrl.toString());
 });
 
-router.get('/register', async (req, res) => {
+router.get("/register", async (req, res) => {
   const registerUrl = await kindeClient.register(sessionManager(req, res));
   return res.redirect(registerUrl.toString());
 });
 
-router.get('/logout', async (req, res) => {
+router.get("/logout", async (req, res) => {
   const logoutUrl = await kindeClient.logout(sessionManager(req, res));
   return res.redirect(logoutUrl.toString());
 });
 
-router.get('/callback', async (req, res) => {
-  const url = new URL(`${req.protocol}://${req.get('host')}${req.url}`);
+router.get("/callback", async (req, res) => {
+  const url = new URL(`${req.protocol}://${req.get("host")}${req.url}`);
   await kindeClient.handleRedirectToApp(sessionManager(req, res), url);
-  return res.redirect('/');
+  return res.redirect("/");
 });
 
 export async function getUser(req: Request, res: Response, next: NextFunction) {
   if (
-    req.get('host')?.includes('render') &&
-    !req.get('host')?.includes('localhost')
+    req.get("host")?.includes("render") &&
+    !req.get("host")?.includes("localhost")
   ) {
-    console.log('redirect');
-    return res.redirect('https://myfairshare.ca');
+    console.log("redirect");
+    return res.redirect("https://myfairshare.ca");
   }
   try {
     const isAuthenticated = await kindeClient.isAuthenticated(
       sessionManager(req, res)
     );
-    if (isAuthenticated && !req.url.includes('logout')) {
+    if (isAuthenticated && !req.url.includes("logout")) {
       const profile = await kindeClient.getUserProfile(
         sessionManager(req, res)
       );
@@ -145,27 +145,27 @@ export async function getUser(req: Request, res: Response, next: NextFunction) {
           color: faker.helpers.arrayElement(colors),
         });
         // await seedFakeTransactions(id, 20);
-        if (!(await findUser(id))) throw new Error('failed to create user');
+        if (!(await findUser(id))) throw new Error("failed to create user");
         next();
       } else {
         req.user = user;
         next();
       }
     } else {
-      if (req.url.includes('auth')) return next();
+      if (req.url.includes("auth")) return next();
       if (
-        req.url === '/' ||
-        req.url.includes('onboard') ||
-        req.url.includes('images') ||
-        req.url.endsWith('.svg') ||
-        req.url.endsWith('.png') ||
-        req.url.endsWith('.css') ||
-        req.url.endsWith('client') ||
-        req.url.endsWith('sync') ||
-        req.url.endsWith('vopay-transactions-webhook')
+        req.url === "/" ||
+        req.url.includes("onboard") ||
+        req.url.includes("images") ||
+        req.url.endsWith(".svg") ||
+        req.url.endsWith(".png") ||
+        req.url.endsWith(".css") ||
+        req.url.endsWith("client") ||
+        req.url.endsWith("sync") ||
+        req.url.endsWith("vopay-transactions-webhook")
       )
         return next();
-      res.redirect('/');
+      res.redirect("/");
     }
   } catch (e) {
     console.error(e);

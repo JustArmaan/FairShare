@@ -14,6 +14,8 @@ import http from 'http';
 import { Server } from 'socket.io';
 import { setupSocketConnectionListener } from './websockets/connection';
 const PORT = process.env.PORT || 3000;
+import { NotFound } from './views/components/NotFound';
+import { renderToHtml } from 'jsxte';
 
 const app = express();
 const server = http.createServer(app);
@@ -41,6 +43,10 @@ const runningServer = server.listen(PORT as number, () => {
 
 ViteExpress.bind(app, runningServer);
 
+app.get('/notfound',(req, res) => {
+  const html = renderToHtml(<NotFound />);
+  res.status(404).send(html);
+});
 /*
 ViteExpress.listen(app, PORT as number, () =>
   console.log(`Server is running on port ${PORT}...`)

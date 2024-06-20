@@ -65,15 +65,27 @@ export const OwedGroup = ({
                     </span>
                   </p>
                   <div class="flex flex-row justify-center text-font-off-white">
-                    <button
-                      hx-swap="innerHTML"
-                      hx-get={`/groups/pay/${result.groupTransactionToUsersToGroupsId}/${groupId}`}
-                      hx-target="#app"
-                      hx-push-url={`/groups/pay/${result.groupTransactionToUsersToGroupsId}/${groupId}`}
-                      class="hover:-translate-y-0.5 rotate-[0.0001deg] transition-transform font-semibold px-12 py-2.5 bg-accent-blue rounded-xl h-fit"
-                    >
-                      {result.amount > 0 ? "View Details" : "View and Pay"}
-                    </button>
+                    {result.amount > 0 ? (
+                      <button
+                        hx-swap="innerHTML"
+                        hx-get={`/groups/details/${result.groupTransactionToUsersToGroupsId}/${groupId}`}
+                        hx-push-url={`/groups/details/${result.groupTransactionToUsersToGroupsId}/${groupId}`}
+                        hx-target="#app"
+                        class="hover:-translate-y-0.5 rotate-[0.0001deg] transition-transform font-semibold px-12 py-2.5 bg-accent-blue rounded-xl h-fit"
+                      >
+                        View Details
+                      </button>
+                    ) : (
+                      <button
+                        hx-swap="innerHTML"
+                        hx-get={`/groups/pay/${result.groupTransactionToUsersToGroupsId}/${groupId}`}
+                        hx-target="#app"
+                        hx-push-url={`/groups/pay/${result.groupTransactionToUsersToGroupsId}/${groupId}`}
+                        class="hover:-translate-y-0.5 rotate-[0.0001deg] transition-transform font-semibold px-12 py-2.5 bg-accent-blue rounded-xl h-fit"
+                      >
+                        View and Pay
+                      </button>
+                    )}
                   </div>
                 </div>
                 {index !== transactions.length - 1 && (
