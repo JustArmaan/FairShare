@@ -9,11 +9,11 @@ export const Nav = () => {
         <li class="group w-1/6">
           <a
             class="parent hover:child-hidden flex flex-col items-center text-font-off-white dark:text-white group-hover:text-accent-yellow"
-            hx-get="/home/page"
+            hx-get="/home/page/default"
             hx-target="#app"
             hx-trigger="click"
             hx-swap="innerHTML"
-            hx-push-url="/home/page"
+            hx-push-url="/home/page/default"
           >
             <img
               id="homeIconInactive"

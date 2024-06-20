@@ -1,38 +1,38 @@
-import { Router } from 'express';
-import { getAccessToken, getLinkToken } from '../../../integrations/plaid/link';
+import { Router } from "express";
+import {
+  getAccessToken,
+  getInstitutionDetails,
+  getLinkToken,
+} from "../../../integrations/plaid/link";
 import {
   addItemToUser,
   getAccountsForUser,
   getItemsForUser,
-} from '../../../services/plaid.service';
-import { syncTransactionsForUser } from '../../../integrations/plaid/sync';
-import { findUser, getUserByItemId } from '../../../services/user.service';
-import crypto from 'crypto';
-import { env } from '../../../../../env';
+} from "../../../services/plaid.service";
+import { syncTransactionsForUser } from "../../../integrations/plaid/sync";
+import { findUser, getUserByItemId } from "../../../services/user.service";
+import crypto from "crypto";
+import { env } from "../../../../../env";
 import {
   completeTransfer,
   createTransferForReceiver,
-} from '../../../integrations/vopay/transfer';
-import { getGroupTransferByTransactionId } from '../../../services/plaid.transfer.service';
-import { createNotificationWithWebsocket } from '../../../utils/createNotification';
-import {
-  getGroupByOwedId,
-  getGroupWithMembers,
-} from '../../../services/group.service';
-import { getOwed } from '../../../services/owed.service';
+} from "../../../integrations/vopay/transfer";
+import { getGroupTransferByTransactionId } from "../../../services/plaid.transfer.service";
+import { createNotificationWithWebsocket } from "../../../utils/createNotification";
+import { getGroupByOwedId } from "../../../services/group.service";
 
 const router = Router();
 
-router.get('/connected', async (req, res) => {
+router.get("/connected", async (req, res) => {
   if (!req.user) {
     return res.json({
-      error: 'Not logged in.',
+      error: "Not logged in.",
       data: null,
     });
   }
 
   const items = await getItemsForUser(req.user.id);
-  console.log(items, 'itmes connected');
+  console.log(items, "itmes connected");
   const connected = items.length > 0;
   return res.json({
     error: null,
@@ -40,22 +40,25 @@ router.get('/connected', async (req, res) => {
   });
 });
 
-router.get('/has-accounts', async (req, res) => {
+router.get("/has-accounts", async (req, res) => {
   if (!req.user) {
     return res.json({
-      error: 'Not logged in.',
+      error: "Not logged in.",
       data: null,
     });
   }
 
-  const accounts = await getAccountsForUser(req.user.id);
+  const items = await getItemsForUser(req.user.id);
+  const accounts = items[0]
+    ? await getAccountsForUser(req.user.id, items[0].item.id)
+    : [];
   const connected = accounts && accounts.length > 0;
   return res
     .set({
-      'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
-      Pragma: 'no-cache',
-      Expires: '0',
-      'Surrogate-Control': 'no-store',
+      "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate",
+      Pragma: "no-cache",
+      Expires: "0",
+      "Surrogate-Control": "no-store",
     })
     .json({
       error: null,
@@ -63,26 +66,26 @@ router.get('/has-accounts', async (req, res) => {
     });
 });
 
-router.post('/sync', async (req, res) => {
+router.post("/sync", async (req, res) => {
   const { item_id } = req.body as { [key: string]: string };
   if (
-    req.body.webhook_code === 'SYNC_UPDATES_AVAILABLE' ||
-    req.body.webhook_code === 'DEFAULT_UPDATE' ||
-    req.body.webhook_code === 'NEW_ACCOUNTS_AVAILABLE'
+    req.body.webhook_code === "SYNC_UPDATES_AVAILABLE" ||
+    req.body.webhook_code === "DEFAULT_UPDATE" ||
+    req.body.webhook_code === "NEW_ACCOUNTS_AVAILABLE"
   ) {
     if (!item_id) return res.status(400).send();
     const { id } = (await getUserByItemId(item_id))!;
     await syncTransactionsForUser(id);
 
-    console.log('synced up');
+    console.log("synced up");
   }
   return res.status(200).send();
 });
 
-router.get('/sync', async (req, res) => {
+router.get("/sync", async (req, res) => {
   if (!req.user) {
     return res.json({
-      error: 'Not logged in.',
+      error: "Not logged in.",
       data: null,
     });
   }
@@ -91,10 +94,10 @@ router.get('/sync', async (req, res) => {
   return res.status(200).send();
 });
 
-router.get('/plaid-token', async (req, res) => {
+router.get("/plaid-token", async (req, res) => {
   if (!req.user) {
     return res.json({
-      error: 'Not logged in.',
+      error: "Not logged in.",
       data: null,
     });
   }
@@ -106,41 +109,50 @@ router.get('/plaid-token', async (req, res) => {
   });
 });
 
-router.post('/plaid-public-token', async (req, res) => {
+router.post("/plaid-public-token", async (req, res) => {
   if (!req.user) {
-    return res.json({
-      error: 'Not logged in.',
+    return res.status(403).json({
+      error: "Not logged in.",
       data: null,
     });
   }
 
   const { publicToken } = req.body;
   if (!publicToken) {
-    return res.json({ error: 'Missing public token.', data: null });
+    return res.status(400).json({ error: "Missing public token.", data: null });
   }
 
   try {
     const { access_token, item_id } = await getAccessToken(
       publicToken as string
     );
+
+    const existingItemResults = await getItemsForUser(req.user.id);
+    if (existingItemResults.some((result) => result.item.id === item_id)) {
+      return res.json({ error: "Institution already connected.", data: null });
+    }
+
+    const details = await getInstitutionDetails(access_token);
     await addItemToUser(req.user.id, {
       id: item_id as string,
       plaidAccessToken: access_token,
       nextCursor: null,
-      institutionName: null,
+      institutionName: details.name,
+      logo: details.logo,
     });
-    console.log('added!');
+    console.log("added!");
     res.status(200).send();
   } catch (error) {
-    return res.json({ error: error, data: null });
+    console.error(error);
+    return res.status(500).json({ error: error, data: null });
   }
 });
 
 function calculateKey(apiSharedSecret: string, transactionID: string): string {
   return crypto
-    .createHash('sha1')
+    .createHash("sha1")
     .update(apiSharedSecret + transactionID)
-    .digest('hex');
+    .digest("hex");
 }
 
 /*
@@ -159,8 +171,8 @@ function calculateKey(apiSharedSecret: string, transactionID: string): string {
 }
   */
 
-router.post('/vopay-transactions-webhook', async (req, res) => {
-  console.log('WEBHOOK RECEIVED');
+router.post("/vopay-transactions-webhook", async (req, res) => {
+  console.log("WEBHOOK RECEIVED");
   console.log(req.body);
   try {
     const payload = req.body as {
@@ -176,8 +188,8 @@ router.post('/vopay-transactions-webhook', async (req, res) => {
     )
       return res.status(404).send(); // simulate an empty route
     if (
-      payload.TransactionType === 'moneyrequest' &&
-      (payload.Status === 'successful')
+      payload.TransactionType === "moneyrequest" &&
+      payload.Status === "successful"
     ) {
       const groupTransfer = (await getGroupTransferByTransactionId(
         payload.TransactionID
@@ -186,8 +198,8 @@ router.post('/vopay-transactions-webhook', async (req, res) => {
         groupTransfer.id,
         groupTransfer.receiverUserId,
         payload.TransactionID,
-        'test question',
-        'test answer'
+        "test question",
+        "test answer"
       );
       const group = await getGroupByOwedId(
         groupTransfer.groupTransactionToUsersToGroupsId
@@ -198,13 +210,13 @@ router.post('/vopay-transactions-webhook', async (req, res) => {
         `${sender!.firstName} has sent you $${payload.TransactionAmount
         }, please check your email for details.`,
         groupTransfer.receiverUserId,
-        'groupInvite'
+        "groupInvite"
       );
     }
 
     if (
-      payload.TransactionType === 'bulkpayout' &&
-      payload.Status === 'successful'
+      payload.TransactionType === "bulkpayout" &&
+      payload.Status === "successful"
     ) {
       const groupTransfer = (await getGroupTransferByTransactionId(
         payload.TransactionID
@@ -222,14 +234,14 @@ router.post('/vopay-transactions-webhook', async (req, res) => {
         `Your transfer to ${receiver!.firstName} of $${payload.TransactionAmount
         } has been completed!`,
         groupTransfer.senderUserId,
-        'groupInvite'
+        "groupInvite"
       );
 
       await createNotificationWithWebsocket(
         group!.id,
         `${sender!.firstName}'s transfer to your account has been completed!`,
         groupTransfer.receiverUserId,
-        'groupInvite'
+        "groupInvite"
       );
     }
   } catch (e) {

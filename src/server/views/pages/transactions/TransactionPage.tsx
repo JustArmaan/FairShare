@@ -35,18 +35,13 @@ export const TransactionsPage = (props: {
       ></div>
       <div class="hidden rotate-90"></div>
       <div
-        hx-get={`/transactions/accountPicker/${props.selectedAccountId}`}
+        hx-get={`/transactions/accountPicker/${props.accounts.find((account) => account.id === props.selectedAccountId)!.itemId}/${props.selectedAccountId}`}
         hx-target=".account-selector-form"
         hx-swap="innerHTML"
         class="mb-2 flex justify-start w-fit items-center hover:-translate-y-0.5 transition-transform cursor-pointer"
       >
         <p class="text-font-off-white mr-3 text-xl">Change Account</p>
-        <img
-          class="h-3"
-          src="/images/right-triangle.svg"
-          alt="triangle icon"
-          id="account-select-image"
-        />
+        <img class="h-3" src="/images/right-triangle.svg" alt="triangle icon" />
       </div>
       <Card
         account={

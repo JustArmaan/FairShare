@@ -1,21 +1,18 @@
-import { getDB } from '../database/client.ts';
-import { v4 as uuidv4 } from 'uuid';
-import { eq } from 'drizzle-orm';
-import { items } from '../database/schema/items.ts';
-import { users } from '../database/schema/users.ts';
-import { currencyCode } from '../database/schema/currencyCode.ts';
-import { type ArrayElement } from '../interface/types.ts';
-import { type ExtractFunctionReturnType } from './user.service.ts';
-import { transactions } from '../database/schema/transaction.ts';
-import { accounts } from '../database/schema/accounts.ts';
-import { categories } from '../database/schema/category.ts';
-import { getAccountTypeById } from './accountType.service.ts';
-import { getAccount } from './account.service.ts';
-import { usersToGroups } from '../database/schema/usersToGroups.ts';
-import { groups } from '../database/schema/group.ts';
-import { groupTransactionToUsersToGroups } from '../database/schema/groupTransactionToUsersToGroups.ts';
-import { groupTransfer } from '../database/schema/groupTransfer.ts';
-import { groupTransferStatus } from '../database/schema/groupTransferStatus.ts';
+import { getDB } from "../database/client.ts";
+import { v4 as uuidv4 } from "uuid";
+import { and, eq } from "drizzle-orm";
+import { items } from "../database/schema/items.ts";
+import { users } from "../database/schema/users.ts";
+import { currencyCode } from "../database/schema/currencyCode.ts";
+import { type ArrayElement } from "../interface/types.ts";
+import { type ExtractFunctionReturnType } from "./user.service.ts";
+import { transactions } from "../database/schema/transaction.ts";
+import { accounts } from "../database/schema/accounts.ts";
+import { categories } from "../database/schema/category.ts";
+import { getAccountTypeById } from "./accountType.service.ts";
+import { getAccount } from "./account.service.ts";
+import { plaidAccount } from "../database/schema/plaidAccount.ts";
+import { cashAccount } from "../database/schema/cashAccount.ts";
 
 const db = getDB();
 
@@ -36,11 +33,11 @@ export const getItemsForUser = async (userId: string) => {
 
 export type Item = ArrayElement<
   ExtractFunctionReturnType<typeof getItemsForUser>
->['item'];
+>["item"];
 
 export const addItemToUser = async (
   userId: string,
-  item: Omit<Omit<Item, 'userId'>, 'institutionId'>
+  item: Omit<Omit<Item, "userId">, "institutionId">
 ) => {
   await db.insert(items).values({
     userId: userId,
@@ -50,10 +47,22 @@ export const addItemToUser = async (
 
 export async function getItem(id: string) {
   try {
-    const result = await db.select().from(items).where(eq(items.id, id));
-    return result[0];
+    const result = await db
+      .select({ items: items })
+      .from(items)
+      .innerJoin(plaidAccount, eq(items.id, plaidAccount.itemId))
+      .where(eq(items.id, id));
+    return result[0].items;
   } catch (error) {
-    console.error(error);
+    console.error(error, "at getItem");
+  }
+}
+
+export async function deleteItem(itemId: string) {
+  try {
+    await db.delete(items).where(eq(items.id, itemId));
+  } catch (e) {
+    console.error(e, "at deleteItem");
   }
 }
 
@@ -67,7 +76,7 @@ export async function createCurrencyCode(code: string) {
 
 export async function updateItem(
   itemId: string,
-  item: Partial<Omit<Item, 'id'>>
+  item: Partial<Omit<Item, "id">>
 ) {
   await db.update(items).set(item).where(eq(items.id, itemId));
 }
@@ -88,17 +97,33 @@ export type AccountSchema = ArrayElement<
   ExtractFunctionReturnType<typeof getAccountsForUser>
 >;
 
-export async function getAccountsForUser(userId: string) {
+export async function getAccountsForUser(userId: string, itemId: string) {
   try {
     const results = await db
       .select({ accounts })
       .from(accounts)
-      .innerJoin(items, eq(accounts.itemId, items.id))
-      .where(eq(items.userId, userId));
+      .innerJoin(plaidAccount, eq(accounts.id, plaidAccount.accountsId))
+      .innerJoin(items, eq(plaidAccount.itemId, items.id))
+      .where(and(eq(items.id, itemId), eq(items.userId, userId)));
     return results.map((result) => result.accounts);
   } catch (e) {
-    console.error(e, 'at getAccountsForUser');
+    console.error(e, "at getAccountsForUser");
     return null;
+  }
+}
+
+export async function getCashAccountForUser(userId: string) {
+  try {
+    const results = await db
+      .select({ account: accounts, transactions: transactions })
+      .from(accounts)
+      .innerJoin(cashAccount, eq(accounts.id, cashAccount.account_id))
+      .innerJoin(users, eq(cashAccount.userId, users.id))
+      .innerJoin(transactions, eq(accounts.id, transactions.accountId))
+      .where(eq(cashAccount.userId, userId));
+    return results.map((result) => result)[0];
+  } catch (e) {
+    console.error(e, "in getCashAccountForUser");
   }
 }
 
@@ -122,7 +147,6 @@ export async function getAccountWithTransactions(accountId: string) {
       .where(eq(accounts.id, accountId));
 
     const account = await getAccount(accountId);
-
     if (!account) return null;
 
     const accountType = account.accountTypeId
@@ -138,7 +162,32 @@ export async function getAccountWithTransactions(accountId: string) {
       })),
     };
   } catch (e) {
-    console.error(e, 'at getAccountWithTransactions');
+    console.error(e, "at getAccountWithTransactions");
+    return null;
+  }
+}
+
+export async function getCashAccountWithTransaction(accountId: string) {
+  try {
+    const result = await db
+      .select({
+        account: accounts,
+        transaction: transactions,
+        categories: categories,
+      })
+      .from(accounts)
+      .innerJoin(transactions, eq(accounts.id, transactions.accountId))
+      .innerJoin(categories, eq(transactions.categoryId, categories.id))
+      .innerJoin(cashAccount, eq(accounts.id, cashAccount.account_id))
+      .where(eq(accounts.id, accountId));
+    return {
+      ...result[0].account,
+      transactions: result.map((result) => ({
+        ...result.transaction,
+        category: { ...result.categories },
+      })),
+    };
+  } catch (e) {
     return null;
   }
 }
