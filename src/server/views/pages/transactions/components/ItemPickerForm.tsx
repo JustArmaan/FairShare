@@ -3,7 +3,16 @@ import type { Item } from "../../../../services/plaid.service";
 export const ItemPickerForm = (props: {
   items: Item[];
   selectedItemId: string;
+  groupId?: string;
+  selectedAccountId?: string;
 }) => {
+  if (props.groupId) {
+    console.log(
+      props.groupId,
+      props.selectedAccountId,
+      "group id and selected account id"
+    );
+  }
   return (
     <div class="picker-container">
       <div class="h-screen w-screen fixed top-0 left-0 bg-card-black opacity-80"></div>
@@ -14,10 +23,14 @@ export const ItemPickerForm = (props: {
               <>
                 <div
                   class="w-full flex justify-between p-4 hover:opacity-80 cursor-pointer"
-                  hx-get={`/home/page/${item.id}`}
+                  hx-get={
+                    props.groupId
+                      ? `/groups/addTransaction/${props.selectedAccountId}/${props.groupId}/${item.id}`
+                      : `/home/page/${item.id}`
+                  }
                   hx-swap="innerHTML"
                   hx-target="#app"
-                  hx-push-url={`/transactions/page/${item.id}`}
+                  hx-push-url={`/transactions/page`}
                 >
                   <label>{item.institutionName}</label>
                   <input

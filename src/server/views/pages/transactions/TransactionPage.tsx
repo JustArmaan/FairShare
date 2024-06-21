@@ -9,6 +9,7 @@ import type { ExtractFunctionReturnType } from "../../../services/user.service";
 export const TransactionsPage = (props: {
   accounts: ExtractFunctionReturnType<typeof getAccountsForUser>;
   selectedAccountId: string;
+  itemId: string;
 }) => {
   const months = [
     "January",
@@ -35,7 +36,7 @@ export const TransactionsPage = (props: {
       ></div>
       <div class="hidden rotate-90"></div>
       <div
-        hx-get={`/transactions/accountPicker/${props.accounts.find((account) => account.id === props.selectedAccountId)!.itemId}/${props.selectedAccountId}`}
+        hx-get={`/transactions/accountPicker/${props.itemId}/${props.selectedAccountId}`}
         hx-target=".account-selector-form"
         hx-swap="innerHTML"
         class="mb-2 flex justify-start w-fit items-center hover:-translate-y-0.5 transition-transform cursor-pointer"

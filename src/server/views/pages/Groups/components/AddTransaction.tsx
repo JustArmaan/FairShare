@@ -8,12 +8,10 @@ export const AddTransaction = (props: {
   accounts: ExtractFunctionReturnType<typeof getAccountWithTransactions>[];
   selectedAccountId: string;
   groupTransactionIds: string[];
+  itemId: string;
 }) => {
   return (
-    <div
-      class="p-6 animate-fade-in"
-      hx-push-url={`/groups/addTransaction/${props.selectedAccountId}/${props.groupId}`}
-    >
+    <div class="p-6 animate-fade-in" hx-push-url={`/groups/addTransaction`}>
       <div class="flex justify-start w-fit items-center mb-1">
         <a
           hx-get={`/groups/view/${props.groupId}`}
@@ -35,30 +33,49 @@ export const AddTransaction = (props: {
         class="fixed inset-0 bg-primary-black bg-opacity-40 z-10 hidden"
       ></div>
       <div class="flex justify-between">
-        <div class="hidden rotate-90"></div>
-        <div
-          hx-get={`/groups/accountPicker/${props.accounts.find((account) => account.id === props.selectedAccountId)!.itemId}/${props.selectedAccountId}/${props.groupId}`}
-          hx-target=".account-selector-form"
-          hx-swap="innerHTML"
-          class="flex justify-start w-fit items-center hover:-translate-y-0.5 transition-transform cursor-pointer"
-        >
-          <p class="text-font-off-white mr-3 text-xl">Change Account</p>
-          <img
-            class="h-3"
-            src="/images/right-triangle.svg"
-            alt="triangle icon"
-          />
+        <div class="flex flex-col">
+          <div class="hidden rotate-90"></div>
+          <div
+            hx-get={`/home/itemPicker/${props.itemId}?groupId=${props.groupId}&selectedAccountId=${props.selectedAccountId}`}
+            hx-target=".account-selector-form"
+            hx-swap="innerHTML"
+            class="flex justify-start w-fit items-center hover:-translate-y-0.5 transition-transform cursor-pointer"
+          >
+            <p class="text-font-off-white mr-3 text-xl">Change Institution</p>
+            <img
+              class="h-3"
+              src="/images/right-triangle.svg"
+              alt="triangle icon"
+            />
+          </div>
+          <div
+            hx-get={`/groups/accountPicker/${
+              props.accounts.find(
+                (account) => account.id === props.selectedAccountId
+              )!.itemId
+            }/${props.selectedAccountId}/${props.groupId}`}
+            hx-target=".account-selector-form"
+            hx-swap="innerHTML"
+            class="flex justify-start w-fit items-center hover:-translate-y-0.5 transition-transform cursor-pointer"
+          >
+            <p class="text-font-off-white mr-3 text-xl">Change Account</p>
+            <img
+              class="h-3"
+              src="/images/right-triangle.svg"
+              alt="triangle icon"
+            />
+          </div>
         </div>
-        <div class="flex justify-between">
+        {/* <div class="flex justify-between">
           <button
             class={`rounded-2xl py-3 px-4 bg-accent-blue text-font-off-white`}
             hx-get={`/transactions/createTransaction/${props.groupId}`}
             hx-swap="innerHTML"
             hx-target="#app"
           >
-            <span class="text-base font-semibold">Add transaction</span>
+            <span class="text`-base font-semibold">Add transaction</span>
           </button>
-        </div>
+        </div> */}
       </div>
       <div
         id="errorContainer"

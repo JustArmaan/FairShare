@@ -1,21 +1,36 @@
-import { eq } from 'drizzle-orm';
-import { getDB } from '../database/client';
-import { accounts } from '../database/schema/accounts';
-import { type ExtractFunctionReturnType } from './user.service';
-import { items } from '../database/schema/items';
-import { users } from '../database/schema/users';
-import { plaidAccount } from '../database/schema/plaidAccount';
-import { cashAccount } from '../database/schema/cashAccount';
-import { accountType } from '../database/schema/accountType';
+import { eq } from "drizzle-orm";
+import { getDB } from "../database/client";
+import { accounts } from "../database/schema/accounts";
+import { type ExtractFunctionReturnType } from "./user.service";
+import { items } from "../database/schema/items";
+import { users } from "../database/schema/users";
+import { plaidAccount } from "../database/schema/plaidAccount";
+import { cashAccount } from "../database/schema/cashAccount";
+import { accountType } from "../database/schema/accountType";
 
 const db = getDB();
 
 export async function addAccount(account: AccountDetails) {
   try {
     const result = await db.insert(accounts).values(account).returning();
-    return result[0]
+    return result[0];
   } catch (error) {
-    console.error(error, 'in addAccount');
+    console.error(error, "in addAccount");
+  }
+}
+
+export async function getItemFromAccountId(id: string) {
+  try {
+    const result = await db
+      .select({ item: items })
+      .from(accounts)
+      .innerJoin(plaidAccount, eq(accounts.id, plaidAccount.accountsId))
+      .innerJoin(items, eq(plaidAccount.itemId, items.id))
+      .where(eq(accounts.id, id));
+    return result[0];
+  } catch (e) {
+    console.log(e, "in getItemIdFromAccount");
+    return null;
   }
 }
 
@@ -23,13 +38,15 @@ export async function addPlaidAccount(account: PlaidAccount) {
   try {
     await db.insert(plaidAccount).values(account);
   } catch (error) {
-    console.error(error, 'in addAccount');
+    console.error(error, "in addAccount");
   }
 }
 
 export type Account = ExtractFunctionReturnType<typeof getAccount>;
 export type PlaidAccount = ExtractFunctionReturnType<typeof getPlaidAccount>;
-export type AccountDetails = ExtractFunctionReturnType<typeof getAccountDetails>;
+export type AccountDetails = ExtractFunctionReturnType<
+  typeof getAccountDetails
+>;
 
 export async function getPlaidAccount(accountId: string) {
   try {
@@ -39,24 +56,20 @@ export async function getPlaidAccount(accountId: string) {
       .where(eq(plaidAccount.accountsId, accountId));
     return results[0];
   } catch (err) {
-    console.error(err, 'in getPlaidAccountId');
+    console.error(err, "in getPlaidAccountId");
     return null;
   }
 }
 
 async function getAccountDetails(id: string) {
   try {
-    const results = await db
-      .select()
-      .from(accounts)
-      .where(eq(accounts.id, id));
+    const results = await db.select().from(accounts).where(eq(accounts.id, id));
     return results[0];
   } catch (error) {
-    console.error(error, 'in getAccount');
+    console.error(error, "in getAccount");
     return null;
   }
 }
-
 
 export async function getAccount(accountId: string) {
   try {
@@ -65,18 +78,20 @@ export async function getAccount(accountId: string) {
       .from(accounts)
       .innerJoin(plaidAccount, eq(accounts.id, plaidAccount.accountsId))
       .where(eq(accounts.id, accountId));
-      const mappedResults = results.map((result) => {return ({
+    const mappedResults = results.map((result) => {
+      return {
         id: result.accounts.id,
         name: result.accounts.name,
         accountTypeId: result.plaidAccount.accountTypeId,
         balance: result.plaidAccount.balance,
         currencyCodeId: result.plaidAccount.currencyCodeId,
         itemId: result.plaidAccount.itemId,
-      })})
+      };
+    });
 
     return mappedResults[0];
   } catch (error) {
-    console.error(error, 'in getAccount');
+    console.error(error, "in getAccount");
     return null;
   }
 }
@@ -88,13 +103,15 @@ export async function getCashAccount(accountId: string) {
       .from(accounts)
       .innerJoin(cashAccount, eq(accounts.id, cashAccount.account_id))
       .where(eq(accounts.id, accountId));
-      const mappedResults = results.map((result) => {return ({
+    const mappedResults = results.map((result) => {
+      return {
         id: result.accounts.id,
         name: result.accounts.name,
-      })})
+      };
+    });
     return mappedResults[0];
   } catch (error) {
-    console.error(error, 'in getCashAccount');
+    console.error(error, "in getCashAccount");
     return null;
   }
 }
@@ -117,7 +134,7 @@ export async function getAccountWithItem(accountId: string) {
       plaidAccount: account.plaidAccount,
     }))[0];
   } catch (e) {
-    console.log(e, 'in getAccountWithItem');
+    console.log(e, "in getAccountWithItem");
     return null;
   }
 }
@@ -137,7 +154,7 @@ export async function getAccountsWithItemsForUser(userId: string) {
       plaidAccount: account.plaidAccount,
     }));
   } catch (e) {
-    console.log(e, 'in getAccountsWithItemsForUser');
+    console.log(e, "in getAccountsWithItemsForUser");
     return [];
   }
 }
@@ -152,7 +169,7 @@ export async function getUserInfoFromAccount(accountId: string) {
       .where(eq(accounts.id, accountId));
     return results[0];
   } catch (error) {
-    console.error(error, 'Can not get account information');
+    console.error(error, "Can not get account information");
     return null;
   }
 }

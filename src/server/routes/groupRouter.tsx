@@ -33,6 +33,8 @@ import { AddTransaction } from "../views/pages/Groups/components/AddTransaction.
 import {
   getAccountWithTransactions,
   getAccountsForUser,
+  getItem,
+  getItemsForUser,
 } from "../services/plaid.service";
 import type { ExtractFunctionReturnType } from "../services/user.service";
 import { GroupTransactionsListPage } from "../views/pages/Groups/TransactionsListGroupsPage.tsx";
@@ -145,8 +147,11 @@ router.get("/view/:groupId", async (req, res) => {
         .filter((owed) => owed !== null)
     );
 
-    // const account = await getAccountsForUser(userId);
-    // const accountId = account ? account[0].id : "";
+    const items = await getItemsForUser(req.user!.id);
+    const defaultItem = items[0] && items[0].item;
+
+    const account = await getAccountsForUser(userId, defaultItem.id);
+    const accountId = account ? account[0].id : "";
 
     const html = renderToHtml(
       <ViewGroups
@@ -169,7 +174,8 @@ router.get("/view/:groupId", async (req, res) => {
               ]
         }
         accountId={accountId} // refactor me!
-        selectedDepositAccountId={depositAccountId}
+        selectedDepositAccountId={null}
+        itemId={defaultItem.id}
       />
     );
     res.send(html);
@@ -488,9 +494,15 @@ router.get("/edit/:groupId", async (req, res) => {
   }
 });
 
-router.get("/addTransaction/:accountId/:groupId", async (req, res) => {
+router.get("/addTransaction/:accountId/:groupId/:itemId", async (req, res) => {
   try {
-    const accounts = await getAccountsForUser(req.user!.id);
+    const item = await getItem(req.params.itemId);
+
+    if (!item) {
+      return res.status(404).send("Item not found");
+    }
+
+    const accounts = await getAccountsForUser(req.user!.id, item.id);
     if (!accounts) throw new Error("no accounts for user!");
 
     const groupTransactions = await getGroupTransactions(req.params.groupId);
@@ -512,6 +524,7 @@ router.get("/addTransaction/:accountId/:groupId", async (req, res) => {
           groupTransactions?.map((transaction) => transaction.transactionId) ??
           []
         }
+        itemId={req.params.itemId}
       />
     );
     res.send(html);
@@ -659,8 +672,9 @@ router.post("/deleteMember/:userID/:groupID", async (req, res) => {
 
 router.get("/transactions/:groupId", async (req, res) => {
   const groupId = req.params.groupId;
-  const groupWithTransactions =
-    await getGroupWithMembersAndTransactions(groupId);
+  const groupWithTransactions = await getGroupWithMembersAndTransactions(
+    groupId
+  );
   const html = renderToHtml(
     <GroupTransactionsListPage
       group={groupWithTransactions as GroupMembersTransactions}
@@ -701,6 +715,7 @@ router.get("/accountPicker/:itemId/:accountId/:groupId", async (req, res) => {
       accounts={accounts}
       selectedAccountId={req.params.accountId}
       groupId={req.params.groupId as string}
+      itemId={req.params.itemId}
     />
   );
   res.send(html);

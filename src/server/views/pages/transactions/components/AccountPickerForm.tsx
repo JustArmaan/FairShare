@@ -4,6 +4,7 @@ export const AccountPickerForm = (props: {
   accounts: AccountSchema[];
   selectedAccountId: string;
   groupId?: string;
+  itemId: string;
 }) => {
   return (
     <div class="picker-container">
@@ -17,8 +18,8 @@ export const AccountPickerForm = (props: {
                   class="w-full flex justify-between p-4 hover:opacity-80 cursor-pointer"
                   hx-get={
                     props.groupId // Add the missing declaration of the variable 'isGroupTransacrion'
-                      ? `/groups/addTransaction/${account.id}/${props.groupId}`
-                      : `/transactions/page/${props.accounts.find((account) => account.id === props.selectedAccountId)!.itemId}/${account.id}`
+                      ? `/groups/addTransaction/${account.id}/${props.groupId}/${props.itemId}`
+                      : `/transactions/page/${props.itemId}/${account.id}`
                   }
                   hx-swap="innerHTML"
                   hx-target="#app"

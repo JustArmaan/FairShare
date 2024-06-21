@@ -46,6 +46,7 @@ import {
   addAccount,
   getAccount,
   getAccountWithItem,
+  getItemFromAccountId,
 } from "../services/account.service";
 import { CreateTransaction } from "../views/pages/Groups/components/ManualAdd";
 import { findUser } from "../services/user.service";
@@ -56,10 +57,16 @@ router.get("/accountPicker/:itemId/:accountId", getUser, async (req, res) => {
   const accounts = await getAccountsForUser(req.user!.id, req.params.itemId);
 
   if (!accounts) throw new Error("Missing accounts for user");
+
+  const item = await getItemFromAccountId(req.params.accountId);
+
+  if (!item) throw new Error("Missing item for account");
+
   const html = renderToHtml(
     <AccountPickerForm
       accounts={accounts}
       selectedAccountId={req.params.accountId}
+      itemId={item.item.id}
     />
   );
   res.send(html);
@@ -81,6 +88,7 @@ router.get("/page/:itemId/:selectedAccountId", getUser, async (req, res) => {
       <TransactionsPage
         accounts={accounts}
         selectedAccountId={req.params.selectedAccountId}
+        itemId={req.params.itemId}
       />
     );
     res.send(html);
@@ -301,9 +309,6 @@ router.get("/createTransaction/:groupId", async (req, res) => {
 router.post("/createTransaction/:groupId", async (req, res) => {
   try {
     const { id } = req.user!;
-    if (!id) {
-      return res.set("HX-Redirect", "/login").send();
-    }
 
     const currentUser = await findUser(id);
 
@@ -333,19 +338,13 @@ router.post("/createTransaction/:groupId", async (req, res) => {
     if (!selectedCategoryId) {
       return res.status(400).send("Category not found.");
     }
-    // const cashTransaciton = await createTransaction ({
-    //   accountId: currentUser.id,
-    //   amount: transactionAmount,
-    //   name: transactionName,
-    //   categoryId: selectedCategoryId,
-    // }
-    // );
+
     const groupId = req.params.groupId;
     const account = await getAccountsForUser(id);
+    
     const accountId = account ? account[0].id : "";
 
     const getCashAccount = await getCashAccountForUser(id);
-    console.log(getCashAccount);
 
     if (!getCashAccount) {
       const accountType = await getAccountTypeIdByName("cash");
