@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "ca.myfairshare.twa",
+        "sha256_cert_fingerprints": ["DE:43:A6:29:83:65:4E:4C:5D:2D:30:51:BB:E2:7D:36:85:98:DC:C4:E1:3A:F9:1E:94:22:12:8A:63:50:D8:E4"]
+      }
+    }]
