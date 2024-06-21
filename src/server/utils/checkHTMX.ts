@@ -27,7 +27,8 @@ export function detectHTMX(
     "api",
     "kinde",
     "auth",
-    "manifest",
+    "json",
+    "png",
   ];
 
   const shouldExclude = (url: string) =>

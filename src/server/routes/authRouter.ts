@@ -162,7 +162,8 @@ export async function getUser(req: Request, res: Response, next: NextFunction) {
         req.url.endsWith(".css") ||
         req.url.endsWith("client") ||
         req.url.endsWith("sync") ||
-        req.url.endsWith("vopay-transactions-webhook")
+        req.url.endsWith("vopay-transactions-webhook") ||
+        req.url.endsWith("json")
       )
         return next();
       res.redirect("/");
