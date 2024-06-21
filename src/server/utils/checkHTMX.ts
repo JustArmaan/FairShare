@@ -1,4 +1,5 @@
 import type { Request, Response, NextFunction } from "express";
+import { env } from "../../../env";
 
 export function detectHTMX(
   req: Request,
@@ -7,7 +8,10 @@ export function detectHTMX(
   reloadPath: string = "/fullPageReload"
 ): void {
   const referer = req.headers.referer;
-  const requestedUrl = new URL(req.originalUrl, `http://${req.headers.host}`);
+  const requestedUrl = new URL(
+    req.originalUrl,
+    env.isDev ? `http://${req.headers.host}` : `https://${req.headers.host}`
+  );
   const contentType = req.headers["content-type"];
 
   const excludePaths = [
@@ -23,6 +27,7 @@ export function detectHTMX(
     "api",
     "kinde",
     "auth",
+    "manifest",
   ];
 
   const shouldExclude = (url: string) =>
