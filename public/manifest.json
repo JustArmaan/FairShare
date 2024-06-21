@@ -3,6 +3,7 @@
   "display": "fullscreen",
   "short_name": "Fairshare",
   "start_url": "https://myfairshare.ca",
+  "scope": "https://myfairshare.ca/",
   "icons": [
     {
       "src": "pwa-512x512.png",
