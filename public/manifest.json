@@ -1,8 +1,8 @@
 {
   "name": "Fairshare",
-  "display": "fullscreen",
+  "display": "standalone",
   "short_name": "Fairshare",
-  "start_url": "https://myfairshare.ca?fullscreen=true",
+  "start_url": "https://myfairshare.ca",
   "scope": "https://myfairshare.ca/",
   "icons": [
     {
