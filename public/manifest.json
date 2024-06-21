@@ -2,7 +2,7 @@
   "name": "Fairshare",
   "display": "fullscreen",
   "short_name": "Fairshare",
-  "start_url": "https://myfairshare.ca",
+  "start_url": "https://myfairshare.ca?fullscreen=true",
   "scope": "https://myfairshare.ca/",
   "icons": [
     {
