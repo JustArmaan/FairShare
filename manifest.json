@@ -1,0 +1,12 @@
+{
+  "name": "Fairshare",
+  "display": "fullscreen",
+  "start_url": "https://myfairshare.ca",
+  "icons": [
+    {
+      "src": "public/pwa-512x512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ]
+}

@@ -51,7 +51,7 @@ export function detectHTMX(
       Pragma: "no-cache",
       Expires: "0",
       "Surrogate-Control": "no-store",
-    })
+    });
     return;
   }
 
@@ -62,7 +62,7 @@ export function detectHTMX(
       Pragma: "no-cache",
       Expires: "0",
       "Surrogate-Control": "no-store",
-    })
+    });
     next();
   } else {
     req.isHTMX = false;
