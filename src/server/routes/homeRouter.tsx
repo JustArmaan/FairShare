@@ -8,6 +8,7 @@ import {
   getCashAccountWithTransaction,
   getItem,
   getItemsForUser,
+  getPlaidAccountsForUser,
 } from "../services/plaid.service";
 import MyAccountsPage from "../views/pages/transactions/MyAccountsPage";
 import { AccountOverview } from "../views/pages/transactions/components/AccountOverview";
@@ -73,15 +74,14 @@ router.get("/page/:itemId", async (req, res, next) => {
 
 router.get("/itemPicker/:itemId", async (req, res) => {
   const results = await getItemsForUser(req.user!.id);
-  const { groupId, selectedAccountId } = req.query;
-  console.log(groupId, selectedAccountId, "group id and selected account id");
+  const { groupId } = req.query;
   if (!results) throw new Error("Missing accounts for user");
+
   const html = renderToHtml(
     <ItemPickerForm
-      items={results.map((result) => result.item)}
+      items={mappedResults}
       selectedItemId={req.params.itemId}
       groupId={groupId as string | undefined}
-      selectedAccountId={selectedAccountId as string | undefined}
     />
   );
   res.send(html);

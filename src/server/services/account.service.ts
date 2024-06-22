@@ -6,7 +6,6 @@ import { items } from "../database/schema/items";
 import { users } from "../database/schema/users";
 import { plaidAccount } from "../database/schema/plaidAccount";
 import { cashAccount } from "../database/schema/cashAccount";
-import { accountType } from "../database/schema/accountType";
 
 const db = getDB();
 

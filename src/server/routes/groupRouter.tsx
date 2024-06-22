@@ -513,6 +513,7 @@ router.get("/addTransaction/:accountId/:groupId/:itemId", async (req, res) => {
       )
     )) as ExtractFunctionReturnType<typeof getAccountWithTransactions>[];
     const selectedAccountId = req.params.accountId;
+    console.log(selectedAccountId, "selectedAccountId in add route");
     const currentUser = req.user;
     const html = renderToHtml(
       <AddTransaction

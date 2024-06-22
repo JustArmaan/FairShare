@@ -36,7 +36,7 @@ export const AddTransaction = (props: {
         <div class="flex flex-col">
           <div class="hidden rotate-90"></div>
           <div
-            hx-get={`/home/itemPicker/${props.itemId}?groupId=${props.groupId}&selectedAccountId=${props.selectedAccountId}`}
+            hx-get={`/home/itemPicker/${props.itemId}?groupId=${props.groupId}`}
             hx-target=".account-selector-form"
             hx-swap="innerHTML"
             class="flex justify-start w-fit items-center hover:-translate-y-0.5 transition-transform cursor-pointer"
@@ -49,11 +49,7 @@ export const AddTransaction = (props: {
             />
           </div>
           <div
-            hx-get={`/groups/accountPicker/${
-              props.accounts.find(
-                (account) => account.id === props.selectedAccountId
-              )!.itemId
-            }/${props.selectedAccountId}/${props.groupId}`}
+            hx-get={`/groups/accountPicker/${props.itemId}/${props.selectedAccountId}/${props.groupId}`}
             hx-target=".account-selector-form"
             hx-swap="innerHTML"
             class="flex justify-start w-fit items-center hover:-translate-y-0.5 transition-transform cursor-pointer"

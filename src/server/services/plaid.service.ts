@@ -191,3 +191,16 @@ export async function getCashAccountWithTransaction(accountId: string) {
     return null;
   }
 }
+
+export async function getPlaidAccountsForUser(itemId: string) {
+  try {
+    const results = await db
+      .select({ plaidAccount: plaidAccount })
+      .from(plaidAccount)
+      .where(eq(plaidAccount.itemId, itemId));
+    return results;
+  } catch (e) {
+    console.error(e, "at getPlaidAccountsForUser");
+    return null;
+  }
+}

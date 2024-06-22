@@ -4,15 +4,9 @@ export const ItemPickerForm = (props: {
   items: Item[];
   selectedItemId: string;
   groupId?: string;
-  selectedAccountId?: string;
+  itemId?: string;
 }) => {
-  if (props.groupId) {
-    console.log(
-      props.groupId,
-      props.selectedAccountId,
-      "group id and selected account id"
-    );
-  }
+
   return (
     <div class="picker-container">
       <div class="h-screen w-screen fixed top-0 left-0 bg-card-black opacity-80"></div>
@@ -25,12 +19,12 @@ export const ItemPickerForm = (props: {
                   class="w-full flex justify-between p-4 hover:opacity-80 cursor-pointer"
                   hx-get={
                     props.groupId
-                      ? `/groups/addTransaction/${props.selectedAccountId}/${props.groupId}/${item.id}`
+                      ? `/groups/addTransaction/${item.id}/${props.groupId}/${props.itemId}`
                       : `/home/page/${item.id}`
                   }
                   hx-swap="innerHTML"
                   hx-target="#app"
-                  hx-push-url={`/transactions/page`}
+                  hx-push-url={`/transactions/page/${item.id}`}
                 >
                   <label>{item.institutionName}</label>
                   <input

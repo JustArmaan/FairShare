@@ -45,7 +45,6 @@ import {
 import {
   addAccount,
   getAccount,
-  getAccountWithItem,
   getItemFromAccountId,
 } from "../services/account.service";
 import { CreateTransaction } from "../views/pages/Groups/components/ManualAdd";
