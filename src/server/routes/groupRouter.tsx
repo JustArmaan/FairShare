@@ -512,8 +512,16 @@ router.get("/addTransaction/:accountId/:groupId/:itemId", async (req, res) => {
         async (account) => await getAccountWithTransactions(account.id)
       )
     )) as ExtractFunctionReturnType<typeof getAccountWithTransactions>[];
-    const selectedAccountId = req.params.accountId;
-    console.log(selectedAccountId, "selectedAccountId in add route");
+    let selectedAccountId = req.params.accountId;
+    if (selectedAccountId === "default") {
+      const defaultAccount = accountsWithTransactions.find(
+        (account) => account.itemId === req.params.itemId
+      );
+      if (defaultAccount) {
+        selectedAccountId = defaultAccount.id;
+      }
+    }
+
     const currentUser = req.user;
     const html = renderToHtml(
       <AddTransaction

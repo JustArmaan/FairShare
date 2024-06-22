@@ -204,3 +204,7 @@ export async function getPlaidAccountsForUser(itemId: string) {
     return null;
   }
 }
+
+export type PlaidAccount = ArrayElement<
+  ExtractFunctionReturnType<typeof getPlaidAccountsForUser>
+>;

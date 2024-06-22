@@ -73,18 +73,29 @@ router.get("/page/:itemId", async (req, res, next) => {
 });
 
 router.get("/itemPicker/:itemId", async (req, res) => {
-  const results = await getItemsForUser(req.user!.id);
-  const { groupId } = req.query;
-  if (!results) throw new Error("Missing accounts for user");
+  try {
+    const userId = req.user!.id;
+    const results = await getItemsForUser(userId);
+    const { groupId } = req.query;
 
-  const html = renderToHtml(
-    <ItemPickerForm
-      items={mappedResults}
-      selectedItemId={req.params.itemId}
-      groupId={groupId as string | undefined}
-    />
-  );
-  res.send(html);
+    if (!results) {
+      throw new Error("Missing accounts for user");
+    }
+
+
+    const html = renderToHtml(
+      <ItemPickerForm
+        items={results.map((result) => result.item)}
+        selectedItemId={req.params.itemId}
+        groupId={groupId as string | undefined}
+      />
+    );
+
+    res.send(html);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("An error occurred while fetching data");
+  }
 });
 
 router.get("/accountOverview/:accountId", async (req, res) => {
