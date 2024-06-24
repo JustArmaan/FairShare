@@ -87,12 +87,7 @@ router.get("/layout", (req, res) => {
           hx-trigger="load"
           hx-swap="outerHTML"
         ></div>
-        <div
-          id="app"
-          hx-get={url}
-          hx-trigger="load"
-          hx-swap="innerHTML"
-        ></div>
+        <div id="app" hx-get={url} hx-trigger="load" hx-swap="innerHTML"></div>
         <div class="h-24" /> {/* spacer div to make up for nav bar*/}
         <div id="nav" hx-get="/nav" hx-trigger="load" hx-swap="outerHTML"></div>
       </>
@@ -101,7 +96,8 @@ router.get("/layout", (req, res) => {
   }
 });
 
-router.get("/fullPageLoad", (req, res) => {
+router.get("/fullPageReload", (req, res) => {
+  console.log("route hit");
   const url = req.query.url as string;
   const formattedUrl = url.split("/").slice(3).join("/");
   const html = `<!DOCTYPE html>

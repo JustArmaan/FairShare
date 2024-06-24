@@ -18,7 +18,7 @@ import { ItemPickerForm } from "../views/pages/transactions/components/ItemPicke
 import { getCurrentMonthTransactions } from "../utils/currentMonthTransactions";
 const router = express.Router();
 
-router.get("/page/:itemId", async (req, res, next) => {
+router.get("/page/:itemId", async (req, res) => {
   const userId = req.user!.id;
   if (req.params.itemId === "default") {
     const items = await getItemsForUser(req.user!.id);

@@ -133,7 +133,7 @@ export const BreakdownPage = ({
   const pathStyles = generatePathStyles(categories);
 
   return (
-    <div class="text-font-off-white h-fit w-screen p-6 page animate-fade-in">
+    <div class="text-font-off-white h-fit p-6 page animate-fade-in">
       <p class="text-2xl">
         <b>{accountName}</b>
       </p>

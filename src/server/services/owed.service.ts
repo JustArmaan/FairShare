@@ -21,7 +21,7 @@ async function getGroupTransactionState(id: string) {
       .where(eq(groupTransactionState.id, id));
     return result[0];
   } catch (e) {
-    console.log(e, 'at getGroupTransactionState');
+    console.trace();
   }
 }
 
