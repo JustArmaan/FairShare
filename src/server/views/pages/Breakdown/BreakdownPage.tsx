@@ -1,6 +1,6 @@
-import { BudgetCard } from './components/BudgetCard';
-import { Graph } from './components/TotalExpenses/Graph';
-import type { TransactionSchema } from '../../../interface/types';
+import { BudgetCard } from "./components/BudgetCard";
+import { Graph } from "./components/TotalExpenses/Graph";
+import type { TransactionSchema } from "../../../interface/types";
 
 type Coordinate = {
   x: number;
@@ -41,9 +41,9 @@ function rangeToStyleString({ start, end }: { start: number; end: number }) {
   const newPoints = includedCoords
     .map(floatToCoords)
     .map(coordToStyleString)
-    .join(' ,');
+    .join(" ,");
   return `clip-path: polygon(50% 50%, ${coordToStyleString(startCoord)}, ${
-    newPoints && newPoints + ','
+    newPoints && newPoints + ","
   } ${coordToStyleString(endCoord)})`;
 }
 
@@ -83,11 +83,11 @@ function updatePercentages(category: Category, categories: Category[]) {
 }
 
 const iconColors = [
-  'bg-accent-red',
-  'bg-accent-blue',
-  'bg-accent-green',
-  'bg-accent-yellow',
-  'bg-accent-purple',
+  "bg-accent-red",
+  "bg-accent-blue",
+  "bg-accent-green",
+  "bg-accent-yellow",
+  "bg-accent-purple",
 ];
 
 export function mapTransactionsToCategories(transactions: TransactionSchema[]) {
@@ -131,47 +131,117 @@ export const BreakdownPage = ({
 }) => {
   const categories = mapTransactionsToCategories(transactions);
   const pathStyles = generatePathStyles(categories);
-
+  const months = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ];
+  const currentYear = new Date().getFullYear();
+  const currentMonth = new Date().getMonth();
   return (
     <div class="text-font-off-white h-fit p-6 page animate-fade-in">
       <p class="text-2xl">
         <b>{accountName}</b>
       </p>
       <p class="text-xl">Account Breakdown</p>
+      <div
+        id="date-selector-form"
+        class="bg-primary-black py-1 px-1 my-2 mt-4 shadow-lg flex items-center justify-evenly w-fit border-2 border-primary-grey rounded-full"
+      >
+        <form
+          hx-post={`/breakdown/history`}
+          hx-trigger="change"
+          hx-target="#breakdown-data"
+          hx-include="[name='month'], [name='year']"
+          class="flex items-center w-fit justify-between"
+        >
+          <select
+            name="year"
+            id="yearSelect"
+            class="bg-primary-black text-font-grey outline-none rounded cursor-pointer mx-4"
+          >
+            {[2022, 2023, 2024].map((year) => (
+              <option value={String(year)} selected={year === currentYear}>
+                {year}
+              </option>
+            ))}
+          </select>
+          <select
+            name="month"
+            id="monthSelect"
+            class="bg-primary-black text-font-grey outline-none rounded cursor-pointer mx-4 w-fit"
+          >
+            {months.map((month, index) => (
+              <option
+                value={String(index + 1)}
+                selected={index === currentMonth}
+              >
+                {month}
+              </option>
+            ))}
+          </select>
+          <input
+            type="button"
+            value="Reset"
+            class="bg-primary-black text-font-grey cursor-pointer rounded-lg px-4 py-2 mx-4"
+            hx-get={`/breakdown/page${transactions[0].accountId}`}
+            hx-trigger="click"
+            hx-target="#app"
+            hx-swap="innerHTML"
+          />
+          <input
+            type="hidden"
+            value={transactions[0].accountId}
+            name="accountId"
+          />
+        </form>
+      </div>
       <div class="mt-6">
         <p>
           <b>Total Expenses</b>
         </p>
-        <div class="flex flex-row items-center justify-center relative">
+        <div id="breakdown-data">
           <div>
-            <p class="text-3xl text-center mt-6 font-bold pl-2 pr-2">
-              $
-              {categories
-                .reduce((sum, category) => category.cost + sum, 0)
-                .toFixed(2)}
-            </p>
-            <div class="h-0.5 bg-font-grey rounded mt-0.5 w-full"></div>
+            <div class="flex flex-row items-center justify-center relative">
+              <p class="text-3xl text-center mt-6 font-bold pl-2 pr-2">
+                $
+                {categories
+                  .reduce((sum, category) => category.cost + sum, 0)
+                  .toFixed(2)}
+              </p>
+              <div class="h-0.5 bg-font-grey rounded mt-0.5 w-full"></div>
+            </div>
+            {/*<p class="absolute right-0 text-sm text-font-grey">-20% from March</p>*/}
           </div>
-          {/*<p class="absolute right-0 text-sm text-font-grey">-20% from March</p>*/}
+          <Graph slices={pathStyles} />
+          <div class="h-0.5 bg-primary-dark-grey rounded mt-12"></div>
+          <div class="h-4"></div>{" "}
+          {/* spacer cuz collapsing margins are the devil*/}
+          {pathStyles.map((card) => {
+            return (
+              <BudgetCard
+                clipPathStyle={card.clipPathStyle}
+                tailwindColorClass={card.tailwindColorClass}
+                title={card.title}
+                percentage={card.percentage}
+                totalCosts={card.totalCosts}
+                transactions={transactions.filter(
+                  (transaction) => transaction.categoryId === card.categoryId
+                )}
+              />
+            );
+          })}
         </div>
       </div>
-      <Graph slices={pathStyles} />
-      <div class="h-0.5 bg-primary-dark-grey rounded mt-12"></div>
-      <div class="h-4"></div> {/* spacer cuz collapsing margins are the devil*/}
-      {pathStyles.map((card) => {
-        return (
-          <BudgetCard
-            clipPathStyle={card.clipPathStyle}
-            tailwindColorClass={card.tailwindColorClass}
-            title={card.title}
-            percentage={card.percentage}
-            totalCosts={card.totalCosts}
-            transactions={transactions.filter(
-              (transaction) => transaction.categoryId === card.categoryId
-            )}
-          />
-        );
-      })}
       <div class="h-24" />
     </div>
   );

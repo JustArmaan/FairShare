@@ -97,7 +97,6 @@ router.get("/layout", (req, res) => {
 });
 
 router.get("/fullPageReload", (req, res) => {
-  console.log("route hit");
   const url = req.query.url as string;
   const formattedUrl = url.split("/").slice(3).join("/");
   const html = `<!DOCTYPE html>
