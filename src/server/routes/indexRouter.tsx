@@ -4,6 +4,7 @@ import { Header } from "../views/components/Header";
 import { Nav } from "../views/components/Navigation";
 import { Menu } from "../views/components/Menu";
 import { Login } from "../views/pages/Onboarding/Login";
+
 const router = express.Router();
 
 router.get("/header", (_, res) => {
@@ -73,48 +74,12 @@ router.get("/onboard", (req, res) => {
   }
 });
 
-router.get("/fullPageReload", (req, res) => {
-  const url = req.query.url as string;
-  const html = `<!DOCTYPE html>
-    <html lang="en">
-    <head>
-      <meta charset="UTF-8" />
-      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-      <title>Fairshare</title>
-      <script type="module" src="/src/client/main.ts" defer></script>
-      <script src="https://unpkg.com/htmx.org@1.9.10"></script>
-      <script src="https://cdn.plaid.com/link/v2/stable/link-initialize.js"></script>
-      <link rel="stylesheet" href="/output.css" />
-      <link rel="stylesheet" href="/global.css" />
-      <link rel="icon" type="image/x-icon" href="/favicon.svg" />
-      <link rel="preconnect" href="https://fonts.googleapis.com" />
-      <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-      <link href="https://fonts.googleapis.com/css2?family=Work+Sans:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet" />
-      <script src="https://unpkg.com/htmx.org@1.9.12/dist/ext/ws.js"></script>
-    </head>
-    <body class="bg-primary-black-page">
-        <div
-          id="header"
-          hx-get="/header"
-          hx-trigger="load"
-          hx-swap="outerHTML"
-        ></div>
-        <div
-          id="app"
-          hx-get="${url}"
-          hx-trigger="load"
-          hx-swap="innerHTML"
-        ></div>
-        <div class="h-24" /> 
-        <div id="nav" hx-get="/nav" hx-trigger="load" hx-swap="outerHTML"></div>
-      <script src="/socket.io/socket.io.js"></script>
-      <script>
-        const socket = io();
-      </script>
-    </body>
-    </html>
-`;
-  res.send(html);
+router.get("/will-error", async (req, res) => {
+  console.log("hit error route");
+
+  await new Promise((_, rej) => {
+    rej("Unknown Error");
+  });
 });
 
 router.post("/webhook", (req, res) => {

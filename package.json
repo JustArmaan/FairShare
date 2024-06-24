@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "scripts": {
     "dev": "nodemon -e ts,tsx,html -w src -x bun run src/server/main.tsx",
-    "start": "bun src/server/main.tsx",
+    "start": "NODE_ENV=production bun src/server/main.tsx",
     "build": "vite build",
     "tailwind-watch": "bun x tailwindcss -i ./src/server/views/tailwind.css -o ./public/output.css --watch",
     "tailwind-build": "bun x tailwindcss -i ./src/server/views/tailwind.css -o ./public/output.css",

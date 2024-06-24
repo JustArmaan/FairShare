@@ -14,14 +14,25 @@ import http from "http";
 import { Server } from "socket.io";
 import { setupSocketConnectionListener } from "./websockets/connection";
 const PORT = process.env.PORT || 3000;
-import { NotFound } from "./views/components/NotFound";
-import { renderToHtml } from "jsxte";
+// import { NotFound } from "./views/components/NotFound";
+// import { renderToHtml } from "jsxte";
 import { institutionRouter } from "./routes/institutionRouter";
+import { errorHandler } from "./middleware/errorHandler.middleware";
+import { errorRouter } from "./routes/errorRouter";
+import { ErrorPage } from "./views/pages/Errors/Error";
+import { renderToHtml } from "jsxte";
 
 const app = express();
 const server = http.createServer(app);
 
 await configureApp(app);
+
+/*
+app.use((req, res, next) => {
+  console.log(req.url, res.statusCode);
+  next();
+});
+*/
 
 app.use(indexRouter);
 app.use("/api/v0", apiRouterV0);
@@ -33,6 +44,17 @@ app.use("/auth", authRouter);
 app.use("/transfer", transferRouter);
 app.use("/notification", notificationRouter);
 app.use("/institutions", institutionRouter);
+app.use("/error", errorRouter);
+
+app.use("", (req, res, next) => {
+  // req.url === "/test" && console.log(req.headers, req.url);
+  const hxRequest = req.headers["hx-request"] === "true";
+  if (hxRequest) {
+    const html = renderToHtml(<ErrorPage status="404" />);
+    return res.send(html);
+  }
+  next();
+});
 
 // sockets
 
@@ -45,12 +67,10 @@ const runningServer = server.listen(PORT as number, () => {
 
 ViteExpress.bind(app, runningServer);
 
-app.get("/notfound", (req, res) => {
-  const html = renderToHtml(<NotFound />);
-  res.status(404).send(html);
-});
+app.use(errorHandler);
 /*
-ViteExpress.listen(app, PORT as number, () =>
-  console.log(`Server is running on port ${PORT}...`)
-);
+app.use((req, res, next) => {
+  console.log(req.url, res.statusCode);
+  next();
+});
 */

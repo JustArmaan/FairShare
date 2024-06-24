@@ -13,7 +13,7 @@ export function checkHTMX(
     req.originalUrl,
     env.isDev ? `http://${req.headers.host}` : `https://${req.headers.host}`
   );
-  const contentType = req.headers["Content-Type"];
+  const contentType = req.headers["content-type"];
 
   const excludePaths = [
     "svg",
