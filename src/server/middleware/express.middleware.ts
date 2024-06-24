@@ -3,7 +3,7 @@ import cookieParser from "cookie-parser";
 import type { UserSchema } from "../interface/types";
 import { getUser } from "../routes/authRouter";
 import { setupVopayTransactionWebhook } from "../integrations/vopay/transfer";
-import { detectHTMX } from "../utils/checkHTMX";
+import { checkHTMX } from "../utils/checkHTMX";
 
 declare module "express-serve-static-core" {
   interface Request {
@@ -21,11 +21,12 @@ export const configureApp = async (app: Express) => {
   app.use(express.urlencoded({ extended: false }));
   app.use(express.static("~/public"));
   app.use(cookieParser());
-  app.use(detectHTMX);
 
   app.use("/", getUser, (req, res, next) => {
     next();
   });
+
+  app.use(checkHTMX);
 
   await setupVopayTransactionWebhook();
 

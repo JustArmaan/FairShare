@@ -73,33 +73,8 @@ router.get("/onboard", (req, res) => {
   }
 });
 
-router.get("/layout", (req, res) => {
-  const url = req.query.url as string;
-  if (!req.user) {
-    const html = renderToHtml(<Login />);
-    return res.send(html);
-  } else {
-    const html = renderToHtml(
-      <>
-        <div
-          id="header"
-          hx-get="/header"
-          hx-trigger="load"
-          hx-swap="outerHTML"
-        ></div>
-        <div id="app" hx-get={url} hx-trigger="load" hx-swap="innerHTML"></div>
-        <div class="h-24" /> {/* spacer div to make up for nav bar*/}
-        <div id="nav" hx-get="/nav" hx-trigger="load" hx-swap="outerHTML"></div>
-      </>
-    );
-    return res.send(html);
-  }
-});
-
 router.get("/fullPageReload", (req, res) => {
-  console.log("route hit");
   const url = req.query.url as string;
-  const formattedUrl = url.split("/").slice(3).join("/");
   const html = `<!DOCTYPE html>
     <html lang="en">
     <head>
@@ -118,7 +93,20 @@ router.get("/fullPageReload", (req, res) => {
       <script src="https://unpkg.com/htmx.org@1.9.12/dist/ext/ws.js"></script>
     </head>
     <body class="bg-primary-black-page">
-      <div id="app" hx-get="/layout?url=${formattedUrl}" hx-trigger="load" hx-swap="outerHTML"></div>
+        <div
+          id="header"
+          hx-get="/header"
+          hx-trigger="load"
+          hx-swap="outerHTML"
+        ></div>
+        <div
+          id="app"
+          hx-get="${url}"
+          hx-trigger="load"
+          hx-swap="innerHTML"
+        ></div>
+        <div class="h-24" /> 
+        <div id="nav" hx-get="/nav" hx-trigger="load" hx-swap="outerHTML"></div>
       <script src="/socket.io/socket.io.js"></script>
       <script>
         const socket = io();
