@@ -17,4 +17,4 @@ COPY . .
 ENV NODE_ENV production
 
 # Set default command to start the app
-CMD [ "bun", "pm", "ls" && "bun", "tailwind-build", "&&", "bun", "run", "build", "&&", "bun", "start" ]
+CMD [ "bun", "pm", "ls", "&&", "bun", "tailwind-build", "&&", "bun", "run", "build", "&&", "bun", "start" ]
