@@ -30,39 +30,38 @@ export function detectHTMX(
     "json",
     "png",
     "js",
+    "favicon",
   ];
 
   const shouldExclude = (url: string) =>
     excludePaths.some((exclude) => url.includes(exclude));
 
   if (shouldExclude(req.url)) {
+
     next();
     return;
   }
 
   if (contentType && !contentType.includes("text/html")) {
+
     next();
     return;
   }
 
-  if (!referer) {
-    req.isHTMX = false;
-    next();
-    return;
-  }
+  if (req.url === "/") {
 
-  if (referer && req.url === "/") {
-    next();
     res.set({
       "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate",
       Pragma: "no-cache",
       Expires: "0",
       "Surrogate-Control": "no-store",
     });
+    next();
     return;
   }
 
   if (req.headers["hx-request"] === "true") {
+
     req.isHTMX = true;
     res.set({
       "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate",
@@ -77,6 +76,7 @@ export function detectHTMX(
     if (!requestedUrl.pathname.includes(reloadPath)) {
       requestedUrl.pathname = reloadPath;
       requestedUrl.searchParams.set("url", req.originalUrl); // this sets the url query param
+      console.log("redirect to", requestedUrl.toString());
       res.redirect(requestedUrl.toString());
     } else {
       next();

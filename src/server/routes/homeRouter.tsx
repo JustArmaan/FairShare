@@ -16,7 +16,7 @@ import { ConnectAccount } from "../views/pages/transactions/components/ConnectAc
 import { ItemPickerForm } from "../views/pages/transactions/components/ItemPickerForm";
 const router = express.Router();
 
-router.get("/page/:itemId", async (req, res, next) => {
+router.get("/page/:itemId", async (req, res) => {
   const userId = req.user!.id;
   if (req.params.itemId === "default") {
     const items = await getItemsForUser(req.user!.id);
@@ -81,7 +81,6 @@ router.get("/itemPicker/:itemId", async (req, res) => {
     if (!results) {
       throw new Error("Missing accounts for user");
     }
-
 
     const html = renderToHtml(
       <ItemPickerForm
