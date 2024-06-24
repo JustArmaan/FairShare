@@ -2,6 +2,7 @@ import express from "express";
 import { renderToHtml } from "jsxte";
 import { getTransactionsForUser } from "../services/transaction.service";
 import {
+  getAccountWithCurrentMonthTransactions,
   getAccountWithTransactions,
   getAccountsForUser,
   getCashAccountForUser,
@@ -14,6 +15,7 @@ import MyAccountsPage from "../views/pages/transactions/MyAccountsPage";
 import { AccountOverview } from "../views/pages/transactions/components/AccountOverview";
 import { ConnectAccount } from "../views/pages/transactions/components/ConnectAccount";
 import { ItemPickerForm } from "../views/pages/transactions/components/ItemPickerForm";
+import { getCurrentMonthTransactions } from "../utils/currentMonthTransactions";
 const router = express.Router();
 
 router.get("/page/:itemId", async (req, res, next) => {
@@ -49,7 +51,7 @@ router.get("/page/:itemId", async (req, res, next) => {
     accounts!.map(async (account) => {
       return {
         ...account,
-        transactions: await getTransactionsForUser(account.id),
+        transactions: await getCurrentMonthTransactions(account.id),
       };
     })
   );
@@ -82,7 +84,6 @@ router.get("/itemPicker/:itemId", async (req, res) => {
       throw new Error("Missing accounts for user");
     }
 
-
     const html = renderToHtml(
       <ItemPickerForm
         items={results.map((result) => result.item)}
@@ -99,7 +100,7 @@ router.get("/itemPicker/:itemId", async (req, res) => {
 });
 
 router.get("/accountOverview/:accountId", async (req, res) => {
-  const accountWithTransactions = await getAccountWithTransactions(
+  const accountWithTransactions = await getAccountWithCurrentMonthTransactions(
     req.params.accountId
   );
 
