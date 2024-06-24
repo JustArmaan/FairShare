@@ -7,7 +7,7 @@
       name="description"
       content="A personal finance application with social, bill splitting features."
     />
-    <link rel="manifest" href="manifest.json" />
+    <link rel="manifest" href="/manifest.json" />
     <title>Fairshare</title>
     <script type="module" src="/src/client/main.ts" defer></script>
     <script src="https://unpkg.com/htmx.org@1.9.10"></script>
@@ -26,11 +26,14 @@
   </head>
   <body class="bg-primary-black-page">
     <div
-      hx-get="/onboard"
+      id="header"
+      hx-get="/header"
       hx-trigger="load"
       hx-swap="outerHTML"
-      hx-target="body"
     ></div>
+    <div id="app"></div>
+    <div class="h-24" />
+    <div id="nav" hx-get="/nav" hx-trigger="load" hx-swap="outerHTML"></div>
     <script src="/socket.io/socket.io.js"></script>
     <script>
       const socket = io();

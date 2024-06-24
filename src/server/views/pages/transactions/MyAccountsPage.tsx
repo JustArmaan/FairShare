@@ -21,6 +21,7 @@ export const MyAccountsPage = (props: {
         hx-get="/institutions/page"
         hx-target="#app"
         hx-swap="innerHTML"
+        hx-push-url="/institutions/page"
         class="mb-2 flex justify-start w-fit items-center hover:-translate-y-0.5 transition-transform cursor-pointer"
       >
         <p class="text-font-off-white mr-1 text-xl">My Institutions</p>

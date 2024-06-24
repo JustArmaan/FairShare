@@ -9,6 +9,7 @@ import { accountType } from "./schema/accountType";
 import { groupTransferStatus } from "./schema/groupTransferStatus";
 import { splitType } from "./schema/splitType";
 import { groups } from "./schema/group";
+import { accounts } from "./schema/accounts";
 
 let db = getDB();
 
@@ -172,6 +173,9 @@ console.log("Deleted all records from the groupTransferStatus table.");
 console.log("Deleted all items");
 (await db.select().from(splitType)).length > 0 && (await db.delete(splitType));
 (await db.select().from(groups)).length > 0 && (await db.delete(groups));
+(await db.select().from(accounts)).length > 0 && (await db.delete(accounts));
+(await db.select().from(accountType)).length > 0 &&
+  (await db.delete(accountType));
 
 try {
   await db.transaction(async (trx) => {

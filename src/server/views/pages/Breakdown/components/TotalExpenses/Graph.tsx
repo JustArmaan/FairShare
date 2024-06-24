@@ -1,9 +1,9 @@
-import { ChartItem } from './ChartItem';
-import { PieChart } from './PieChart';
+import { ChartItem } from "./ChartItem";
+import { PieChart } from "./PieChart";
 
-export const Graph = ({
-  slices,
-}: {
+export const Graph = (props: {
+  home?: boolean;
+  accountId: string;
   slices: {
     clipPathStyle: string;
     tailwindColorClass: string;
@@ -14,9 +14,13 @@ export const Graph = ({
 }) => {
   return (
     <div class="mt-6 flex items-center justify-center">
-      <PieChart slices={slices} />
+      <PieChart
+        slices={props.slices}
+        home={props.home}
+        accountId={props.accountId}
+      />
       <div class="ml-6 space-y-4 h-fit">
-        {slices.map((slice) => (
+        {props.slices.map((slice) => (
           <ChartItem
             tailwindColorClass={slice.tailwindColorClass}
             title={slice.title}
