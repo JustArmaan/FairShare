@@ -340,7 +340,7 @@ router.post("/createTransaction/:groupId", async (req, res) => {
 
     const groupId = req.params.groupId;
     const account = await getAccountsForUser(id);
-    
+
     const accountId = account ? account[0].id : "";
 
     const getCashAccount = await getCashAccountForUser(id);

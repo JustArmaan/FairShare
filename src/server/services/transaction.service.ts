@@ -40,6 +40,13 @@ export async function getTransactionsForUser(
   }
 }
 
+export function getCurrentMonthYear(): { year: string; month: string } {
+  const date = new Date();
+  const year = date.getFullYear().toString();
+  const month = (date.getMonth() + 1).toString().padStart(2, "0");
+  return { year, month };
+}
+
 export async function getTransaction(transactionId: string) {
   const transaction = await db
     .select()
@@ -209,7 +216,7 @@ export async function searchTransactions(
   }
 }
 
-function getNextMonthYear(year: string, month: string) {
+export function getNextMonthYear(year: string, month: string) {
   let nextMonth = parseInt(month, 10) + 1;
   let nextYear = parseInt(year, 10);
   if (nextMonth > 12) {
@@ -221,6 +228,7 @@ function getNextMonthYear(year: string, month: string) {
     nextMonth: nextMonth.toString().padStart(2, "0"),
   };
 }
+
 export async function getTransactionsByMonth(
   accountId: string,
   year: string,
