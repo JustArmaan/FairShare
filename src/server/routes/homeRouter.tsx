@@ -18,7 +18,7 @@ import { ItemPickerForm } from "../views/pages/transactions/components/ItemPicke
 import { getCurrentMonthTransactions } from "../utils/currentMonthTransactions";
 const router = express.Router();
 
-router.get("/page/:itemId", async (req, res) => {
+router.get("/page/:itemId", async (req, res, next) => {
   const userId = req.user!.id;
   if (req.params.itemId === "default") {
     const items = await getItemsForUser(req.user!.id);
@@ -59,6 +59,7 @@ router.get("/page/:itemId", async (req, res) => {
     return (b.transactions.length || 0) - (a.transactions.length || 0);
   });
   console.log(req.params.itemId);
+  // throw new Error("test");
   const selectedItem = await getItem(req.params.itemId);
   // This will now get the account with the most transactions first to display nicer graphs
   const html = renderToHtml(

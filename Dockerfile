@@ -7,6 +7,7 @@ WORKDIR /usr/src/app
 COPY package*.json bun.lockb ./
 
 RUN bun i 
+RUN bun i "express@>=5.0.0-beta.1" 
 
 # RUN bun x tailwindcss -i src/server/views/tailwind.css -o public/output.css
 

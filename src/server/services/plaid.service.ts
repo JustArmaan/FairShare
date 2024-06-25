@@ -47,6 +47,7 @@ export const addItemToUser = async (
 };
 
 export async function getItem(id: string) {
+ 
   try {
     const result = await db
       .select({ items: items })

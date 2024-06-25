@@ -8,12 +8,12 @@ export function errorHandler(
   error: ErrorWithStatus,
   __: express.Request,
   res: express.Response,
-  _: express.NextFunction
+  next: express.NextFunction
 ) {
-  console.error(error, "error caught in the global error handler");
-
+  console.error(error);
   const status = error.status || 500;
   res.statusCode = status;
-  console.error(`Error status: ${status}`);
+  console.error(`status: ${status}`);
   res.redirect(`/error/${status}`);
+  // next();
 }
