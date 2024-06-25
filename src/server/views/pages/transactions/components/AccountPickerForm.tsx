@@ -1,3 +1,4 @@
+import { cashAccount } from "../../../../database/schema/cashAccount";
 import type { AccountSchema } from "../../../../services/plaid.service";
 
 export const AccountPickerForm = (props: {
@@ -10,7 +11,6 @@ export const AccountPickerForm = (props: {
     props.accounts.forEach((account) => console.log(account.id)),
     "account ids"
   );
-  console.log(props.selectedAccountId, "selected account id");
   return (
     <div class="picker-container">
       <div class="h-screen w-screen fixed top-0 left-0 bg-card-black opacity-80"></div>
@@ -22,14 +22,14 @@ export const AccountPickerForm = (props: {
                 <div
                   class="w-full flex justify-between p-4 hover:opacity-80 cursor-pointer"
                   hx-get={
-                    props.groupId // Add the missing declaration of the variable 'isGroupTransacrion'
+                    props.groupId
                       ? `/groups/addTransaction/${account.id}/${props.groupId}/${props.itemId}`
                       : `/transactions/page/${props.itemId}/${account.id}`
                   }
                   hx-swap="innerHTML"
                   hx-target="#app"
                   hx-push-url={
-                    props.groupId // Add the missing declaration of the variable 'isGroupTransacrion'
+                    props.groupId
                       ? `/groups/addTransaction/${account.id}/${props.groupId}`
                       : `/transactions/page/${account.id}`
                   }
