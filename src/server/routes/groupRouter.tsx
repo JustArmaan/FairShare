@@ -659,7 +659,6 @@ router.post("/deleteMember/:userID/:groupID", async (req, res) => {
       return res.status(500).send("An error occured when removing a member");
     }
     if (totalOwed < 0) {
-      console.log("running");
       return res
         .status(400)
         .send("You cannot remove a member that still owes money");

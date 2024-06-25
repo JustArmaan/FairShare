@@ -230,9 +230,6 @@ export async function getAccountWithMonthTransactions(
   const startDate = `${currentYear}-${currentMonth}-01`;
   const endDate = `${nextYear}-${nextMonth}-01`;
 
-  console.log("Start Date:", startDate);
-  console.log("End Date:", endDate);
-
   try {
     const result = await db
       .select({
@@ -251,9 +248,6 @@ export async function getAccountWithMonthTransactions(
         )
       );
 
-    // Debug: Log the query result
-    console.log("Query Result:", result);
-
     const account = await getAccount(accountId);
     if (!account) return null;
 
@@ -261,13 +255,15 @@ export async function getAccountWithMonthTransactions(
       ? await getAccountTypeById(account.accountTypeId)
       : null;
 
+    const transactionList = result.map((entry) => ({
+      ...entry.transaction,
+      category: { ...entry.categories },
+    }));
+
     return {
       ...account,
       accountTypeId: accountType,
-      transactions: result.map((entry) => ({
-        ...entry.transaction,
-        category: { ...entry.categories },
-      })),
+      transactions: transactionList,
     };
   } catch (error) {
     console.error(error, "at getAccountWithMonthTransactions");
