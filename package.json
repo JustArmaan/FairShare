@@ -30,7 +30,7 @@
     "dotenv": "^16.4.5",
     "drizzle-kit": "^0.21.4",
     "drizzle-orm": "^0.30.6",
-    "express": "^4.19.2",
+    "express": ">=5.0.0-beta.1",
     "htmx.org": "^1.9.12",
     "jsxte": "^3.3.1",
     "nodemon": "^3.1.0",

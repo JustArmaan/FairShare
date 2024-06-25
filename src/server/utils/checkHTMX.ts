@@ -1,13 +1,14 @@
 import type { Request, Response, NextFunction } from "express";
 import { env } from "../../../env";
+import { cookieOptions } from "../routes/authRouter";
 
-export function detectHTMX(
+export function checkHTMX(
   req: Request,
   res: Response,
   next: NextFunction,
   reloadPath: string = "/fullPageReload"
 ): void {
-  const referer = req.headers.referer;
+  // const referer = req.headers.referer;
   const requestedUrl = new URL(
     req.originalUrl,
     env.isDev ? `http://${req.headers.host}` : `https://${req.headers.host}`
@@ -30,6 +31,7 @@ export function detectHTMX(
     "json",
     "png",
     "js",
+    "favicon",
   ];
 
   const shouldExclude = (url: string) =>
@@ -45,20 +47,14 @@ export function detectHTMX(
     return;
   }
 
-  if (!referer) {
-    req.isHTMX = false;
-    next();
-    return;
-  }
-
-  if (referer && req.url === "/") {
-    next();
+  if (req.url === "/") {
     res.set({
       "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate",
       Pragma: "no-cache",
       Expires: "0",
       "Surrogate-Control": "no-store",
     });
+    next();
     return;
   }
 
@@ -75,9 +71,11 @@ export function detectHTMX(
     req.isHTMX = false;
 
     if (!requestedUrl.pathname.includes(reloadPath)) {
-      requestedUrl.pathname = reloadPath;
-      requestedUrl.searchParams.set("url", req.originalUrl); // this sets the url query param
-      res.redirect(requestedUrl.toString());
+      res.cookie("redirect", requestedUrl.toString(), {
+        ...cookieOptions,
+        httpOnly: false,
+      });
+      return res.redirect("/");
     } else {
       next();
     }

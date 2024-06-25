@@ -1,8 +1,11 @@
+import type { Account } from "../../../../services/account.service";
 import type { Item } from "../../../../services/plaid.service";
 
 export const ItemPickerForm = (props: {
   items: Item[];
   selectedItemId: string;
+  groupId?: string;
+  itemId?: string;
 }) => {
   return (
     <div class="picker-container">
@@ -14,7 +17,11 @@ export const ItemPickerForm = (props: {
               <>
                 <div
                   class="w-full flex justify-between p-4 hover:opacity-80 cursor-pointer"
-                  hx-get={`/home/page/${item.id}`}
+                  hx-get={
+                    props.groupId
+                      ? `/groups/addTransaction/default/${props.groupId}/${item.id}`
+                      : `/home/page/${item.id}`
+                  }
                   hx-swap="innerHTML"
                   hx-target="#app"
                   hx-push-url={`/transactions/page/${item.id}`}

@@ -25,7 +25,6 @@ import {
   getGroupWithMembers,
   updateGroup,
 } from "../services/group.service.ts";
-import { env } from "../../../env.ts";
 import CreateGroup from "../views/pages/Groups/components/CreateGroup.tsx";
 import { EditGroupPage } from "../views/pages/Groups/components/EditGroup.tsx";
 import { ViewGroups } from "../views/pages/Groups/components/ViewGroup.tsx";
@@ -33,6 +32,8 @@ import { AddTransaction } from "../views/pages/Groups/components/AddTransaction.
 import {
   getAccountWithTransactions,
   getAccountsForUser,
+  getItem,
+  getItemsForUser,
 } from "../services/plaid.service";
 import type { ExtractFunctionReturnType } from "../services/user.service";
 import { GroupTransactionsListPage } from "../views/pages/Groups/TransactionsListGroupsPage.tsx";
@@ -52,15 +53,10 @@ import {
   getAccountsWithItemsForUser,
 } from "../services/account.service.ts";
 import { AccountSelector } from "../views/pages/Groups/components/AccountSelector.tsx";
-import { io } from "../../server/main.ts";
 import {
-  createNotificationForUserInGroups,
   deleteNotificationForUserInGroup,
 } from "../services/notification.service.ts";
 import { createNotificationWithWebsocket } from "../utils/createNotification.ts";
-import { group } from "console";
-import { splitEqualTransactions } from "../utils/equalSplit.ts";
-import { filterUniqueTransactions } from "../utils/filter.ts";
 
 const router = express.Router();
 
@@ -145,8 +141,11 @@ router.get("/view/:groupId", async (req, res) => {
         .filter((owed) => owed !== null)
     );
 
-    // const account = await getAccountsForUser(userId);
-    // const accountId = account ? account[0].id : "";
+    const items = await getItemsForUser(req.user!.id);
+    const defaultItem = items[0] && items[0].item;
+
+    const account = await getAccountsForUser(userId, defaultItem.id);
+    const accountId = account ? account[0].id : "";
 
     const html = renderToHtml(
       <ViewGroups
@@ -169,7 +168,8 @@ router.get("/view/:groupId", async (req, res) => {
               ]
         }
         accountId={accountId} // refactor me!
-        selectedDepositAccountId={depositAccountId}
+        selectedDepositAccountId={null}
+        itemId={defaultItem.id}
       />
     );
     res.send(html);
@@ -488,9 +488,15 @@ router.get("/edit/:groupId", async (req, res) => {
   }
 });
 
-router.get("/addTransaction/:accountId/:groupId", async (req, res) => {
+router.get("/addTransaction/:accountId/:groupId/:itemId", async (req, res) => {
   try {
-    const accounts = await getAccountsForUser(req.user!.id);
+    const item = await getItem(req.params.itemId);
+
+    if (!item) {
+      return res.status(404).send("Item not found");
+    }
+
+    const accounts = await getAccountsForUser(req.user!.id, item.id);
     if (!accounts) throw new Error("no accounts for user!");
 
     const groupTransactions = await getGroupTransactions(req.params.groupId);
@@ -500,7 +506,16 @@ router.get("/addTransaction/:accountId/:groupId", async (req, res) => {
         async (account) => await getAccountWithTransactions(account.id)
       )
     )) as ExtractFunctionReturnType<typeof getAccountWithTransactions>[];
-    const selectedAccountId = req.params.accountId;
+    let selectedAccountId = req.params.accountId;
+    if (selectedAccountId === "default") {
+      const defaultAccount = accountsWithTransactions.find(
+        (account) => account.itemId === req.params.itemId
+      );
+      if (defaultAccount) {
+        selectedAccountId = defaultAccount.id;
+      }
+    }
+
     const currentUser = req.user;
     const html = renderToHtml(
       <AddTransaction
@@ -512,6 +527,7 @@ router.get("/addTransaction/:accountId/:groupId", async (req, res) => {
           groupTransactions?.map((transaction) => transaction.transactionId) ??
           []
         }
+        itemId={req.params.itemId}
       />
     );
     res.send(html);
@@ -659,8 +675,9 @@ router.post("/deleteMember/:userID/:groupID", async (req, res) => {
 
 router.get("/transactions/:groupId", async (req, res) => {
   const groupId = req.params.groupId;
-  const groupWithTransactions =
-    await getGroupWithMembersAndTransactions(groupId);
+  const groupWithTransactions = await getGroupWithMembersAndTransactions(
+    groupId
+  );
   const html = renderToHtml(
     <GroupTransactionsListPage
       group={groupWithTransactions as GroupMembersTransactions}
@@ -701,6 +718,7 @@ router.get("/accountPicker/:itemId/:accountId/:groupId", async (req, res) => {
       accounts={accounts}
       selectedAccountId={req.params.accountId}
       groupId={req.params.groupId as string}
+      itemId={req.params.itemId}
     />
   );
   res.send(html);

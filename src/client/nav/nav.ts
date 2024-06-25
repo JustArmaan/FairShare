@@ -22,8 +22,6 @@ export function highlightNavigationIcons() {
     },
   };
 
-  console.log("icons", icons.notification, icons.groups);
-
   Object.values(icons).forEach((section) => {
     section.inactive?.classList.remove("hidden");
     section.inactive?.classList.add("block");
