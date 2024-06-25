@@ -19,7 +19,7 @@ export const GroupItem = (props: {
             props.group.temporary === "true"
               ? `border-[3px] border-dashed border-${props.group.color} rounded-lg`
               : `bg-${props.group.color} rounded`
-          }  w-14 h-14 aspect-square flex items-center justify-center`}
+          }  h-14 aspect-square flex items-center justify-center`}
         >
           <div
             class={`${

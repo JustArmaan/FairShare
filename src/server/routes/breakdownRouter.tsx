@@ -1,15 +1,8 @@
 import express from "express";
 import { renderToHtml } from "jsxte";
 import { BreakdownPage } from "../views/pages/Breakdown/BreakdownPage";
-<<<<<<< HEAD
 import { getTransactionsForUser } from "../services/transaction.service";
-import { getUser } from "./authRouter";
-import { getAccountWithTransactions } from "../services/plaid.service";
-=======
-import {
-  getTransactionsByMonth,
-  getTransactionsForUser,
-} from "../services/transaction.service";
+import { getTransactionsByMonth } from "../services/transaction.service";
 import { getUser } from "./authRouter";
 import {
   getAccountWithCurrentMonthTransactions,
@@ -22,14 +15,10 @@ import {
 } from "../views/pages/Breakdown/BreakdownPage";
 import { Graph } from "../views/pages/Breakdown/components/TotalExpenses/Graph";
 import { BudgetCard } from "../views/pages/Breakdown/components/BudgetCard";
->>>>>>> 603b790ea02b1318d2df0dbd1c2a33153f808688
 
 const router = express.Router();
 
 router.get("/page/:accountId", getUser, async (req, res) => {
-<<<<<<< HEAD
-  const result = await getAccountWithTransactions(req.params.accountId);
-=======
   const { month, year } = req.query;
   let result;
 
@@ -43,19 +32,15 @@ router.get("/page/:accountId", getUser, async (req, res) => {
     result = await getAccountWithCurrentMonthTransactions(req.params.accountId);
   }
   console.log(result, "result");
->>>>>>> 603b790ea02b1318d2df0dbd1c2a33153f808688
   if (!result) throw new Error("404");
   const html = renderToHtml(
     <BreakdownPage
       transactions={result.transactions}
       accountName={result.name}
-<<<<<<< HEAD
-      url={`/breakdown/page/${req.params.accountId}`}
-=======
       accountId={req.params.accountId}
       month={Number(month) || undefined}
       year={Number(year) || undefined}
->>>>>>> 603b790ea02b1318d2df0dbd1c2a33153f808688
+      url={`/breakdown/page/${req.params.accountId}`}
     />
   );
 

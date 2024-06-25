@@ -16,12 +16,17 @@ export const AddedMember = ({
       class="flex justify-between items-center w-full py-2 space-x-4 mb-2"
       data-email={user.email}
     >
-      <img
-        src="/activeIcons/profile-pic-icon.svg"
-        alt={`${user.firstName}'s profile picture`}
-        class="w-6 h-6 rounded-full bg-font-off-white"
-      />
-      <div class="flex flex-col flex-grow">
+      <div class="w-10 h-10 rounded-full">
+        <div
+          class={`flex rounded-full bg-${user.color} h-10 w-10 justify-center`}
+        >
+          <span class="flex justify-center self-center text-center text-xl font-semibold">
+            {user.firstName.split("", 1)}
+            {user.lastName?.split("", 1)}
+          </span>
+        </div>
+      </div>
+      <div class="flex flex-col">
         <span class="text-font-off-white text-sm">{user.firstName}</span>
         {user.type === "currentUser" && (
           <span class="text-font-grey text-xs">You</span>
@@ -31,12 +36,12 @@ export const AddedMember = ({
         {formatEmail(user.email)}
       </div>
       {user.type === "Owner" ? (
-        <button class="py-2 px-4 bg-accent-purple text-font-off-white rounded-lg text-sm cursor-default">
+        <button class="py-2 px-2 bg-accent-purple text-font-off-white rounded-lg text-sm cursor-default">
           {"Owner"}
         </button>
       ) : (
         <>
-          <button class="py-2 px-4 bg-accent-purple text-font-off-white rounded-lg text-sm cursor-default">
+          <button class="py-2 px-2 bg-accent-purple text-font-off-white rounded-lg text-sm cursor-default">
             {"Member"}
           </button>
           <button class="cursor-pointer">

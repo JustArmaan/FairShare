@@ -33,7 +33,7 @@ const AddMembersComponent = ({
                   .map((member, index) => (
                     <>
                       {index !== group?.members.length && (
-                        <div class="h-[1px] bg-primary-grey rounded w-full"></div>
+                        <div class="h-[1px] bg-primary-grey rounded w-full mb-2"></div>
                       )}
                       <AddedMember user={member} groupId={group?.id} />
                     </>
