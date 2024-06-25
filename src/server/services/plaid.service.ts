@@ -188,6 +188,7 @@ export async function getCashAccountWithTransaction(accountId: string) {
       })),
     };
   } catch (e) {
+    console.log(e, "at getCashAccountWithTransaction");
     return null;
   }
 }

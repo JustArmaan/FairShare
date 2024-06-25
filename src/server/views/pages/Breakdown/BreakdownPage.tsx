@@ -1,6 +1,6 @@
-import { BudgetCard } from './components/BudgetCard';
-import { Graph } from './components/TotalExpenses/Graph';
-import type { TransactionSchema } from '../../../interface/types';
+import { BudgetCard } from "./components/BudgetCard";
+import { Graph } from "./components/TotalExpenses/Graph";
+import type { TransactionSchema } from "../../../interface/types";
 
 type Coordinate = {
   x: number;
@@ -41,9 +41,9 @@ function rangeToStyleString({ start, end }: { start: number; end: number }) {
   const newPoints = includedCoords
     .map(floatToCoords)
     .map(coordToStyleString)
-    .join(' ,');
+    .join(" ,");
   return `clip-path: polygon(50% 50%, ${coordToStyleString(startCoord)}, ${
-    newPoints && newPoints + ','
+    newPoints && newPoints + ","
   } ${coordToStyleString(endCoord)})`;
 }
 
@@ -83,11 +83,11 @@ function updatePercentages(category: Category, categories: Category[]) {
 }
 
 const iconColors = [
-  'bg-accent-red',
-  'bg-accent-blue',
-  'bg-accent-green',
-  'bg-accent-yellow',
-  'bg-accent-purple',
+  "bg-accent-red",
+  "bg-accent-blue",
+  "bg-accent-green",
+  "bg-accent-yellow",
+  "bg-accent-purple",
 ];
 
 export function mapTransactionsToCategories(transactions: TransactionSchema[]) {
@@ -125,9 +125,11 @@ export function mapTransactionsToCategories(transactions: TransactionSchema[]) {
 export const BreakdownPage = ({
   transactions,
   accountName,
+  url,
 }: {
   transactions: TransactionSchema[];
   accountName: string;
+  url: string;
 }) => {
   const categories = mapTransactionsToCategories(transactions);
   const pathStyles = generatePathStyles(categories);
@@ -169,6 +171,7 @@ export const BreakdownPage = ({
             transactions={transactions.filter(
               (transaction) => transaction.categoryId === card.categoryId
             )}
+            url={url}
           />
         );
       })}

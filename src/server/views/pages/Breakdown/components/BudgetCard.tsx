@@ -1,5 +1,5 @@
-import type { TransactionSchema } from '../../../../interface/types';
-import Transaction from '../../transactions/components/Transaction';
+import type { TransactionSchema } from "../../../../interface/types";
+import Transaction from "../../transactions/components/Transaction";
 
 export const BudgetCard = ({
   clipPathStyle,
@@ -8,6 +8,7 @@ export const BudgetCard = ({
   totalCosts,
   title,
   transactions,
+  url,
 }: {
   clipPathStyle: string;
   tailwindColorClass: string;
@@ -15,6 +16,7 @@ export const BudgetCard = ({
   totalCosts: string;
   title: string;
   transactions: TransactionSchema[];
+  url: string;
 }) => {
   return (
     <div class="mt-6 rounded bg-primary-faded-black p-4 flex flex-col">
@@ -38,6 +40,7 @@ export const BudgetCard = ({
           <Transaction
             transaction={transaction}
             tailwindColorClass={tailwindColorClass}
+            url={url}
           />
         ))}
       </div>

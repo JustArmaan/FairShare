@@ -176,6 +176,7 @@ router.get("/view/:groupId", async (req, res) => {
         accountId={accountId} // refactor me!
         selectedDepositAccountId={null}
         itemId={defaultItem.id}
+        url={`/groups/view/${group.id}`}
       />
     );
     res.send(html);
@@ -666,7 +667,11 @@ router.post("/deleteMember/:userID/:groupID", async (req, res) => {
     if (!totalOwed) {
       return res.status(500).send("An error occured when removing a member");
     }
-    if (totalOwed < 0) {
+
+    if (totalOwed > 0) {
+      await deleteMemberByGroup(userID, groupID);
+      return res.status(204).send();
+    } else if (totalOwed < 0) {
       return res
         .status(400)
         .send("You cannot remove a member that still owes money");
@@ -675,7 +680,7 @@ router.post("/deleteMember/:userID/:groupID", async (req, res) => {
     await deleteMemberByGroup(userID, groupID);
     res.status(204).send();
   } catch (error) {
-    res.status(500).send("An error occured when removing a member");
+    res.status(500).send("An error occurred when removing a member");
   }
 });
 
@@ -730,10 +735,11 @@ router.get("/accountPicker/:itemId/:accountId/:groupId", async (req, res) => {
   res.send(html);
 });
 
-router.get("/getTransactions/:groupId/", async (req, res) => {
+router.get("/getTransactions/:groupId", async (req, res) => {
   const groupTransactions = await getGroupWithMembersAndTransactions(
     req.params.groupId
   );
+  const url = req.query.url as string;
   const html = renderToHtml(
     <>
       {groupTransactions &&
@@ -741,6 +747,7 @@ router.get("/getTransactions/:groupId/", async (req, res) => {
           <Transaction
             transaction={transaction}
             tailwindColorClass={transaction.category.color}
+            url={url}
           />
         ))}
     </>

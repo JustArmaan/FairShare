@@ -1,4 +1,4 @@
-import type { UserSchemaWithMemberType } from '../../../../interface/types';
+import type { UserSchemaWithMemberType } from "../../../../interface/types";
 
 export const AddedMember = ({
   user,
@@ -13,46 +13,46 @@ export const AddedMember = ({
 
   return (
     <div
-      class='flex justify-between items-center w-full border-b border-primary-grey py-2 space-x-4 mb-2'
+      class="flex justify-between items-center w-full py-2 space-x-4 mb-2"
       data-email={user.email}
     >
       <img
-        src='/activeIcons/profile-pic-icon.svg'
+        src="/activeIcons/profile-pic-icon.svg"
         alt={`${user.firstName}'s profile picture`}
-        class='w-6 h-6 rounded-full bg-font-off-white'
+        class="w-6 h-6 rounded-full bg-font-off-white"
       />
-      <div class='flex flex-col flex-grow'>
-        <span class='text-font-off-white text-sm'>{user.firstName}</span>
-        {user.type === 'currentUser' && (
-          <span class='text-font-grey text-xs'>You</span>
+      <div class="flex flex-col flex-grow">
+        <span class="text-font-off-white text-sm">{user.firstName}</span>
+        {user.type === "currentUser" && (
+          <span class="text-font-grey text-xs">You</span>
         )}
       </div>
-      <div class='flex-grow text-font-off-white text-sm'>
+      <div class="flex-grow text-font-off-white text-sm">
         {formatEmail(user.email)}
       </div>
-      {user.type === 'Owner' ? (
-        <button class='py-2 px-4 bg-accent-purple text-font-off-white rounded-lg text-sm cursor-default'>
-          {'Owner'}
+      {user.type === "Owner" ? (
+        <button class="py-2 px-4 bg-accent-purple text-font-off-white rounded-lg text-sm cursor-default">
+          {"Owner"}
         </button>
       ) : (
         <>
-          <button class='py-2 px-4 bg-accent-purple text-font-off-white rounded-lg text-sm cursor-default'>
-            {'Member'}
+          <button class="py-2 px-4 bg-accent-purple text-font-off-white rounded-lg text-sm cursor-default">
+            {"Member"}
           </button>
-          <button class='cursor-pointer'>
-            {groupId !== '' ? (
+          <button class="cursor-pointer">
+            {groupId !== "" ? (
               <img
-                id='delete-icon'
-                src='/icons/delete.svg'
+                id="delete-icon"
+                src="/icons/delete.svg"
                 hx-post={`/groups/deleteMember/${user.id}/${groupId}`}
-                hx-trigger='click'
-                class='delete-icon cursor pointer'
+                hx-trigger="click"
+                class="delete-icon cursor pointer"
               />
             ) : (
               <img
-                id='delete-icon'
-                src='/icons/delete.svg'
-                class='delete-icon cursor pointer'
+                id="delete-icon"
+                src="/icons/delete.svg"
+                class="delete-icon cursor pointer"
               />
             )}
           </button>

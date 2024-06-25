@@ -61,7 +61,7 @@ export const GroupItem = (props: {
                 hx-target="#app"
                 hx-swap="innerHTML"
                 class=""
-                src="icons/delete.svg"
+                src="/icons/delete.svg"
                 alt="delete icon"
               />
             )}

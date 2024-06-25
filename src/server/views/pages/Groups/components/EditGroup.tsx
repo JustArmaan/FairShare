@@ -92,7 +92,7 @@ export const EditGroupPage = ({
     <div class="p-6 animate-fade-in">
       <div class="flex justify-start w-fit items-center mb-1">
         <a
-          hx-get="/groups/page"
+          hx-get={`/groups/view/${group.id}`}
           hx-trigger="click"
           hx-target="#app"
           hx-swap="innerHTML"
@@ -165,8 +165,8 @@ export const EditGroupPage = ({
           currentUser={currentUser}
           isEditMode={true}
         />
-        <div class="flex text-font-off-white">
-          <p class="mr-2 mt-3">Temporary Group?</p>
+        <div class="flex text-font-off-white mt-3">
+          <p class="mr-2 ">Temporary Group</p>
           <img src="/activeIcons/info.svg" alt="Hover for more info" />
         </div>
         <div class="flex text-font-off-white items-center justify-center">
