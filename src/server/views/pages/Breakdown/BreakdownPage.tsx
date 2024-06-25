@@ -2,7 +2,6 @@ import { BudgetCard } from "./components/BudgetCard";
 import { Graph } from "./components/TotalExpenses/Graph";
 import type { TransactionSchema } from "../../../interface/types";
 import { accounts } from "../../../database/schema/accounts";
-
 type Coordinate = {
   x: number;
   y: number;
@@ -129,12 +128,14 @@ export const BreakdownPage = ({
   accountId,
   month,
   year,
+  url,
 }: {
   transactions: TransactionSchema[];
   accountName: string;
   accountId: string;
   month?: number;
   year?: number;
+  url: string;
 }) => {
   const categories = mapTransactionsToCategories(transactions);
   const pathStyles = generatePathStyles(categories);
@@ -251,6 +252,7 @@ export const BreakdownPage = ({
                       (transaction) =>
                         transaction.categoryId === card.categoryId
                     )}
+                    url={url}
                   />
                 );
               })}

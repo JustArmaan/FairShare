@@ -30,7 +30,9 @@ export const GroupTransactionsListPage = (props: {
         </div>
         <div
           class="transactions-container flex flex-col my-8"
-          hx-get={`/groups/getTransactions/${props.group.id}`}
+          hx-get={`/groups/getTransactions/${
+            props.group.id
+          }/?url=${`/groups/view/${props.group.id}`}`}
           hx-swap="innerHTML"
           hx-trigger="load"
           hx-target=".transactions-container"

@@ -10,11 +10,13 @@ export const TransactionDetailsPage = ({
   accountType,
   institution,
   info,
+  url,
 }: {
   transaction: TransactionSchema;
   accountType: string;
   institution: string;
   info: Info;
+  url: string;
 }) => {
   function makeFirstLetterUppercase(str: string) {
     return str.charAt(0).toUpperCase() + str.slice(1);
@@ -23,7 +25,7 @@ export const TransactionDetailsPage = ({
     <div class="p-6 animate-fade-in">
       <div class="flex justify-start w-fit items-center mb-1">
         <a
-          hx-get={"/home/page/default"}
+          hx-get={url}
           hx-trigger="click"
           hx-target="#app"
           hx-swap="innerHTML"

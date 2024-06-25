@@ -24,6 +24,7 @@ export const ViewGroups = ({
   accountId,
   selectedDepositAccountId,
   itemId,
+  url,
 }: {
   groupId: string;
   transactions: GroupWithTransactions;
@@ -37,6 +38,7 @@ export const ViewGroups = ({
   accountId: string;
   selectedDepositAccountId: string | null;
   itemId: string;
+  url: string;
 }) => {
   return (
     <div class="p-6 animate-fade-in">
@@ -99,6 +101,7 @@ export const ViewGroups = ({
           transactions={transactions}
           owedPerMember={owedPerMember}
           groupId={groupId}
+          url={url}
         />
         {/* <p class="text-font-off-white text-2xl pt-3
             pb-1">Budget</p> <BudgetChart groupBudget={groupBudget} /> */}
@@ -124,6 +127,7 @@ export const ViewGroups = ({
           <Transaction
             transaction={transaction}
             tailwindColorClass={transaction.category.color}
+            url={`/groups/view/${groupId}`}
           />
         ))}{" "}
       </div>

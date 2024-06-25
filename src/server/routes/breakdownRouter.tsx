@@ -29,6 +29,7 @@ router.get("/page/:accountId", getUser, async (req, res) => {
       accountId={req.params.accountId}
       month={Number(month) || undefined}
       year={Number(year) || undefined}
+      url={`/breakdown/page/${req.params.accountId}`}
     />
   );
 

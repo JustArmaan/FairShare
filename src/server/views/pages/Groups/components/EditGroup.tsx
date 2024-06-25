@@ -92,7 +92,7 @@ export const EditGroupPage = ({
     <div class="p-6 animate-fade-in">
       <div class="flex justify-start w-fit items-center mb-1">
         <a
-          hx-get="/groups/page"
+          hx-get={`/groups/view/${group.id}`}
           hx-trigger="click"
           hx-target="#app"
           hx-swap="innerHTML"
@@ -165,16 +165,23 @@ export const EditGroupPage = ({
           currentUser={currentUser}
           isEditMode={true}
         />
-        <div class="flex text-font-off-white">
-          <p class="mr-2 mt-3">Temporary Group?</p>
-          <img src="/activeIcons/info.svg" alt="Hover for more info" />
+        <div class="flex text-font-off-white mt-3 justify-center has-tooltip">
+          <span class="tooltip mx-4 text-font-off-white -mt-8 shadow-lg bg-primary-dark-grey rounded-lg m-2 cursor-pointer p-1">
+            Temporary groups will be deleted after 7 days
+          </span>
+          Temporary Group
+          <img
+            src="/activeIcons/info.svg"
+            alt="Hover for more info"
+            class="ml-2"
+          />
         </div>
-        <div class="flex text-font-off-white items-center justify-center">
+        <div class="flex text-font-off-white items-center justify-center ml-2">
           <input
             type="checkbox"
             name="temporaryGroup"
             id="temporaryGroup"
-            class="ml-2 mt-2"
+            class="mt-2 w-5 h-5 cursor-pointer"
             checked={group.temporary.toString() === "true"}
           />
         </div>
@@ -202,7 +209,7 @@ export const EditGroupPage = ({
           </button>
         </div>
       </div>
-      <div class="mb-24"></div>
+      <div class="mb-20"></div>
     </div>
   );
 };

@@ -62,7 +62,7 @@ export const AddTransaction = (props: {
             />
           </div>
         </div>
-        {/* <div class="flex justify-between">
+        <div class="flex justify-between">
           <button
             class={`rounded-2xl py-3 px-4 bg-accent-blue text-font-off-white`}
             hx-get={`/transactions/createTransaction/${props.groupId}`}
@@ -71,7 +71,7 @@ export const AddTransaction = (props: {
           >
             <span class="text`-base font-semibold">Add transaction</span>
           </button>
-        </div> */}
+        </div>
       </div>
       <div
         id="errorContainer"
