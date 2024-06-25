@@ -1,6 +1,6 @@
 export const PieChart = (props: {
   home?: boolean;
-  accountId: string;
+  accountId?: string;
   slices: {
     clipPathStyle: string;
     tailwindColorClass: string;

@@ -3,7 +3,7 @@ import { PieChart } from "./PieChart";
 
 export const Graph = (props: {
   home?: boolean;
-  accountId: string;
+  accountId?: string;
   slices: {
     clipPathStyle: string;
     tailwindColorClass: string;
