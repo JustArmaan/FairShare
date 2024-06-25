@@ -46,6 +46,7 @@ export const AddedMember = ({
                 src='/icons/delete.svg'
                 hx-post={`/groups/deleteMember/${user.id}/${groupId}`}
                 hx-trigger='click'
+                
                 class='delete-icon cursor pointer'
               />
             ) : (

@@ -1,6 +1,7 @@
 import { BudgetCard } from "./components/BudgetCard";
 import { Graph } from "./components/TotalExpenses/Graph";
 import type { TransactionSchema } from "../../../interface/types";
+import { accounts } from "../../../database/schema/accounts";
 
 type Coordinate = {
   x: number;
@@ -125,9 +126,15 @@ export function mapTransactionsToCategories(transactions: TransactionSchema[]) {
 export const BreakdownPage = ({
   transactions,
   accountName,
+  accountId,
+  month,
+  year,
 }: {
   transactions: TransactionSchema[];
   accountName: string;
+  accountId: string;
+  month?: number;
+  year?: number;
 }) => {
   const categories = mapTransactionsToCategories(transactions);
   const pathStyles = generatePathStyles(categories);
@@ -145,8 +152,23 @@ export const BreakdownPage = ({
     "November",
     "December",
   ];
-  const currentYear = new Date().getFullYear();
-  const currentMonth = new Date().getMonth();
+
+  let selectedMonth;
+  let selectedYear;
+
+  if (month && year) {
+    selectedMonth = month; 
+    selectedYear = year;
+  } else {
+    selectedMonth = new Date().getMonth() + 1; 
+    selectedYear = new Date().getFullYear();
+  }
+  console.log(
+    selectedMonth,
+    selectedYear,
+    accountId,
+    "breakdown"
+  );
   return (
     <div class="text-font-off-white h-fit p-6 page animate-fade-in">
       <p class="text-2xl">
@@ -158,10 +180,7 @@ export const BreakdownPage = ({
         class="bg-primary-black py-1 px-1 my-2 mt-4 shadow-lg flex items-center justify-center w-full border border-font-off-white rounded-full text-primary-gray"
       >
         <form
-          hx-post={`/breakdown/history`}
-          hx-trigger="change"
-          hx-target="#breakdown-data"
-          hx-include="[name='month'], [name='year']"
+          id="transactionForm"
           class="flex items-center w-full justify-between px-1"
         >
           <select
@@ -170,7 +189,7 @@ export const BreakdownPage = ({
             class="bg-primary-black text-primary-grey outline-none rounded cursor-pointer"
           >
             {[2022, 2023, 2024].map((year) => (
-              <option value={String(year)} selected={year === currentYear}>
+              <option value={String(year)} selected={year === selectedYear}>
                 {year}
               </option>
             ))}
@@ -182,8 +201,8 @@ export const BreakdownPage = ({
           >
             {months.map((month, index) => (
               <option
-                value={String(index + 1)}
-                selected={index === currentMonth}
+                value={String(index + 1).padStart(2, "0")}
+                selected={index + 1 === selectedMonth} // Ensure this comparison is with a number
               >
                 {month}
               </option>
@@ -192,15 +211,15 @@ export const BreakdownPage = ({
           <input
             type="button"
             value="Reset"
-            class="bg-primary-black text-primary-grey cursor-pointer rounded-lg px-4 py-2 "
-            hx-get={`/breakdown/page/${transactions[0].accountId}`}
+            class="bg-primary-black text-primary-grey cursor-pointer rounded-lg px-4 py-2"
+            hx-get={`/breakdown/page/${accountId}`}
             hx-trigger="click"
             hx-target="#app"
             hx-swap="innerHTML"
           />
           <input
             type="hidden"
-            value={transactions[0].accountId}
+            value={accountId}
             name="accountId"
           />
         </form>

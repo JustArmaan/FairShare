@@ -7,6 +7,7 @@ import htmx from "htmx.org";
 import { progressBar } from "./progressBar/progressBar";
 import { attachButton } from "./plaid/connect";
 import { handleNavigation } from "./navigation/navigation";
+import { attachFormListeners, submitForm } from "./submitForm/submitForm";
 
 main();
 splitTransfer();
@@ -16,6 +17,8 @@ handleNavigation();
 document.body.addEventListener("htmx:afterSwap", (event) => {
   highlightNavigationIcons();
   progressBar();
+  attachFormListeners();
+
   if (!(event.target instanceof HTMLElement)) return;
   const excludeListId = new Set(["institutionSelector"]);
   if (excludeListId.has(event.target.id)) return;

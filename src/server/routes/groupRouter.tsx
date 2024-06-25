@@ -53,9 +53,7 @@ import {
   getAccountsWithItemsForUser,
 } from "../services/account.service.ts";
 import { AccountSelector } from "../views/pages/Groups/components/AccountSelector.tsx";
-import {
-  deleteNotificationForUserInGroup,
-} from "../services/notification.service.ts";
+import { deleteNotificationForUserInGroup } from "../services/notification.service.ts";
 import { createNotificationWithWebsocket } from "../utils/createNotification.ts";
 
 const router = express.Router();
@@ -661,6 +659,7 @@ router.post("/deleteMember/:userID/:groupID", async (req, res) => {
       return res.status(500).send("An error occured when removing a member");
     }
     if (totalOwed < 0) {
+      console.log("running");
       return res
         .status(400)
         .send("You cannot remove a member that still owes money");

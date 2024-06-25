@@ -47,7 +47,6 @@ export const addItemToUser = async (
 };
 
 export async function getItem(id: string) {
- 
   try {
     const result = await db
       .select({ items: items })
@@ -215,6 +214,63 @@ export async function getAccountWithCurrentMonthTransactions(
     };
   } catch (error) {
     console.error(error, "at getAccountWithCurrentMonthTransactions");
+    return null;
+  }
+}
+
+export async function getAccountWithMonthTransactions(
+  accountId: string,
+  year: number,
+  month: number
+) {
+  const currentYear = year.toString();
+  const currentMonth = month.toString().padStart(2, "0");
+
+  const { nextYear, nextMonth } = getNextMonthYear(currentYear, currentMonth);
+  const startDate = `${currentYear}-${currentMonth}-01`;
+  const endDate = `${nextYear}-${nextMonth}-01`;
+
+  console.log("Start Date:", startDate);
+  console.log("End Date:", endDate);
+
+  try {
+    const result = await db
+      .select({
+        account: accounts,
+        transaction: transactions,
+        categories: categories,
+      })
+      .from(accounts)
+      .innerJoin(transactions, eq(accounts.id, transactions.accountId))
+      .innerJoin(categories, eq(transactions.categoryId, categories.id))
+      .where(
+        and(
+          eq(accounts.id, accountId),
+          gte(transactions.timestamp, startDate),
+          lt(transactions.timestamp, endDate)
+        )
+      );
+
+    // Debug: Log the query result
+    console.log("Query Result:", result);
+
+    const account = await getAccount(accountId);
+    if (!account) return null;
+
+    const accountType = account.accountTypeId
+      ? await getAccountTypeById(account.accountTypeId)
+      : null;
+
+    return {
+      ...account,
+      accountTypeId: accountType,
+      transactions: result.map((entry) => ({
+        ...entry.transaction,
+        category: { ...entry.categories },
+      })),
+    };
+  } catch (error) {
+    console.error(error, "at getAccountWithMonthTransactions");
     return null;
   }
 }
