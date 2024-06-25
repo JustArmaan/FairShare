@@ -25,7 +25,6 @@ export const PendingItems = ({
   function firstLetterUppercase(str: string) {
     return str.charAt(0).toUpperCase() + str.slice(1);
   }
-  console.log(owedPerMember, 'owedPerMember Pedning');
   return (
     <div class="flex-col w-full justify-evenly rounded-lg py-1.5 px-4 mt-3 flex items-center bg-primary-black relative">
       {transactions &&

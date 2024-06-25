@@ -7,10 +7,6 @@ export const AccountPickerForm = (props: {
   groupId?: string;
   itemId: string;
 }) => {
-  console.log(
-    props.accounts.forEach((account) => console.log(account.id)),
-    "account ids"
-  );
   return (
     <div class="picker-container">
       <div class="h-screen w-screen fixed top-0 left-0 bg-card-black opacity-80"></div>
