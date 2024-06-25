@@ -50,7 +50,7 @@ export const kindeClient = createKindeServerClient(
   }
 );
 
-const cookieOptions = {
+export const cookieOptions = {
   maxAge: 24 * 60 * 60 * 1000,
   httpOnly: true,
   secure: true,
@@ -117,11 +117,21 @@ router.get("/callback", async (req, res) => {
 export async function getUser(req: Request, res: Response, next: NextFunction) {
   if (
     req.get("host")?.includes("render") &&
-    !req.get("host")?.includes("localhost")
+    !req.get("host")?.includes("localhost") &&
+    !req.get("host")?.includes("idsp")
   ) {
     console.log("redirect");
     return res.redirect("https://myfairshare.ca");
   }
+
+  if (
+    !req.headers["accept"]?.includes("text/html") &&
+    !(req.headers["hx-request"] === "true") &&
+    !req.url.includes("api")
+  ) {
+    return next();
+  }
+
   try {
     const isAuthenticated = await kindeClient.isAuthenticated(
       sessionManager(req, res)
@@ -146,27 +156,22 @@ export async function getUser(req: Request, res: Response, next: NextFunction) {
         });
         // await seedFakeTransactions(id, 20);
         if (!(await findUser(id))) throw new Error("failed to create user");
-        next();
+        return next();
       } else {
         req.user = user;
-        next();
+        return next();
       }
     } else {
-      if (req.url.includes("auth")) return next();
       if (
-        req.url === "/" ||
+        req.url.includes("auth") ||
         req.url.includes("onboard") ||
-        req.url.includes("images") ||
-        req.url.endsWith(".svg") ||
-        req.url.endsWith(".png") ||
-        req.url.endsWith(".css") ||
-        req.url.endsWith("client") ||
-        req.url.endsWith("sync") ||
-        req.url.endsWith("vopay-transactions-webhook") ||
-        req.url.endsWith("json")
-      )
+        req.url === "/"
+      ) {
         return next();
-      res.redirect("/");
+      } else {
+        // console.trace("redir hom");
+        res.redirect("/");
+      }
     }
   } catch (e) {
     console.error(e);

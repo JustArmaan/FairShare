@@ -83,7 +83,7 @@ export const AccountOverview = ({
           {validateTransactions(account.transactions) ? (
             <>
               <p class="text-xl font-semibold">Monthly Breakdown</p>
-              <Graph slices={pathStyles} />
+              <Graph slices={pathStyles} accountId={account.id} home />
               <div class="flex flex-row justify-center mt-6">
                 <button
                   hx-swap="innerHTML"

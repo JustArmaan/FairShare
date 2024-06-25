@@ -25,7 +25,6 @@ import {
   getGroupWithMembers,
   updateGroup,
 } from "../services/group.service.ts";
-import { env } from "../../../env.ts";
 import CreateGroup from "../views/pages/Groups/components/CreateGroup.tsx";
 import { EditGroupPage } from "../views/pages/Groups/components/EditGroup.tsx";
 import { ViewGroups } from "../views/pages/Groups/components/ViewGroup.tsx";
@@ -54,15 +53,8 @@ import {
   getAccountsWithItemsForUser,
 } from "../services/account.service.ts";
 import { AccountSelector } from "../views/pages/Groups/components/AccountSelector.tsx";
-import { io } from "../../server/main.ts";
-import {
-  createNotificationForUserInGroups,
-  deleteNotificationForUserInGroup,
-} from "../services/notification.service.ts";
+import { deleteNotificationForUserInGroup } from "../services/notification.service.ts";
 import { createNotificationWithWebsocket } from "../utils/createNotification.ts";
-import { group } from "console";
-import { splitEqualTransactions } from "../utils/equalSplit.ts";
-import { filterUniqueTransactions } from "../utils/filter.ts";
 
 const router = express.Router();
 

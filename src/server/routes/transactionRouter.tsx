@@ -85,7 +85,12 @@ router.get("/page/:itemId/:selectedAccountId", getUser, async (req, res) => {
 
     const html = renderToHtml(
       <TransactionsPage
-        accounts={accounts}
+        accounts={await Promise.all(
+          // this is ugly as shit, quick fix cuz i'm tired
+          accounts.map(
+            async (account) => (await getAccountWithTransactions(account.id))!
+          )
+        )}
         selectedAccountId={req.params.selectedAccountId}
         itemId={req.params.itemId}
       />

@@ -1,7 +1,7 @@
 import { BudgetCard } from "./components/BudgetCard";
 import { Graph } from "./components/TotalExpenses/Graph";
 import type { TransactionSchema } from "../../../interface/types";
-
+import { accounts } from "../../../database/schema/accounts";
 type Coordinate = {
   x: number;
   y: number;
@@ -125,56 +125,135 @@ export function mapTransactionsToCategories(transactions: TransactionSchema[]) {
 export const BreakdownPage = ({
   transactions,
   accountName,
+  accountId,
+  month,
+  year,
   url,
 }: {
   transactions: TransactionSchema[];
   accountName: string;
+  accountId: string;
+  month?: number;
+  year?: number;
   url: string;
 }) => {
   const categories = mapTransactionsToCategories(transactions);
   const pathStyles = generatePathStyles(categories);
+  const months = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ];
 
+  let selectedMonth;
+  let selectedYear;
+
+  if (month && year) {
+    selectedMonth = month;
+    selectedYear = year;
+  } else {
+    selectedMonth = new Date().getMonth() + 1;
+    selectedYear = new Date().getFullYear();
+  }
+  console.log(selectedMonth, selectedYear, accountId, "breakdown");
   return (
     <div class="text-font-off-white h-fit p-6 page animate-fade-in">
       <p class="text-2xl">
         <b>{accountName}</b>
       </p>
       <p class="text-xl">Account Breakdown</p>
+      <div
+        id="date-selector-form"
+        class="bg-primary-black py-1 px-1 my-2 mt-4 shadow-lg flex items-center justify-center w-full border border-font-off-white rounded-full text-primary-gray"
+      >
+        <form
+          id="transactionForm"
+          class="flex items-center w-full justify-between px-1"
+        >
+          <select
+            name="year"
+            id="yearSelect"
+            class="bg-primary-black text-primary-grey outline-none rounded cursor-pointer"
+          >
+            {[2022, 2023, 2024].map((year) => (
+              <option value={String(year)} selected={year === selectedYear}>
+                {year}
+              </option>
+            ))}
+          </select>
+          <select
+            name="month"
+            id="monthSelect"
+            class="bg-primary-black text-primary-grey outline-none rounded cursor-pointer w-fit"
+          >
+            {months.map((month, index) => (
+              <option
+                value={String(index + 1).padStart(2, "0")}
+                selected={index + 1 === selectedMonth} // Ensure this comparison is with a number
+              >
+                {month}
+              </option>
+            ))}
+          </select>
+          <input
+            type="button"
+            value="Reset"
+            class="bg-primary-black text-primary-grey cursor-pointer rounded-lg px-4 py-2"
+            hx-get={`/breakdown/page/${accountId}`}
+            hx-trigger="click"
+            hx-target="#app"
+            hx-swap="innerHTML"
+          />
+          <input type="hidden" value={accountId} name="accountId" />
+        </form>
+      </div>
       <div class="mt-6">
         <p>
           <b>Total Expenses</b>
         </p>
-        <div class="flex flex-row items-center justify-center relative">
+        <div id="breakdown-data">
           <div>
-            <p class="text-3xl text-center mt-6 font-bold pl-2 pr-2">
-              $
-              {categories
-                .reduce((sum, category) => category.cost + sum, 0)
-                .toFixed(2)}
-            </p>
-            <div class="h-0.5 bg-font-grey rounded mt-0.5 w-full"></div>
+            <div class="flex flex-col items-center justify-center relative">
+              <p class="text-3xl text-center mt-6 font-bold pl-2 pr-2">
+                $
+                {categories
+                  .reduce((sum, category) => category.cost + sum, 0)
+                  .toFixed(2)}
+              </p>
+              <div class="h-0.5 bg-font-grey rounded mt-0.5 w-full"></div>
+            </div>
+            {/*<p class="absolute right-0 text-sm text-primary-grey">-20% from March</p>*/}
           </div>
-          {/*<p class="absolute right-0 text-sm text-font-grey">-20% from March</p>*/}
+          <Graph slices={pathStyles} />
+          <div class="h-0.5 bg-primary-dark-grey rounded mt-12"></div>
+          <div class="h-4"></div>{" "}
+          {/* spacer cuz collapsing margins are the devil*/}
+          {pathStyles.map((card) => {
+            return (
+              <BudgetCard
+                clipPathStyle={card.clipPathStyle}
+                tailwindColorClass={card.tailwindColorClass}
+                title={card.title}
+                percentage={card.percentage}
+                totalCosts={card.totalCosts}
+                transactions={transactions.filter(
+                  (transaction) => transaction.categoryId === card.categoryId
+                )}
+                url={url}
+              />
+            );
+          })}
         </div>
       </div>
-      <Graph slices={pathStyles} />
-      <div class="h-0.5 bg-primary-dark-grey rounded mt-12"></div>
-      <div class="h-4"></div> {/* spacer cuz collapsing margins are the devil*/}
-      {pathStyles.map((card) => {
-        return (
-          <BudgetCard
-            clipPathStyle={card.clipPathStyle}
-            tailwindColorClass={card.tailwindColorClass}
-            title={card.title}
-            percentage={card.percentage}
-            totalCosts={card.totalCosts}
-            transactions={transactions.filter(
-              (transaction) => transaction.categoryId === card.categoryId
-            )}
-            url={url}
-          />
-        );
-      })}
       <div class="h-24" />
     </div>
   );

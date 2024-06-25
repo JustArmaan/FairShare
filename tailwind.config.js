@@ -117,5 +117,6 @@ export default {
       display: ["group-hover"],
     },
   },
+  mode: "jit",
   plugins: [],
 };

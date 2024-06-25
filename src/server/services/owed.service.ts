@@ -1,13 +1,13 @@
-import { and, eq, ne } from 'drizzle-orm';
-import { getDB } from '../database/client';
-import { groupTransactionToUsersToGroups } from '../database/schema/groupTransactionToUsersToGroups';
-import { transactionsToGroups } from '../database/schema/transactionsToGroups';
-import { usersToGroups } from '../database/schema/usersToGroups';
-import type { ExtractFunctionReturnType } from './user.service';
-import { v4 as uuid } from 'uuid';
-import { users } from '../database/schema/users';
-import { groupTransactionState } from '../database/schema/groupTransactionState';
-import { splitType } from '../database/schema/splitType';
+import { and, eq, ne } from "drizzle-orm";
+import { getDB } from "../database/client";
+import { groupTransactionToUsersToGroups } from "../database/schema/groupTransactionToUsersToGroups";
+import { transactionsToGroups } from "../database/schema/transactionsToGroups";
+import { usersToGroups } from "../database/schema/usersToGroups";
+import type { ExtractFunctionReturnType } from "./user.service";
+import { v4 as uuid } from "uuid";
+import { users } from "../database/schema/users";
+import { groupTransactionState } from "../database/schema/groupTransactionState";
+import { splitType } from "../database/schema/splitType";
 
 type Owed = ExtractFunctionReturnType<typeof getOwed>;
 
@@ -30,13 +30,13 @@ type GroupTransactionState = ExtractFunctionReturnType<
 >;
 
 export async function createGroupTransactionState(
-  newGroupTransactionState: Omit<GroupTransactionState, 'id' | 'splitTypeId'>
+  newGroupTransactionState: Omit<GroupTransactionState, "id" | "splitTypeId">
 ) {
   try {
     const equalSplit = await db
       .select()
       .from(splitType)
-      .where(eq(splitType.type, 'equal'));
+      .where(eq(splitType.type, "equal"));
 
     return await db
       .insert(groupTransactionState)
@@ -47,17 +47,17 @@ export async function createGroupTransactionState(
       })
       .returning();
   } catch (e) {
-    console.log(e, 'at getGroupTransactionState');
+    console.log(e, "at getGroupTransactionState");
   }
 }
 
-export async function createOwed(group: Omit<Owed, 'id'>) {
+export async function createOwed(group: Omit<Owed, "id">) {
   try {
     await db
       .insert(groupTransactionToUsersToGroups)
       .values({ ...group, id: uuid() });
   } catch (e) {
-    console.log(e, 'at createOwed');
+    console.log(e, "at createOwed");
   }
 }
 
@@ -95,7 +95,7 @@ export async function getGroupIdAndTransactionIdForOwed(owedId: string) {
       .where(eq(groupTransactionToUsersToGroups.id, owedId));
     return results[0];
   } catch (e) {
-    console.error(e, 'at getGroupIdAndTransactionForOwed');
+    console.error(e, "at getGroupIdAndTransactionForOwed");
     return null;
   }
 }
@@ -141,7 +141,7 @@ export async function getAllOwedForGroupTransactionWithMemberInfo(
       })),
     ];
   } catch (e) {
-    console.error(e, 'at getOwed');
+    console.error(e, "at getOwed");
     return null;
   }
 }
@@ -188,7 +188,7 @@ export async function getAllOwedForGroupTransactionNotPendingWithMemberInfo(
       })),
     ];
   } catch (e) {
-    console.error(e, 'at getOwed');
+    console.error(e, "at getOwed");
     return null;
   }
 }
@@ -234,7 +234,7 @@ export async function getAllOwedForGroupTransaction(
       })),
     ];
   } catch (e) {
-    console.error(e, 'at getOwed');
+    console.error(e, "at getOwed");
     return null;
   }
 }
@@ -280,7 +280,7 @@ export async function getAllOwedForGroupTransactionWithTransactionId(
       })),
     ];
   } catch (e) {
-    console.error(e, 'at getOwed');
+    console.error(e, "at getOwed");
     return null;
   }
 }
@@ -327,7 +327,7 @@ export async function getAllOwedForGroupPendingTransactionWithTransactionId(
       })),
     ];
   } catch (e) {
-    console.error(e, 'at getOwed');
+    console.error(e, "at getOwed");
     return null;
   }
 }

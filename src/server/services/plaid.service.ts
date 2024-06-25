@@ -1,6 +1,6 @@
 import { getDB } from "../database/client.ts";
 import { v4 as uuidv4 } from "uuid";
-import { and, eq } from "drizzle-orm";
+import { and, eq, gte, lt } from "drizzle-orm";
 import { items } from "../database/schema/items.ts";
 import { users } from "../database/schema/users.ts";
 import { currencyCode } from "../database/schema/currencyCode.ts";
@@ -13,6 +13,7 @@ import { getAccountTypeById } from "./accountType.service.ts";
 import { getAccount } from "./account.service.ts";
 import { plaidAccount } from "../database/schema/plaidAccount.ts";
 import { cashAccount } from "../database/schema/cashAccount.ts";
+import { getNextMonthYear } from "./transaction.service.ts";
 
 const db = getDB();
 
@@ -163,6 +164,113 @@ export async function getAccountWithTransactions(accountId: string) {
     };
   } catch (e) {
     console.error(e, "at getAccountWithTransactions");
+    return null;
+  }
+}
+
+export async function getAccountWithCurrentMonthTransactions(
+  accountId: string
+) {
+  const currentDate = new Date();
+  const currentYear = currentDate.getFullYear().toString();
+  const currentMonth = (currentDate.getMonth() + 1).toString().padStart(2, "0");
+
+  const { nextYear, nextMonth } = getNextMonthYear(currentYear, currentMonth);
+  const startDate = `${currentYear}-${currentMonth}-01`;
+  const endDate = `${nextYear}-${nextMonth}-01`;
+
+  try {
+    const result = await db
+      .select({
+        account: accounts,
+        transaction: transactions,
+        categories: categories,
+      })
+      .from(accounts)
+      .innerJoin(transactions, eq(accounts.id, transactions.accountId))
+      .innerJoin(categories, eq(transactions.categoryId, categories.id))
+      .where(
+        and(
+          eq(accounts.id, accountId),
+          gte(transactions.timestamp, startDate),
+          lt(transactions.timestamp, endDate)
+        )
+      );
+
+    const account = await getAccount(accountId);
+    if (!account) return null;
+
+    const accountType = account.accountTypeId
+      ? await getAccountTypeById(account.accountTypeId)
+      : null;
+
+    return {
+      ...account,
+      accountTypeId: accountType,
+      transactions: result.map((entry) => ({
+        ...entry.transaction,
+        category: { ...entry.categories },
+      })),
+    };
+  } catch (error) {
+    console.error(error, "at getAccountWithCurrentMonthTransactions");
+    return null;
+  }
+}
+
+export async function getAccountWithMonthTransactions(
+  accountId: string,
+  year: number,
+  month: number
+) {
+  const currentYear = year.toString();
+  const currentMonth = month.toString().padStart(2, "0");
+
+  const { nextYear, nextMonth } = getNextMonthYear(currentYear, currentMonth);
+  const startDate = `${currentYear}-${currentMonth}-01`;
+  const endDate = `${nextYear}-${nextMonth}-01`;
+
+  console.log("Start Date:", startDate);
+  console.log("End Date:", endDate);
+
+  try {
+    const result = await db
+      .select({
+        account: accounts,
+        transaction: transactions,
+        categories: categories,
+      })
+      .from(accounts)
+      .innerJoin(transactions, eq(accounts.id, transactions.accountId))
+      .innerJoin(categories, eq(transactions.categoryId, categories.id))
+      .where(
+        and(
+          eq(accounts.id, accountId),
+          gte(transactions.timestamp, startDate),
+          lt(transactions.timestamp, endDate)
+        )
+      );
+
+    // Debug: Log the query result
+    console.log("Query Result:", result);
+
+    const account = await getAccount(accountId);
+    if (!account) return null;
+
+    const accountType = account.accountTypeId
+      ? await getAccountTypeById(account.accountTypeId)
+      : null;
+
+    return {
+      ...account,
+      accountTypeId: accountType,
+      transactions: result.map((entry) => ({
+        ...entry.transaction,
+        category: { ...entry.categories },
+      })),
+    };
+  } catch (error) {
+    console.error(error, "at getAccountWithMonthTransactions");
     return null;
   }
 }

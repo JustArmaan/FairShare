@@ -1,13 +1,14 @@
 import type { Request, Response, NextFunction } from "express";
 import { env } from "../../../env";
+import { cookieOptions } from "../routes/authRouter";
 
-export function detectHTMX(
+export function checkHTMX(
   req: Request,
   res: Response,
   next: NextFunction,
   reloadPath: string = "/fullPageReload"
 ): void {
-  const referer = req.headers.referer;
+  // const referer = req.headers.referer;
   const requestedUrl = new URL(
     req.originalUrl,
     env.isDev ? `http://${req.headers.host}` : `https://${req.headers.host}`
@@ -37,19 +38,16 @@ export function detectHTMX(
     excludePaths.some((exclude) => url.includes(exclude));
 
   if (shouldExclude(req.url)) {
-
     next();
     return;
   }
 
   if (contentType && !contentType.includes("text/html")) {
-
     next();
     return;
   }
 
   if (req.url === "/") {
-
     res.set({
       "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate",
       Pragma: "no-cache",
@@ -61,7 +59,6 @@ export function detectHTMX(
   }
 
   if (req.headers["hx-request"] === "true") {
-
     req.isHTMX = true;
     res.set({
       "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate",
@@ -74,10 +71,11 @@ export function detectHTMX(
     req.isHTMX = false;
 
     if (!requestedUrl.pathname.includes(reloadPath)) {
-      requestedUrl.pathname = reloadPath;
-      requestedUrl.searchParams.set("url", req.originalUrl); // this sets the url query param
-      console.log("redirect to", requestedUrl.toString());
-      res.redirect(requestedUrl.toString());
+      res.cookie("redirect", requestedUrl.toString(), {
+        ...cookieOptions,
+        httpOnly: false,
+      });
+      return res.redirect("/");
     } else {
       next();
     }
