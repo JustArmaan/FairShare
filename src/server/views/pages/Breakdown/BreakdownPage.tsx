@@ -155,19 +155,19 @@ export const BreakdownPage = ({
       <p class="text-xl">Account Breakdown</p>
       <div
         id="date-selector-form"
-        class="bg-primary-black py-1 px-1 my-2 mt-4 shadow-lg flex items-center justify-evenly w-fit border-2 border-primary-grey rounded-full"
+        class="bg-primary-black py-1 px-1 my-2 mt-4 shadow-lg flex items-center justify-center w-full border border-font-off-white rounded-full text-primary-gray"
       >
         <form
           hx-post={`/breakdown/history`}
           hx-trigger="change"
           hx-target="#breakdown-data"
           hx-include="[name='month'], [name='year']"
-          class="flex items-center w-fit justify-between"
+          class="flex items-center w-full justify-between px-1"
         >
           <select
             name="year"
             id="yearSelect"
-            class="bg-primary-black text-font-grey outline-none rounded cursor-pointer mx-4"
+            class="bg-primary-black text-primary-grey outline-none rounded cursor-pointer"
           >
             {[2022, 2023, 2024].map((year) => (
               <option value={String(year)} selected={year === currentYear}>
@@ -178,7 +178,7 @@ export const BreakdownPage = ({
           <select
             name="month"
             id="monthSelect"
-            class="bg-primary-black text-font-grey outline-none rounded cursor-pointer mx-4 w-fit"
+            class="bg-primary-black text-primary-grey outline-none rounded cursor-pointer w-fit"
           >
             {months.map((month, index) => (
               <option
@@ -192,8 +192,8 @@ export const BreakdownPage = ({
           <input
             type="button"
             value="Reset"
-            class="bg-primary-black text-font-grey cursor-pointer rounded-lg px-4 py-2 mx-4"
-            hx-get={`/breakdown/page${transactions[0].accountId}`}
+            class="bg-primary-black text-primary-grey cursor-pointer rounded-lg px-4 py-2 "
+            hx-get={`/breakdown/page/${transactions[0].accountId}`}
             hx-trigger="click"
             hx-target="#app"
             hx-swap="innerHTML"
@@ -211,7 +211,7 @@ export const BreakdownPage = ({
         </p>
         <div id="breakdown-data">
           <div>
-            <div class="flex flex-row items-center justify-center relative">
+            <div class="flex flex-col items-center justify-center relative">
               <p class="text-3xl text-center mt-6 font-bold pl-2 pr-2">
                 $
                 {categories
@@ -220,7 +220,7 @@ export const BreakdownPage = ({
               </p>
               <div class="h-0.5 bg-font-grey rounded mt-0.5 w-full"></div>
             </div>
-            {/*<p class="absolute right-0 text-sm text-font-grey">-20% from March</p>*/}
+            {/*<p class="absolute right-0 text-sm text-primary-grey">-20% from March</p>*/}
           </div>
           <Graph slices={pathStyles} />
           <div class="h-0.5 bg-primary-dark-grey rounded mt-12"></div>

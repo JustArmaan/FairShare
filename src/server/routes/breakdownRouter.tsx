@@ -42,7 +42,7 @@ router.post("/history", async (req, res) => {
   const html = renderToHtml(
     <>
       <div>
-        <div class="flex flex-row items-center justify-center relative">
+        <div class="flex flex-col items-center justify-center relative">
           <p class="text-3xl text-center mt-6 font-bold pl-2 pr-2">
             $
             {categories

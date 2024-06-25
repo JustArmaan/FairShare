@@ -1,7 +1,11 @@
-export const PieChart = ({
-  slices,
-}: {
-  slices: { clipPathStyle: string; tailwindColorClass: string }[];
+export const PieChart = (props: {
+  home?: boolean;
+  accountId?: string;
+  slices: {
+    clipPathStyle: string;
+    tailwindColorClass: string;
+    title: string;
+  }[];
 }) => {
   return (
     <div class="bg-primary-grey rounded-full w-3/5 max-w-60 min-w-20 aspect-square overflow-hidden relative">
@@ -11,12 +15,20 @@ export const PieChart = ({
           create pie slices
           clip path is determined mathematically
           */}
-      {slices.map((slice) => {
+      {props.slices.map((slice) => {
         return (
-          <div
-            class={`hover:opacity-80 transition-all absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 ${slice.tailwindColorClass} w-[150%] h-[150%]`}
-            style={slice.clipPathStyle}
-          ></div>
+          <a
+            href={
+              props.home
+                ? `/breakdown/page/${props.accountId}`
+                : `#${slice.title}`
+            }
+          >
+            <div
+              class={`hover:opacity-80 transition-all absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 ${slice.tailwindColorClass} w-[150%] h-[150%]`}
+              style={slice.clipPathStyle}
+            ></div>
+          </a>
         );
       })}
     </div>
