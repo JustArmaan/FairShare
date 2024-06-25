@@ -49,7 +49,7 @@ export async function getInstitutionDetails(accessToken: string) {
       include_optional_metadata: true,
     },
   });
-  console.log(response);
+  // console.log(response);
   const { name, logo, url } = response.institution;
   return { name, logo, url };
 }

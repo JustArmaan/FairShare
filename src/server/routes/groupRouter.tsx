@@ -659,11 +659,7 @@ router.post("/deleteMember/:userID/:groupID", async (req, res) => {
     if (!totalOwed) {
       return res.status(500).send("An error occured when removing a member");
     }
-
-    if (totalOwed > 0) {
-      await deleteMemberByGroup(userID, groupID);
-      return res.status(204).send();
-    } else if (totalOwed < 0) {
+    if (totalOwed < 0) {
       return res
         .status(400)
         .send("You cannot remove a member that still owes money");

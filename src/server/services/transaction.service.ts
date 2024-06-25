@@ -216,9 +216,9 @@ export async function searchTransactions(
   }
 }
 
-export function getNextMonthYear(year: string, month: string) {
-  let nextMonth = parseInt(month, 10) + 1;
-  let nextYear = parseInt(year, 10);
+export function getNextMonthYear(currentYear: string, currentMonth: string) {
+  let nextMonth = parseInt(currentMonth, 10) + 1;
+  let nextYear = parseInt(currentYear, 10);
   if (nextMonth > 12) {
     nextMonth = 1;
     nextYear += 1;

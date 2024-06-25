@@ -164,7 +164,6 @@ export const BreakdownPage = ({
     selectedMonth = new Date().getMonth() + 1;
     selectedYear = new Date().getFullYear();
   }
-  console.log(selectedMonth, selectedYear, accountId, "breakdown");
   return (
     <div class="text-font-off-white h-fit p-6 page animate-fade-in">
       <p class="text-2xl">
@@ -217,42 +216,49 @@ export const BreakdownPage = ({
         </form>
       </div>
       <div class="mt-6">
-        <p>
-          <b>Total Expenses</b>
-        </p>
-        <div id="breakdown-data">
-          <div>
-            <div class="flex flex-col items-center justify-center relative">
-              <p class="text-3xl text-center mt-6 font-bold pl-2 pr-2">
-                $
-                {categories
-                  .reduce((sum, category) => category.cost + sum, 0)
-                  .toFixed(2)}
-              </p>
-              <div class="h-0.5 bg-font-grey rounded mt-0.5 w-full"></div>
+        {transactions.length === 0 ? (
+          <p>No transactions for this month</p>
+        ) : (
+          <>
+            <p>
+              <b>Total Expenses</b>
+            </p>
+            <div id="breakdown-data">
+              <div>
+                <div class="flex flex-col items-center justify-center relative">
+                  <p class="text-3xl text-center mt-6 font-bold pl-2 pr-2">
+                    $
+                    {categories
+                      .reduce((sum, category) => category.cost + sum, 0)
+                      .toFixed(2)}
+                  </p>
+                  <div class="h-0.5 bg-font-grey rounded mt-0.5 w-full"></div>
+                </div>
+                {/*<p class="absolute right-0 text-sm text-primary-grey">-20% from March</p>*/}
+              </div>
+              <Graph slices={pathStyles} />
+              <div class="h-0.5 bg-primary-dark-grey rounded mt-12"></div>
+              <div class="h-4"></div>{" "}
+              {/* spacer cuz collapsing margins are the devil*/}
+              {pathStyles.map((card) => {
+                return (
+                  <BudgetCard
+                    clipPathStyle={card.clipPathStyle}
+                    tailwindColorClass={card.tailwindColorClass}
+                    title={card.title}
+                    percentage={card.percentage}
+                    totalCosts={card.totalCosts}
+                    transactions={transactions.filter(
+                      (transaction) =>
+                        transaction.categoryId === card.categoryId
+                    )}
+                    url={url}
+                  />
+                );
+              })}
             </div>
-            {/*<p class="absolute right-0 text-sm text-primary-grey">-20% from March</p>*/}
-          </div>
-          <Graph slices={pathStyles} />
-          <div class="h-0.5 bg-primary-dark-grey rounded mt-12"></div>
-          <div class="h-4"></div>{" "}
-          {/* spacer cuz collapsing margins are the devil*/}
-          {pathStyles.map((card) => {
-            return (
-              <BudgetCard
-                clipPathStyle={card.clipPathStyle}
-                tailwindColorClass={card.tailwindColorClass}
-                title={card.title}
-                percentage={card.percentage}
-                totalCosts={card.totalCosts}
-                transactions={transactions.filter(
-                  (transaction) => transaction.categoryId === card.categoryId
-                )}
-                url={url}
-              />
-            );
-          })}
-        </div>
+          </>
+        )}
       </div>
       <div class="h-24" />
     </div>
