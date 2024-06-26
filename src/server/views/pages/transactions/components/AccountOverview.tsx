@@ -39,7 +39,7 @@ export const AccountOverview = ({
       >
         <div class="account-info flex justify-between text-font-off-white mx-1 text-md">
           <p class="font-semibold">
-            {account.name} <span class="font-normal">(1111)</span>
+            {account.name} <span class="font-normal">({account.accountTypeId ? account.accountTypeId.slice(-4) : "1111"})</span>
           </p>
           <div class="flex">
             <p class="font-semibold mr-2">Account Type:</p>
@@ -65,6 +65,7 @@ export const AccountOverview = ({
             <Transaction
               transaction={transaction}
               tailwindColorClass={transaction.category.color}
+              url={'/home/page/default'}
             />
           ))}
           <p

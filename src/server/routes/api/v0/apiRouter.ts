@@ -19,7 +19,7 @@ import {
 } from "../../../integrations/vopay/transfer";
 import { getGroupTransferByTransactionId } from "../../../services/plaid.transfer.service";
 import { createNotificationWithWebsocket } from "../../../utils/createNotification";
-import { getGroupByOwedId } from "../../../services/group.service";
+import { getGroup, getGroupByOwedId } from "../../../services/group.service";
 
 const router = Router();
 
@@ -251,5 +251,15 @@ router.post("/vopay-transactions-webhook", async (req, res) => {
     console.error(e);
   }
 });
+
+router.get("/groups/getname/:groupId", async (req, res) => {
+  const groupId = req.params.groupId;
+  const group = await getGroup(groupId);
+  console.log("retrieved group", group)
+  if (!group) {
+    return res.status(404).json({ error: "Group not found", data: null });
+  }
+  return res.json({ error: null, data: { name: group.name } });
+})
 
 export const apiRouterV0 = router;

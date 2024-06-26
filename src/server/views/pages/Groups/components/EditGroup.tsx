@@ -96,7 +96,7 @@ export const EditGroupPage = ({
           hx-trigger="click"
           hx-target="#app"
           hx-swap="innerHTML"
-          hx-push-url="/groups/page"
+          hx-push-url={`/groups/view/${group.id}`}
           class="text-font-off-white text-4xl cursor-pointer"
         >
           <img

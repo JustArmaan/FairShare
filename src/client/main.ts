@@ -8,6 +8,7 @@ import { progressBar } from "./progressBar/progressBar";
 import { attachButton } from "./plaid/connect";
 import { handleNavigation } from "./navigation/navigation";
 import { attachFormListeners, submitForm } from "./submitForm/submitForm";
+import { changeHeader } from "./header/header";
 
 main();
 splitTransfer();
@@ -77,5 +78,10 @@ declare global {
     initMap: () => Promise<void>;
   }
 }
+
+document.body.addEventListener("htmx:afterSwap",async (event) => {
+  await changeHeader();
+})
+
 
 window.initMap = initMap;

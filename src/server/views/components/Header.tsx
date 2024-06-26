@@ -10,7 +10,7 @@ export const Header = () => {
       >
         <img src="/images/Logo.svg" alt="Logo" class="max-w-s"></img>
       </a>
-      <p class="text-2xl text-font-off-white text-center font-bold w-full pt-4">
+      <p class="text-2xl text-font-off-white text-center font-bold w-full pt-4" id="header">
         Fairshare
       </p>
     </div>
