@@ -129,6 +129,7 @@ export const BreakdownPage = ({
   month,
   year,
   url,
+  uniqueYearMonth,
 }: {
   transactions: TransactionSchema[];
   accountName: string;
@@ -136,6 +137,7 @@ export const BreakdownPage = ({
   month?: number;
   year?: number;
   url: string;
+  uniqueYearMonth?: string[];
 }) => {
   const categories = mapTransactionsToCategories(transactions);
   const pathStyles = generatePathStyles(categories);
@@ -164,6 +166,27 @@ export const BreakdownPage = ({
     selectedMonth = new Date().getMonth() + 1;
     selectedYear = new Date().getFullYear();
   }
+
+  const dateOptions = uniqueYearMonth?.reverse().map((yearMonth) => {
+    const [year, month] = yearMonth.split("-");
+    return { year, month };
+  });
+
+  function extractUniqueYearsWithReduce(yearMonthArray: string[]) {
+    const uniqueYearsObj: { [key: string]: boolean } = yearMonthArray?.reduce(
+      (acc, yearMonth) => {
+        const [year] = yearMonth.split("-");
+        acc[year] = true;
+        return acc;
+      },
+      {} as { [key: string]: boolean }
+    );
+
+    return Object.keys(uniqueYearsObj);
+  }
+
+  const uniqueYears = extractUniqueYearsWithReduce(uniqueYearMonth || []);
+
   return (
     <div class="text-font-off-white h-fit p-6 page animate-fade-in">
       <p class="text-2xl">
@@ -183,8 +206,8 @@ export const BreakdownPage = ({
             id="yearSelect"
             class="bg-primary-black text-primary-grey outline-none rounded cursor-pointer"
           >
-            {[2022, 2023, 2024].map((year) => (
-              <option value={String(year)} selected={year === selectedYear}>
+            {uniqueYears?.map((year) => (
+              <option value={year} selected={Number(year) === selectedYear}>
                 {year}
               </option>
             ))}
@@ -194,12 +217,14 @@ export const BreakdownPage = ({
             id="monthSelect"
             class="bg-primary-black text-primary-grey outline-none rounded cursor-pointer w-fit"
           >
-            {months.map((month, index) => (
+            {dateOptions?.map((option) => (
               <option
-                value={String(index + 1).padStart(2, "0")}
-                selected={index + 1 === selectedMonth} // Ensure this comparison is with a number
+                value={option.month} // Use month directly from each option assuming it's already in 'MM' format
+                selected={
+                  option.month === selectedMonth.toString().padStart(2, "0")
+                }
               >
-                {month}
+                {months[Number(option.month) - 1]}
               </option>
             ))}
           </select>

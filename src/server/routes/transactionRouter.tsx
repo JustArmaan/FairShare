@@ -83,6 +83,21 @@ router.get("/page/:itemId/:selectedAccountId", getUser, async (req, res) => {
     const accounts = await getAccountsForUser(req.user!.id, req.params.itemId);
     if (!accounts) throw new Error("no accounts for user!");
 
+    const allTransactions = await getAccountWithTransactions(
+      req.params.selectedAccountId
+    );
+
+    const uniqueYearMonth = new Set();
+
+    allTransactions?.transactions?.map((transaction) => {
+      const date = new Date(transaction.timestamp as string);
+      const yearMonth = `${date.getFullYear()}-${(
+        "0" +
+        (date.getMonth() + 1)
+      ).slice(-2)}`;
+      uniqueYearMonth.add(yearMonth);
+    });
+
     const html = renderToHtml(
       <TransactionsPage
         accounts={await Promise.all(
@@ -93,6 +108,7 @@ router.get("/page/:itemId/:selectedAccountId", getUser, async (req, res) => {
         )}
         selectedAccountId={req.params.selectedAccountId}
         itemId={req.params.itemId}
+        uniqueYearMonth={Array.from(uniqueYearMonth) as string[]}
       />
     );
     res.send(html);

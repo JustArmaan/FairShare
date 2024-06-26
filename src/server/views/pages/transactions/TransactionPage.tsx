@@ -10,6 +10,7 @@ export const TransactionsPage = (props: {
   accounts: ExtractFunctionReturnType<typeof getAccountsForUser>;
   selectedAccountId: string;
   itemId: string;
+  uniqueYearMonth: string[];
 }) => {
   const months = [
     "January",
@@ -25,6 +26,26 @@ export const TransactionsPage = (props: {
     "November",
     "December",
   ];
+
+  const dateOptions = props.uniqueYearMonth?.reverse().map((yearMonth) => {
+    const [year, month] = yearMonth.split("-");
+    return { year, month };
+  });
+
+  function extractUniqueYearsWithReduce(yearMonthArray: string[]) {
+    const uniqueYearsObj: { [key: string]: boolean } = yearMonthArray?.reduce(
+      (acc, yearMonth) => {
+        const [year] = yearMonth.split("-");
+        acc[year] = true;
+        return acc;
+      },
+      {} as { [key: string]: boolean }
+    );
+
+    return Object.keys(uniqueYearsObj);
+  }
+
+  const uniqueYears = extractUniqueYearsWithReduce(props.uniqueYearMonth || []);
   return (
     <div
       class="p-6 animate-fade-in"
@@ -105,7 +126,7 @@ export const TransactionsPage = (props: {
             id="yearSelect"
             class="bg-primary-black text-font-grey outline-none rounded cursor-pointer mx-4"
           >
-            {[2022, 2023, 2024].map((year) => (
+            {uniqueYears.map((year) => (
               <option value={String(year)}>{year}</option>
             ))}
           </select>
@@ -113,10 +134,14 @@ export const TransactionsPage = (props: {
           <select
             name="month"
             id="monthSelect"
-            class="bg-primary-black text-font-grey outline-none rounded cursor-pointer mx-4 w-fit"
+            class="bg-primary-black text-primary-grey outline-none rounded cursor-pointer w-fit"
           >
-            {months.map((month, index) => (
-              <option value={String(index + 1)}>{month}</option>
+            {dateOptions?.map((option) => (
+              <option
+                value={option.month} // Use month directly from each option assuming it's already in 'MM' format
+              >
+                {months[Number(option.month) - 1]}
+              </option>
             ))}
           </select>
 
