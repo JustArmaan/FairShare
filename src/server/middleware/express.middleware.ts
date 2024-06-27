@@ -19,6 +19,7 @@ export const configureApp = async (app: Express) => {
   app.use(cookieParser());
 
   app.use("/", getUser, (req, res, next) => {
+    console.log(req.url);
     next();
   });
 
