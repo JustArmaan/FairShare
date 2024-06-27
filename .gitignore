@@ -199,3 +199,15 @@ error.log
 ./src/server/database/dev.db-wal
 ./src/server/database/dev.db-shm
 /drizzle
+
+#Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+
+playwright/.auth
+
+playwright/.auth
+
+playwright/.auth

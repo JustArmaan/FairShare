@@ -115,6 +115,12 @@ router.get("/callback", async (req, res) => {
 });
 
 export async function getUser(req: Request, res: Response, next: NextFunction) {
+    // in playwright, when you first setup tests, run createUser({test info})
+  // if (req.cookies.testing === "true") {
+  //   req.user = getUser(testUserId);
+  //   return next();
+  // }
+
   if (
     req.get("host")?.includes("render") &&
     !req.get("host")?.includes("localhost") &&
