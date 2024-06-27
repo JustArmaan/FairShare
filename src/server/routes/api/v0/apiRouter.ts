@@ -31,9 +31,9 @@ router.get("/session", (req, res) => {
       "access_token",
       "user",
       "refresh_token",
-    ].map((key) => {
-      return { [key]: req.cookies[key] };
-    });
+    ].reduce((acc, key) => {
+      return { ...acc, [key]: req.cookies[key] };
+    }, {});
     res.json({ error: null, data });
   } catch (e) {
     res.json({ error: e });

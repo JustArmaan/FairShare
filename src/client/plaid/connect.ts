@@ -103,13 +103,11 @@ async function handleWebviewLink() {
   if (error) throw new Error(error);
   const baseUrl = window.location.origin;
   let url = `${baseUrl}/mobile/auth?`;
-  Object.entries(data as { [key: string]: string }[]).forEach(
-    ([key, value]) => {
-      url += `${key}=${value}&`;
-    }
-  );
+  Object.entries(data as { [key: string]: string }).forEach(([key, value]) => {
+    url += `${encodeURI(key)}=${encodeURI(value)}&`;
+  });
   const formattedUrl = url.slice(0, url.length - 1);
-  console.log("going to:");
+  console.log("going to:", formattedUrl);
 
   window.open(formattedUrl);
 }
