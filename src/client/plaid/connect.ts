@@ -90,8 +90,36 @@ async function addNewInstitution() {
   }
 }
 
+declare global {
+  interface Window {
+    webview: boolean;
+  }
+}
+
+async function handleWebviewLink() {
+  const { data, error } = await (
+    await fetch(`/api/v${apiVersion}/session`)
+  ).json();
+  if (error) throw new Error(error);
+  const baseUrl = window.location.origin;
+  let url = `${baseUrl}/mobile/auth?`;
+  Object.entries(data as { [key: string]: string }[]).forEach(
+    ([key, value]) => {
+      url += `${key}=${value}&`;
+    }
+  );
+  const formattedUrl = url.slice(0, url.length - 1);
+  console.log("going to:");
+
+  window.open(formattedUrl);
+}
+
 async function runLinkSetup() {
   try {
+    if (window.webview) {
+      return await handleWebviewLink();
+    }
+    const mobile = document.querySelector("#mobile-connect") !== null;
     const connected = await isConnectedToPlaid();
     if (!connected) {
       const publicToken = await getToken();
@@ -103,11 +131,19 @@ async function runLinkSetup() {
         },
       });
       if (response.status === 200) {
-        console.log("Token pushed succesfully");
+        // console.log("Token pushed succesfully");
         const response = await fetch(`/api/v${apiVersion}/sync`);
         if (response.status === 200) {
-          setInterval(async () => {
+          const pollInterval = setInterval(async () => {
             const connected = await hasAccounts();
+            if (mobile) {
+              htmx.ajax("GET", "/mobile/link?connected=true", {
+                target: "#app",
+                swap: "outerHTML",
+              });
+              clearInterval(pollInterval);
+              return;
+            }
             if (connected) window.location.reload();
           }, 500);
         }

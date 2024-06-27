@@ -21,6 +21,7 @@ import { errorHandler } from "./middleware/errorHandler.middleware";
 import { errorRouter } from "./routes/errorRouter";
 import { ErrorPage } from "./views/pages/Errors/Error";
 import { renderToHtml } from "jsxte";
+import { plaidMobileLinkRouter } from "./routes/plaidMobileLinkRouter";
 
 const app = express();
 const server = http.createServer(app);
@@ -44,8 +45,8 @@ app.use("/auth", authRouter);
 app.use("/transfer", transferRouter);
 app.use("/notification", notificationRouter);
 app.use("/institutions", institutionRouter);
+app.use("/mobile", plaidMobileLinkRouter);
 app.use("/error", errorRouter);
-
 
 app.use("", (req, res, next) => {
   // req.url === "/test" && console.log(req.headers, req.url);

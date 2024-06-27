@@ -23,6 +23,23 @@ import { getGroupByOwedId } from "../../../services/group.service";
 
 const router = Router();
 
+router.get("/session", (req, res) => {
+  try {
+    const data = [
+      "ac-state-key",
+      "id_token",
+      "access_token",
+      "user",
+      "refresh_token",
+    ].map((key) => {
+      return { [key]: req.cookies[key] };
+    });
+    res.json({ error: null, data });
+  } catch (e) {
+    res.json({ error: e });
+  }
+});
+
 router.get("/connected", async (req, res) => {
   if (!req.user) {
     return res.json({
@@ -208,8 +225,7 @@ router.post("/vopay-transactions-webhook", async (req, res) => {
       const sender = await findUser(groupTransfer.senderUserId);
       await createNotificationWithWebsocket(
         group!.id,
-        `${sender!.firstName} has sent you $${
-          payload.TransactionAmount
+        `${sender!.firstName} has sent you $${payload.TransactionAmount
         }, please check your email for details.`,
         groupTransfer.receiverUserId,
         "groupInvite"
@@ -233,8 +249,7 @@ router.post("/vopay-transactions-webhook", async (req, res) => {
       const receiver = await findUser(groupTransfer.receiverUserId);
       await createNotificationWithWebsocket(
         group!.id,
-        `Your transfer to ${receiver!.firstName} of $${
-          payload.TransactionAmount
+        `Your transfer to ${receiver!.firstName} of $${payload.TransactionAmount
         } has been completed!`,
         groupTransfer.senderUserId,
         "groupInvite"

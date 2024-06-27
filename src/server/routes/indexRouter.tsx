@@ -8,21 +8,13 @@ import { Login } from "../views/pages/Onboarding/Login";
 const router = express.Router();
 
 router.get("/header", (_, res) => {
-  try {
-    const html = renderToHtml(<Header />);
-    res.send(html);
-  } catch (err) {
-    console.error(err);
-  }
+  const html = renderToHtml(<Header />);
+  res.send(html);
 });
 
 router.get("/nav", (_, res) => {
-  try {
-    const html = renderToHtml(<Nav />);
-    res.send(html);
-  } catch (err) {
-    console.error(err);
-  }
+  const html = renderToHtml(<Nav />);
+  res.send(html);
 });
 
 router.get("/menu", (req, res) => {

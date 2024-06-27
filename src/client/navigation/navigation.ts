@@ -19,7 +19,9 @@ export function handleNavigation() {
   const url =
     "/" + decodeURIComponent(redirectCookie).split("/").slice(3).join("/");
   window.history.replaceState(url, "", url);
+
   document.cookie = "redirect=none";
+
   htmx.ajax("GET", url, {
     target: "#app",
     swap: "innerHTML",
