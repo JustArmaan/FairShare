@@ -64,6 +64,9 @@ async function hasAccounts(): Promise<boolean> {
 
 async function addNewInstitution() {
   try {
+    if (window.webview) {
+      return await handleWebviewLink();
+    }
     const publicToken = await getToken();
     const response = await fetch(`/api/v${apiVersion}/plaid-public-token`, {
       method: "POST",

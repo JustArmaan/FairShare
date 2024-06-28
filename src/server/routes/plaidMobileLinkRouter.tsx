@@ -2,6 +2,8 @@ import express from "express";
 import { renderToHtml } from "jsxte";
 import { PlaidMobileLinkPage } from "../views/pages/PlaidMobileLink/PlaidMobileLinkPage";
 import { cookieOptions } from "./authRouter";
+import InstitutionsPage from "../views/pages/transactions/InstitutionPage";
+import { getItemsForUser } from "../services/plaid.service";
 
 const router = express.Router();
 
@@ -23,15 +25,16 @@ router.get("/auth", (req, res) => {
   }
 });
 
-router.get("/link", (req, res) => {
-  if (!req.user) {
-    return res.status(403).send();
-  }
+router.get("/link", async (req, res) => {
+  const items = await getItemsForUser(req.user!.id);
+  const html = renderToHtml(<InstitutionsPage info={items} mobile={true}/>);
+  /*
   const html = renderToHtml(
     <PlaidMobileLinkPage
       connected={req.query?.connected as boolean | undefined}
     />
   );
+  */
   return res.send(html);
 });
 
