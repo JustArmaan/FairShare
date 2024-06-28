@@ -50,10 +50,17 @@ router.get("/connected", async (req, res) => {
 
   const items = await getItemsForUser(req.user.id);
   const connected = items.length > 0;
-  return res.json({
-    error: null,
-    data: { connected, count: items.length },
-  });
+  return res
+    .set({
+      "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate",
+      Pragma: "no-cache",
+      Expires: "0",
+      "Surrogate-Control": "no-store",
+    })
+    .json({
+      error: null,
+      data: { connected, count: items.length },
+    });
 });
 
 router.get("/has-accounts", async (req, res) => {

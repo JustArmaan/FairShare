@@ -2,7 +2,6 @@ import { apiVersion } from "../main";
 import htmx from "htmx.org";
 
 export function attachButton(event: Event) {
-  console.log("hiya")
   if (event.currentTarget instanceof HTMLButtonElement) {
     if (event.currentTarget.innerText === "Add a new institution") {
       addNewInstitution();
@@ -123,6 +122,7 @@ async function handleWebviewLink(addNew?: boolean) {
   const interval = setInterval(async () => {
     if (addNew) {
       const { count: newCount } = await isConnectedToPlaid();
+      console.log(count, newCount, "counts")
       if (newCount !== count)
         htmx.ajax("GET", "/institutions/page", {
           target: "#app",
