@@ -119,10 +119,16 @@ async function handleWebviewLink(addNew?: boolean) {
   const formattedUrl = url.slice(0, url.length - 1);
 
   window.open(formattedUrl);
-  setInterval(async () => {
+  const interval = setInterval(async () => {
     if (addNew) {
       const { count: newCount } = await isConnectedToPlaid();
-      if (newCount !== count) window.location.reload();
+      if (newCount !== count)
+        htmx.ajax("GET", "/institutions/page", {
+          target: "#app",
+          swap: "outerHTML",
+        });
+      clearInterval(interval);
+      return;
     } else {
       const connected = await hasAccounts();
       if (connected) window.location.reload();
