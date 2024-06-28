@@ -77,7 +77,7 @@ export const InstitutionsPage = (props: {
       <div
         class={`flex flex-col text-font-off-white font-semibold text-lg mt-8 justify-center items-center`}
       >
-        {props.mobile && (
+        {props.mobile && props.info.length > 0 && (
           <div class="p-4 w-full bg-primary-black rounded-xl mb-2 text-lg text-font-off-white font-normal">
             <p>
               <span class="font-semibold">You're all connected up!</span> You
