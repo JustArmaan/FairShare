@@ -76,14 +76,20 @@ async function addNewInstitution() {
       },
     });
     if (response.status === 200) {
-      console.log("Token pushed succesfully");
+      // console.log("Token pushed succesfully");
       const response = await fetch(`/api/v${apiVersion}/sync`);
       if (response.status === 200) {
         // run htmx ajax call to fetch new institution
-        htmx.ajax("GET", "/institutions/page", {
-          target: "#app",
-          swap: "innerHTML",
-        });
+        htmx.ajax(
+          "GET",
+          window.location.pathname.includes("mobile/link")
+            ? "/mobile/link"
+            : "/institutions/page",
+          {
+            target: "#app",
+            swap: "innerHTML",
+          }
+        );
       }
     } else {
       console.log((await response.json()).error);
@@ -141,7 +147,7 @@ async function runLinkSetup() {
           const pollInterval = setInterval(async () => {
             const connected = await hasAccounts();
             if (mobile) {
-              htmx.ajax("GET", "/mobile/link?connected=true", {
+              htmx.ajax("GET", "/mobile/link", {
                 target: "#app",
                 swap: "outerHTML",
               });

@@ -27,7 +27,7 @@ router.get("/auth", (req, res) => {
 
 router.get("/link", async (req, res) => {
   const items = await getItemsForUser(req.user!.id);
-  const html = renderToHtml(<InstitutionsPage info={items} mobile={true}/>);
+  const html = renderToHtml(<InstitutionsPage info={items} mobile={true} />);
   /*
   const html = renderToHtml(
     <PlaidMobileLinkPage
