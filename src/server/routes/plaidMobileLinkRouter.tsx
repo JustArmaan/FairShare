@@ -6,7 +6,6 @@ import { cookieOptions } from "./authRouter";
 const router = express.Router();
 
 router.get("/auth", (req, res) => {
-  console.log("route hit");
   try {
     [
       "ac-state-key",
@@ -15,10 +14,8 @@ router.get("/auth", (req, res) => {
       "user",
       "refresh_token",
     ].forEach((key) => {
-      console.log("setting cookie ", key, " with value ", req.query[key]);
       res.cookie(key, req.query[key], cookieOptions);
     });
-    console.log("All cookies set for redirect with session!");
     return res.redirect("/mobile/link");
   } catch (e) {
     console.log(e);
@@ -27,7 +24,6 @@ router.get("/auth", (req, res) => {
 });
 
 router.get("/link", (req, res) => {
-  console.log("link hit");
   if (!req.user) {
     return res.status(403).send();
   }

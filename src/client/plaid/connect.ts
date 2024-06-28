@@ -107,9 +107,12 @@ async function handleWebviewLink() {
     url += `${encodeURI(key)}=${encodeURI(value)}&`;
   });
   const formattedUrl = url.slice(0, url.length - 1);
-  console.log("going to:", formattedUrl);
 
   window.open(formattedUrl);
+  setInterval(async () => {
+    const connected = await hasAccounts();
+    if (connected) window.location.reload();
+  }, 500);
 }
 
 async function runLinkSetup() {
