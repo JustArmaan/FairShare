@@ -46,7 +46,6 @@ app.use("/notification", notificationRouter);
 app.use("/institutions", institutionRouter);
 app.use("/error", errorRouter);
 
-
 app.use("", (req, res, next) => {
   // req.url === "/test" && console.log(req.headers, req.url);
   const hxRequest = req.headers["hx-request"] === "true";

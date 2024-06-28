@@ -52,7 +52,6 @@ router.get("/page/:accountId", getUser, async (req, res) => {
     uniqueYearMonth.add(yearMonth);
   });
 
-
   if (!result) throw new Error("404");
   const html = renderToHtml(
     <BreakdownPage
