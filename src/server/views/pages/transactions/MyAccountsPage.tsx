@@ -18,12 +18,14 @@ export const MyAccountsPage = (props: {
 }) => {
   return (
     <div class="p-6 animate-fade-in pb-24">
+    /*
       <Goal
         total={1000}
         contribution={500}
         goalName="Trip to Mexico"
         goalDescription="Save $1500 for trip to Mexico"
       />
+      */
       <div
         hx-get="/institutions/page"
         hx-target="#app"

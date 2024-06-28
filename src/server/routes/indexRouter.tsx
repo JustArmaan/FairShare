@@ -7,13 +7,17 @@ import { Login } from "../views/pages/Onboarding/Login";
 
 const router = express.Router();
 
+// at mobile/link, we don't want to display the navigation bar, but still
+// want the <head>
 router.get("/header", (_, res) => {
   const html = renderToHtml(<Header />);
   res.send(html);
 });
 
-router.get("/nav", (_, res) => {
-  const html = renderToHtml(<Nav />);
+router.get("/nav", (req, res) => {
+  const html = renderToHtml(
+    req.get("referer")?.includes("mobile/link") ? <> </> : <Nav />
+  );
   res.send(html);
 });
 
@@ -58,7 +62,7 @@ router.get("/onboard", (req, res) => {
           hx-swap="innerHTML"
           hx-push-url="/home/page/default"
         ></div>
-        <div class="h-24" /> {/* spacer div to make up for nav bar*/}
+        <div class="h-24 spacer" /> {/* spacer div to make up for nav bar*/}
         <div id="nav" hx-get="/nav" hx-trigger="load" hx-swap="outerHTML"></div>
       </>
     );

@@ -258,7 +258,6 @@ export const BreakdownPage = ({
           </>
         )}
       </div>
-      <div class="h-24" />
     </div>
   );
 };

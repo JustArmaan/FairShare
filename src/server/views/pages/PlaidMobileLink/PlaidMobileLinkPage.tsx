@@ -1,13 +1,23 @@
 export const PlaidMobileLinkPage = (props: { connected?: boolean }) => {
   return (
-    <div class="p-6 animate-fade-in flex flex-col items-center justify-center text-font-off-white h-screen">
+    <div class="p-6 animate-fade-in flex flex-col items-center justify-center text-font-off-white h-[calc(80vh)]">
+      <div
+        class="hidden"
+        hx-get="/empty"
+        hx-swap="outerHTML"
+        hx-target=".spacer"
+        hx-trigger="load"
+      />
       <div class="hidden" id="mobile-connect" />
       <div class="flex flex-col items-center justify-center">
         <div class="p-4 w-full bg-primary-black rounded-xl mb-10 text-lg text-font-off-white">
           {props.connected ? (
-            <p class="font-semibold text-center text-xl">
-              You've connected an institution! You can return the the mobile
-              app, or connect another institution below.
+            <p class="text-center ">
+              <span class="font-semibold">
+                You've connected an institution!
+              </span>{" "}
+              You can return the the mobile app, or connect another institution
+              below.
             </p>
           ) : (
             <>
