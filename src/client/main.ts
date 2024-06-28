@@ -65,6 +65,11 @@ document.addEventListener("htmx:afterSwap", () => {
   if (connectButton && connectButton instanceof HTMLElement) {
     connectButton.addEventListener("click", attachButton);
   }
+
+  const navBar = document.querySelector("#nav");
+  if (window.android && navBar instanceof HTMLElement) {
+    navBar.style.setProperty("padding-bottom", "2px");
+  }
 });
 
 document.addEventListener("htmx:beforeSwap", () => {
@@ -84,9 +89,8 @@ declare global {
   }
 }
 
-document.body.addEventListener("htmx:afterSwap",async (event) => {
+document.body.addEventListener("htmx:afterSwap", async (event) => {
   await changeHeader();
-})
-
+});
 
 window.initMap = initMap;
