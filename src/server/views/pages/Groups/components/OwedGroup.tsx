@@ -8,6 +8,7 @@ export const OwedGroup = ({
   transactions,
   owedPerMember,
   groupId,
+  url,
 }: {
   memberDetails: UserSchema[];
   currentUser: UserSchema;
@@ -16,6 +17,7 @@ export const OwedGroup = ({
     typeof getAllOwedForGroupTransactionWithTransactionId
   >[];
   groupId: string;
+  url?: string;
 }) => {
   function maxCompanyNameLength(str: string, max: number) {
     return str.length > max ? str.substring(0, max - 3) + "..." : str;
@@ -68,8 +70,8 @@ export const OwedGroup = ({
                     {result.amount > 0 ? (
                       <button
                         hx-swap="innerHTML"
-                        hx-get={`/groups/details/${result.groupTransactionToUsersToGroupsId}/${groupId}`}
-                        hx-push-url={`/groups/details/${result.groupTransactionToUsersToGroupsId}/${groupId}`}
+                        hx-get={`/transactions/details/${result.transactionId}/?url=${url}`}
+                        hx-push-url={`/transactions/details/${result.transactionId}/?url=${url}`}
                         hx-target="#app"
                         class="hover:-translate-y-0.5 rotate-[0.0001deg] transition-transform font-semibold px-12 py-2.5 bg-accent-blue rounded-xl h-fit"
                       >
@@ -88,7 +90,7 @@ export const OwedGroup = ({
                     )}
                   </div>
                 </div>
-                {index !== transactions.length - 1 && (
+                {index !== transactions.length - 2 && (
                   <div class="mt-4 h-[1px] bg-primary-grey rounded w-full"></div>
                 )}
               </div>

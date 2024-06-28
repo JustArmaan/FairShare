@@ -145,12 +145,10 @@ export function main() {
   }
 
   document.body.addEventListener("htmx:responseError", function (evt) {
-    console.log("running");
     const xhr = (evt as CustomEvent).detail.xhr;
     const status = xhr.status;
     const errorContainer = document.getElementById("errorContainer");
     const successContainer = document.getElementById("success-container");
-    console.log("running2", errorContainer);
 
     if (errorContainer) {
       errorContainer.classList.add("hidden");
@@ -164,7 +162,6 @@ export function main() {
 
       if (errorContainer) {
         if (status === 400) {
-          console.log(xhr.responseText, "response text");
           errorContainer.textContent = xhr.responseText;
         } else if (status === 500) {
           errorContainer.textContent =

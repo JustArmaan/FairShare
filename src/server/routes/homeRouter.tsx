@@ -58,7 +58,6 @@ router.get("/page/:itemId", async (req, res, next) => {
   const sortedAccounts = accountsWithTransactions.sort((a, b) => {
     return (b.transactions.length || 0) - (a.transactions.length || 0);
   });
-  console.log(req.params.itemId);
   // throw new Error("test");
   const selectedItem = await getItem(req.params.itemId);
   // This will now get the account with the most transactions first to display nicer graphs

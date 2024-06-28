@@ -21,7 +21,7 @@ export const MyAccountsPage = (props: {
       {/*
       <Goal
         total={1000}
-        contribution={500}
+        contribution={900}
         goalName="Trip to Mexico"
         goalDescription="Save $1500 for trip to Mexico"
       />

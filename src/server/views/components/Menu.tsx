@@ -11,7 +11,11 @@ export const Menu = (props: { value: boolean }) => {
             >
               <li>
                 <a
-                  href=""
+                  hx-get="/home/page/default"
+                  hx-target="#app"
+                  hx-swap="innerHTML"
+                  hx-trigger="click"
+                  hx-push-url="/home/page/default"
                   class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
                 >
                   Dashboard
@@ -21,6 +25,7 @@ export const Menu = (props: { value: boolean }) => {
                 <a
                   hx-get="/institutions/page"
                   hx-target="#app"
+                  hx-push-url="/institutions/page"
                   hx-swap="innerHTML"
                   hx-trigger="click"
                   class="hover:cursor-pointer hover:opacity-80 block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"

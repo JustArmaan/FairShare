@@ -12,7 +12,6 @@ export async function splitEqualTransactions(
   for (const transaction of equalSplitGroupTransactions) {
     const equalSplitAmount =
       transaction.transaction.amount / groupWithMembers.members.length;
-    console.log(equalSplitAmount, 'equalSplitAmount');
     groupWithMembers.members.forEach(async (member) => {
       if (member.id !== transaction.transactionOwner.id) {
         const newMemberUpdate = await updateOwedForGroupTransaction(

@@ -8,6 +8,7 @@ export const BudgetCard = ({
   totalCosts,
   title,
   transactions,
+  url,
 }: {
   clipPathStyle: string;
   tailwindColorClass: string;
@@ -15,6 +16,7 @@ export const BudgetCard = ({
   totalCosts: string;
   title: string;
   transactions: TransactionSchema[];
+  url: string;
 }) => {
   return (
     <div
@@ -41,6 +43,7 @@ export const BudgetCard = ({
           <Transaction
             transaction={transaction}
             tailwindColorClass={tailwindColorClass}
+            url={url}
           />
         ))}
       </div>

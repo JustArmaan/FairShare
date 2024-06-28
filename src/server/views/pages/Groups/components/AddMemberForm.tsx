@@ -1,15 +1,15 @@
-import type { UserSchema } from '../../../../interface/types'
-import type { GroupWithMembers } from '../../../../services/group.service'
-import { AddedMember } from './Member'
+import type { UserSchema } from "../../../../interface/types";
+import type { GroupWithMembers } from "../../../../services/group.service";
+import { AddedMember } from "./Member";
 
 const AddMembersComponent = ({
   group,
   currentUser,
   isEditMode = false,
 }: {
-  group?: GroupWithMembers
-  currentUser: UserSchema
-  isEditMode: boolean
+  group?: GroupWithMembers;
+  currentUser: UserSchema;
+  isEditMode: boolean;
 }) => {
   return (
     <div>
@@ -23,20 +23,25 @@ const AddMembersComponent = ({
         <div class="flex-col w-full">
           {isEditMode ? (
             <>
-              <AddedMember user={{ ...currentUser, type: 'Owner' }} />
+              <AddedMember user={{ ...currentUser, type: "Owner" }} />
               <div
                 id="memberContainer"
                 class="bg-primary-black w-full rounded-lg flex flex-col text-xs justify-center items-center"
               >
                 {group?.members
                   .filter((member) => member.id !== currentUser.id) // Exclude current user
-                  .map((member) => (
-                    <AddedMember user={member} groupId={group?.id} />
+                  .map((member, index) => (
+                    <>
+                      {index !== group?.members.length && (
+                        <div class="h-[1px] bg-primary-grey rounded w-full mb-2"></div>
+                      )}
+                      <AddedMember user={member} groupId={group?.id} />
+                    </>
                   ))}
               </div>
             </>
           ) : (
-            <AddedMember user={{ ...currentUser, type: 'Owner' }} />
+            <AddedMember user={{ ...currentUser, type: "Owner" }} />
           )}
         </div>
 
@@ -56,8 +61,8 @@ const AddMembersComponent = ({
               class="text-accent-blue bg-pure-white rounded-lg flex justify-center mx-1 items-center w-16"
               hx-get={
                 group
-                  ? `/groups/addMember/${group ? group.id : ''}`
-                  : '/groups/addMember'
+                  ? `/groups/addMember/${group ? group.id : ""}`
+                  : "/groups/addMember"
               }
               hx-trigger="click"
               hx-include="[name='addEmail']"
@@ -77,7 +82,7 @@ const AddMembersComponent = ({
         </button>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default AddMembersComponent
+export default AddMembersComponent;

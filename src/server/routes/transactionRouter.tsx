@@ -83,6 +83,21 @@ router.get("/page/:itemId/:selectedAccountId", getUser, async (req, res) => {
     const accounts = await getAccountsForUser(req.user!.id, req.params.itemId);
     if (!accounts) throw new Error("no accounts for user!");
 
+    const allTransactions = await getAccountWithTransactions(
+      req.params.selectedAccountId
+    );
+
+    const uniqueYearMonth = new Set();
+
+    allTransactions?.transactions?.map((transaction) => {
+      const date = new Date(transaction.timestamp as string);
+      const yearMonth = `${date.getFullYear()}-${(
+        "0" +
+        (date.getMonth() + 1)
+      ).slice(-2)}`;
+      uniqueYearMonth.add(yearMonth);
+    });
+
     const html = renderToHtml(
       <TransactionsPage
         accounts={await Promise.all(
@@ -93,6 +108,7 @@ router.get("/page/:itemId/:selectedAccountId", getUser, async (req, res) => {
         )}
         selectedAccountId={req.params.selectedAccountId}
         itemId={req.params.itemId}
+        uniqueYearMonth={Array.from(uniqueYearMonth) as string[]}
       />
     );
     res.send(html);
@@ -104,9 +120,10 @@ router.get("/page/:itemId/:selectedAccountId", getUser, async (req, res) => {
 router.get("/details/:transactionId", async (req, res) => {
   try {
     const transactionId = req.params.transactionId;
+    console.log(transactionId);
     const transaction = await getTransaction(transactionId);
     const account = await getAccount(transaction.accountId);
-
+    const url = req.query.url as string;
     if (!transaction || !account) return res.status(404).send("404");
 
     const accountType = await getAccountTypeById(
@@ -123,6 +140,7 @@ router.get("/details/:transactionId", async (req, res) => {
         accountType={accountType ? accountType : "Unknown"}
         institution={item.institutionName ? item.institutionName : "Unknown"}
         info={info[0] ? info : []}
+        url={url}
       />
     );
     res.send(html);
@@ -342,9 +360,11 @@ router.post("/createTransaction/:groupId", async (req, res) => {
     if (!selectedCategoryId) {
       return res.status(400).send("Category not found.");
     }
+    const items = await getItemsForUser(req.user!.id);
+    const defaultItem = items[0] && items[0].item;
 
     const groupId = req.params.groupId;
-    const account = await getAccountsForUser(id);
+    const account = await getAccountsForUser(id, defaultItem.id);
 
     const accountId = account ? account[0].id : "";
 
