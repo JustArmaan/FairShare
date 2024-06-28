@@ -1,6 +1,6 @@
 import { getDB } from "../database/client.ts";
 import { v4 as uuidv4 } from "uuid";
-import { and, eq, gte, lt } from "drizzle-orm";
+import { and, eq, gte, inArray, lt } from "drizzle-orm";
 import { items } from "../database/schema/items.ts";
 import { users } from "../database/schema/users.ts";
 import { currencyCode } from "../database/schema/currencyCode.ts";
@@ -61,6 +61,19 @@ export async function getItem(id: string) {
 
 export async function deleteItem(itemId: string) {
   try {
+    const relatedAccounts = (
+      await db
+        .select({ accounts })
+        .from(plaidAccount)
+        .where(eq(plaidAccount.itemId, itemId))
+        .innerJoin(accounts, eq(accounts.id, plaidAccount.accountsId))
+    ).map((result) => result.accounts);
+    await db.delete(accounts).where(
+      inArray(
+        accounts.id,
+        relatedAccounts.map((account) => account.id)
+      )
+    );
     await db.delete(items).where(eq(items.id, itemId));
   } catch (e) {
     console.error(e, "at deleteItem");

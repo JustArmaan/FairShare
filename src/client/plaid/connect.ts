@@ -2,6 +2,7 @@ import { apiVersion } from "../main";
 import htmx from "htmx.org";
 
 export function attachButton(event: Event) {
+  console.log("hiya")
   if (event.currentTarget instanceof HTMLButtonElement) {
     if (event.currentTarget.innerText === "Add a new institution") {
       addNewInstitution();
