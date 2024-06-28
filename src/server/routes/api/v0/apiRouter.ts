@@ -49,11 +49,10 @@ router.get("/connected", async (req, res) => {
   }
 
   const items = await getItemsForUser(req.user.id);
-  console.log(items, "itmes connected");
   const connected = items.length > 0;
   return res.json({
     error: null,
-    data: { connected },
+    data: { connected, count: items.length },
   });
 });
 

@@ -42,14 +42,14 @@ async function getToken() {
   });
 }
 
-async function isConnectedToPlaid(): Promise<boolean> {
+async function isConnectedToPlaid() {
   const response = await fetch(`/api/v${apiVersion}/connected`);
   const { error, data } = await response.json();
   if (error) {
     throw new Error(error);
   }
 
-  return data.connected;
+  return data as { connected: boolean; count: number };
 }
 
 async function hasAccounts(): Promise<boolean> {
@@ -65,7 +65,7 @@ async function hasAccounts(): Promise<boolean> {
 async function addNewInstitution() {
   try {
     if (window.webview) {
-      return await handleWebviewLink();
+      return await handleWebviewLink(true);
     }
     const publicToken = await getToken();
     const response = await fetch(`/api/v${apiVersion}/plaid-public-token`, {
@@ -105,10 +105,11 @@ declare global {
   }
 }
 
-async function handleWebviewLink() {
+async function handleWebviewLink(addNew?: boolean) {
   const { data, error } = await (
     await fetch(`/api/v${apiVersion}/session`)
   ).json();
+  const { count } = await isConnectedToPlaid();
   if (error) throw new Error(error);
   const baseUrl = window.location.origin;
   let url = `${baseUrl}/mobile/auth?`;
@@ -119,8 +120,13 @@ async function handleWebviewLink() {
 
   window.open(formattedUrl);
   setInterval(async () => {
-    const connected = await hasAccounts();
-    if (connected) window.location.reload();
+    if (addNew) {
+      const { count: newCount } = await isConnectedToPlaid();
+      if (newCount !== count) window.location.reload();
+    } else {
+      const connected = await hasAccounts();
+      if (connected) window.location.reload();
+    }
   }, 500);
 }
 
@@ -130,7 +136,7 @@ async function runLinkSetup() {
       return await handleWebviewLink();
     }
     const mobile = document.querySelector("#mobile-connect") !== null;
-    const connected = await isConnectedToPlaid();
+    const { connected } = await isConnectedToPlaid();
     if (!connected) {
       const publicToken = await getToken();
       const response = await fetch(`/api/v${apiVersion}/plaid-public-token`, {
