@@ -1,11 +1,11 @@
-import type { Server } from 'socket.io';
-import { kindeClient } from '../routes/authRouter';
-import { sessionManager } from '../routes/authRouter';
+import type { Server } from "socket.io";
+import { kindeClient } from "../routes/authRouter";
+import { sessionManager } from "../routes/authRouter";
 
 async function computeUserIdFromHeaders(cookie: string) {
-  const cookies = cookie.split('; ').reduce(
+  const cookies = cookie.split("; ").reduce(
     (cookieObject: Record<string, any>, cookieString: string) => {
-      const cookies = cookieString.split('=');
+      const cookies = cookieString.split("=");
       cookieObject[cookies[0]] = cookies[1];
       return cookieObject;
     },
@@ -16,7 +16,7 @@ async function computeUserIdFromHeaders(cookie: string) {
 }
 
 export function setupSocketConnectionListener(io: Server) {
-  io.on('connection', async (socket) => {
+  io.on("connection", async (socket) => {
     if (!socket.handshake.headers.cookie) return;
 
     try {
@@ -25,7 +25,6 @@ export function setupSocketConnectionListener(io: Server) {
       );
 
       socket.join(userId);
-      console.log('user connected to room', userId);
     } catch (e) {
       // console.log('Error while connecting a socket, user is not authenticated');
       // console.error(e);

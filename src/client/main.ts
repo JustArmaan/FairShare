@@ -61,6 +61,7 @@ document.addEventListener("htmx:afterSwap", () => {
   }
 
   const connectButton = document.querySelector("#connect-to-plaid");
+  console.log(connectButton);
   if (connectButton && connectButton instanceof HTMLElement) {
     connectButton.addEventListener("click", attachButton);
   }
@@ -68,7 +69,11 @@ document.addEventListener("htmx:afterSwap", () => {
 
 document.addEventListener("htmx:beforeSwap", () => {
   const connectButton = document.querySelector("#connect-to-plaid");
-  if (connectButton && connectButton instanceof HTMLElement) {
+  if (
+    connectButton &&
+    connectButton instanceof HTMLElement &&
+    !window.location.pathname.includes("mobile/link")
+  ) {
     connectButton.removeEventListener("click", attachButton);
   }
 });

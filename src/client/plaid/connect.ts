@@ -42,14 +42,14 @@ async function getToken() {
   });
 }
 
-async function isConnectedToPlaid(): Promise<boolean> {
+async function isConnectedToPlaid() {
   const response = await fetch(`/api/v${apiVersion}/connected`);
   const { error, data } = await response.json();
   if (error) {
     throw new Error(error);
   }
 
-  return data.connected;
+  return data as { connected: boolean; count: number };
 }
 
 async function hasAccounts(): Promise<boolean> {
@@ -64,6 +64,9 @@ async function hasAccounts(): Promise<boolean> {
 
 async function addNewInstitution() {
   try {
+    if (window.webview) {
+      return await handleWebviewLink(true);
+    }
     const publicToken = await getToken();
     const response = await fetch(`/api/v${apiVersion}/plaid-public-token`, {
       method: "POST",
@@ -73,14 +76,20 @@ async function addNewInstitution() {
       },
     });
     if (response.status === 200) {
-      console.log("Token pushed succesfully");
+      // console.log("Token pushed succesfully");
       const response = await fetch(`/api/v${apiVersion}/sync`);
       if (response.status === 200) {
         // run htmx ajax call to fetch new institution
-        htmx.ajax("GET", "/institutions/page", {
-          target: "#app",
-          swap: "innerHTML",
-        });
+        htmx.ajax(
+          "GET",
+          window.location.pathname.includes("mobile/link")
+            ? "/mobile/link"
+            : "/institutions/page",
+          {
+            target: "#app",
+            swap: "innerHTML",
+          }
+        );
       }
     } else {
       console.log((await response.json()).error);
@@ -90,9 +99,52 @@ async function addNewInstitution() {
   }
 }
 
+declare global {
+  interface Window {
+    webview: boolean;
+  }
+}
+
+async function handleWebviewLink(addNew?: boolean) {
+  const { data, error } = await (
+    await fetch(`/api/v${apiVersion}/session`)
+  ).json();
+  const { count } = await isConnectedToPlaid();
+  if (error) throw new Error(error);
+  const baseUrl = window.location.origin;
+  let url = `${baseUrl}/mobile/auth?`;
+  Object.entries(data as { [key: string]: string }).forEach(([key, value]) => {
+    url += `${encodeURI(key)}=${encodeURI(value)}&`;
+  });
+  const formattedUrl = url.slice(0, url.length - 1);
+
+  window.open(formattedUrl);
+  const interval = setInterval(async () => {
+    if (addNew) {
+      const { count: newCount } = await isConnectedToPlaid();
+      console.log(count, newCount, "counts");
+      if (newCount !== count) {
+        htmx.ajax("GET", "/institutions/page", {
+          target: "#app",
+          swap: "outerHTML",
+        });
+        clearInterval(interval);
+        return;
+      }
+    } else {
+      const connected = await hasAccounts();
+      if (connected) window.location.reload();
+    }
+  }, 500);
+}
+
 async function runLinkSetup() {
   try {
-    const connected = await isConnectedToPlaid();
+    if (window.webview) {
+      return await handleWebviewLink();
+    }
+    const mobile = document.querySelector("#mobile-connect") !== null;
+    const { connected } = await isConnectedToPlaid();
     if (!connected) {
       const publicToken = await getToken();
       const response = await fetch(`/api/v${apiVersion}/plaid-public-token`, {
@@ -103,11 +155,19 @@ async function runLinkSetup() {
         },
       });
       if (response.status === 200) {
-        console.log("Token pushed succesfully");
+        // console.log("Token pushed succesfully");
         const response = await fetch(`/api/v${apiVersion}/sync`);
         if (response.status === 200) {
-          setInterval(async () => {
+          const pollInterval = setInterval(async () => {
             const connected = await hasAccounts();
+            if (mobile) {
+              htmx.ajax("GET", "/mobile/link", {
+                target: "#app",
+                swap: "outerHTML",
+              });
+              clearInterval(pollInterval);
+              return;
+            }
             if (connected) window.location.reload();
           }, 500);
         }

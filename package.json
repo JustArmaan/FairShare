@@ -13,6 +13,7 @@
     "push": "drizzle-kit push",
     "studio": "drizzle-kit studio",
     "turso-local": "turso dev",
+    "db-setup": "bun run generate && bun run push && bun run seed && echo 'Database Initialized!'",
     "typecheck": "tsc --noEmit"
   },
   "typings": "/index.d.ts",
