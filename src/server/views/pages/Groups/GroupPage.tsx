@@ -67,15 +67,6 @@ export const GroupPage = (props: {
           </p>
         )}
         {props.groups.map((group) => {
-          group.members = [
-            ...group.members,
-            ...group.members,
-            ...group.members,
-            ...group.members,
-            ...group.members,
-            ...group.members,
-            ...group.members,
-          ];
           return (
             <GroupItem
               group={group}
