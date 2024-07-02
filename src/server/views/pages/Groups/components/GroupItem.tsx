@@ -58,7 +58,7 @@ export const GroupItem = (props: {
                 )}
                 {props.flags.owing && (
                   <div
-                    class={`rounded-full h-[0.75rem] aspect-square bg-negative-number ${props.flags.owed && "-ml-1"}`}
+                    class={`rounded-full h-[0.75rem] aspect-square bg-negative-number ${props.flags.owed && "-ml-[0.22rem]"}`}
                   />
                 )}
               </div>
@@ -73,7 +73,7 @@ export const GroupItem = (props: {
                   : "You Owe $" + Math.abs(props.owedAmount).toFixed(2)}
             </p>
           </div>
-          <div class="flex flex-col">
+          <div class="flex flex-col pr-[0.38rem] relative left-[0.38rem]">
             <div class="flex justify-end">
               {props.edit && (
                 <img
@@ -115,7 +115,7 @@ export const GroupItem = (props: {
                   );
                 })}
             </div>
-            <p class="text-font-grey text-[0.625rem] h-[0.75rem] mt-[0.12rem]">
+            <p class="relative text-font-grey text-[0.625rem] h-[0.75rem] mt-[0.12rem] left-[0.38rem]">
               {props.group.members.length} members
             </p>
           </div>
