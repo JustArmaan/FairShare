@@ -1,8 +1,11 @@
 import { test, expect, Page, BrowserContext } from "@playwright/test";
 import { env } from "../env";
 import { createUser, findUser } from "../src/server/services/user.service";
+import { getConfirmationCodeFromEmail } from "../test-utils/emailConfirmation";
+import { login } from "../test-utils/login";
+import { signup } from "../test-utils/signup";
 
-async function loadPage(page: Page) {
+export async function loadPage(page: Page) {
   await page.goto(`${env.baseUrl}`);
   await page.waitForLoadState("domcontentloaded");
 }
@@ -16,6 +19,7 @@ async function setCookies(context: BrowserContext) {
     },
   ]);
 }
+
 test.beforeEach(async ({ page, context }) => {
   await setCookies(context);
   const user = await findUser("test");
@@ -32,24 +36,12 @@ test.beforeEach(async ({ page, context }) => {
   await page.goto(`${env.baseUrl}`);
 });
 
-// Sign up test with confirmation code is not possible because the confirmation code is sent to the email
 test("sign up", async ({ page }) => {
-  await loadPage(page);
-  await page.getByRole("link", { name: "Register" }).click();
-  await page.locator("#input_field_p_first_name_first_name").fill("Fairshare");
-  await page.locator("#input_field_p_last_name_last_name").fill("Share");
-  await page
-    .locator("#input_field_p_email_email")
-    .fill("sharefairshare@gmail.com");
-  await page.locator("#id_register_email_button").click();
-  await page.locator("#input_field_p_confirmation_code_code_").fill("");
-  await page.getByTestId("otp-submit-button").click();
-  const userFile = "playwright/.auth/user.json";
-  await page.context().storageState({ path: userFile });
-  await page.waitForLoadState("domcontentloaded");
-  await expect(
-    page.getByRole("button", { name: "Click to get started" })
-  ).toBeVisible();
+  await signup(page);
+});
+
+test("login", async ({ page }) => {
+  await login(page);
 });
 
 test("loginWithGoogle", async ({ page }) => {
@@ -68,4 +60,29 @@ test("loginWithGoogle", async ({ page }) => {
   await page.locator("#passwordNext").click();
   const userFile = "playwright/.auth/admin.json";
   await page.context().storageState({ path: userFile });
+});
+
+test("login and create a group", async ({ page }) => {
+  await login(page);
+
+  await page.locator('a:has(p:has-text("Groups"))').click();
+  await page.waitForLoadState("domcontentloaded");
+
+  await page.locator('button:has(span:has-text("Create New Group"))').click();
+  await page.locator('input[name="groupName"]').fill("Roomates");
+  await page.locator("#select-icon").click();
+  await page
+    .locator('button[data-category-id="./groupIcons/drink.svg"]')
+    .click();
+  await page.locator('button[data-color="card-red"]').click();
+  await page.locator('button:has-text("Create Group")').click();
+
+  await page.waitForSelector(
+    "div.cursor-pointer.hover\\:opacity-80.transition-all.bg-primary-black"
+  );
+  await expect(
+    page.locator(
+      "div.cursor-pointer.hover\\:opacity-80.transition-all.bg-primary-black"
+    )
+  ).toBeVisible();
 });

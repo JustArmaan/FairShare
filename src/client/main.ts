@@ -68,8 +68,16 @@ document.addEventListener("htmx:afterSwap", () => {
 
 document.addEventListener("htmx:beforeSwap", () => {
   const connectButton = document.querySelector("#connect-to-plaid");
+  const menuContainer = document.querySelector(".popup-menu");
+
   if (connectButton && connectButton instanceof HTMLElement) {
     connectButton.removeEventListener("click", attachButton);
+  }
+
+  if (menuContainer && menuContainer instanceof HTMLElement) {
+    console.log("menuContainer", menuContainer);
+
+    menuContainer.classList.add("hidden");
   }
 });
 
@@ -79,9 +87,8 @@ declare global {
   }
 }
 
-document.body.addEventListener("htmx:afterSwap",async (event) => {
+document.body.addEventListener("htmx:afterSwap", async (event) => {
   await changeHeader();
-})
-
+});
 
 window.initMap = initMap;
