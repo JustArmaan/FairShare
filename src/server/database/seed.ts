@@ -11,7 +11,7 @@ import { splitType } from "./schema/splitType";
 import { groups } from "./schema/group";
 import { accounts } from "./schema/accounts";
 
-let db = getDB();
+const db = getDB();
 
 interface InsertedIdResult {
   insertedId: string;

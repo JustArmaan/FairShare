@@ -27,6 +27,7 @@ export default {
       },
       margin: {
         "sm-separator": "0.5rem",
+        "semi-separator": "0.625rem",
         "md-separator": "0.75rem",
         "lg-separator": "1rem",
         "xl-separator": "1.25rem",

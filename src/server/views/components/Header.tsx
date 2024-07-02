@@ -13,8 +13,7 @@ export const Header = () => {
       <p
         class="text-2xl text-font-off-white text-center font-bold w-full pt-4"
         id="header"
-      >
-      </p>
+      ></p>
     </div>
   );
 };

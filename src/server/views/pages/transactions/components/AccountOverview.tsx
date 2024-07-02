@@ -16,12 +16,19 @@ function firstLetterCapital(str: string) {
 
 export const AccountOverview = ({
   account,
+  lastMonth,
 }: {
   account: AccountWithTransactions;
+  lastMonth?: boolean;
 }) => {
   // Assuming `mapTransactionsToCategories` and `generatePathStyles` should be called for each account's transactions
   const categories = mapTransactionsToCategories(account.transactions);
   const pathStyles = generatePathStyles(categories);
+
+  const currentDate = new Date();
+  const currentMonthNumber = currentDate.getMonth() + (lastMonth ? 0 : 1);
+  currentDate.setMonth(currentMonthNumber);
+  const currentMonth = currentDate.toLocaleString("default", { month: "long" });
 
   function validateTransactions(transactions: TransactionSchema[]) {
     const hasTransactions = transactions.length > 0;
@@ -35,7 +42,7 @@ export const AccountOverview = ({
     <>
       <div
         id={`accountOverview-${account.id}`}
-        class="bg-primary-black bg-opacity-40 rounded-lg flex flex-col p-2 py-4 my-4 justify-center text-sm"
+        class="bg-primary-black bg-opacity-40 rounded-md flex flex-col p-2 py-4 my-4 justify-center text-sm"
       >
         <div class="account-info flex justify-between text-font-off-white mx-1 text-md">
           <p class="font-semibold">
@@ -90,7 +97,9 @@ export const AccountOverview = ({
         <div class="p-6 text-font-off-white bg-primary-black rounded-lg mt-4">
           {validateTransactions(account.transactions) ? (
             <>
-              <p class="text-xl font-semibold">Monthly Breakdown</p>
+              <p class="text-xl font-semibold">
+                Monthly Breakdown - {currentMonth}
+              </p>
               <Graph slices={pathStyles} accountId={account.id} home />
               <div class="flex flex-row justify-center mt-6">
                 <button

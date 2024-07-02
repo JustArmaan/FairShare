@@ -4,7 +4,7 @@ export const Nav = () => {
     defer
   ></script>;
   return (
-    <nav class="bg-font-black w-full fixed bottom-0">
+    <nav class="bg-font-black w-full fixed bottom-0 z-50">
       <ul class="flex justify-between items-center px-4 py-5">
         <li class="group w-1/6">
           <a

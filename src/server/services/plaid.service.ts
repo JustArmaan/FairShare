@@ -182,11 +182,14 @@ export async function getAccountWithTransactions(accountId: string) {
 }
 
 export async function getAccountWithCurrentMonthTransactions(
-  accountId: string
+  accountId: string,
+  lastMonth?: boolean
 ) {
   const currentDate = new Date();
   const currentYear = currentDate.getFullYear().toString();
-  const currentMonth = (currentDate.getMonth() + 1).toString().padStart(2, "0");
+  const currentMonth = (currentDate.getMonth() + (lastMonth ? 0 : 1))
+    .toString()
+    .padStart(2, "0");
 
   const { nextYear, nextMonth } = getNextMonthYear(currentYear, currentMonth);
   const startDate = `${currentYear}-${currentMonth}-01`;
