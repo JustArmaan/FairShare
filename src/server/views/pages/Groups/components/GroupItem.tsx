@@ -109,7 +109,7 @@ export const GroupItem = (props: {
                     <div
                       class={`-ml-4 flex rounded-full bg-${member.color} h-[1.875rem] aspect-square justify-center border-2 border-primary-black`}
                     >
-                      <span class="flex justify-center self-center text-center text-sm font-semibold">
+                      <span class="flex justify-center self-center text-center text-xs font-semibold">
                         {member.firstName.split("", 1)}
                         {member.lastName?.split("", 1)}
                       </span>
@@ -120,7 +120,8 @@ export const GroupItem = (props: {
             <p
               class={`relative text-font-grey text-[0.625rem] h-[0.75rem] mt-[0.12rem] ${props.group.members.length > 4 ? "left-[0.38rem]" : ""}`}
             >
-              {props.group.members.length} members
+              {props.group.members.length} member
+              {props.group.members.length > 1 && "s"}
             </p>
           </div>
         </div>
