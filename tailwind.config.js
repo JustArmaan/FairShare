@@ -20,6 +20,11 @@ export default {
         "fade-in": "fade-in 0.4s ease-out",
         wiggle: "wiggle 1s ease-in-out infinite",
       },
+      borderRadius: {
+        sm: "10px",
+        md: "13px",
+        lg: "20px",
+      },
     },
     colors: {
       "category-color-0": "#ff4d4d",
