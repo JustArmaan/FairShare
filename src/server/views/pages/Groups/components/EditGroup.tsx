@@ -4,14 +4,11 @@ import { getGroupWithMembers } from "../../../../services/group.service";
 import AddMembersComponent from "./AddMemberForm";
 
 export const colors = [
-  { name: "accent-blue", bgClass: "bg-accent-blue" },
   { name: "accent-purple", bgClass: "bg-accent-purple" },
   { name: "accent-red", bgClass: "bg-accent-red" },
   { name: "accent-yellow", bgClass: "bg-accent-yellow" },
   { name: "accent-green", bgClass: "bg-accent-green" },
-  { name: "positive-number", bgClass: "bg-positive-number" },
-  { name: "negative-number", bgClass: "bg-negative-number" },
-  { name: "card-red", bgClass: "bg-card-red" },
+  { name: "accent-teal", bgClass: "bg-accent-teal" },
 ];
 
 export function createGroupNameInput(edit = false, groupName?: string) {
