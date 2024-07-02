@@ -26,7 +26,7 @@ export const OwedGroup = ({
     .map((owedList) => owedList.find((owed) => owed.userId === currentUser.id)!)
     .filter((owed) => owed && !owed.pending);
   return (
-    <div class="flex-col w-full justify-evenly rounded-lg py-1.5 px-4 mt-3 flex items-center bg-primary-black relative">
+    <div class="flex-col w-full justify-evenly rounded-lg py-1.5 px-4 mt-3 flex items-center">
       {transactions &&
         (transactions.length > 0 && owedForThisMember.length > 0 ? (
           owedForThisMember
@@ -37,62 +37,62 @@ export const OwedGroup = ({
               )!,
             }))
             .map((result, index) => (
-              <div class="my-2 w-full">
-                <div class="flex justify-between w-full">
-                  <p class="text-font-off-white self-start w-fit font-semibold text-lg">
-                    {maxCompanyNameLength(result.transaction.company ?? "", 20)}
+              <div class="w-full bg-primary-black relative mb-3 rounded-md h-[7rem] shadow-[0px_2px_2px_0px_rgba(0,0,0,0.25)]">
+                <div class="p-3">
+                  <div class="flex justify-between w-full">
+                    <p class="text-font-off-white self-start w-fit font-semibold text-lg">
+                      {maxCompanyNameLength(
+                        result.transaction.company ?? "",
+                        20
+                      )}
+                    </p>
+                    <p class="text-font-off-white self-end w-fit text-lg">
+                      {result.amount > 0 ? "You're Owed " : "You Owe "}
+                      <span
+                        class={`text-lg font-medium ${
+                          result.amount > 0
+                            ? "text-positive-number"
+                            : "text-negative-number"
+                        }`}
+                      >
+                        ${Math.abs(result.amount).toFixed(2)}
+                      </span>
+                    </p>
+                  </div>
+                  <p class="text-font-off-white self-start text-xs">
+                    {result.transaction.timestamp}
                   </p>
-                  <p class="text-font-off-white self-end w-fit text-lg">
-                    {result.amount > 0 ? "You're Owed " : "You Owe "}
-                    <span
-                      class={`text-lg font-medium ${
-                        result.amount > 0
-                          ? "text-positive-number"
-                          : "text-negative-number"
-                      }`}
-                    >
-                      ${result.amount.toFixed(2)}
-                    </span>
-                  </p>
-                </div>
-                <p class="text-font-off-white self-start text-xs">
-                  {result.transaction.timestamp}
-                </p>
-                <div class="flex justify-between w-full">
-                  <p class="text-font-off-white self-start mt-2">
-                    Paid by:{" "}
-                    <span class="text-font-off-white self-start mt-2 font-semibold">
-                      {currentUser.firstName}
-                      {/* This needs to be whoever paid for the bill */}
-                    </span>
-                  </p>
-                  <div class="flex flex-row justify-center text-font-off-white">
-                    {result.amount > 0 ? (
+                  <div class="flex justify-between w-full">
+                    <p class="text-font-off-white self-start mt-2">
+                      Paid by:{" "}
+                      <span class="text-font-off-white self-start mt-2 font-semibold">
+                        {currentUser.firstName}
+                        {/* This needs to be whoever paid for the bill */}
+                      </span>
+                    </p>
+                    <div class="flex flex-row justify-center text-font-off-white">
                       <button
                         hx-swap="innerHTML"
                         hx-get={`/transactions/details/${result.transactionId}/?url=${url}`}
                         hx-push-url={`/transactions/details/${result.transactionId}/?url=${url}`}
                         hx-target="#app"
-                        class="hover:-translate-y-0.5 rotate-[0.0001deg] transition-transform font-semibold px-12 py-2.5 bg-accent-blue rounded-xl h-fit"
+                        class="hover:-translate-y-0.5 rotate-[0.0001deg] transition-transform font-normal w-[4.187rem] h-[2.063rem] border-accent-blue border-[2px] rounded-2xl text-font-off-white text-base"
                       >
-                        View Details
+                        View
                       </button>
-                    ) : (
+
                       <button
                         hx-swap="innerHTML"
                         hx-get={`/groups/pay/${result.groupTransactionToUsersToGroupsId}/${groupId}`}
                         hx-target="#app"
                         hx-push-url={`/groups/pay/${result.groupTransactionToUsersToGroupsId}/${groupId}`}
-                        class="hover:-translate-y-0.5 rotate-[0.0001deg] transition-transform font-semibold px-12 py-2.5 bg-accent-blue rounded-xl h-fit"
+                        class="hover:-translate-y-0.5 rotate-[0.0001deg] transition-transform font-normal w-[4.187rem] h-[2.063rem] bg-accent-blue rounded-2xl text-font-off-white text-base ml-3"
                       >
-                        View and Pay
+                        Settle
                       </button>
-                    )}
+                    </div>
                   </div>
                 </div>
-                {index !== transactions.length - 2 && (
-                  <div class="mt-4 h-[1px] bg-primary-grey rounded w-full"></div>
-                )}
               </div>
             ))
         ) : (
