@@ -86,7 +86,7 @@ export const GroupPage = (props: {
           );
         })}
       </div>
-      <div class="flex justify-center mt-10">
+      <div class="flex justify-center mt-[0.81rem]">
         <button
           class={`rounded-lg p-4 bg-accent-blue text-font-off-white`}
           hx-get="/groups/create"
