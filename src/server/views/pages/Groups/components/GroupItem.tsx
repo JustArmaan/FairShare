@@ -73,7 +73,9 @@ export const GroupItem = (props: {
                   : "You Owe $" + Math.abs(props.owedAmount).toFixed(2)}
             </p>
           </div>
-          <div class="flex flex-col pr-[0.38rem] relative left-[0.38rem]">
+          <div
+            class={`flex flex-col ${props.group.members.length > 4 ? "pr-[0.38rem] left-[0.38rem]" : ""} relative`}
+          >
             <div class="flex justify-end">
               {props.edit && (
                 <img
@@ -88,7 +90,7 @@ export const GroupItem = (props: {
               {!props.edit &&
                 props.group.members.slice(0, 4).map((member, index) => {
                   return index === 3 && props.group.members.length > 4 ? (
-                    <div class="-ml-4 rounded-full relative w-fit ">
+                    <div class="-ml-4 rounded-full relative w-fit">
                       <div class="flex items-center justify-center absolute h-[1.875rem] aspect-square rounded-full z-10 border-2 border-primary-black">
                         <p class="text-font-off-white text-xs">
                           +{props.group.members.length - 4}
@@ -115,7 +117,9 @@ export const GroupItem = (props: {
                   );
                 })}
             </div>
-            <p class="relative text-font-grey text-[0.625rem] h-[0.75rem] mt-[0.12rem] left-[0.38rem]">
+            <p
+              class={`relative text-font-grey text-[0.625rem] h-[0.75rem] mt-[0.12rem] ${props.group.members.length > 4 ? "left-[0.38rem]" : ""}`}
+            >
               {props.group.members.length} members
             </p>
           </div>
