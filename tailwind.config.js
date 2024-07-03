@@ -20,6 +20,18 @@ export default {
         "fade-in": "fade-in 0.4s ease-out",
         wiggle: "wiggle 1s ease-in-out infinite",
       },
+      borderRadius: {
+        sm: "0.625rem",
+        md: "0.75rem",
+        lg: "1.25rem",
+      },
+      margin: {
+        "sm-separator": "0.5rem",
+        "semi-separator": "0.625rem",
+        "md-separator": "0.75rem",
+        "lg-separator": "1rem",
+        "xl-separator": "1.25rem",
+      },
     },
     colors: {
       "category-color-0": "#ff4d4d",

@@ -100,15 +100,26 @@ router.get("/itemPicker/:itemId", async (req, res) => {
 });
 
 router.get("/accountOverview/:accountId", async (req, res) => {
-  const accountWithTransactions = await getAccountWithCurrentMonthTransactions(
+  let lastMonth = false;
+  let accountWithTransactions = await getAccountWithCurrentMonthTransactions(
     req.params.accountId
   );
 
   if (!accountWithTransactions) {
     return;
   }
+
+  if (accountWithTransactions.transactions.length === 0) {
+    // this is a temp fix for this case!
+    accountWithTransactions = await getAccountWithCurrentMonthTransactions(
+      req.params.accountId,
+      true
+    );
+    lastMonth = true;
+  }
+
   const html = renderToHtml(
-    <AccountOverview account={accountWithTransactions!} />
+    <AccountOverview account={accountWithTransactions!} lastMonth={lastMonth} />
   );
   res.send(html);
 });

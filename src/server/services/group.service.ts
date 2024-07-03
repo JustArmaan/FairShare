@@ -180,25 +180,28 @@ export async function getGroupWithMembers(groupId: string) {
       .innerJoin(memberType, eq(usersToGroups.memberTypeId, memberType.id))
       .where(eq(groups.id, groupId));
 
-    return result.reduce((groups, currentResult) => {
-      const groupIndex = groups.findIndex(
-        (group) => group.id === currentResult.group.id
-      );
-      if (groupIndex === -1) {
-        groups.push({
-          ...currentResult.group,
-          members: [
-            { ...currentResult.members, type: currentResult.memberType.type },
-          ],
-        });
-      } else {
-        groups[groupIndex].members.push({
-          ...currentResult.members,
-          type: currentResult.memberType.type,
-        });
-      }
-      return groups;
-    }, [] as (GroupSchema & { members: UserSchemaWithMemberType[] })[])[0];
+    return result.reduce(
+      (groups, currentResult) => {
+        const groupIndex = groups.findIndex(
+          (group) => group.id === currentResult.group.id
+        );
+        if (groupIndex === -1) {
+          groups.push({
+            ...currentResult.group,
+            members: [
+              { ...currentResult.members, type: currentResult.memberType.type },
+            ],
+          });
+        } else {
+          groups[groupIndex].members.push({
+            ...currentResult.members,
+            type: currentResult.memberType.type,
+          });
+        }
+        return groups;
+      },
+      [] as (GroupSchema & { members: UserSchemaWithMemberType[] })[]
+    )[0];
   } catch (error) {
     console.error(error);
     return null;
@@ -227,25 +230,28 @@ export async function getGroupWithAcceptedMembers(groupId: string) {
         and(eq(groups.id, groupId), eq(memberType.id, memberTypeForMember.id))
       );
 
-    return result.reduce((groups, currentResult) => {
-      const groupIndex = groups.findIndex(
-        (group) => group.id === currentResult.group.id
-      );
-      if (groupIndex === -1) {
-        groups.push({
-          ...currentResult.group,
-          members: [
-            { ...currentResult.members, type: currentResult.memberType.type },
-          ],
-        });
-      } else {
-        groups[groupIndex].members.push({
-          ...currentResult.members,
-          type: currentResult.memberType.type,
-        });
-      }
-      return groups;
-    }, [] as (GroupSchema & { members: UserSchemaWithMemberType[] })[])[0];
+    return result.reduce(
+      (groups, currentResult) => {
+        const groupIndex = groups.findIndex(
+          (group) => group.id === currentResult.group.id
+        );
+        if (groupIndex === -1) {
+          groups.push({
+            ...currentResult.group,
+            members: [
+              { ...currentResult.members, type: currentResult.memberType.type },
+            ],
+          });
+        } else {
+          groups[groupIndex].members.push({
+            ...currentResult.members,
+            type: currentResult.memberType.type,
+          });
+        }
+        return groups;
+      },
+      [] as (GroupSchema & { members: UserSchemaWithMemberType[] })[]
+    )[0];
   } catch (error) {
     console.error(error);
     return null;
@@ -878,6 +884,39 @@ export async function getUserTotalOwedForGroup(
       .where(eq(groupTransactionToUsersToGroups.usersToGroupsId, userGroup.id));
 
     return results.reduce((sum, result) => sum + result.amount, 0);
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
+}
+
+export async function getUserTotalOwedForGroupWithOwingFlags(
+  userId: string,
+  groupId: string
+) {
+  try {
+    const userGroup = await getUserGroupId(userId, groupId);
+    if (!userGroup) {
+      return null;
+    }
+
+    const results = await db
+      .select()
+      .from(groupTransactionToUsersToGroups)
+      .where(eq(groupTransactionToUsersToGroups.usersToGroupsId, userGroup.id));
+
+    const owesAndOwing = {
+      owed: false,
+      owing: false,
+    };
+    return {
+      owedAmount: results.reduce((sum, result) => {
+        if (result.amount > 0) owesAndOwing.owed = true;
+        if (result.amount < 0) owesAndOwing.owing = true;
+        return sum + result.amount;
+      }, 0),
+      flags: owesAndOwing,
+    };
   } catch (error) {
     console.error(error);
     return null;

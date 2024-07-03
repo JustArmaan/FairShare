@@ -1,16 +1,27 @@
 import { getGroupsAndAllMembersForUser } from "../../../services/group.service";
 import type { ExtractFunctionReturnType } from "../../../services/user.service";
+import type { ArrayElement } from "../transactions/components/Transaction";
 import { GroupItem } from "./components/GroupItem";
 
 export type Groups = ExtractFunctionReturnType<
   typeof getGroupsAndAllMembersForUser
 >;
 
-export const GroupPage = (props: { edit?: boolean; groups: Groups }) => {
+type OwedSum = { owedAmount: number; flags: { owed: boolean; owing: boolean } };
+
+type GroupsWithOwedSum = (ArrayElement<
+  ExtractFunctionReturnType<typeof getGroupsAndAllMembersForUser>
+> &
+  OwedSum)[];
+
+export const GroupPage = (props: {
+  edit?: boolean;
+  groups: GroupsWithOwedSum;
+}) => {
   return (
-    <div class="p-6 animate-fade-in">
+    <div class="mx-lg-separator animate-fade-in mt-[2.31rem]">
       <div class="flex items-center justify-between">
-        <h2 class="text-2xl text-font-off-white">Groups</h2>
+        <h2 class="text-xl font-semibold text-font-off-white">My Groups</h2>
         {props.edit ? (
           <button
             hx-get="/groups/page"
@@ -43,28 +54,32 @@ export const GroupPage = (props: { edit?: boolean; groups: Groups }) => {
             hx-push-url="/groups/edit"
             class={props.groups.length === 0 ? "hidden" : ""}
           >
-            <img class="h-4" src="/icons/edit.svg" alt="edit icon" />
+            <p class="text-font-grey font-[400] text-[0.875rem] mr-[0.25rem]">
+              Edit
+            </p>
           </button>
         )}
       </div>
-      <div class="px-4 py-2 mt-4 rounded-lg bg-primary-black">
+      <div class="mt-semi-separator">
         {props.groups.length === 0 && (
           <p class="text-font-off-white text-lg">
             No groups found! Create one by using the button below.
           </p>
         )}
-        {props.groups.map((group, index) => (
-          <>
-            <GroupItem group={group} edit={props.edit} />
-            {index !== props.groups.length - 1 && (
-              <div class="mt-3 h-px rounded-full bg-primary-dark-grey" />
-            )}
-          </>
-        ))}
+        {props.groups.map((group) => {
+          return (
+            <GroupItem
+              group={group}
+              edit={props.edit}
+              owedAmount={group.owedAmount}
+              flags={group.flags}
+            />
+          );
+        })}
       </div>
-      <div class="flex justify-center mt-10">
+      <div class="flex justify-center mt-[0.81rem]">
         <button
-          class={`rounded-2xl py-3 px-4 bg-accent-blue text-font-off-white`}
+          class={`rounded-lg p-4 bg-accent-blue text-font-off-white`}
           hx-get="/groups/create"
           hx-swap="innerHTML"
           hx-target="#app"

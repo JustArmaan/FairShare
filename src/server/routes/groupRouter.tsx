@@ -16,6 +16,7 @@ import {
   getUserTotalOwedForGroup,
   changeMemberTypeInGroup,
   getGroupOwner,
+  getUserTotalOwedForGroupWithOwingFlags,
 } from "../services/group.service";
 import { findUser, getUserByEmailOnly } from "../services/user.service.ts";
 import { AddedMember } from "../views/pages/Groups/components/Member.tsx";
@@ -99,7 +100,21 @@ const icons = [
 router.get("/page", async (req, res) => {
   try {
     const groups = await getGroupsAndAllMembersForUser(req.user!.id);
-    const html = renderToHtml(<GroupPage groups={groups ? groups : []} />);
+    const groupsWithOwed = await Promise.all(
+      groups.map(async (group) => {
+        let owed = await getUserTotalOwedForGroupWithOwingFlags(
+          req.user!.id,
+          group.id
+        );
+        if (owed === null) {
+          owed = { owedAmount: 0, flags: { owed: false, owing: false } };
+        }
+        return { ...group, ...owed };
+      })
+    );
+    const html = renderToHtml(
+      <GroupPage groups={groupsWithOwed ? groupsWithOwed : []} />
+    );
     res.send(html);
   } catch (err) {
     console.error(err);
@@ -674,9 +689,8 @@ router.post("/deleteMember/:userID/:groupID", async (req, res) => {
 
 router.get("/transactions/:groupId", async (req, res) => {
   const groupId = req.params.groupId;
-  const groupWithTransactions = await getGroupWithMembersAndTransactions(
-    groupId
-  );
+  const groupWithTransactions =
+    await getGroupWithMembersAndTransactions(groupId);
   const html = renderToHtml(
     <GroupTransactionsListPage
       group={groupWithTransactions as GroupMembersTransactions}
