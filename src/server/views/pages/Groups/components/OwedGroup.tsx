@@ -25,6 +25,30 @@ export const OwedGroup = ({
   const owedForThisMember = owedPerMember
     .map((owedList) => owedList.find((owed) => owed.userId === currentUser.id)!)
     .filter((owed) => owed && !owed.pending);
+
+  function formatDate(dateString: string) {
+    const months = [
+      "January",
+      "February",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December",
+    ];
+
+    const date = new Date(dateString);
+    const month = months[date.getMonth()];
+    const day = date.getDate();
+    const year = date.getFullYear();
+    return `${month} ${day}, ${year}`;
+  }
+
   return (
     <div class="flex-col w-full justify-evenly rounded-lg py-1.5 px-4 mt-3 flex items-center">
       {transactions &&
@@ -37,7 +61,7 @@ export const OwedGroup = ({
               )!,
             }))
             .map((result, index) => (
-              <div class="w-full bg-primary-black relative mb-3 rounded-md h-[7rem] shadow-[0px_2px_2px_0px_rgba(0,0,0,0.25)]">
+              <div class="w-full bg-primary-black relative mb-3 rounded-md min-h-[7rem] shadow-[0px_2px_2px_0px_rgba(0,0,0,0.25)]">
                 <div class="p-3">
                   <div class="flex justify-between w-full">
                     <p class="text-font-off-white self-start w-fit font-semibold text-lg">
@@ -60,7 +84,7 @@ export const OwedGroup = ({
                     </p>
                   </div>
                   <p class="text-font-off-white self-start text-xs">
-                    {result.transaction.timestamp}
+                    {formatDate(result.transaction.timestamp!)}
                   </p>
                   <div class="flex justify-between w-full">
                     <p class="text-font-off-white self-start mt-2">

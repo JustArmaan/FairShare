@@ -88,6 +88,13 @@ export const Members = ({
                 }
               </p>
             </div>
+            {member.id === currentUser.id && (
+              <div class="flex flex-row h-[0.8125rem] w-[2.125rem] bg-accent-purple rounded-[0.250rem] self-center justify-center items-center mb-3 ml-[0.30rem]">
+                <p class="font-normal text-font-off-white text-[0.625rem] text-center">
+                  You
+                </p>
+              </div>
+            )}
             <p class="flex-auto w-fit text-sm self-center mr-[2.81rem] justify-end ">
               {member.amount !== 0 && (
                 <p class="flex text-font-off-white w-fit text-sm font-medium self-center justify-end">

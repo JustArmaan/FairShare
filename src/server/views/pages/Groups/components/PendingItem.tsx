@@ -25,6 +25,29 @@ export const PendingItems = ({
   function firstLetterUppercase(str: string) {
     return str.charAt(0).toUpperCase() + str.slice(1);
   }
+
+  function formatDate(dateString: string) {
+    const months = [
+      "January",
+      "February",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December",
+    ];
+
+    const date = new Date(dateString);
+    const month = months[date.getMonth()];
+    const day = date.getDate();
+    const year = date.getFullYear();
+    return `${month} ${day}, ${year}`;
+  }
   return (
     <div class="flex-col w-full justify-evenly rounded-lg py-1.5 px-4 mt-3 flex items-center">
       {transactions &&
@@ -66,7 +89,7 @@ export const PendingItems = ({
                     </p>
                   </div>
                   <p class="text-font-off-white self-start text-xs">
-                    {result.transaction.timestamp}
+                    {formatDate(result.transaction.timestamp!)}
                   </p>
                   <div class="flex justify-between w-full">
                     <p class="text-font-off-white self-start mt-2 mb-2">
