@@ -83,6 +83,12 @@ document.addEventListener("htmx:afterSwap", () => {
   if (connectButton && connectButton instanceof HTMLElement) {
     connectButton.addEventListener("click", attachButton);
   }
+
+  const navBar = document.querySelector("nav")?.querySelector("ul");
+  if (window.android && navBar instanceof HTMLElement) {
+    console.log("setting prop")
+    navBar.style.setProperty("padding-bottom", "0px");
+  }
 });
 
 document.addEventListener("htmx:beforeSwap", () => {

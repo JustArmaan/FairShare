@@ -64,7 +64,7 @@ async function hasAccounts(): Promise<boolean> {
 
 async function addNewInstitution() {
   try {
-    if (window.webview) {
+    if (window.webview && window.android) {
       return await handleWebviewLink(true);
     }
     const publicToken = await getToken();
@@ -102,6 +102,7 @@ async function addNewInstitution() {
 declare global {
   interface Window {
     webview: boolean;
+    android: boolean;
   }
 }
 
@@ -140,7 +141,7 @@ async function handleWebviewLink(addNew?: boolean) {
 
 async function runLinkSetup() {
   try {
-    if (window.webview) {
+    if (window.webview && window.android) {
       return await handleWebviewLink();
     }
     const mobile = document.querySelector("#mobile-connect") !== null;
