@@ -868,10 +868,15 @@ router.get("/selectIconEmpty", async (req, res) => {
 router.get("/addMembers/:groupId", async (req, res) => {
   const groupId = req.params.groupId;
   const group = await getGroupWithMembers(groupId);
+  const userId = req.user!.id;
+  const currentUser = await findUser(userId);
+  if (!currentUser) throw new Error("No such user");
   if (!group) {
     return res.status(404).send("Group not found");
   }
-  const html = renderToHtml(<AddMembersPage group={group} />);
+  const html = renderToHtml(
+    <AddMembersPage group={group} currentUser={currentUser} />
+  );
   res.send(html);
 });
 
