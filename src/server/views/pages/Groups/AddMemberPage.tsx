@@ -1,6 +1,11 @@
+import type { UserSchema } from "../../../interface/types";
 import { type GroupWithMembers } from "../../../services/group.service";
+import GroupMembers from "./components/GroupMembers";
 
-export const AddMembersPage = (props: { group: GroupWithMembers }) => {
+export const AddMembersPage = (props: {
+  group: GroupWithMembers;
+  currentUser: UserSchema;
+}) => {
   return (
     <div class="animate-fade-in">
       <a
@@ -58,8 +63,31 @@ export const AddMembersPage = (props: { group: GroupWithMembers }) => {
             Send Invite
           </button>
         </div>
-        <span class="text-font-off-white">Members</span>
       </div>
+      {/* <p class="text-font-off-white font-normal text-sm ">
+        Email or Phone number
+      </p>
+      <div>
+        <input
+          type="text"
+          class="w-full bg-primary-black rounded-md p-2 text-font-off-white border border-primary-dark-grey"
+        ></input>
+        <button
+          hx-swap="innerHTML"
+          hx-get={``}
+          hx-target="#app"
+          hx-push-url={``}
+          class="hover:-translate-y-0.5 rotate-[0.0001deg] transition-transform font-semibold bg-accent-blue rounded-xl text-font-off-white w-[6.125rem] h-[2.5rem]"
+        >
+          Send Invite
+        </button>
+      </div> */}
+      <span class="text-font-off-white mt-[1.19rem]">Members</span>
+      {/* margin top is not applying here */}
+      <GroupMembers
+        memberDetails={props.group.members}
+        currentUser={props.currentUser}
+      />
     </div>
   );
 };
