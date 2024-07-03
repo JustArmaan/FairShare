@@ -58,6 +58,7 @@ export const AddMembersPage = (props: { group: GroupWithMembers }) => {
             Send Invite
           </button>
         </div>
+        <span class="text-font-off-white">Members</span>
       </div>
     </div>
   );
