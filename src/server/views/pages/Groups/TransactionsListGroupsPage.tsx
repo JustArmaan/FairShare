@@ -5,7 +5,7 @@ export const GroupTransactionsListPage = (props: {
 }) => {
   return (
     <div
-      class="p-6 animate-fade-in"
+      class="animate-fade-in"
       hx-push-url={`/groups/transactions/${props.group.id}`}
     >
       <div class="flex justify-start w-fit items-center mb-1">

@@ -169,13 +169,13 @@ export async function getUser(req: Request, res: Response, next: NextFunction) {
       }
     } else {
       if (
-        req.url.includes("auth") ||
-        req.url.includes("onboard") ||
+        req.url.startsWith(`/auth`) ||
+        req.url.startsWith(`/mobile/auth`) ||
+        req.url.startsWith(`/onboard`) ||
         req.url === "/"
       ) {
         return next();
       } else {
-        // console.trace("redir hom");
         res.redirect("/");
       }
     }

@@ -11,7 +11,7 @@ export const AddTransaction = (props: {
   itemId: string;
 }) => {
   return (
-    <div class="p-6 animate-fade-in" hx-push-url={`/groups/addTransaction`}>
+    <div class="animate-fade-in" hx-push-url={`/groups/addTransaction`}>
       <div class="flex justify-start w-fit items-center mb-1">
         <a
           hx-get={`/groups/view/${props.groupId}`}

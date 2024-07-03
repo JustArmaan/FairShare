@@ -15,7 +15,7 @@ export const ViewAndPayPage = (props: {
   groupId: string;
 }) => {
   return (
-    <div class="p-6 text-font-off-white">
+    <div class="text-font-off-white">
       <form>
         <div>
           <h2 class="text-3xl">

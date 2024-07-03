@@ -23,6 +23,23 @@ import { getGroup, getGroupByOwedId } from "../../../services/group.service";
 
 const router = Router();
 
+router.get("/session", (req, res) => {
+  try {
+    const data = [
+      "ac-state-key",
+      "id_token",
+      "access_token",
+      "user",
+      "refresh_token",
+    ].reduce((acc, key) => {
+      return { ...acc, [key]: req.cookies[key] };
+    }, {});
+    res.json({ error: null, data });
+  } catch (e) {
+    res.json({ error: e });
+  }
+});
+
 router.get("/connected", async (req, res) => {
   if (!req.user) {
     return res.json({
@@ -32,12 +49,18 @@ router.get("/connected", async (req, res) => {
   }
 
   const items = await getItemsForUser(req.user.id);
-  console.log(items, "itmes connected");
   const connected = items.length > 0;
-  return res.json({
-    error: null,
-    data: { connected },
-  });
+  return res
+    .set({
+      "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate",
+      Pragma: "no-cache",
+      Expires: "0",
+      "Surrogate-Control": "no-store",
+    })
+    .json({
+      error: null,
+      data: { connected, count: items.length },
+    });
 });
 
 router.get("/has-accounts", async (req, res) => {
@@ -208,8 +231,7 @@ router.post("/vopay-transactions-webhook", async (req, res) => {
       const sender = await findUser(groupTransfer.senderUserId);
       await createNotificationWithWebsocket(
         group!.id,
-        `${sender!.firstName} has sent you $${
-          payload.TransactionAmount
+        `${sender!.firstName} has sent you $${payload.TransactionAmount
         }, please check your email for details.`,
         groupTransfer.receiverUserId,
         "groupInvite"
@@ -233,8 +255,7 @@ router.post("/vopay-transactions-webhook", async (req, res) => {
       const receiver = await findUser(groupTransfer.receiverUserId);
       await createNotificationWithWebsocket(
         group!.id,
-        `Your transfer to ${receiver!.firstName} of $${
-          payload.TransactionAmount
+        `Your transfer to ${receiver!.firstName} of $${payload.TransactionAmount
         } has been completed!`,
         groupTransfer.senderUserId,
         "groupInvite"

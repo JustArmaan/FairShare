@@ -26,7 +26,10 @@ import {
   updateGroup,
 } from "../services/group.service.ts";
 import CreateGroup from "../views/pages/Groups/components/CreateGroup.tsx";
-import { EditGroupPage } from "../views/pages/Groups/components/EditGroup.tsx";
+import {
+  EditGroupPage,
+  colors,
+} from "../views/pages/Groups/components/EditGroup.tsx";
 import { ViewGroups } from "../views/pages/Groups/components/ViewGroup.tsx";
 import { AddTransaction } from "../views/pages/Groups/components/AddTransaction.tsx";
 import {
@@ -55,6 +58,8 @@ import {
 import { AccountSelector } from "../views/pages/Groups/components/AccountSelector.tsx";
 import { deleteNotificationForUserInGroup } from "../services/notification.service.ts";
 import { createNotificationWithWebsocket } from "../utils/createNotification.ts";
+import SelectIcon from "../views/pages/Groups/components/SelectIcon.tsx";
+import { AddMembersPage } from "../views/pages/Groups/AddMemberPage.tsx";
 
 const router = express.Router();
 
@@ -62,37 +67,88 @@ const icons = [
   {
     id: "2707335e-ad80-458a-a1e6-fb25300e5621",
     name: "Heart",
-    icon: "./groupIcons/heart.svg",
+    icon: "/groupIcons/heart.svg",
   },
   {
     id: "2707335e-ad80-458a-a1e6-fb25300e5622",
     name: "Star",
-    icon: "./groupIcons/star.svg",
+    icon: "/groupIcons/star.svg",
   },
   {
     id: "2707335e-ad80-458a-a1e6-fb25300e5623",
     name: "Drink",
-    icon: "./groupIcons/drink.svg",
+    icon: "/groupIcons/drink.svg",
   },
   {
     id: "2707335e-ad80-458a-a1e6-fb25300e5624",
     name: "Diamond",
-    icon: "./groupIcons/diamond.svg",
+    icon: "/groupIcons/diamond.svg",
   },
   {
     id: "2707335e-ad80-458a-a1e6-fb25300e5625",
     name: "Food",
-    icon: "./groupIcons/food.svg",
+    icon: "/groupIcons/food.svg",
   },
   {
     id: "2707335e-ad80-458a-a1e6-fb25300e5626",
     name: "Crown",
-    icon: "./groupIcons/crown.svg",
+    icon: "/groupIcons/crown.svg",
   },
   {
     id: "2707335e-ad80-458a-a1e6-fb25300e5627",
     name: "Gift",
-    icon: "./groupIcons/gift.svg",
+    icon: "/groupIcons/gift.svg",
+  },
+];
+
+const createIcons = [
+  {
+    name: "Books",
+    icon: "/createGroupIcons/book.svg",
+  },
+  {
+    name: "Dentist",
+    icon: "/createGroupIcons/dentists.svg",
+  },
+  {
+    name: "Education",
+    icon: "/createGroupIcons/education.svg",
+  },
+  {
+    name: "Entertainment",
+    icon: "/createGroupIcons/entertainment.svg",
+  },
+  {
+    name: "Food",
+    icon: "/createGroupIcons/food.svg",
+  },
+  {
+    name: "Healthcare",
+    icon: "/createGroupIcons/healthcare.svg",
+  },
+  {
+    name: "Home",
+    icon: "/createGroupIcons/home.svg",
+  },
+  {
+    name: "Shopping",
+    icon: "/createGroupIcons/shopping.svg",
+  },
+  {
+    name: "Hydro",
+    icon: "/createGroupIcons/hydro.svg",
+  },
+  {
+    name: "Utilities",
+    icon: "/createGroupIcons/utilities.svg",
+  },
+  {
+    name: "Medicine",
+    icon: "/createGroupIcons/medicine.svg",
+  },
+  {
+    name: "Wifi",
+    icon: "/createGroupIcons/wifi.svg",
   },
 ];
 
@@ -290,10 +346,7 @@ router.get("/create", async (req, res) => {
     if (!databaseUser) throw new Error("failed to create user");
 
     const html = renderToHtml(
-      <CreateGroup
-        icons={icons}
-        currentUser={{ ...databaseUser, type: "Owner" }}
-      />
+      <CreateGroup currentUser={{ ...databaseUser, type: "Owner" }} />
     );
     res.send(html);
   } catch (error) {
@@ -363,6 +416,7 @@ router.get("/addMember/:groupId", async (req, res) => {
 
 router.post("/create", async (req, res) => {
   try {
+    console.log("req.body", req.body);
     const { id } = req.user!;
 
     const currentUser = await findUser(id);
@@ -371,19 +425,13 @@ router.post("/create", async (req, res) => {
       return res.status(500).send("Failed to get user");
     }
 
-    const {
-      groupName,
-      selectedCategoryId,
-      memberEmails,
-      temporaryGroup,
-      selectedColor,
-    } = req.body;
+    const { groupName, selectedIcon, temporaryGroup, selectedColor } = req.body;
 
     if (
       !groupName ||
       groupName === "" ||
-      !selectedCategoryId ||
-      selectedCategoryId === "" ||
+      !selectedIcon ||
+      selectedIcon === "" ||
       !selectedColor ||
       selectedColor === ""
     ) {
@@ -396,14 +444,14 @@ router.post("/create", async (req, res) => {
       isTemp = false;
     }
 
-    if (!selectedCategoryId) {
+    if (!selectedIcon) {
       return res.status(400).send("Category not found.");
     }
 
     const group = await createGroup(
       groupName,
       selectedColor,
-      selectedCategoryId,
+      selectedIcon,
       isTemp.toString()
     );
 
@@ -411,31 +459,7 @@ router.post("/create", async (req, res) => {
       return res.status(500).send("Failed to create group.");
     }
 
-    const groupMembers = memberEmails.split(",");
-    if (groupMembers.includes("")) {
-      if (currentUser) {
-        groupMembers.push(currentUser.email);
-      }
-    }
-    for (const memberEmail of groupMembers) {
-      const user = await getUserByEmailOnly(memberEmail);
-      if (user) {
-        if (user.id !== currentUser.id) {
-          const invitedMember = await addMember(group.id, user.id, "Invited");
-          if (invitedMember) {
-            await createNotificationWithWebsocket(
-              group.id,
-              `You have been invited to join the group ${group.name} by ${currentUser.email}`,
-              user.id,
-              "groupInvite",
-              `/groups/${group.id}`
-            );
-          }
-        } else if (user.id === currentUser.id) {
-          await addMember(group.id, user.id, "Owner");
-        }
-      }
-    }
+    await addMember(group.id, currentUser.id, "Owner");
 
     const allGroupsForCurrentUser = await getGroupsAndAllMembersForUser(
       currentUser.id
@@ -794,6 +818,60 @@ router.post("/member/:approval", async (req, res) => {
     </>
   );
 
+  res.send(html);
+});
+
+router.get("/selectIcon", async (req, res) => {
+  const html = renderToHtml(
+    <div
+      id="select-group-icon"
+      class="w-full h-fit bg-primary-black rounded-md mt-1 flex flex-col items-center"
+    >
+      <div
+        id="select-group-icon"
+        class="py-2 px-3  w-full h-fit flex justify-between"
+      >
+        <p class="text-primary-grey font-normal">Select Group Icon</p>
+        <img
+          hx-get="/groups/selectIconEmpty"
+          hx-trigger="click"
+          hx-swap="outerHTML"
+          hx-target="#select-group-icon"
+          src="/activeIcons/expand_more.svg"
+          class="rotate-180"
+        />
+      </div>
+      <hr class="border-t border-primary-dark-grey w-11/12 mx-auto px-2" />
+      <SelectIcon icons={createIcons} colors={colors} />
+    </div>
+  );
+  res.send(html);
+});
+
+router.get("/selectIconEmpty", async (req, res) => {
+  const html = renderToHtml(
+    <div
+      id="select-group-icon"
+      hx-get="/groups/selectIcon"
+      hx-trigger="click"
+      hx-swap="outerHTML"
+      hx-target="#select-group-icon"
+      class="py-2 px-3  w-full h-fit flex justify-between bg-primary-black rounded-md mt-1"
+    >
+      <p class="text-primary-grey font-normal">Select Group Icon</p>
+      <img src="/activeIcons/expand_more.svg" />
+    </div>
+  );
+  res.send(html);
+});
+
+router.get("/addMembers/:groupId", async (req, res) => {
+  const groupId = req.params.groupId;
+  const group = await getGroupWithMembers(groupId);
+  if (!group) {
+    return res.status(404).send("Group not found");
+  }
+  const html = renderToHtml(<AddMembersPage group={group} />);
   res.send(html);
 });
 

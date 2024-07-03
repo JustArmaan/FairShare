@@ -2,7 +2,7 @@ import { Transaction } from "../../transactions/components/Transaction";
 import { type GroupWithTransactions } from "../../../../services/group.service";
 import Members from "./Members";
 import OwedGroup from "./OwedGroup";
-import { type UserSchema } from "../../../../interface/types";
+import { type UserSchema, type UserSchemaWithMemberType } from "../../../../interface/types";
 import type { ExtractFunctionReturnType } from "../../../../services/user.service";
 import type {
   getAllOwedForGroupTransaction,
@@ -13,6 +13,16 @@ import PendingItems from "./PendingItem";
 interface groupBudget {
   budgetGoal: number;
   spending: number;
+}
+
+export interface Member {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  color: string;
+  createdAt: string;
+  type: string;
 }
 
 export const ViewGroups = ({
@@ -28,7 +38,7 @@ export const ViewGroups = ({
 }: {
   groupId: string;
   transactions: GroupWithTransactions;
-  members: UserSchema[];
+  members: UserSchemaWithMemberType[];
   currentUser: UserSchema;
   groupBudget: groupBudget[];
   owedPerMember: ExtractFunctionReturnType<
@@ -41,7 +51,7 @@ export const ViewGroups = ({
   url: string;
 }) => {
   return (
-    <div class="p-6 animate-fade-in">
+    <div class="animate-fade-in">
       <div class="flex justify-between">
         <a
           hx-get="/groups/page"
@@ -58,7 +68,7 @@ export const ViewGroups = ({
           />
         </a>{" "}
         <a
-          hx-get={`/groups/edit/${groupId}`}
+          hx-get={`/groups/addMembers/${groupId}`}
           hx-trigger="click"
           hx-target="#app"
           hx-swap="innerHTML"

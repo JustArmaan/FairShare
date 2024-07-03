@@ -4,6 +4,7 @@ import type { ArrayElement } from "../../transactions/components/Transaction";
 export const GroupItem = (props: {
   group: ArrayElement<Groups>;
   edit?: boolean;
+  addMembers?: boolean;
 }) => {
   return (
     <div class="cursor-pointer hover:opacity-80 transition-all bg-primary-black my-4">

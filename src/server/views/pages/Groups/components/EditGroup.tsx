@@ -86,7 +86,7 @@ export const EditGroupPage = ({
   }
 
   return (
-    <div class="p-6 animate-fade-in">
+    <div class="animate-fade-in">
       <div class="flex justify-start w-fit items-center mb-1">
         <a
           hx-get={`/groups/view/${group.id}`}

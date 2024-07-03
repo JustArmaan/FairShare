@@ -2,7 +2,7 @@ export const ConnectAccount = () => {
   return (
     <div
       id="app"
-      class="p-6 h-[calc(100vh_-_100px)] flex w-full items-center justify-center flex-col"
+      class="h-[calc(100vh_-_100px)] flex w-full items-center justify-center flex-col"
     >
       <div class="p-4 w-full bg-primary-black rounded-xl mb-10 text-lg text-font-off-white">
         <p>

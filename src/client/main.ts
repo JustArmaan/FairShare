@@ -3,12 +3,12 @@ import { CustomizeMap } from "./map/customizeMap";
 import { setupSocketListener } from "./socket.io/socket.io";
 import { splitTransfer } from "./splitTransfer/splitTransfer";
 import { highlightNavigationIcons } from "./nav/nav";
-import htmx from "htmx.org";
 import { progressBar } from "./progressBar/progressBar";
 import { attachButton } from "./plaid/connect";
 import { handleNavigation } from "./navigation/navigation";
-import { attachFormListeners, submitForm } from "./submitForm/submitForm";
+import { attachFormListeners } from "./submitForm/submitForm";
 import { changeHeader } from "./header/header";
+import { handleIconClick, handleColorClick } from "./createGroup/createGroup";
 
 main();
 splitTransfer();
@@ -24,6 +24,24 @@ document.body.addEventListener("htmx:afterSwap", (event) => {
   const excludeListId = new Set(["institutionSelector"]);
   if (excludeListId.has(event.target.id)) return;
   window.scrollTo({ top: 0 });
+
+  // Re-attach event listeners for icons
+  document
+    .querySelectorAll<HTMLElement>("[data-category-id]")
+    .forEach((iconElement) => {
+      iconElement.addEventListener("click", () =>
+        handleIconClick(iconElement.dataset.categoryId!, iconElement)
+      );
+    });
+
+  // Re-attach event listeners for colors
+  document
+    .querySelectorAll<HTMLElement>("[data-color]")
+    .forEach((colorElement) => {
+      colorElement.addEventListener("click", () =>
+        handleColorClick(colorElement.dataset.color!, colorElement)
+      );
+    });
 });
 
 export const apiVersion = 0;
@@ -61,6 +79,7 @@ document.addEventListener("htmx:afterSwap", () => {
   }
 
   const connectButton = document.querySelector("#connect-to-plaid");
+  console.log(connectButton);
   if (connectButton && connectButton instanceof HTMLElement) {
     connectButton.addEventListener("click", attachButton);
   }

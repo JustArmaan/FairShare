@@ -1,7 +1,8 @@
-import { type UserSchema } from '../../../../interface/types';
+import { type UserSchema, type UserSchemaWithMemberType } from '../../../../interface/types';
 import type { getAllOwedForGroupTransaction } from '../../../../services/owed.service';
 import type { ExtractFunctionReturnType } from '../../../../services/user.service';
 import type { ArrayElement } from '../../transactions/components/Transaction';
+import type { Member } from './ViewGroup';
 
 function calculateTotalOwed(
   accumulator: { userId: string; amount: number }[],
@@ -58,12 +59,13 @@ export const Members = ({
   currentUser,
   owedPerMember,
 }: {
-  memberDetails: UserSchema[];
+  memberDetails: UserSchemaWithMemberType[];
   currentUser: UserSchema;
   owedPerMember: ExtractFunctionReturnType<
     typeof getAllOwedForGroupTransaction
   >[];
 }) => {
+  console.log('members2', memberDetails);
   return (
     <div class='flex flex-wrap items-center w-full'>
       {calculateTotalOwedAll(owedPerMember, memberDetails).map((member) => {
@@ -79,7 +81,6 @@ export const Members = ({
             </div>
             <div class='flex flex-col text-center self-center items-center justify-center ml-4 '>
               <p class='text-font-off-white flex w-fit'>{member.firstName}</p>
-
               {member.id === currentUser.id ? (
                 <p class='text-font-off-white flex w-fit text-sm'>You</p>
               ) : (

@@ -8,7 +8,7 @@ export type Groups = ExtractFunctionReturnType<
 
 export const GroupPage = (props: { edit?: boolean; groups: Groups }) => {
   return (
-    <div class="p-6 animate-fade-in">
+    <div class="animate-fade-in">
       <div class="flex items-center justify-between">
         <h2 class="text-2xl text-font-off-white">Groups</h2>
         {props.edit ? (
