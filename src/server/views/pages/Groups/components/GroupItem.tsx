@@ -5,7 +5,7 @@ export const GroupItem = (props: {
   group: ArrayElement<Groups>;
   owedAmount: number;
   edit?: boolean;
-  flags: { owed: boolean; owing: boolean };
+  flags?: { owed: boolean; owing: boolean };
 }) => {
   return (
     <div class="cursor-pointer hover:opacity-80 transition-all bg-primary-black mb-md-separator px-[1.13rem] py-[0.88rem] rounded-md">
@@ -51,12 +51,12 @@ export const GroupItem = (props: {
                 )}
               </p>
               <div class="flex flex-row items-center ml-[0.5rem] h-full">
-                {props.flags.owed && (
+                {props.flags?.owed && (
                   <div
                     class={`rounded-full h-[0.75rem] aspect-square bg-positive-number z-10`}
                   />
                 )}
-                {props.flags.owing && (
+                {props.flags?.owing && (
                   <div
                     class={`rounded-full h-[0.75rem] aspect-square bg-negative-number ${props.flags.owed && "-ml-[0.22rem]"}`}
                   />
