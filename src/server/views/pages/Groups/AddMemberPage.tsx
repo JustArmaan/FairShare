@@ -37,7 +37,7 @@ export const AddMembersPage = (props: {
           </span>
         </div>
 
-        <button class="absolute top-0 right-0 mt-3 mr-3 text-font-off-white text-sm">
+        <button class="absolute top-0 right-0 mt-3 mr-3 text-font-grey text-sm">
           Edit
         </button>
       </div>
@@ -45,7 +45,7 @@ export const AddMembersPage = (props: {
         Add Members
       </span>
       <hr class="border-t border-primary-dark-grey w-full mt-[0.5rem] mb-[1rem]"></hr>
-      <div class="flex flex-col w-full h-fit text-font-off-white">
+      <div class="flex flex-col w-full h-fit text-font-off-white mb-[1.19rem]">
         <span class="text-font-off-white">Invite Share Link</span>
         <div class="bg-primary-black w-full rounded-md text-font-off-white flex justify-between px-4 py-2 mt-1">
           <span>this will be where the link goes</span>
@@ -54,13 +54,13 @@ export const AddMembersPage = (props: {
         <span class="text-font-off-white mt-4">Email or Phone Number</span>
         <div class="flex w-full">
           <input
-            class="bg-primary-black rounded-md w-full text-font-off-white flex justify-between px-2 mt-1 placeholder-primary-grey placeholder-font-light "
+            class="bg-primary-black rounded-md w-full text-font-off-white flex justify-between px-2 mt-1 placeholder-primary-grey placeholder-font-light mr-3"
             type="text"
             name="groupName"
-            placeholder="Enter Email or Phone Number"
+            placeholder="Enter email or phone number"
           />
-          <button class="bg-accent-blue rounded-md px-4 text-light flex ml-2">
-            Send Invite
+          <button class="bg-accent-blue rounded-md px-4 flex mt-1">
+            <p class="text-sm font-normal">Send Invite</p>
           </button>
         </div>
       </div>
@@ -82,7 +82,7 @@ export const AddMembersPage = (props: {
           Send Invite
         </button>
       </div> */}
-      <span class="text-font-off-white mt-[1.19rem]">Members</span>
+      <span class="text-font-off-white">Members</span>
       {/* margin top is not applying here */}
       <GroupMembers
         memberDetails={props.group.members}

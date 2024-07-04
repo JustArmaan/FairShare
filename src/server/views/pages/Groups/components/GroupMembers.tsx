@@ -42,7 +42,7 @@ export const GroupMembers = ({
               </p>
             </div>
             <p class="flex-auto w-fit text-sm self-center mr-[2.81rem] justify-end ">
-              <p class="flex text-font-off-white w-fit text-sm font-medium self-center justify-end">
+              <p class="flex text-font-grey w-fit text-sm font-medium self-center justify-end">
                 <span class="mr-[0.75rem]">
                   {
                     //@ts-ignore
