@@ -10,7 +10,6 @@ export const GroupMembers = ({
   memberDetails: UserSchemaWithMemberType[];
   currentUser: UserSchema;
 }) => {
-  console.log("members2", memberDetails);
   return (
     <div class="flex-col bg-primary-black w-full rounded-sm m-1">
       {memberDetails.map((member) => {

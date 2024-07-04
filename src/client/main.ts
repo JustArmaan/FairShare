@@ -9,6 +9,7 @@ import { handleNavigation } from "./navigation/navigation";
 import { attachFormListeners } from "./submitForm/submitForm";
 import { changeHeader } from "./header/header";
 import { handleIconClick, handleColorClick } from "./createGroup/createGroup";
+import { clipBoardCopyInviteLink } from "./inviteLink/inviteLink";
 
 main();
 splitTransfer();
@@ -19,6 +20,7 @@ document.body.addEventListener("htmx:afterSwap", (event) => {
   highlightNavigationIcons();
   progressBar();
   attachFormListeners();
+  clipBoardCopyInviteLink();
 
   if (!(event.target instanceof HTMLElement)) return;
   const excludeListId = new Set(["institutionSelector"]);
@@ -86,7 +88,7 @@ document.addEventListener("htmx:afterSwap", () => {
 
   const navBar = document.querySelector("nav")?.querySelector("ul");
   if (window.android && navBar instanceof HTMLElement) {
-    console.log("setting prop")
+    console.log("setting prop");
     navBar.style.setProperty("padding-bottom", "0px");
   }
 });

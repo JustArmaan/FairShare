@@ -115,7 +115,7 @@ router.get("/callback", async (req, res) => {
 });
 
 export async function getUser(req: Request, res: Response, next: NextFunction) {
-    // in playwright, when you first setup tests, run createUser({test info})
+  // in playwright, when you first setup tests, run createUser({test info})
   // if (req.cookies.testing === "true") {
   //   req.user = getUser(testUserId);
   //   return next();
@@ -176,7 +176,13 @@ export async function getUser(req: Request, res: Response, next: NextFunction) {
       ) {
         return next();
       } else {
-        res.redirect("/");
+        if (req.url.includes("invite")) {
+          res.cookie("redirect", req.originalUrl, {
+            ...cookieOptions,
+            httpOnly: false,
+          });
+        }
+        return res.redirect("/auth/login");
       }
     }
   } catch (e) {

@@ -209,8 +209,6 @@ export type GroupWithMembers = NonNullable<
   Awaited<ReturnType<typeof getGroupWithMembers>>
 >;
 
-
-
 export async function getGroupWithAcceptedMembers(groupId: string) {
   try {
     const memberTypeForMember = await getMemberType("Member");
@@ -951,6 +949,19 @@ export async function getGroupOwner(groupId: string) {
       );
 
     return group[0];
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
+}
+
+export async function getUserToGroupFromUserToGroupId(userToGroupId: string) {
+  try {
+    const result = await db
+      .select()
+      .from(usersToGroups)
+      .where(eq(usersToGroups.id, userToGroupId));
+    return result[0];
   } catch (error) {
     console.error(error);
     return null;

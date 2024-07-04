@@ -16,6 +16,7 @@ import {
   getUserTotalOwedForGroup,
   changeMemberTypeInGroup,
   getGroupOwner,
+  getUserToGroupFromUserToGroupId,
 } from "../services/group.service";
 import { findUser, getUserByEmailOnly } from "../services/user.service.ts";
 import { AddedMember } from "../views/pages/Groups/components/Member.tsx";
@@ -60,6 +61,10 @@ import { deleteNotificationForUserInGroup } from "../services/notification.servi
 import { createNotificationWithWebsocket } from "../utils/createNotification.ts";
 import SelectIcon from "../views/pages/Groups/components/SelectIcon.tsx";
 import { AddMembersPage } from "../views/pages/Groups/AddMemberPage.tsx";
+import { getInviteLinkById } from "../services/invite.service.ts";
+import { env } from "../../../env.ts";
+import { getOrCreateInviteLink } from "../utils/getOrCreateInviteLink.ts";
+import { checkUserExistsInGroup } from "../utils/userExistsInGroup.ts";
 
 const router = express.Router();
 
@@ -874,9 +879,82 @@ router.get("/addMembers/:groupId", async (req, res) => {
   if (!group) {
     return res.status(404).send("Group not found");
   }
+
+  const userToGroup = await getUsersToGroup(groupId, userId);
+
+  if (!userToGroup) {
+    return res.status(404).send("User not found in group");
+  }
+
+  const inviteToken = await getOrCreateInviteLink(userToGroup.id);
+  console.log("inviteToken", inviteToken);
+  const shareLink = `${env.baseUrl}/groups/invite/${inviteToken.id}`;
+
   const html = renderToHtml(
-    <AddMembersPage group={group} currentUser={currentUser} />
+    <AddMembersPage
+      group={group}
+      currentUser={currentUser}
+      inviteShareLink={shareLink}
+    />
   );
+  res.send(html);
+});
+
+router.get("/invite/:inviteTokenId", async (req, res) => {
+  const inviteTokenId = req.params.inviteTokenId;
+  const currentUserId = req.user!.id;
+
+  const inviteToken = await getInviteLinkById(inviteTokenId);
+  const currentUser = await findUser(currentUserId);
+
+  if (!inviteToken) {
+    return res.status(404).send("Invite link not found");
+  }
+
+  if (!currentUser) {
+    return res.status(404).send("you need to make an account to join a group");
+  }
+
+  const userToGroup = await getUserToGroupFromUserToGroupId(
+    inviteToken.usersToGroupsId
+  );
+
+  if (!userToGroup) {
+    return res
+      .status(404)
+      .send(
+        "There seems to be something wrong with the invite you received. Please contact the group owner."
+      );
+  }
+
+  const userAlreadyInGroup = await checkUserExistsInGroup(
+    userToGroup.groupId,
+    currentUserId
+  );
+
+  if (userAlreadyInGroup) {
+    return res.status(400).send("You are already in the group");
+  }
+
+  const newMember = await addMember(
+    userToGroup.groupId,
+    currentUserId,
+    "Member"
+  );
+
+  if (!newMember) {
+    return res.status(500).send("Failed to add member to group");
+  }
+
+  const html = renderToHtml(
+    <div
+      hx-get={`/groups/view/${userToGroup.groupId}`}
+      hx-target="#app"
+      hx-swap="innerHTML"
+      hx-trigger="load"
+    ></div>
+  );
+
   res.send(html);
 });
 

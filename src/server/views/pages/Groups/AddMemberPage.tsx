@@ -4,6 +4,7 @@ import GroupMembers from "./components/GroupMembers";
 
 export const AddMembersPage = (props: {
   group: GroupWithMembers;
+  inviteShareLink: string;
   currentUser: UserSchema;
 }) => {
   return (
@@ -48,8 +49,8 @@ export const AddMembersPage = (props: {
       <div class="flex flex-col w-full h-fit text-font-off-white mb-[1.19rem]">
         <span class="text-font-off-white">Invite Share Link</span>
         <div class="bg-primary-black w-full rounded-md text-font-off-white flex justify-between px-4 py-2 mt-1">
-          <span>this will be where the link goes</span>
-          <img src="/activeIcons/content_copy.svg" />
+          <span id="invite-link">{props.inviteShareLink}</span>
+          <img id="clipboard-icon" src="/activeIcons/content_copy.svg" />
         </div>
         <span class="text-font-off-white mt-4">Email or Phone Number</span>
         <div class="flex w-full">

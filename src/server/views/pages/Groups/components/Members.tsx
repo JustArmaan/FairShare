@@ -65,7 +65,6 @@ export const Members = ({
     typeof getAllOwedForGroupTransaction
   >[];
 }) => {
-  console.log('members2', memberDetails);
   return (
     <div class="flex-col bg-primary-black w-full rounded-sm m-1">
       {calculateTotalOwedAll(owedPerMember, memberDetails).map((member) => {

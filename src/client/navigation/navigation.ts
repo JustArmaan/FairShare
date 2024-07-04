@@ -12,14 +12,21 @@ export function handleNavigation() {
     });
     return;
   }
+
   const redirectCookie = allCookies
     .split("; ")
     .filter((cookie) => cookie.startsWith("redirect="))[0]
     .split("=")[1];
-  const url =
-    "/" + decodeURIComponent(redirectCookie).split("/").slice(3).join("/");
-  window.history.replaceState(url, "", url);
 
+  let url = decodeURIComponent(redirectCookie);
+  if (url.includes("invite")) {
+    const segments = url.split("/");
+    url = "/" + segments.slice(-3).join("/");
+  } else {
+    url = "/" + url.split("/").slice(3).join("/");
+  }
+
+  window.history.replaceState(url, "", url);
   document.cookie = "redirect=none";
 
   htmx.ajax("GET", url, {

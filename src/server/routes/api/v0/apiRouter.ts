@@ -276,7 +276,6 @@ router.post("/vopay-transactions-webhook", async (req, res) => {
 router.get("/groups/getname/:groupId", async (req, res) => {
   const groupId = req.params.groupId;
   const group = await getGroup(groupId);
-  console.log("retrieved group", group)
   if (!group) {
     return res.status(404).json({ error: "Group not found", data: null });
   }
