@@ -94,8 +94,13 @@ document.addEventListener("htmx:afterSwap", () => {
 
 document.querySelector("#app")?.addEventListener("htmx:afterSwap", () => {
   const popMenu = document.querySelector(".popup-menu");
+  const aMenu = document.querySelector(".menu-a");
 
-  if (popMenu && popMenu instanceof HTMLElement) {
+  if (
+    popMenu &&
+    popMenu instanceof HTMLElement &&
+    aMenu?.getAttribute("hx-get")?.includes("false")
+  ) {
     htmx.ajax("GET", "/menu?open=false", {
       target: "#menuContainer",
       swap: "outerHTML",
