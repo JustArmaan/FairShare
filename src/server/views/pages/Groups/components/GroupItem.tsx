@@ -31,6 +31,7 @@ export const GroupItem = (props: {
             } `}
           >
             <img
+              custom-color
               class="w-[1.87rem] h-[1.87rem]"
               src={
                 props.group.icon.endsWith("svg")

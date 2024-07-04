@@ -460,7 +460,19 @@ router.post("/create", async (req, res) => {
       return res.status(500).send("Failed to get groups for user.");
     }
 
-    const html = renderToHtml(<GroupPage groups={allGroupsForCurrentUser} />);
+    const groupsWithOwed = await Promise.all(
+      allGroupsForCurrentUser.map(async (group) => {
+        let owed = await getUserTotalOwedForGroupWithOwingFlags(
+          req.user!.id,
+          group.id
+        );
+        if (owed === null) {
+          owed = { owedAmount: 0, flags: { owed: false, owing: false } };
+        }
+        return { ...group, ...owed };
+      })
+    );
+    const html = renderToHtml(<GroupPage groups={groupsWithOwed} />);
     return res.status(200).send(html);
   } catch (error) {
     console.error(error);
@@ -471,7 +483,19 @@ router.post("/create", async (req, res) => {
 router.get("/edit", async (req, res) => {
   try {
     const groups = await getGroupsAndAllMembersForUser(req.user!.id);
-    const html = renderToHtml(<GroupPage groups={groups ? groups : []} edit />);
+    const groupsWithOwed = await Promise.all(
+      groups.map(async (group) => {
+        let owed = await getUserTotalOwedForGroupWithOwingFlags(
+          req.user!.id,
+          group.id
+        );
+        if (owed === null) {
+          owed = { owedAmount: 0, flags: { owed: false, owing: false } };
+        }
+        return { ...group, ...owed };
+      })
+    );
+    const html = renderToHtml(<GroupPage groups={groupsWithOwed} edit />);
     res.send(html);
   } catch (err) {
     console.error(err);
@@ -656,7 +680,20 @@ router.post("/edit/:groupId", async (req, res) => {
       return res.status(500).send("Failed to get groups for user.");
     }
 
-    const html = renderToHtml(<GroupPage groups={allGroupsForCurrentUser} />);
+    const groupsWithOwed = await Promise.all(
+      allGroupsForCurrentUser.map(async (group) => {
+        let owed = await getUserTotalOwedForGroupWithOwingFlags(
+          req.user!.id,
+          group.id
+        );
+        if (owed === null) {
+          owed = { owedAmount: 0, flags: { owed: false, owing: false } };
+        }
+        return { ...group, ...owed };
+      })
+    );
+
+    const html = renderToHtml(<GroupPage groups={groupsWithOwed} />);
     return res.status(200).send(html);
   } catch (error) {
     console.error(error);
