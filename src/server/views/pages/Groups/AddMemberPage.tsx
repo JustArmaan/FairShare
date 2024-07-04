@@ -1,3 +1,4 @@
+import { group } from "console";
 import type { UserSchema } from "../../../interface/types";
 import { type GroupWithMembers } from "../../../services/group.service";
 import GroupMembers from "./components/GroupMembers";
@@ -54,15 +55,25 @@ export const AddMembersPage = (props: {
         </div>
         <span class="text-font-off-white mt-4">Email or Phone Number</span>
         <div class="flex w-full">
-          <input
-            class="bg-primary-black rounded-md w-full text-font-off-white flex justify-between px-2 mt-1 placeholder-primary-grey placeholder-font-light mr-3"
-            type="text"
-            name="groupName"
-            placeholder="Enter email or phone number"
-          />
-          <button class="bg-accent-blue rounded-md px-4 flex mt-1">
-            <p class="text-sm font-normal">Send Invite</p>
-          </button>
+          <form
+            hx-post={`/groups/addMember/${props.group.id}`}
+            hx-target="#groupMembers"
+            hx-swap="innerHTML"
+            class="flex w-full"
+          >
+            <input
+              class="bg-primary-black rounded-md w-full text-font-off-white flex justify-between px-2 mt-1 placeholder-primary-grey placeholder-font-light mr-3"
+              type="text"
+              name="emailOrPhone"
+              placeholder="Enter email or phone number"
+            />
+            <button
+              type="submit"
+              class="bg-accent-blue rounded-md px-4 flex mt-1 items-center"
+            >
+              <p class="text-sm font-normal">Send Invite</p>
+            </button>
+          </form>
         </div>
       </div>
       {/* <p class="text-font-off-white font-normal text-sm ">
@@ -85,10 +96,16 @@ export const AddMembersPage = (props: {
       </div> */}
       <span class="text-font-off-white">Members</span>
       {/* margin top is not applying here */}
-      <GroupMembers
-        memberDetails={props.group.members}
-        currentUser={props.currentUser}
-      />
+      <div id="groupMembers">
+        <GroupMembers
+          memberDetails={props.group.members}
+          currentUser={props.currentUser}
+        />
+      </div>
+      <div
+        id="errorContainer"
+        class="text-accent-red bg-opacity-10 border border-accent-red p-4 rounded shadow hidden text-center mt-4"
+      ></div>
     </div>
   );
 };

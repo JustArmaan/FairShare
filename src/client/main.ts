@@ -8,7 +8,12 @@ import { attachButton } from "./plaid/connect";
 import { handleNavigation } from "./navigation/navigation";
 import { attachFormListeners } from "./submitForm/submitForm";
 import { changeHeader } from "./header/header";
-import { handleIconClick, handleColorClick } from "./createGroup/createGroup";
+import {
+  handleIconClick,
+  handleColorClick,
+  initializeSelectedColor,
+  initializeSelectedIcon,
+} from "./createGroup/createGroup";
 import { clipBoardCopyInviteLink } from "./inviteLink/inviteLink";
 
 main();
@@ -21,6 +26,8 @@ document.body.addEventListener("htmx:afterSwap", (event) => {
   progressBar();
   attachFormListeners();
   clipBoardCopyInviteLink();
+  initializeSelectedColor();
+  initializeSelectedIcon();
 
   if (!(event.target instanceof HTMLElement)) return;
   const excludeListId = new Set(["institutionSelector"]);

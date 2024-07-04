@@ -2,12 +2,13 @@ interface Icon {
   icon: string;
   name: string;
 }
-
 export const SelectIcon = (props: {
   icons: Icon[];
   colors: { name: string; bgClass: string }[];
+  selectedIcon?: string;
+  selectedColor?: string;
 }) => {
-  const { icons, colors } = props;
+  const { icons, colors, selectedIcon, selectedColor } = props;
 
   return (
     <div class="w-full bg-primary-black rounded-md p-4">
@@ -15,7 +16,9 @@ export const SelectIcon = (props: {
         {icons.map((icon) => (
           <div
             data-category-id={icon.icon}
-            class="flex justify-center items-center mt-2 w-14 h-14 bg-primary-faded-black rounded-lg"
+            class={`flex justify-center items-center mt-2 w-14 h-14 bg-primary-faded-black rounded-lg ${
+              selectedIcon === icon.icon ? "ring-2 ring-accent-blue" : ""
+            }`}
           >
             <img src={icon.icon} alt={icon.name} class="w-[38px] h-[38px]" />
           </div>
@@ -26,7 +29,9 @@ export const SelectIcon = (props: {
       <div class="flex justify-between px-8 items-center">
         {colors.map((color) => (
           <div
-            class={`h-10 w-10 rounded-full cursor-pointer ${color.bgClass}`}
+            class={`h-10 w-10 rounded-full cursor-pointer ${color.bgClass} ${
+              selectedColor === color.name ? "ring-2 ring-accent-blue" : ""
+            }`}
             title={color.name}
             data-color={color.name}
           ></div>

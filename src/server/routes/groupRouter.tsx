@@ -65,6 +65,7 @@ import { getInviteLinkById } from "../services/invite.service.ts";
 import { env } from "../../../env.ts";
 import { getOrCreateInviteLink } from "../utils/getOrCreateInviteLink.ts";
 import { checkUserExistsInGroup } from "../utils/userExistsInGroup.ts";
+import GroupMembers from "../views/pages/Groups/components/GroupMembers.tsx";
 
 const router = express.Router();
 
@@ -359,32 +360,15 @@ router.get("/create", async (req, res) => {
   }
 });
 
-router.get("/addMember", async (req, res) => {
+router.post("/addMember/:groupId", async (req, res) => {
   try {
-    const email = req.query.addEmail as string;
-    const member = await getUserByEmailOnly(email);
+    const email = req.body.emailOrPhone as string;
+    const currentUser = await findUser(req.user!.id);
 
-    if (!member) {
-      return res.status(400).send("User not found.");
+    if (!currentUser) {
+      return res.status(500).send("Failed to get user");
     }
 
-    let content;
-
-    if (!member) {
-      return res.status(400).send("User not found.");
-    } else {
-      content = <AddedMember user={{ ...member, type: "Invited" }} />;
-    }
-    const html = renderToHtml(content);
-    res.send(html);
-  } catch (error) {
-    console.error(error);
-  }
-});
-
-router.get("/addMember/:groupId", async (req, res) => {
-  try {
-    const email = req.query.addEmail as string;
     const member = await getUserByEmailOnly(email);
 
     if (!member) {
@@ -398,8 +382,23 @@ router.get("/addMember/:groupId", async (req, res) => {
 
     let content;
 
+    const currentGroup = await getGroupWithMembers(req.params.groupId);
+
+    if (!currentGroup) {
+      return res.status(404).send("No such group");
+    }
+
     if (inGroup) {
       return res.status(400).send("User is already in the group.");
+    } else {
+      await addMember(req.params.groupId, member.id, "Invited");
+      await createNotificationWithWebsocket(
+        req.params.groupId,
+        `You have been invited to join the group ${currentGroup.name} by ${currentUser.email}`,
+        member.id,
+        "groupInvite",
+        `/groups/${currentGroup.id}`
+      );
     }
     const group = await getGroupWithMembers(req.params.groupId);
 
@@ -409,7 +408,7 @@ router.get("/addMember/:groupId", async (req, res) => {
       return res.status(400).send("User not found.");
     } else {
       content = (
-        <AddedMember user={{ ...member, type: "Invited" }} groupId={group.id} />
+        <GroupMembers memberDetails={group.members} currentUser={currentUser} />
       );
     }
     const html = renderToHtml(content);
@@ -507,8 +506,21 @@ router.get("/edit/:groupId", async (req, res) => {
     const group = await getGroupWithMembers(req.params.groupId);
     if (!group) return res.status(404).send("No such group");
 
+    const userToGroup = await getUsersToGroup(group.id, currentUser.id);
+
+    if (!userToGroup) {
+      return res.status(404).send("User not found in group");
+    }
+
+    const inviteToken = await getOrCreateInviteLink(userToGroup.id);
+    const shareLink = `${env.baseUrl}/groups/invite/${inviteToken.id}`;
+
     const html = renderToHtml(
-      <EditGroupPage icons={icons} currentUser={currentUser} group={group} />
+      <EditGroupPage
+        currentUser={currentUser}
+        group={group}
+        inviteShareLink={shareLink}
+      />
     );
     res.send(html);
   } catch (err) {
@@ -566,13 +578,8 @@ router.get("/addTransaction/:accountId/:groupId/:itemId", async (req, res) => {
 
 router.post("/edit/:groupId", async (req, res) => {
   try {
-    const {
-      groupName,
-      selectedCategoryId,
-      selectedColor,
-      memberEmails,
-      temporaryGroup,
-    } = req.body;
+    const { groupName, selectedColor, temporaryGroup, selectedIcon } = req.body;
+    console.log("req.body", req.body);
 
     const isTemp = temporaryGroup === "on";
     const currentGroup = await getGroupWithMembers(req.params.groupId);
@@ -604,27 +611,13 @@ router.post("/edit/:groupId", async (req, res) => {
       updates.name = groupName;
     if (selectedColor !== currentGroup.color && selectedColor !== "")
       updates.color = selectedColor;
-    if (selectedCategoryId !== currentGroup.icon && selectedCategoryId !== "")
-      updates.icon = selectedCategoryId;
+    if (selectedIcon !== currentGroup.icon && selectedIcon !== "")
+      updates.icon = selectedIcon;
     if (
       isTemp.toString() !== currentGroup.temporary &&
       isTemp.toString() !== ""
     )
       updates.temporary = isTemp.toString();
-
-    const groupMembers = memberEmails
-      ? memberEmails.split(",").map((email: string) => email.trim())
-      : [];
-    const existingEmails = new Set(
-      currentGroup.members.map((member) => member.email)
-    );
-    const newMembers = groupMembers.filter(
-      (email: string) => !existingEmails.has(email)
-    );
-
-    if (Object.keys(updates).length === 0 && newMembers.length === 0) {
-      return res.status(400).send("No changes detected");
-    }
 
     if (Object.keys(updates).length > 0) {
       const updatedGroup = await updateGroup(
@@ -637,28 +630,6 @@ router.post("/edit/:groupId", async (req, res) => {
 
       if (!updatedGroup) {
         return res.status(500).send("Failed to update group");
-      }
-    }
-
-    for (const memberEmail of newMembers) {
-      const user = await getUserByEmailOnly(memberEmail);
-      if (user) {
-        const invitedMember = await addMember(
-          currentGroup.id,
-          user.id,
-          "Invited"
-        );
-        if (invitedMember) {
-          await createNotificationWithWebsocket(
-            currentGroup.id,
-            `You have been invited to join the group ${currentGroup.name} by ${currentUser.email}`,
-            user.id,
-            "groupInvite",
-            `/groups/${currentGroup.id}`
-          );
-        }
-      } else {
-        return res.status(400).send(`User with email ${memberEmail} not found`);
       }
     }
 
@@ -827,6 +798,9 @@ router.post("/member/:approval", async (req, res) => {
 });
 
 router.get("/selectIcon", async (req, res) => {
+  const selectedIcon = req.query.selectedIcon as string;
+  const selectedColor = req.query.selectedColor as string;
+  console.log("selectedIcon", selectedIcon, selectedColor);
   const html = renderToHtml(
     <div
       id="select-group-icon"
@@ -834,7 +808,7 @@ router.get("/selectIcon", async (req, res) => {
     >
       <div
         id="select-group-icon"
-        class="py-2 px-3  w-full h-fit flex justify-between"
+        class="py-2 px-3 w-full h-fit flex justify-between"
       >
         <p class="text-primary-grey font-normal">Select Group Icon</p>
         <img
@@ -847,7 +821,12 @@ router.get("/selectIcon", async (req, res) => {
         />
       </div>
       <hr class="border-t border-primary-dark-grey w-11/12 mx-auto px-2" />
-      <SelectIcon icons={createIcons} colors={colors} />
+      <SelectIcon
+        icons={createIcons}
+        colors={colors}
+        selectedIcon={selectedIcon}
+        selectedColor={selectedColor}
+      />
     </div>
   );
   res.send(html);
@@ -887,7 +866,6 @@ router.get("/addMembers/:groupId", async (req, res) => {
   }
 
   const inviteToken = await getOrCreateInviteLink(userToGroup.id);
-  console.log("inviteToken", inviteToken);
   const shareLink = `${env.baseUrl}/groups/invite/${inviteToken.id}`;
 
   const html = renderToHtml(
