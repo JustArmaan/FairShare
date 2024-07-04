@@ -24,8 +24,6 @@ router.get("/nav", (req, res) => {
 router.get("/menu", (req, res) => {
   try {
     const open = req.query.open as string;
-    console.log(open);
-
     const html = renderToHtml(<Menu value={open === "true"} />);
     res.send(html);
   } catch (err) {
@@ -81,8 +79,6 @@ router.get("/will-error", async (req, res) => {
 
 router.post("/webhook", (req, res) => {
   const event = req.body;
-
-  console.log("Received webhook event:", event);
 
   res.status(200).send("Webhook received");
 });

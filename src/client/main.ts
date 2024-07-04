@@ -80,14 +80,12 @@ document.addEventListener("htmx:afterSwap", () => {
   }
 
   const connectButton = document.querySelector("#connect-to-plaid");
-  console.log(connectButton);
   if (connectButton && connectButton instanceof HTMLElement) {
     connectButton.addEventListener("click", attachButton);
   }
 
   const navBar = document.querySelector("nav")?.querySelector("ul");
   if (window.android && navBar instanceof HTMLElement) {
-    console.log("setting prop");
     navBar.style.setProperty("padding-bottom", "0px");
   }
 });

@@ -28,13 +28,6 @@ const server = http.createServer(app);
 
 await configureApp(app);
 
-/*
-app.use((req, res, next) => {
-  console.log(req.url, res.statusCode);
-  next();
-});
-*/
-
 app.use(indexRouter);
 app.use("/api/v0", apiRouterV0);
 app.use("/breakdown", breakdownRouter);
@@ -70,9 +63,3 @@ const runningServer = server.listen(PORT as number, () => {
 ViteExpress.bind(app, runningServer);
 
 app.use(errorHandler);
-/*
-app.use((req, res, next) => {
-  console.log(req.url, res.statusCode);
-  next();
-});
-*/

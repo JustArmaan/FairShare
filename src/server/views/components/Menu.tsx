@@ -6,7 +6,7 @@ export const Menu = (props: { value: boolean }) => {
           <div
             class={`menu ${
               props.value ? "menu-open" : "menu-close"
-            } z-10 font-normal bg-font-black rounded-tl-[1rem] divide-font-off-white w-[18.25rem] dark:divide-font-off-white fixed bottom-[5.5rem] end-0 backdrop-blur-[50px]`}
+            } z-10 font-normal bg-font-black rounded-tl-[1rem] divide-font-off-white w-[18.25rem] dark:divide-font-off-white fixed bottom-[5.45rem] end-0 backdrop-blur-[50px]`}
           >
             <p class="text-[2rem] font-medium text-font-off-white ml-[2.25rem] mt-[1.87rem] mb-[2rem]">
               More
@@ -16,9 +16,9 @@ export const Menu = (props: { value: boolean }) => {
               <ul class="text-sm" aria-labelledby="dropdownLargeButton">
                 <li>
                   <a
-                    hx-get="/institutions/page"
+                    hx-get="/transactions/transactionList"
                     hx-target="#app"
-                    hx-push-url="/institutions/page"
+                    hx-push-url="/transactions/transactionList"
                     hx-swap="innerHTML"
                     hx-trigger="click"
                     class="text-font-off-white hover:cursor-pointer hover:opacity-80 block hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white text-base"
@@ -112,9 +112,9 @@ export const Menu = (props: { value: boolean }) => {
                     </li>
                     <li>
                       <a
-                        hx-get="/institutions/page"
+                        hx-get="/auth/logout"
                         hx-target="#app"
-                        hx-push-url="/institutions/page"
+                        hx-push-url="/auth/logout"
                         hx-swap="innerHTML"
                         hx-trigger="click"
                         class="text-font-off-white hover:cursor-pointer hover:opacity-80 block pt-[2rem] hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white text-base mb-[2rem]"

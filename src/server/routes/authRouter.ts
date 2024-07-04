@@ -75,7 +75,6 @@ export const sessionManager = (
   },
   async removeSessionItem(key: string) {
     if (!res) throw new Error("cannot operate on session without valid res");
-    console.log("clearing cookie", key);
     res.clearCookie(key, cookieOptions);
   },
   async destroySession() {
@@ -87,7 +86,6 @@ export const sessionManager = (
       "user",
       "refresh_token",
     ].forEach((key) => {
-      console.log("clearing cookies", key);
       res.clearCookie(key, cookieOptions);
     });
   },
@@ -126,7 +124,6 @@ export async function getUser(req: Request, res: Response, next: NextFunction) {
     !req.get("host")?.includes("localhost") &&
     !req.get("host")?.includes("idsp")
   ) {
-    console.log("redirect");
     return res.redirect("https://myfairshare.ca");
   }
 

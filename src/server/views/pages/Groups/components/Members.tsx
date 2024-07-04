@@ -1,8 +1,11 @@
-import { type UserSchema, type UserSchemaWithMemberType } from '../../../../interface/types';
-import type { getAllOwedForGroupTransaction } from '../../../../services/owed.service';
-import type { ExtractFunctionReturnType } from '../../../../services/user.service';
-import type { ArrayElement } from '../../transactions/components/Transaction';
-import type { Member } from './ViewGroup';
+import {
+  type UserSchema,
+  type UserSchemaWithMemberType,
+} from "../../../../interface/types";
+import type { getAllOwedForGroupTransaction } from "../../../../services/owed.service";
+import type { ExtractFunctionReturnType } from "../../../../services/user.service";
+import type { ArrayElement } from "../../transactions/components/Transaction";
+import type { Member } from "./ViewGroup";
 
 function calculateTotalOwed(
   accumulator: { userId: string; amount: number }[],
@@ -65,7 +68,6 @@ export const Members = ({
     typeof getAllOwedForGroupTransaction
   >[];
 }) => {
-  console.log('members2', memberDetails);
   return (
     <div class="flex-col bg-primary-black w-full rounded-sm m-1">
       {calculateTotalOwedAll(owedPerMember, memberDetails).map((member) => {

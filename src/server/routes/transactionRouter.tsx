@@ -71,6 +71,21 @@ router.get("/accountPicker/:itemId/:accountId", getUser, async (req, res) => {
   res.send(html);
 });
 
+router.get("/transactionList", getUser, async (req, res) => {
+  const items = await getItemsForUser(req.user!.id);
+  const accounts = await getAccountsForUser(req.user!.id, items[0].item.id);
+  if (!accounts) throw new Error("404");
+  const html = renderToHtml(
+    <div
+      hx-get={`/transactions/page/${items[0].item.id}/${accounts[0].id}`}
+      hx-swap="innerHTML"
+      hx-trigger="load"
+      hx-target="#app"
+    ></div>
+  );
+  res.send(html);
+});
+
 router.get("/transactionList/:accountId", getUser, async (req, res) => {
   const account = await getAccountWithTransactions(req.params.accountId);
   if (!account) throw new Error("404");
@@ -120,7 +135,6 @@ router.get("/page/:itemId/:selectedAccountId", getUser, async (req, res) => {
 router.get("/details/:transactionId", async (req, res) => {
   try {
     const transactionId = req.params.transactionId;
-    console.log(transactionId);
     const transaction = await getTransaction(transactionId);
     const account = await getAccount(transaction.accountId);
     const url = req.query.url as string;
@@ -344,7 +358,6 @@ router.post("/createTransaction/:groupId", async (req, res) => {
       selectedCategoryId,
       selectedColor,
     } = req.body;
-    console.log(req.body);
 
     if (
       !transactionName ||

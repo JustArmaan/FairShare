@@ -12,7 +12,6 @@ const router = express.Router();
 
 router.get("/page/:accountId", getUser, async (req, res) => {
   const { month, year } = req.query;
-  console.log("month", month, "year", year);
   let result;
   if (month && year) {
     result = await getAccountWithMonthTransactions(
