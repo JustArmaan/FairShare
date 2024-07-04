@@ -92,18 +92,21 @@ document.addEventListener("htmx:afterSwap", () => {
   }
 });
 
-document.addEventListener("htmx:beforeSwap", () => {
-  const connectButton = document.querySelector("#connect-to-plaid");
-  const menuContainer = document.querySelector(".menu-a");
+document.querySelector("#app")?.addEventListener("htmx:afterSwap", () => {
   const popMenu = document.querySelector(".popup-menu");
 
+  if (popMenu && popMenu instanceof HTMLElement) {
+    htmx.ajax("GET", "/menu?open=false", {
+      target: "#menuContainer",
+      swap: "outerHTML",
+    });
+  }
+});
+
+document.addEventListener("htmx:beforeSwap", () => {
+  const connectButton = document.querySelector("#connect-to-plaid");
   if (connectButton && connectButton instanceof HTMLElement) {
     connectButton.removeEventListener("click", attachButton);
-  }
-
-  if (popMenu && popMenu instanceof HTMLElement) {
-    menuContainer?.setAttribute("hx-get", "/menu?open=true");
-    popMenu.classList.add("hidden");
   }
 });
 
