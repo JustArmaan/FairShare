@@ -24,6 +24,7 @@ router.get("/nav", (req, res) => {
 router.get("/menu", (req, res) => {
   try {
     const open = req.query.open as string;
+    console.log(open);
 
     const html = renderToHtml(<Menu value={open === "true"} />);
     res.send(html);

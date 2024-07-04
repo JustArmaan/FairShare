@@ -9,6 +9,7 @@ import { handleNavigation } from "./navigation/navigation";
 import { attachFormListeners } from "./submitForm/submitForm";
 import { changeHeader } from "./header/header";
 import { handleIconClick, handleColorClick } from "./createGroup/createGroup";
+import htmx from "htmx.org";
 
 main();
 splitTransfer();
@@ -86,23 +87,23 @@ document.addEventListener("htmx:afterSwap", () => {
 
   const navBar = document.querySelector("nav")?.querySelector("ul");
   if (window.android && navBar instanceof HTMLElement) {
-    console.log("setting prop")
+    console.log("setting prop");
     navBar.style.setProperty("padding-bottom", "0px");
   }
 });
 
 document.addEventListener("htmx:beforeSwap", () => {
   const connectButton = document.querySelector("#connect-to-plaid");
-  const menuContainer = document.querySelector(".popup-menu");
+  const menuContainer = document.querySelector(".menu-a");
+  const popMenu = document.querySelector(".popup-menu");
 
   if (connectButton && connectButton instanceof HTMLElement) {
     connectButton.removeEventListener("click", attachButton);
   }
 
-  if (menuContainer && menuContainer instanceof HTMLElement) {
-    console.log("menuContainer", menuContainer);
-
-    menuContainer.classList.add("hidden");
+  if (popMenu && popMenu instanceof HTMLElement) {
+    menuContainer?.setAttribute("hx-get", "/menu?open=true");
+    popMenu.classList.add("hidden");
   }
 });
 
