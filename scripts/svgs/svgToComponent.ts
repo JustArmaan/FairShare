@@ -1,15 +1,12 @@
 import fs from "fs/promises";
 import path from "path";
-import os from "os";
 
-// const { EOL } = os;
 const { sep } = path;
+const svgTemplatePath = "./svgTemplate.tsx";
+const outputDir = path.join(__dirname, "../../src/server/svgs/");
+const publicDir = path.join(__dirname, "../../public/");
 
-async function convertToComponent(
-  svgPath: string,
-  svgTemplatePath: string,
-  outputDir: string
-) {
+async function convertToComponent(svgPath: string) {
   const svgContents = await fs.readFile(svgPath, "utf8");
   const svgName = getNameFromPath(svgPath);
 
@@ -41,16 +38,30 @@ function getNameFromPath(inputPath: string) {
   return nameChars.join().replace(".", "");
 }
 
-async function generateAllSvgs(publicDir: string, outputDir: string) {
+async function generateAllSvgs() {
   const inputSvgPaths = (
     await fs.readdir(publicDir, { encoding: "utf8", recursive: true })
   ).filter((path) => path.endsWith(".svg"));
-  const outputSvgPaths = (
+  const outputSvgNames = (
     await fs.readdir(outputDir, {
       encoding: "utf8",
       recursive: true,
     })
-  ).filter((path) => path.endsWith("Svg.tsx"));
+  )
+    .filter((path) => path.endsWith("Svg.tsx"))
+    .map((svgPath) => {
+      const svgPathSplit = svgPath.split(sep);
+      const name = svgPathSplit[svgPathSplit.length - 1].split("Svg")[0];
+      return name;
+    });
+  inputSvgPaths
+    .filter(
+      (inputSvgPath) =>
+        !outputSvgNames.some((name) =>
+          inputSvgPath.toLowerCase().includes(name.toLowerCase())
+        )
+    )
+    .forEach(convertToComponent);
 }
 
-// crawl /public folder
+generateAllSvgs();
