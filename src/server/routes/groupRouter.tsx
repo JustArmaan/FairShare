@@ -375,12 +375,14 @@ router.post("/addMember/:groupId", async (req, res) => {
       return res.status(400).send("User not found.");
     }
 
-    const inGroup = await checkUserInGroup(
-      member.id,
-      req.params.groupId as string
+    const inGroup = await checkUserExistsInGroup(
+      req.params.groupId as string,
+      member.id
     );
 
-    let content;
+    if (inGroup) {
+      return res.status(400).send("User is already in the group.");
+    }
 
     const currentGroup = await getGroupWithMembers(req.params.groupId);
 
@@ -388,33 +390,32 @@ router.post("/addMember/:groupId", async (req, res) => {
       return res.status(404).send("No such group");
     }
 
-    if (inGroup) {
-      return res.status(400).send("User is already in the group.");
-    } else {
-      await addMember(req.params.groupId, member.id, "Invited");
-      await createNotificationWithWebsocket(
-        req.params.groupId,
-        `You have been invited to join the group ${currentGroup.name} by ${currentUser.email}`,
-        member.id,
-        "groupInvite",
-        `/groups/${currentGroup.id}`
-      );
-    }
+    await addMember(req.params.groupId, member.id, "Invited");
+    await createNotificationWithWebsocket(
+      req.params.groupId,
+      `You have been invited to join the group ${currentGroup.name} by ${currentUser.email}`,
+      member.id,
+      "groupInvite",
+      `/groups/${currentGroup.id}`
+    );
+
     const group = await getGroupWithMembers(req.params.groupId);
 
     if (!group) return res.status(404).send("No such group");
 
-    if (!member) {
-      return res.status(400).send("User not found.");
-    } else {
-      content = (
-        <GroupMembers memberDetails={group.members} currentUser={currentUser} />
-      );
-    }
+    const content = (
+      <GroupMembers
+        memberDetails={group.members}
+        currentUser={currentUser}
+        groupId={group.id}
+      />
+    );
+
     const html = renderToHtml(content);
     res.send(html);
   } catch (error) {
     console.error(error);
+    res.status(500).send("An error occurred when adding a member");
   }
 });
 
@@ -651,14 +652,16 @@ router.post("/edit/:groupId", async (req, res) => {
 
 router.post("/deleteMember/:userID/:groupID", async (req, res) => {
   try {
+    console.log("running delete member");
     const userID = req.params.userID;
     const groupID = req.params.groupID;
 
     const totalOwed = await getUserTotalOwedForGroup(userID, groupID);
 
-    if (!totalOwed) {
+    if (totalOwed === null || totalOwed === undefined) {
       return res.status(500).send("An error occured when removing a member");
     }
+
     if (totalOwed < 0) {
       return res
         .status(400)
@@ -666,7 +669,17 @@ router.post("/deleteMember/:userID/:groupID", async (req, res) => {
     }
 
     await deleteMemberByGroup(userID, groupID);
-    res.status(204).send();
+
+    const html = renderToHtml(
+      <div
+        hx-get={`/groups/groupMembers/${groupID}`}
+        hx-trigger="load"
+        hx-swap="innerHTML"
+        hx-target="#groupMembers"
+      ></div>
+    );
+
+    res.send(html);
   } catch (error) {
     res.status(500).send("An error occurred when removing a member");
   }
@@ -931,6 +944,29 @@ router.get("/invite/:inviteTokenId", async (req, res) => {
       hx-swap="innerHTML"
       hx-trigger="load"
     ></div>
+  );
+
+  res.send(html);
+});
+
+router.get("/groupMembers/:groupId", async (req, res) => {
+  const groupWithMembers = await getGroupWithMembers(req.params.groupId);
+  const currentUser = await findUser(req.user!.id);
+
+  if (!groupWithMembers) {
+    return res.status(404).send("Group not found");
+  }
+
+  if (!currentUser) {
+    return res.status(404).send("User not found");
+  }
+
+  const html = renderToHtml(
+    <GroupMembers
+      memberDetails={groupWithMembers.members}
+      currentUser={currentUser}
+      groupId={groupWithMembers.id}
+    />
   );
 
   res.send(html);

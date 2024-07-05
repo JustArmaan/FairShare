@@ -1,3 +1,4 @@
+import { group } from "console";
 import {
   type UserSchema,
   type UserSchemaWithMemberType,
@@ -6,10 +7,13 @@ import {
 export const GroupMembers = ({
   memberDetails,
   currentUser,
+  groupId,
 }: {
   memberDetails: UserSchemaWithMemberType[];
   currentUser: UserSchema;
+  groupId: string;
 }) => {
+  const owner = memberDetails.find((member) => member.type === "Owner");
   return (
     <div class="flex-col bg-primary-black w-full rounded-sm m-1">
       {memberDetails.map((member) => {
@@ -48,18 +52,18 @@ export const GroupMembers = ({
                     member.type === "Owner" ? "Owner" : "Member"
                   }
                 </span>
-                {member.type !== "Owner" ? (
+                {owner && owner.id === member.id ? (
+                  <div class="mr-[0.94rem] h-[1.425rem] w-[2.06rem]"></div>
+                ) : owner && owner.id === currentUser.id ? (
                   <a
-                    hx-get={``}
+                    hx-post={`/groups/deleteMember/${member.id}/${groupId}`}
                     hx-trigger="click"
-                    hx-target="#app"
                     hx-swap="innerHTML"
-                    hx-push-url={``}
                     class="text-font-off-white text-4xl cursor-pointer mr-[0.94rem]"
                   >
                     <img
                       src="/icons/doNotDisturb.svg"
-                      alt="back arrow icon"
+                      alt="delete icon"
                       class="hover:-translate-y-0.5 transition-transform hover:opacity-80 h-6"
                     />
                   </a>

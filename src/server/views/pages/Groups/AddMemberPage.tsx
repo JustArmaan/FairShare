@@ -100,6 +100,7 @@ export const AddMembersPage = (props: {
         <GroupMembers
           memberDetails={props.group.members}
           currentUser={props.currentUser}
+          groupId={props.group.id}
         />
       </div>
       <div

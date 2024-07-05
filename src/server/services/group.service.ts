@@ -583,8 +583,9 @@ export async function deleteMemberByGroup(userId: string, groupId: string) {
           eq(usersToGroups.userId, userId)
         )
       );
+    return true;
   } catch (error) {
-    console.error(error);
+    console.error("Error deleting member from group:", error);
     return false;
   }
 }
