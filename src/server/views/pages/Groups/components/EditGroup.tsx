@@ -99,15 +99,15 @@ export const EditGroupPage = ({
           Select Icon
         </label>
         <div
-          id="select-group-icon"
-          hx-get={`/groups/selectIcon?selectedIcon=${group.icon}&selectedColor=${group.color}`}
+          id="select-group-icon-container"
+          hx-get="/groups/selectIcon"
           hx-trigger="click"
           hx-swap="outerHTML"
-          hx-target="#select-group-icon"
-          class="py-2 px-3  w-full h-fit flex justify-between bg-primary-black rounded-md mt-1"
+          hx-target="#select-group-icon-container"
+          class="py-2 px-3 w-full h-fit flex justify-between bg-primary-black rounded-md mt-1 min-h-[50px]  transition-all duration-300 ease-in-out"
         >
           <p class="text-primary-grey font-normal">Select Group Icon</p>
-          <img src="/activeIcons/expand_more.svg" />
+          <img src="/activeIcons/expand_more.svg" class="cursor-pointer" />
         </div>
 
         {/* <div class="flex text-font-off-white mt-3 justify-center has-tooltip">

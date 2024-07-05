@@ -813,14 +813,13 @@ router.post("/member/:approval", async (req, res) => {
 router.get("/selectIcon", async (req, res) => {
   const selectedIcon = req.query.selectedIcon as string;
   const selectedColor = req.query.selectedColor as string;
-  console.log("selectedIcon", selectedIcon, selectedColor);
   const html = renderToHtml(
     <div
-      id="select-group-icon"
-      class="w-full h-fit bg-primary-black rounded-md mt-1 flex flex-col items-center"
+      id="select-group-icon-container"
+      class="w-full h-fit bg-primary-black rounded-md mt-1 flex flex-col items-center animate-fade-in min-h-[50px]"
     >
       <div
-        id="select-group-icon"
+        id="select-group-icon-header"
         class="py-2 px-3 w-full h-fit flex justify-between"
       >
         <p class="text-primary-grey font-normal">Select Group Icon</p>
@@ -828,9 +827,9 @@ router.get("/selectIcon", async (req, res) => {
           hx-get="/groups/selectIconEmpty"
           hx-trigger="click"
           hx-swap="outerHTML"
-          hx-target="#select-group-icon"
+          hx-target="#select-group-icon-container"
           src="/activeIcons/expand_more.svg"
-          class="rotate-180"
+          class="rotate-180 cursor-pointer"
         />
       </div>
       <hr class="border-t border-primary-dark-grey w-11/12 mx-auto px-2" />
@@ -844,19 +843,18 @@ router.get("/selectIcon", async (req, res) => {
   );
   res.send(html);
 });
-
 router.get("/selectIconEmpty", async (req, res) => {
   const html = renderToHtml(
     <div
-      id="select-group-icon"
+      id="select-group-icon-container"
       hx-get="/groups/selectIcon"
       hx-trigger="click"
       hx-swap="outerHTML"
-      hx-target="#select-group-icon"
-      class="py-2 px-3  w-full h-fit flex justify-between bg-primary-black rounded-md mt-1"
+      hx-target="#select-group-icon-container"
+      class="py-2 px-3  w-full h-fit flex justify-between bg-primary-black rounded-md mt-1 animate-fade-in min-height-[50px]"
     >
       <p class="text-primary-grey font-normal">Select Group Icon</p>
-      <img src="/activeIcons/expand_more.svg" />
+      <img src="/activeIcons/expand_more.svg" class="cursor-pointer" />
     </div>
   );
   res.send(html);
