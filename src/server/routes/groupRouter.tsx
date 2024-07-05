@@ -646,7 +646,7 @@ router.post("/edit/:groupId", async (req, res) => {
         if (invitedMember) {
           await createNotificationWithWebsocket(
             currentGroup.id,
-            `You have been invited to join the group ${currentGroup.name} by ${currentUser.email}`,
+            `Invite from to join "${currentGroup.name}|Sent From ${user.firstName} ${currentUser.lastName}"`,
             user.id,
             "groupInvite",
             `/groups/${currentGroup.id}`
@@ -767,7 +767,7 @@ router.get("/getTransactions/:groupId", async (req, res) => {
   res.send(html);
 });
 
-router.post("/member/:approval", async (req, res) => {
+router.post("/member/:approval/:groupId/:notificationId", async (req, res) => {
   const { groupId, notificationId } = req.body;
   const userId = req.user!.id;
   const isApproved = req.params.approval === "accept";
@@ -801,23 +801,14 @@ router.post("/member/:approval", async (req, res) => {
   }
 
   const html = renderToHtml(
-    <>
-      <div
-        hx-get="notification/notificationIcon"
-        hx-target="#notification-icon"
-        hx-swap="outerHTML"
-        hx-trigger="load"
-      ></div>
-      <div
-        hx-get={`/notification/page`}
-        hx-swap="innerHTML"
-        hx-trigger="load"
-        hx-target="#app"
-        hx-push-url="/notification/page"
-      ></div>
-    </>
+    <div
+      hx-get={`/groups/view/${groupId}`}
+      hx-trigger="load"
+      hx-target="#app"
+      hx-swap="innerHTML"
+      hx-push-url={`/groups/page/${groupId}`}
+    />
   );
-
   res.send(html);
 });
 
