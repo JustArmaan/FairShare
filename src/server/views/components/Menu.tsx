@@ -5,7 +5,9 @@ export const Menu = (props: { value: boolean }) => {
         {props.value && (
           <div class="menu display:none z-10 font-normal divide-y divide-font-off-white rounded-lg shadow w-44 dark:bg-gray-700 dark:divide-font-off-white fixed bottom-[6rem] end-0 bg-font-black">
             <input type="hidden" name="original" value="" />
-            <h1 class="text-lg text-font-off-white font-semibold mb-4 py-2">More</h1>
+            <h1 class="text-lg text-font-off-white font-semibold mb-4 py-2">
+              More
+            </h1>
             <ul
               class="py-2 text-sm text-gray-700 dark:text-gray-400"
               aria-labelledby="dropdownLargeButton"

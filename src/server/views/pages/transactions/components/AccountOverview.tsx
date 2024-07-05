@@ -41,8 +41,8 @@ export const AccountOverview = ({
   return (
     <>
       <div
-        id={`accountOverview-${account.id}`}
-        class="bg-primary-black bg-opacity-40 rounded-md flex flex-col p-2 py-4 my-4 justify-center text-sm"
+        id={`accountOverview-${account.id} `}
+        class="bg-primary-black bg-opacity-40 rounded-md flex flex-col p-2 py-4 my-4 justify-center text-sm animate-fade-in"
       >
         <div class="account-info flex justify-between text-font-off-white mx-1 text-md">
           <p class="font-semibold">

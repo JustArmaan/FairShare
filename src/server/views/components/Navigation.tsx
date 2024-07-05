@@ -23,7 +23,7 @@ export const Nav = () => {
             />
             <img
               id="homeIconActive"
-              class="h-6 hidden group-hover:block"
+              class="h-6 hidden group-hover:block relative left-px"
               src="/activeIcons/home.svg"
               alt="home icon"
             />
@@ -75,18 +75,59 @@ export const Nav = () => {
           </li>
         </div>
         <div
+          class="group w-1/6"
           id="notification-icon"
           hx-get={`/notification/notificationIcon`}
           hx-swap="outerHTML"
           hx-trigger="load"
           hx-target="#notification-icon"
-        ></div>
+        >
+          <a
+            href=""
+            class="parent relative flex flex-col items-center text-font-off-white dark:text-white text-sm group-hover:text-accent-green"
+            hx-get="/notification/page"
+            hx-target="#app"
+            hx-trigger="click"
+            hx-swap="innerHTML"
+            hx-push-url="/notification/page"
+          >
+            <div class="relative w-fit h-fit">
+              <img
+                id="notificationsIconInactive"
+                class="h-6 block group-hover:hidden"
+                src="/images/notifications.svg"
+                alt="notifications icon"
+              />
+              <img
+                id="notificationsIconActive"
+                class="h-6 hidden group-hover:block"
+                src="/activeIcons/notif.svg"
+                alt="notifications icon"
+              />
+            </div>
+            <p id="notificationsText" class="mt-1 text-xs">
+              Notifications
+            </p>
+          </a>
+        </div>
         <li class="group w-1/6 relative">
-          <div
-            hx-get="/menu?open=false"
-            hx-swap="outerHTML"
-            hx-trigger="load"
-          />
+          <div hx-get="/menu?open=false" hx-swap="outerHTML" hx-trigger="load">
+            <a class="parent flex flex-col items-center text-font-off-white dark:text-white group cursor-pointer group-hover:text-accent-red">
+              <img
+                src="/images/menu.svg"
+                alt="Menu Icon Inactive"
+                class="h-6 p-1 block group-hover:hidden"
+                id="menuIconInactive"
+              />
+              <img
+                src="/activeIcons/menu.svg"
+                alt="Menu Icon Active"
+                class="h-6 p-1 hidden group-hover:block"
+                id="menuIconActive"
+              />
+              <p class="mt-1 text-xs group-hover:text-accent-red">More</p>
+            </a>
+          </div>
         </li>
       </ul>
     </nav>
