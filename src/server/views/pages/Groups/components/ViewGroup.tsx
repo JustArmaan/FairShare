@@ -7,10 +7,7 @@ import {
   type UserSchemaWithMemberType,
 } from "../../../../interface/types";
 import type { ExtractFunctionReturnType } from "../../../../services/user.service";
-import type {
-  getAllOwedForGroupTransaction,
-  getAllOwedForGroupTransactionWithTransactionId,
-} from "../../../../services/owed.service";
+import type { getAllOwedForGroupTransactionWithTransactionId } from "../../../../services/owed.service";
 import PendingItems from "./PendingItem";
 
 interface groupBudget {
@@ -101,7 +98,7 @@ export const ViewGroups = ({
         </a>
       </div>
       <div class="mt-[1.31rem] mb-24">
-        <h1 class="text-2xl text-font-off-white pb-3"> Members</h1>{" "}
+        <h1 class="text-xl h-fit text-font-off-white mb-[0.69rem]">Members</h1>
         <div class="flex flex-wrap items-center">
           <Members
             memberDetails={members}

@@ -16,9 +16,9 @@ export const GroupMembers = ({
         return (
           <div class="flex flex-row w-full">
             <div
-              class={`flex-row rounded-full bg-${member.color} h-[2.5rem] w-[2.5rem] m-[0.88rem] justify-center`}
+              class={`flex flex-row rounded-full bg-${member.color} h-[2rem] w-[2rem] m-[0.88rem] justify-center items-center`}
             >
-              <span class="flex justify-center self-center text-center text-xl font-semibold mt-[0.4rem]">
+              <span class="flex justify-center self-center text-center text-sm font-semibold mt-[0.4rem]">
                 {member.firstName?.split("", 1) ?? ""}
                 {member.lastName?.split("", 1) ?? ""}
               </span>
