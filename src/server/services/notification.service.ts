@@ -58,6 +58,15 @@ export async function getAllGroupNotificationsForUser(userId: string) {
   }
 }
 
+async function getNotificationIdForUserInGroup(userGroupId: string) {
+  const results = await db
+    .select()
+    .from(groupNotification)
+    .where(eq(groupNotification.userGroupId, userGroupId));
+
+  return results.map((result) => result.notificationId);
+}
+
 export type Notification = ArrayElement<
   ExtractFunctionReturnType<typeof getAllGroupNotificationsForUser>
 >;
@@ -112,11 +121,14 @@ export async function deleteNotificationForUserInGroup(
 
 export async function deleteAllNotificationsForUser(userGroupId: string) {
   try {
-    await db.delete(notifications).where;
-    and(
-      eq(groupNotification.notificationId, notifications.id),
-      eq(genericNotification.notificationId, notifications.id)
-    );
+    await db
+      .delete(notifications)
+      .where(
+        and(
+          eq(notifications.id, groupNotification.notificationId),
+          eq(notifications.id, genericNotification.notificationId)
+        )
+      );
   } catch (error) {
     console.error(error);
   }
