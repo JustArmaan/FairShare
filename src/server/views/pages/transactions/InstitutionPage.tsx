@@ -9,7 +9,7 @@ export const InstitutionsPage = (props: {
   mobile?: boolean;
 }) => {
   return (
-    <div class="p-6 animate-fade-in">
+    <div class="animate-fade-in">
       <div class="flex items-center justify-between">
         <h2 class="text-2xl text-font-off-white">
           {props.info.length === 0 ? "Connect" : "Connected Institutions"}

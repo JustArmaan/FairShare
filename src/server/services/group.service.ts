@@ -993,3 +993,16 @@ export async function getGroupOwner(groupId: string) {
     return null;
   }
 }
+
+export async function getUserToGroupFromUserToGroupId(userToGroupId: string) {
+  try {
+    const result = await db
+      .select()
+      .from(usersToGroups)
+      .where(eq(usersToGroups.id, userToGroupId));
+    return result[0];
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
+}

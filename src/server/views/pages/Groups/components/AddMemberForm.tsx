@@ -18,7 +18,7 @@ const AddMembersComponent = ({
       </h1>
       <div
         id="members"
-        class="bg-primary-black w-full rounded-lg flex p-6 flex-col text-xs justify-center items-center"
+        class="bg-primary-black w-full rounded-lg flex flex-col text-xs justify-center items-center"
       >
         <div class="flex-col w-full">
           {isEditMode ? (

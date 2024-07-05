@@ -17,7 +17,7 @@ export const MyAccountsPage = (props: {
   cashAccount?: CashAccount;
 }) => {
   return (
-    <div class="p-6 animate-fade-in pb-24">
+    <div class="animate-fade-in pb-24">
       {/*
       <Goal
         total={1000}

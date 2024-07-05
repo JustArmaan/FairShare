@@ -1,7 +1,8 @@
-import { type UserSchema } from '../../../../interface/types';
+import { type UserSchema, type UserSchemaWithMemberType } from '../../../../interface/types';
 import type { getAllOwedForGroupTransaction } from '../../../../services/owed.service';
 import type { ExtractFunctionReturnType } from '../../../../services/user.service';
 import type { ArrayElement } from '../../transactions/components/Transaction';
+import type { Member } from './ViewGroup';
 
 function calculateTotalOwed(
   accumulator: { userId: string; amount: number }[],
@@ -58,18 +59,61 @@ export const Members = ({
   currentUser,
   owedPerMember,
 }: {
-  memberDetails: UserSchema[];
+  memberDetails: UserSchemaWithMemberType[];
   currentUser: UserSchema;
   owedPerMember: ExtractFunctionReturnType<
     typeof getAllOwedForGroupTransaction
   >[];
 }) => {
   return (
-    <div class='flex flex-wrap items-center w-full'>
+    <div class="flex-col bg-primary-black w-full rounded-sm m-1">
       {calculateTotalOwedAll(owedPerMember, memberDetails).map((member) => {
         return (
-          <div class='flex bg-primary-black h-16 md:w-[calc(100%_-_0.5rem)] w-[calc(50%_-_0.5rem)] rounded-lg m-1 items-center'>
+          <div class="flex flex-row w-full">
             <div
+              class={`flex-row rounded-full bg-${member.color} h-[2.5rem] w-[2.5rem] m-[1rem] justify-center`}
+            >
+              <span class="flex justify-center self-center text-center text-xl font-semibold mt-[0.4rem]">
+                {member.firstName?.split("", 1) ?? ""}
+                {member.lastName?.split("", 1) ?? ""}
+              </span>
+            </div>
+            <div class="flex flex-col text-center self-center justify-center ml-4">
+              <p class="text-font-off-white text-[0.875rem] font-medium">
+                {member.firstName}
+              </p>
+              <p class="text-font-grey flex w-fit text-[0.625rem] font-normal">
+                {
+                  //@ts-ignore
+                  member.type === "Owner" ? "Owner" : "Member"
+                }
+              </p>
+            </div>
+            {member.id === currentUser.id && (
+              <div class="flex flex-row h-[0.8125rem] w-[2.125rem] bg-accent-purple rounded-[0.250rem] self-center justify-center items-center mb-3 ml-[0.30rem]">
+                <p class="font-normal text-font-off-white text-[0.625rem] text-center">
+                  You
+                </p>
+              </div>
+            )}
+            <p class="flex-auto w-fit text-sm self-center mr-[2.81rem] justify-end ">
+              {member.amount !== 0 && (
+                <p class="flex text-font-off-white w-fit text-sm font-medium self-center justify-end">
+                  {member.amount > 0 ? "You're Owed: " : "You Owe: "}{" "}
+                  <span
+                    class={`flex text-sm font-medium justify-end mr-[2.81rem] ${
+                      member.amount > 0
+                        ? "text-positive-number"
+                        : "text-negative-number"
+                    }`}
+                  >
+                    ${Math.abs(member.amount).toFixed(2)}
+                  </span>
+                </p>
+              )}
+            </p>
+
+            {/* <div
               class={`flex rounded-full bg-${member.color} h-12 w-12 m-2 justify-center`}
             >
               <span class='flex justify-center self-center text-center text-xl font-semibold'>
@@ -79,7 +123,6 @@ export const Members = ({
             </div>
             <div class='flex flex-col text-center self-center items-center justify-center ml-4 '>
               <p class='text-font-off-white flex w-fit'>{member.firstName}</p>
-
               {member.id === currentUser.id ? (
                 <p class='text-font-off-white flex w-fit text-sm'>You</p>
               ) : (
@@ -95,7 +138,7 @@ export const Members = ({
                   </span>}
                 </p>
               )}
-            </div>
+            </div> */}
           </div>
         );
       })}

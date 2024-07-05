@@ -50,7 +50,6 @@ function replaceWithDiv(item: { img: HTMLElement; src: string | undefined }) {
   const svgContents = fs.readFileSync(svgPath, { encoding: "utf8" });
   const svgElement = parse(svgContents);
   svgElement.querySelectorAll("*:not(mask):not(mask *)").forEach((element) => {
-    console.log(element.tagName);
     element.removeAttribute("width").removeAttribute("height");
   });
   const parsedSvgString = svgElement.toString();

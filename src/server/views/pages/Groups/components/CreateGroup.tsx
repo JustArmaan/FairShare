@@ -10,15 +10,13 @@ interface Icon {
 }
 
 export const CreateGroup = ({
-  icons,
   currentUser,
 }: {
-  icons: Icon[];
   currentUser: UserSchemaWithMemberType;
 }) => {
   return (
-    <div class="p-6 animate-fade-in">
-      <div class="flex justify-start w-fit items-center mb-1">
+    <div class="animate-fade-in">
+      <div class="flex justify-start w-fit items-center mb-1 mt-[28px]">
         <a
           hx-get="/groups/page"
           hx-trigger="click"
@@ -34,91 +32,86 @@ export const CreateGroup = ({
           />
         </a>
       </div>
-      <div class="flex flex-col my-8 bg-primary-black bg-opacity-40 rounded-lg p-4">
-        {createGroupNameInput()}
-        <label class="text-font-off-white justify-start bold mt-4 cursor-pointer">
-          Select Icon
-        </label>
-        <input
-          id="select-icon"
-          class="hover:opacity-80 pointer-cursor py-1 px-4 justify-center items-center text-font-grey bg-primary-black rounded-lg mt-2"
-          type="button"
-          name="select-icon"
-          value="Select Group Icon"
-          placeholder="Select Group Icon"
-        />
-        <div id="selected-icon" class=""></div>
-        <div id="categoriesContainer" class="hidden">
-          {icons.map((icon) => (
+      <div class="flex flex-col mt-[0.75rem]">
+        <form>
+          <label class="text-font-off-white justify-start semibold text-lg">
+            Group Name
+          </label>
+          <input
+            class="py-2 px-4 justify-center items-center text-primary-grey font-normal bg-primary-black rounded-md mt-1 w-full placeholder-primary-grey placeholder-font-light "
+            type="text"
+            name="groupName"
+            placeholder="Enter Group Name"
+          />
+
+          <label class="text-font-off-white justify-start semibold flex flex-col text-lg mt-[0.68rem]">
+            Select Icon
+          </label>
+          <div
+            id="select-group-icon"
+            hx-get="/groups/selectIcon"
+            hx-trigger="click"
+            hx-swap="outerHTML"
+            hx-target="#select-group-icon"
+            class="py-2 px-3  w-full h-fit flex justify-between bg-primary-black rounded-md mt-1"
+          >
+            <p class="text-primary-grey font-normal">Select Group Icon</p>
+            <img src="/activeIcons/expand_more.svg" />
+          </div>
+
+          {/* <div class="flex justify-center mt-[1.38rem]">
+            <div class="relative h-fit w-56 py-2 px-6 bg-primary-black rounded-md flex items-center">
+              <div class="flex items-center text-font-off-white">
+                <p class="mr-2">Temporary Group</p>
+                <input
+                  type="checkbox"
+                  name="temporaryGroup"
+                  id="temporaryGroup"
+                  class="rounded-sm border border-accent-blue"
+                />
+              </div>
+              <img
+                class="w-4 absolute top-2 right-2"
+                src="/activeIcons/info.svg"
+                alt="Hover for more info"
+              />
+            </div>
+          </div> */}
+
+          <hr class="border-t border-primary-dark-grey w-full my-[1.5rem]"></hr>
+          <input type="hidden" name="selectedIcon" id="selectedIcon" />
+          <input type="hidden" name="selectedColor" id="selectedColor" />
+
+          {/* 
+          <AddMembersComponent currentUser={currentUser} isEditMode />
+          <div class="flex text-font-off-white items-center justify-center">
+            <p class="mr-2 ">Temporary Group?</p>
+            <img
+              class="w-4 hidden"
+              src="/activeIcons/info.svg"
+              alt="Hover for more info"
+            />
+          </div>
+        
+          <input type="hidden" name="memberEmails" id="memberEmails" value="" /> */}
+
+          <div
+            id="errorContainer"
+            class="text-accent-red bg-opacity-10 border border-accent-red p-4 rounded shadow hidden text-center mt-4"
+          ></div>
+
+          <div class="flex justify-center items-center mt-3 mb-4">
             <button
               type="button"
-              data-category-id={icon.icon}
-              class="category-button flex items-center p-2 mt-2 bg-card-black rounded-lg hover:bg-primary-faded-black focus:outline-none focus:ring-2 focus:ring-accent-blue w-full animation-fade-in"
+              hx-post="/groups/create"
+              hx-target="#app"
+              hx-swap="innerHTML"
+              class="rounded-md w-32 h-10 bg-accent-blue justify-center text-font-off-white text-sm"
             >
-              <img
-                src={icon.icon.replace(".", "")}
-                alt={`${icon.name} icon`}
-                class="h-6 w-6 mr-2"
-              />
-              <span class="text-font-off-white">{icon.name}</span>
+              Create Group
             </button>
-          ))}
-        </div>
-        <label class="text-font-off-white justify-start font-bold mt-4 cursor-pointer">
-          Select Color
-        </label>
-
-        <input type="hidden" id="selectedColor" name="selectedColor" value="" />
-
-        <div class="flex flex-wrap mt-2 gap-2">
-          {colors.map((color) => (
-            <button
-              class={`color-button h-10 w-10 rounded-full ${color.bgClass}`}
-              data-color={color.name}
-            ></button>
-          ))}
-        </div>
-        <AddMembersComponent currentUser={currentUser} isEditMode />
-        <div class="flex text-font-off-white items-center justify-center">
-          <p class="mr-2 ">Temporary Group?</p>
-          <img
-            class="w-4 hidden"
-            src="/activeIcons/info.svg"
-            alt="Hover for more info"
-          />
-        </div>
-        <div class="flex text-font-off-white items-center justify-center">
-          <input
-            type="checkbox"
-            name="temporaryGroup"
-            id="temporaryGroup"
-            class="ml-2 mt-2"
-          />
-        </div>
-        <input
-          type="hidden"
-          name="selectedCategoryId"
-          id="selectedCategoryId"
-        />
-        <input type="hidden" name="memberEmails" id="memberEmails" value="" />
-
-        <div
-          id="errorContainer"
-          class="text-accent-red bg-opacity-10 border border-accent-red p-4 rounded shadow hidden text-center mt-4"
-        ></div>
-
-        <div class="flex justify-center items-center mt-3 mb-4">
-          <button
-            type="button"
-            hx-post="/groups/create"
-            hx-target="#app"
-            hx-swap="innerHTML"
-            hx-include="#selectedCategoryId, [name='groupName'], [name='temporaryGroup'], #memberEmails, #selectedColor"
-            class="rounded-lg w-32 h-10 bg-accent-blue justify-center text-font-off-white text-sm mt-4"
-          >
-            Create Group
-          </button>
-        </div>
+          </div>
+        </form>
       </div>
       <div class="mb-20"></div>
     </div>

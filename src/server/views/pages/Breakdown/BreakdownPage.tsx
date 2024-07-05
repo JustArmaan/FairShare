@@ -168,7 +168,7 @@ export const BreakdownPage = ({
   }
 
   const dateOptions = uniqueYearMonth?.reverse().map((yearMonth) => {
-    const [year, month] = yearMonth.split("-");
+    const [year, month] = yearMonth.split("-"); 
     return { year, month };
   });
 
@@ -188,7 +188,7 @@ export const BreakdownPage = ({
   const uniqueYears = extractUniqueYearsWithReduce(uniqueYearMonth || []);
 
   return (
-    <div class="text-font-off-white h-fit p-6 page animate-fade-in">
+    <div class="text-font-off-white h-fit page animate-fade-in">
       <p class="text-2xl">
         <b>{accountName}</b>
       </p>

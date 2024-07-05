@@ -5,7 +5,7 @@ import type { ExtractFunctionReturnType } from "../../../services/user.service";
 export type Info = ExtractFunctionReturnType<typeof getItemsForUser>;
 export const EditInstitution = (props: { edit?: boolean; info: Info }) => {
   return (
-    <div class="p-6 animate-fade-in">
+    <div class="animate-fade-in">
       <img
         class="hover:-translate-y-0.5 transition-transform hover:opacity-80 h-6 "
         src="/icons/modify.svg"

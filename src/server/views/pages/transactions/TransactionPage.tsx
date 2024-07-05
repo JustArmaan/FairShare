@@ -46,9 +46,14 @@ export const TransactionsPage = (props: {
   }
 
   const uniqueYears = extractUniqueYearsWithReduce(props.uniqueYearMonth || []);
+
+  const today = new Date();
+  const currentMonth = String(today.getMonth() + 1).padStart(2, "0");
+
+  console.log(dateOptions);
   return (
     <div
-      class="p-6 animate-fade-in"
+      class="animate-fade-in"
       hx-push-url={`/transactions/page/${props.selectedAccountId}`}
     >
       <div
@@ -138,7 +143,8 @@ export const TransactionsPage = (props: {
           >
             {dateOptions?.map((option) => (
               <option
-                value={option.month} // Use month directly from each option assuming it's already in 'MM' format
+                value={option.month}
+                selected={option.month === currentMonth}
               >
                 {months[Number(option.month) - 1]}
               </option>
@@ -149,11 +155,11 @@ export const TransactionsPage = (props: {
             type="button"
             value="Reset"
             class="bg-primary-black text-font-grey cursor-pointer rounded-lg px-4 py-2 mx-4"
-            hx-get={`/transactions/page/${props.selectedAccountId}`}
+            hx-get={`/transactions/page/${props.itemId}/${props.selectedAccountId}`}
             hx-trigger="click"
             hx-target="#app"
             hx-swap="innerHTML"
-            hx-push-url={`/transactions/page/${props.selectedAccountId}`}
+            hx-push-url={`/transactions/page/${props.itemId}/${props.selectedAccountId}`}
           />
         </form>
       </div>

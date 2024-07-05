@@ -1,6 +1,6 @@
 export const PlaidMobileLinkPage = (props: { connected?: boolean }) => {
   return (
-    <div class="p-6 animate-fade-in flex flex-col items-center justify-center text-font-off-white h-[calc(80vh)]">
+    <div class="animate-fade-in flex flex-col items-center justify-center text-font-off-white h-[calc(80vh)]">
       <div
         class="hidden"
         hx-get="/empty"
@@ -40,7 +40,7 @@ export const PlaidMobileLinkPage = (props: { connected?: boolean }) => {
         </div>
         <button
           id="connect-to-plaid"
-          class="px-6 py-4 bg-accent-blue animate-fade-in hover:-translate-y-0.5 rounded-xl text-font-off-white text-xl font-semibold"
+          class="transition-all px-6 py-4 bg-accent-blue animate-fade-in hover:-translate-y-0.5 rounded-xl text-font-off-white text-xl font-semibold"
         >
           {props.connected
             ? "Connect another institution"

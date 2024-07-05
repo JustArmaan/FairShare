@@ -19,7 +19,7 @@ export const GroupPage = (props: {
   groups: GroupsWithOwedSum;
 }) => {
   return (
-    <div class="mx-lg-separator animate-fade-in mt-[2.31rem]">
+    <div class="animate-fade-in">
       <div class="flex items-center justify-between">
         <h2 class="text-xl font-semibold text-font-off-white">My Groups</h2>
         {props.edit ? (

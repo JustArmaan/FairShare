@@ -6,6 +6,7 @@ export const GroupItem = (props: {
   owedAmount: number;
   edit?: boolean;
   flags?: { owed: boolean; owing: boolean };
+  addMembers?: boolean;
 }) => {
   return (
     <div class="cursor-pointer hover:opacity-80 transition-all bg-primary-black mb-md-separator px-[1.13rem] py-[0.88rem] rounded-md">
@@ -33,11 +34,7 @@ export const GroupItem = (props: {
             <img
               custom-color
               class="w-[1.87rem] h-[1.87rem]"
-              src={
-                props.group.icon.endsWith("svg")
-                  ? props.group.icon.replace(".", "")
-                  : "/icons/bed.svg"
-              }
+              src={props.group.icon}
               alt=""
             />
           </div>

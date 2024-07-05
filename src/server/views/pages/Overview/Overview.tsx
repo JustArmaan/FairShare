@@ -22,7 +22,7 @@ export const Overview = ({
   const categories = mapTransactionsToCategories(transactions);
   const pathStyles = generatePathStyles(categories);
   return (
-    <div class="p-6 animate-fade-in">
+    <div class="animate-fade-in">
       {" "}
       <h1 class="text-2xl text-font-off-white pt-2">
         {" "}
@@ -72,7 +72,7 @@ export const Overview = ({
           </p>
         </div>
         <div class="mx-3 h-[3px] bg-primary-grey rounded"></div>
-        <div class="p-6 text-font-off-white">
+        <div class="text-font-off-white">
           <p class="text-xl font-semibold">Monthly Breakdown</p>
           /* <Graph slices={pathStyles} /> */
           <div class="flex flex-row justify-center mt-6">

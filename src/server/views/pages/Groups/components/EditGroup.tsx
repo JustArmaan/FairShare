@@ -2,16 +2,14 @@ import { type UserSchema } from "../../../../interface/types";
 import { AddedMember } from "./Member";
 import { getGroupWithMembers } from "../../../../services/group.service";
 import AddMembersComponent from "./AddMemberForm";
+import GroupMembers from "./GroupMembers";
 
 export const colors = [
-  { name: "accent-blue", bgClass: "bg-accent-blue" },
   { name: "accent-purple", bgClass: "bg-accent-purple" },
   { name: "accent-red", bgClass: "bg-accent-red" },
   { name: "accent-yellow", bgClass: "bg-accent-yellow" },
   { name: "accent-green", bgClass: "bg-accent-green" },
-  { name: "positive-number", bgClass: "bg-positive-number" },
-  { name: "negative-number", bgClass: "bg-negative-number" },
-  { name: "card-red", bgClass: "bg-card-red" },
+  { name: "accent-teal", bgClass: "bg-accent-teal" },
 ];
 
 export function createGroupNameInput(edit = false, groupName?: string) {
@@ -46,51 +44,18 @@ export type UserGroupSchema = NonNullable<
   Awaited<ReturnType<typeof getGroupWithMembers>>
 >;
 
-interface Icon {
-  id: string;
-  icon: string;
-  name: string;
-}
-
 export const EditGroupPage = ({
-  icons,
   currentUser,
   group,
+  inviteShareLink,
 }: {
-  icons: Icon[];
   currentUser: UserSchema;
   group: UserGroupSchema;
+  inviteShareLink: string;
 }) => {
-  function findMatchedCategory(
-    categoryPath: string,
-    groupIcon: string,
-    icons: Icon[]
-  ) {
-    const selectedCategory = icons.find((icon) => icon.icon === categoryPath);
-    if (selectedCategory && selectedCategory.icon === groupIcon) {
-      return (
-        <div id="selected-icon">
-          <button
-            type="button"
-            data-category-id={selectedCategory.id}
-            class="flex items-center p-2 mt-2 bg-card-black rounded-lg hover:bg-primary-faded-black focus:outline-none focus:ring-2 focus:ring-accent-blue w-full animation-fade-in"
-          >
-            <img
-              src={selectedCategory.icon.replace(".", "")}
-              alt={`${selectedCategory.name} icon`}
-              class="h-6 w-6 mr-2"
-            />
-            <span class="text-font-off-white">{selectedCategory.name}</span>
-          </button>
-        </div>
-      );
-    }
-    return <div id="selected-icon" class=""></div>;
-  }
-
   return (
-    <div class="p-6 animate-fade-in">
-      <div class="flex justify-start w-fit items-center mb-1">
+    <div class="animate-fade-in">
+      <div class="flex justify-between items-center mb-1 mt-[28px] text-font-off-white">
         <a
           hx-get={`/groups/view/${group.id}`}
           hx-trigger="click"
@@ -105,67 +70,47 @@ export const EditGroupPage = ({
             class="hover:-translate-y-0.5 transition-transform hover:opacity-80 h-6"
           />
         </a>
+        <div class="flex gap-4 ml-auto">
+          <button class="bg-primary-black py-[0.75rem] px-4 rounded-md w-32">
+            Cancel
+          </button>
+          <button
+            type="button"
+            hx-post={`/groups/edit/${group.id}`}
+            hx-target="#app"
+            hx-swap="innerHTML"
+            hx-include="[name='groupName'], [name='temporaryGroup'], [name='selectedIcon'], [name='selectedColor']"
+            class="bg-accent-blue py-[0.75rem] px-1 rounded-md w-32"
+          >
+            Save Changes
+          </button>
+        </div>
       </div>
-      <div class="flex flex-col my-8 bg-primary-black bg-opacity-40 rounded-lg p-4">
-        {createGroupNameInput(true, group.name)}
-        <label class="text-font-off-white justify-start bold mt-4 cursor-pointer">
+
+      <div class="flex flex-col">
+        <label class="text-font-off-white justify-start bold">Group Name</label>
+        <input
+          class="px-4 py-2 justify-center items-center text-font-off-white bg-primary-black rounded-md mt-2"
+          type="text"
+          name="groupName"
+          value={group.name}
+        />
+        <label class="text-font-off-white justify-start semibold flex flex-col text-lg mt-[0.68rem]">
           Select Icon
         </label>
-        <input
-          id="select-icon"
-          class="px-2 py-1 justify-center items-center text-font-grey bg-primary-black rounded-lg mt-2"
-          type="button"
-          name="select-icon"
-          value="Change Group Icon"
-          placeholder="Select Group Icon"
-        />
-        {icons.map((icon) => (
-          <div>{findMatchedCategory(icon.icon, group.icon, icons)}</div>
-        ))}
-        <div id="categoriesContainer" class="hidden">
-          {icons.map((icon) => (
-            <div>
-              <button
-                type="button"
-                data-category-id={icon.icon}
-                class="category-button flex items-center p-2 mt-2 bg-card-black rounded-lg hover:bg-primary-faded-black focus:outline-none focus:ring-2 focus:ring-accent-blue w-full animation-fade-in"
-              >
-                <img
-                  src={icon.icon.replace(".", "")}
-                  alt={`${icon.name} icon`}
-                  class="h-6 w-6 mr-2"
-                />
-                <span class="text-font-off-white">{icon.name}</span>
-              </button>
-            </div>
-          ))}
+        <div
+          id="select-group-icon"
+          hx-get={`/groups/selectIcon?selectedIcon=${group.icon}&selectedColor=${group.color}`}
+          hx-trigger="click"
+          hx-swap="outerHTML"
+          hx-target="#select-group-icon"
+          class="py-2 px-3  w-full h-fit flex justify-between bg-primary-black rounded-md mt-1"
+        >
+          <p class="text-primary-grey font-normal">Select Group Icon</p>
+          <img src="/activeIcons/expand_more.svg" />
         </div>
 
-        <label class="text-font-off-white justify-start font-bold mt-4 cursor-pointer">
-          Select Color
-        </label>
-
-        <input type="hidden" id="selectedColor" name="selectedColor" value="" />
-
-        <div class="flex flex-wrap mt-2 gap-2">
-          {colors.map((color) => (
-            <button
-              class={`color-button h-10 w-10 rounded-full ${color.bgClass} ${
-                group.color === color.name
-                  ? "ring-2 ring-offset-2 ring-accent-blue"
-                  : ""
-              }`}
-              data-color={color.name}
-            ></button>
-          ))}
-        </div>
-
-        <AddMembersComponent
-          group={group}
-          currentUser={currentUser}
-          isEditMode={true}
-        />
-        <div class="flex text-font-off-white mt-3 justify-center has-tooltip">
+        {/* <div class="flex text-font-off-white mt-3 justify-center has-tooltip">
           <span class="tooltip mx-4 text-font-off-white -mt-8 shadow-lg bg-primary-dark-grey rounded-lg m-2 cursor-pointer p-1">
             Temporary groups will be deleted after 7 days
           </span>
@@ -184,30 +129,65 @@ export const EditGroupPage = ({
             class="mt-2 w-5 h-5 cursor-pointer"
             checked={group.temporary.toString() === "true"}
           />
-        </div>
+        </div> */}
         <input
           type="hidden"
-          name="selectedCategoryId"
-          id="selectedCategoryId"
+          name="selectedIcon"
+          id="selectedIcon"
+          value={group.icon}
         />
-        <input type="hidden" name="memberEmails" id="memberEmails" value="" />
+        <input
+          type="hidden"
+          name="selectedColor"
+          id="selectedColor"
+          value={group.color}
+        />
+        <span class="text-lg font-normal text-font-off-white mt-[1.31rem]">
+          Add Members
+        </span>
+        <hr class="border-t border-primary-dark-grey w-full mt-[0.5rem] mb-[1rem]"></hr>
+        <div class="flex flex-col w-full h-fit text-font-off-white mb-[1.19rem]">
+          <span class="text-font-off-white">Invite Share Link</span>
+          <div class="bg-primary-black w-full rounded-md text-font-off-white flex justify-between px-4 py-2 mt-1">
+            <span id="invite-link">{inviteShareLink}</span>
+            <img id="clipboard-icon" src="/activeIcons/content_copy.svg" />
+          </div>
+          <span class="text-font-off-white mt-4">Email or Phone Number</span>
+          <div class="flex w-full">
+            <form
+              hx-post={`/groups/addMember/${group.id}`}
+              hx-target="#groupMembers"
+              hx-swap="innerHTML"
+              class="flex w-full"
+            >
+              <input
+                class="bg-primary-black rounded-md w-full text-font-off-white flex justify-between px-2 mt-1 placeholder-primary-grey placeholder-font-light mr-3"
+                type="text"
+                name="emailOrPhone"
+                placeholder="Enter email or phone number"
+              />
+              <button
+                type="submit"
+                class="bg-accent-blue rounded-md px-4 flex mt-1 items-center"
+              >
+                <p class="text-sm font-normal">Send Invite</p>
+              </button>
+            </form>
+          </div>
+        </div>
+        <span class="text-font-off-white">Members</span>
+        {/* margin top is not applying here */}
+        <div id="groupMembers">
+          <GroupMembers
+            memberDetails={group.members}
+            currentUser={currentUser}
+          />
+        </div>
 
         <div
           id="errorContainer"
           class="text-accent-red bg-opacity-10 border border-accent-red p-4 rounded shadow hidden text-center mt-4"
         ></div>
-        <div class="flex justify-center items-center mt-3 mb-4">
-          <button
-            type="button"
-            hx-post={`/groups/edit/${group.id}`}
-            hx-target="#app"
-            hx-swap="innerHTML"
-            hx-include="#selectedCategoryId, [name='groupName'], [name='temporaryGroup'], #memberEmails, #selectedColor"
-            class="rounded-lg w-32 h-10 bg-accent-blue justify-center text-font-off-white text-sm mt-4"
-          >
-            Save Changes
-          </button>
-        </div>
       </div>
       <div class="mb-20"></div>
     </div>

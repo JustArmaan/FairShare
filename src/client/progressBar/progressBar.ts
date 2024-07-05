@@ -63,7 +63,7 @@ const applyBoxSizing = () => {
     ".progress-bar-wrapper"
   ) as HTMLElement;
   const outerContainer = document.querySelector(
-    ".p-6.animate-fade-in.pb-24"
+    ".animate-fade-in.pb-24"
   ) as HTMLElement;
 
   if (progressContainer) {

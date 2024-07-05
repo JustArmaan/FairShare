@@ -18,6 +18,8 @@ export const env = {
   vopaySharedSecret: process.env.VITE_VOPAY_API_SHARED_SECRET,
   vopayKey: process.env.VITE_VOPAY_API_KEY,
   vopayUrl: process.env.VITE_VOPAY_URL,
+  playwrightEmail: process.env.VITE_PLAYWRIGHT_EMAIL,
+  playwrightPassword: process.env.VITE_PLAYWRIGHT_PASSWORD,
 };
 
 Object.entries(env).forEach(([key, value]) => {

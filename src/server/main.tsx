@@ -22,6 +22,7 @@ import { errorRouter } from "./routes/errorRouter";
 import { ErrorPage } from "./views/pages/Errors/Error";
 import { renderToHtml } from "jsxte";
 import { plaidMobileLinkRouter } from "./routes/plaidMobileLinkRouter";
+import { remapSvgs } from "./middleware/svgHandler.middleware";
 
 const app = express();
 const server = http.createServer(app);
@@ -37,6 +38,7 @@ app.use((req, res, next) => {
 
 app.use(indexRouter);
 app.use("/api/v0", apiRouterV0);
+app.use(remapSvgs);
 app.use("/breakdown", breakdownRouter);
 app.use("/home", homeRouter);
 app.use("/transactions", transactionRouter);

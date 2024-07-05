@@ -24,7 +24,6 @@ export const configureApp = async (app: Express) => {
   });
 
   app.use(checkHTMX);
-  app.use(remapSvgs);
 
   await setupVopayTransactionWebhook();
 };

@@ -17,6 +17,7 @@ import {
   changeMemberTypeInGroup,
   getGroupOwner,
   getUserTotalOwedForGroupWithOwingFlags,
+  getUserToGroupFromUserToGroupId,
 } from "../services/group.service";
 import { findUser, getUserByEmailOnly } from "../services/user.service.ts";
 import { AddedMember } from "../views/pages/Groups/components/Member.tsx";
@@ -27,7 +28,10 @@ import {
   updateGroup,
 } from "../services/group.service.ts";
 import CreateGroup from "../views/pages/Groups/components/CreateGroup.tsx";
-import { EditGroupPage } from "../views/pages/Groups/components/EditGroup.tsx";
+import {
+  EditGroupPage,
+  colors,
+} from "../views/pages/Groups/components/EditGroup.tsx";
 import { ViewGroups } from "../views/pages/Groups/components/ViewGroup.tsx";
 import { AddTransaction } from "../views/pages/Groups/components/AddTransaction.tsx";
 import {
@@ -56,6 +60,13 @@ import {
 import { AccountSelector } from "../views/pages/Groups/components/AccountSelector.tsx";
 import { deleteNotificationForUserInGroup } from "../services/notification.service.ts";
 import { createNotificationWithWebsocket } from "../utils/createNotification.ts";
+import SelectIcon from "../views/pages/Groups/components/SelectIcon.tsx";
+import { AddMembersPage } from "../views/pages/Groups/AddMemberPage.tsx";
+import { getInviteLinkById } from "../services/invite.service.ts";
+import { env } from "../../../env.ts";
+import { getOrCreateInviteLink } from "../utils/getOrCreateInviteLink.ts";
+import { checkUserExistsInGroup } from "../utils/userExistsInGroup.ts";
+import GroupMembers from "../views/pages/Groups/components/GroupMembers.tsx";
 
 const router = express.Router();
 
@@ -63,37 +74,88 @@ const icons = [
   {
     id: "2707335e-ad80-458a-a1e6-fb25300e5621",
     name: "Heart",
-    icon: "./groupIcons/heart.svg",
+    icon: "/groupIcons/heart.svg",
   },
   {
     id: "2707335e-ad80-458a-a1e6-fb25300e5622",
     name: "Star",
-    icon: "./groupIcons/star.svg",
+    icon: "/groupIcons/star.svg",
   },
   {
     id: "2707335e-ad80-458a-a1e6-fb25300e5623",
     name: "Drink",
-    icon: "./groupIcons/drink.svg",
+    icon: "/groupIcons/drink.svg",
   },
   {
     id: "2707335e-ad80-458a-a1e6-fb25300e5624",
     name: "Diamond",
-    icon: "./groupIcons/diamond.svg",
+    icon: "/groupIcons/diamond.svg",
   },
   {
     id: "2707335e-ad80-458a-a1e6-fb25300e5625",
     name: "Food",
-    icon: "./groupIcons/food.svg",
+    icon: "/groupIcons/food.svg",
   },
   {
     id: "2707335e-ad80-458a-a1e6-fb25300e5626",
     name: "Crown",
-    icon: "./groupIcons/crown.svg",
+    icon: "/groupIcons/crown.svg",
   },
   {
     id: "2707335e-ad80-458a-a1e6-fb25300e5627",
     name: "Gift",
-    icon: "./groupIcons/gift.svg",
+    icon: "/groupIcons/gift.svg",
+  },
+];
+
+const createIcons = [
+  {
+    name: "Books",
+    icon: "/createGroupIcons/book.svg",
+  },
+  {
+    name: "Dentist",
+    icon: "/createGroupIcons/dentists.svg",
+  },
+  {
+    name: "Education",
+    icon: "/createGroupIcons/education.svg",
+  },
+  {
+    name: "Entertainment",
+    icon: "/createGroupIcons/entertainment.svg",
+  },
+  {
+    name: "Food",
+    icon: "/createGroupIcons/food.svg",
+  },
+  {
+    name: "Healthcare",
+    icon: "/createGroupIcons/healthcare.svg",
+  },
+  {
+    name: "Home",
+    icon: "/createGroupIcons/home.svg",
+  },
+  {
+    name: "Shopping",
+    icon: "/createGroupIcons/shopping.svg",
+  },
+  {
+    name: "Hydro",
+    icon: "/createGroupIcons/hydro.svg",
+  },
+  {
+    name: "Utilities",
+    icon: "/createGroupIcons/utilities.svg",
+  },
+  {
+    name: "Medicine",
+    icon: "/createGroupIcons/medicine.svg",
+  },
+  {
+    name: "Wifi",
+    icon: "/createGroupIcons/wifi.svg",
   },
 ];
 
@@ -305,10 +367,7 @@ router.get("/create", async (req, res) => {
     if (!databaseUser) throw new Error("failed to create user");
 
     const html = renderToHtml(
-      <CreateGroup
-        icons={icons}
-        currentUser={{ ...databaseUser, type: "Owner" }}
-      />
+      <CreateGroup currentUser={{ ...databaseUser, type: "Owner" }} />
     );
     res.send(html);
   } catch (error) {
@@ -316,32 +375,15 @@ router.get("/create", async (req, res) => {
   }
 });
 
-router.get("/addMember", async (req, res) => {
+router.post("/addMember/:groupId", async (req, res) => {
   try {
-    const email = req.query.addEmail as string;
-    const member = await getUserByEmailOnly(email);
+    const email = req.body.emailOrPhone as string;
+    const currentUser = await findUser(req.user!.id);
 
-    if (!member) {
-      return res.status(400).send("User not found.");
+    if (!currentUser) {
+      return res.status(500).send("Failed to get user");
     }
 
-    let content;
-
-    if (!member) {
-      return res.status(400).send("User not found.");
-    } else {
-      content = <AddedMember user={{ ...member, type: "Invited" }} />;
-    }
-    const html = renderToHtml(content);
-    res.send(html);
-  } catch (error) {
-    console.error(error);
-  }
-});
-
-router.get("/addMember/:groupId", async (req, res) => {
-  try {
-    const email = req.query.addEmail as string;
     const member = await getUserByEmailOnly(email);
 
     if (!member) {
@@ -355,8 +397,23 @@ router.get("/addMember/:groupId", async (req, res) => {
 
     let content;
 
+    const currentGroup = await getGroupWithMembers(req.params.groupId);
+
+    if (!currentGroup) {
+      return res.status(404).send("No such group");
+    }
+
     if (inGroup) {
       return res.status(400).send("User is already in the group.");
+    } else {
+      await addMember(req.params.groupId, member.id, "Invited");
+      await createNotificationWithWebsocket(
+        req.params.groupId,
+        `You have been invited to join the group ${currentGroup.name} by ${currentUser.email}`,
+        member.id,
+        "groupInvite",
+        `/groups/${currentGroup.id}`
+      );
     }
     const group = await getGroupWithMembers(req.params.groupId);
 
@@ -366,7 +423,7 @@ router.get("/addMember/:groupId", async (req, res) => {
       return res.status(400).send("User not found.");
     } else {
       content = (
-        <AddedMember user={{ ...member, type: "Invited" }} groupId={group.id} />
+        <GroupMembers memberDetails={group.members} currentUser={currentUser} />
       );
     }
     const html = renderToHtml(content);
@@ -378,6 +435,7 @@ router.get("/addMember/:groupId", async (req, res) => {
 
 router.post("/create", async (req, res) => {
   try {
+    console.log("req.body", req.body);
     const { id } = req.user!;
 
     const currentUser = await findUser(id);
@@ -386,19 +444,13 @@ router.post("/create", async (req, res) => {
       return res.status(500).send("Failed to get user");
     }
 
-    const {
-      groupName,
-      selectedCategoryId,
-      memberEmails,
-      temporaryGroup,
-      selectedColor,
-    } = req.body;
+    const { groupName, selectedIcon, temporaryGroup, selectedColor } = req.body;
 
     if (
       !groupName ||
       groupName === "" ||
-      !selectedCategoryId ||
-      selectedCategoryId === "" ||
+      !selectedIcon ||
+      selectedIcon === "" ||
       !selectedColor ||
       selectedColor === ""
     ) {
@@ -411,14 +463,14 @@ router.post("/create", async (req, res) => {
       isTemp = false;
     }
 
-    if (!selectedCategoryId) {
+    if (!selectedIcon) {
       return res.status(400).send("Category not found.");
     }
 
     const group = await createGroup(
       groupName,
       selectedColor,
-      selectedCategoryId,
+      selectedIcon,
       isTemp.toString()
     );
 
@@ -426,31 +478,7 @@ router.post("/create", async (req, res) => {
       return res.status(500).send("Failed to create group.");
     }
 
-    const groupMembers = memberEmails.split(",");
-    if (groupMembers.includes("")) {
-      if (currentUser) {
-        groupMembers.push(currentUser.email);
-      }
-    }
-    for (const memberEmail of groupMembers) {
-      const user = await getUserByEmailOnly(memberEmail);
-      if (user) {
-        if (user.id !== currentUser.id) {
-          const invitedMember = await addMember(group.id, user.id, "Invited");
-          if (invitedMember) {
-            await createNotificationWithWebsocket(
-              group.id,
-              `You have been invited to join the group ${group.name} by ${currentUser.email}`,
-              user.id,
-              "groupInvite",
-              `/groups/${group.id}`
-            );
-          }
-        } else if (user.id === currentUser.id) {
-          await addMember(group.id, user.id, "Owner");
-        }
-      }
-    }
+    await addMember(group.id, currentUser.id, "Owner");
 
     const allGroupsForCurrentUser = await getGroupsAndAllMembersForUser(
       currentUser.id
@@ -517,8 +545,21 @@ router.get("/edit/:groupId", async (req, res) => {
     const group = await getGroupWithMembers(req.params.groupId);
     if (!group) return res.status(404).send("No such group");
 
+    const userToGroup = await getUsersToGroup(group.id, currentUser.id);
+
+    if (!userToGroup) {
+      return res.status(404).send("User not found in group");
+    }
+
+    const inviteToken = await getOrCreateInviteLink(userToGroup.id);
+    const shareLink = `${env.baseUrl}/groups/invite/${inviteToken.id}`;
+
     const html = renderToHtml(
-      <EditGroupPage icons={icons} currentUser={currentUser} group={group} />
+      <EditGroupPage
+        currentUser={currentUser}
+        group={group}
+        inviteShareLink={shareLink}
+      />
     );
     res.send(html);
   } catch (err) {
@@ -576,13 +617,8 @@ router.get("/addTransaction/:accountId/:groupId/:itemId", async (req, res) => {
 
 router.post("/edit/:groupId", async (req, res) => {
   try {
-    const {
-      groupName,
-      selectedCategoryId,
-      selectedColor,
-      memberEmails,
-      temporaryGroup,
-    } = req.body;
+    const { groupName, selectedColor, temporaryGroup, selectedIcon } = req.body;
+    console.log("req.body", req.body);
 
     const isTemp = temporaryGroup === "on";
     const currentGroup = await getGroupWithMembers(req.params.groupId);
@@ -614,27 +650,13 @@ router.post("/edit/:groupId", async (req, res) => {
       updates.name = groupName;
     if (selectedColor !== currentGroup.color && selectedColor !== "")
       updates.color = selectedColor;
-    if (selectedCategoryId !== currentGroup.icon && selectedCategoryId !== "")
-      updates.icon = selectedCategoryId;
+    if (selectedIcon !== currentGroup.icon && selectedIcon !== "")
+      updates.icon = selectedIcon;
     if (
       isTemp.toString() !== currentGroup.temporary &&
       isTemp.toString() !== ""
     )
       updates.temporary = isTemp.toString();
-
-    const groupMembers = memberEmails
-      ? memberEmails.split(",").map((email: string) => email.trim())
-      : [];
-    const existingEmails = new Set(
-      currentGroup.members.map((member) => member.email)
-    );
-    const newMembers = groupMembers.filter(
-      (email: string) => !existingEmails.has(email)
-    );
-
-    if (Object.keys(updates).length === 0 && newMembers.length === 0) {
-      return res.status(400).send("No changes detected");
-    }
 
     if (Object.keys(updates).length > 0) {
       const updatedGroup = await updateGroup(
@@ -647,28 +669,6 @@ router.post("/edit/:groupId", async (req, res) => {
 
       if (!updatedGroup) {
         return res.status(500).send("Failed to update group");
-      }
-    }
-
-    for (const memberEmail of newMembers) {
-      const user = await getUserByEmailOnly(memberEmail);
-      if (user) {
-        const invitedMember = await addMember(
-          currentGroup.id,
-          user.id,
-          "Invited"
-        );
-        if (invitedMember) {
-          await createNotificationWithWebsocket(
-            currentGroup.id,
-            `You have been invited to join the group ${currentGroup.name} by ${currentUser.email}`,
-            user.id,
-            "groupInvite",
-            `/groups/${currentGroup.id}`
-          );
-        }
-      } else {
-        return res.status(400).send(`User with email ${memberEmail} not found`);
       }
     }
 
@@ -843,6 +843,145 @@ router.post("/member/:approval", async (req, res) => {
         hx-push-url="/notification/page"
       ></div>
     </>
+  );
+
+  res.send(html);
+});
+
+router.get("/selectIcon", async (req, res) => {
+  const selectedIcon = req.query.selectedIcon as string;
+  const selectedColor = req.query.selectedColor as string;
+  console.log("selectedIcon", selectedIcon, selectedColor);
+  const html = renderToHtml(
+    <div
+      id="select-group-icon"
+      class="w-full h-fit bg-primary-black rounded-md mt-1 flex flex-col items-center"
+    >
+      <div
+        id="select-group-icon"
+        class="py-2 px-3 w-full h-fit flex justify-between"
+      >
+        <p class="text-primary-grey font-normal">Select Group Icon</p>
+        <img
+          hx-get="/groups/selectIconEmpty"
+          hx-trigger="click"
+          hx-swap="outerHTML"
+          hx-target="#select-group-icon"
+          src="/activeIcons/expand_more.svg"
+          class="rotate-180"
+        />
+      </div>
+      <hr class="border-t border-primary-dark-grey w-11/12 mx-auto px-2" />
+      <SelectIcon
+        icons={createIcons}
+        colors={colors}
+        selectedIcon={selectedIcon}
+        selectedColor={selectedColor}
+      />
+    </div>
+  );
+  res.send(html);
+});
+
+router.get("/selectIconEmpty", async (req, res) => {
+  const html = renderToHtml(
+    <div
+      id="select-group-icon"
+      hx-get="/groups/selectIcon"
+      hx-trigger="click"
+      hx-swap="outerHTML"
+      hx-target="#select-group-icon"
+      class="py-2 px-3  w-full h-fit flex justify-between bg-primary-black rounded-md mt-1"
+    >
+      <p class="text-primary-grey font-normal">Select Group Icon</p>
+      <img src="/activeIcons/expand_more.svg" />
+    </div>
+  );
+  res.send(html);
+});
+
+router.get("/addMembers/:groupId", async (req, res) => {
+  const groupId = req.params.groupId;
+  const group = await getGroupWithMembers(groupId);
+  const userId = req.user!.id;
+  const currentUser = await findUser(userId);
+  if (!currentUser) throw new Error("No such user");
+  if (!group) {
+    return res.status(404).send("Group not found");
+  }
+
+  const userToGroup = await getUsersToGroup(groupId, userId);
+
+  if (!userToGroup) {
+    return res.status(404).send("User not found in group");
+  }
+
+  const inviteToken = await getOrCreateInviteLink(userToGroup.id);
+  const shareLink = `${env.baseUrl}/groups/invite/${inviteToken.id}`;
+
+  const html = renderToHtml(
+    <AddMembersPage
+      group={group}
+      currentUser={currentUser}
+      inviteShareLink={shareLink}
+    />
+  );
+  res.send(html);
+});
+
+router.get("/invite/:inviteTokenId", async (req, res) => {
+  const inviteTokenId = req.params.inviteTokenId;
+  const currentUserId = req.user!.id;
+
+  const inviteToken = await getInviteLinkById(inviteTokenId);
+  const currentUser = await findUser(currentUserId);
+
+  if (!inviteToken) {
+    return res.status(404).send("Invite link not found");
+  }
+
+  if (!currentUser) {
+    return res.status(404).send("you need to make an account to join a group");
+  }
+
+  const userToGroup = await getUserToGroupFromUserToGroupId(
+    inviteToken.usersToGroupsId
+  );
+
+  if (!userToGroup) {
+    return res
+      .status(404)
+      .send(
+        "There seems to be something wrong with the invite you received. Please contact the group owner."
+      );
+  }
+
+  const userAlreadyInGroup = await checkUserExistsInGroup(
+    userToGroup.groupId,
+    currentUserId
+  );
+
+  if (userAlreadyInGroup) {
+    return res.status(400).send("You are already in the group");
+  }
+
+  const newMember = await addMember(
+    userToGroup.groupId,
+    currentUserId,
+    "Member"
+  );
+
+  if (!newMember) {
+    return res.status(500).send("Failed to add member to group");
+  }
+
+  const html = renderToHtml(
+    <div
+      hx-get={`/groups/view/${userToGroup.groupId}`}
+      hx-target="#app"
+      hx-swap="innerHTML"
+      hx-trigger="load"
+    ></div>
   );
 
   res.send(html);
