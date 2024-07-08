@@ -1,4 +1,4 @@
-import dotenv from 'dotenv';
+import dotenv from "dotenv";
 dotenv.config();
 
 export const env = {
@@ -20,9 +20,10 @@ export const env = {
   vopayUrl: process.env.VITE_VOPAY_URL,
   playwrightEmail: process.env.VITE_PLAYWRIGHT_EMAIL,
   playwrightPassword: process.env.VITE_PLAYWRIGHT_PASSWORD,
+  dbLogging: process.env.VITE_DB_LOGGING ? true : false,
 };
 
 Object.entries(env).forEach(([key, value]) => {
-  if (!value && key !== 'isDev')
+  if (!value && key !== "isDev")
     throw new Error(`Missing env variable for ${key}`);
 });

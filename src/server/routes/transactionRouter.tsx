@@ -259,7 +259,7 @@ router.get("/addButton", async (req, res) => {
     if (!groupTransactions) throw new Error();
 
     const groupTransactionState = await createGroupTransactionState({
-      pending: true,
+      pending: false,
       groupTransactionId: groupTransactions[0].id,
     });
     await Promise.all(

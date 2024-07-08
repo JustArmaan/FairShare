@@ -3,13 +3,7 @@ import { type GroupWithTransactions } from "../../../../services/group.service";
 import type { getAllOwedForGroupTransactionWithTransactionId } from "../../../../services/owed.service";
 import type { ExtractFunctionReturnType } from "../../../../services/user.service";
 
-export const OwedGroup = ({
-  currentUser,
-  transactions,
-  owedPerMember,
-  groupId,
-  url,
-}: {
+export const OwedGroup = (props: {
   memberDetails: UserSchema[];
   currentUser: UserSchema;
   transactions?: GroupWithTransactions;
@@ -22,8 +16,11 @@ export const OwedGroup = ({
   function maxCompanyNameLength(str: string, max: number) {
     return str.length > max ? str.substring(0, max - 3) + "..." : str;
   }
-  const owedForThisMember = owedPerMember
-    .map((owedList) => owedList.find((owed) => owed.userId === currentUser.id)!)
+  const owedForThisMember = props.owedPerMember
+    .map(
+      (owedList) =>
+        owedList.find((owed) => owed.userId === props.currentUser.id)!
+    )
     .filter((owed) => owed && !owed.pending);
 
   function formatDate(dateString: string) {
@@ -51,70 +48,69 @@ export const OwedGroup = ({
 
   return (
     <div class="flex-col w-full justify-evenly rounded-lg py-1.5 px-4 mt-3 flex items-center">
-      {transactions &&
-        (transactions.length > 0 && owedForThisMember.length > 0 ? (
+      {props.transactions &&
+        (props.transactions.length > 0 && owedForThisMember.length > 0 ? (
           owedForThisMember
             .map((owedList) => ({
               ...owedList,
-              transaction: transactions.find(
+              transaction: props.transactions?.find(
                 (transaction) => transaction.id === owedList.transactionId
               )!,
             }))
-            .map((result, index) => (
-              <div class="w-full bg-primary-black relative mb-3 rounded-md min-h-[7rem] shadow-[0px_2px_2px_0px_rgba(0,0,0,0.25)]">
-                <div class="p-3">
-                  <div class="flex justify-between w-full">
-                    <p class="text-font-off-white self-start w-fit font-semibold text-lg">
-                      {maxCompanyNameLength(
-                        result.transaction.company ?? "",
-                        20
-                      )}
-                    </p>
-                    <p class="text-font-off-white self-end w-fit text-lg">
-                      {result.amount > 0 ? "You're Owed " : "You Owe "}
-                      <span
-                        class={`text-lg font-medium ${
-                          result.amount > 0
-                            ? "text-positive-number"
-                            : "text-negative-number"
-                        }`}
-                      >
-                        ${Math.abs(result.amount).toFixed(2)}
-                      </span>
-                    </p>
-                  </div>
-                  <p class="text-font-off-white self-start text-xs">
-                    {formatDate(result.transaction.timestamp!)}
+            .map((result) => {
+              console.log(result.amount);
+              return result;
+            })
+            .map((result) => (
+              <div class="w-full bg-primary-black relative mb-3 rounded-md py-[0.75rem] px-[0.69rem] shadow-[0px_2px_2px_0px_rgba(0,0,0,0.25)]">
+                <div class="flex justify-between w-full">
+                  <p class="text-font-off-white self-start w-fit font-semibold text-lg">
+                    {maxCompanyNameLength(result.transaction.company ?? "", 20)}
                   </p>
-                  <div class="flex justify-between w-full">
-                    <p class="text-font-off-white self-start mt-2">
-                      Paid by:{" "}
-                      <span class="text-font-off-white self-start mt-2 font-semibold">
-                        {currentUser.firstName}
-                        {/* This needs to be whoever paid for the bill */}
-                      </span>
-                    </p>
-                    <div class="flex flex-row justify-center text-font-off-white">
-                      <button
-                        hx-swap="innerHTML"
-                        hx-get={`/transactions/details/${result.transactionId}/?url=${url}`}
-                        hx-push-url={`/transactions/details/${result.transactionId}/?url=${url}`}
-                        hx-target="#app"
-                        class="hover:-translate-y-0.5 rotate-[0.0001deg] transition-transform font-normal w-[4.187rem] h-[2.063rem] border-accent-blue border-[2px] rounded-2xl text-font-off-white text-base"
-                      >
-                        View
-                      </button>
+                  <p class="text-font-off-white self-end w-fit">
+                    {result.amount > 0 ? "You're Owed " : "You Owe "}
+                    <span
+                      class={`font-medium ${
+                        result.amount > 0
+                          ? "text-positive-number"
+                          : "text-negative-number"
+                      }`}
+                    >
+                      ${Math.abs(result.amount).toFixed(2)}
+                    </span>
+                  </p>
+                </div>
+                <p class="text-font-off-white self-start text-xs -mt-1.5">
+                  {formatDate(result.transaction.timestamp!)}
+                </p>
+                <div class="flex justify-between w-full">
+                  <p class="text-font-off-white self-start mt-[1.25rem] text-[0.875rem]">
+                    Paid by:{" "}
+                    <span class="text-font-off-white self-start font-semibold">
+                      {props.currentUser.firstName}
+                      {/* This needs to be whoever paid for the bill originally */}
+                    </span>
+                  </p>
+                  <div class="flex flex-row justify-center text-font-off-white mt-[0.5rem]">
+                    <button
+                      hx-swap="innerHTML"
+                      hx-get={`/transactions/details/${result.transactionId}/?url=${props.url}`}
+                      hx-push-url={`/transactions/details/${result.transactionId}/?url=${props.url}`}
+                      hx-target="#app"
+                      class="flex items-center justify-center py-[.6875rem] px-[0.5rem] hover:-translate-y-0.5 rotate-[0.0001deg] transition-transform font-normal w-[4.187rem] h-[2.063rem] border-accent-blue border-[2px] rounded-[1.25rem] text-font-off-white text-base"
+                    >
+                      <p>View</p>
+                    </button>
 
-                      <button
-                        hx-swap="innerHTML"
-                        hx-get={`/groups/pay/${result.groupTransactionToUsersToGroupsId}/${groupId}`}
-                        hx-target="#app"
-                        hx-push-url={`/groups/pay/${result.groupTransactionToUsersToGroupsId}/${groupId}`}
-                        class="hover:-translate-y-0.5 rotate-[0.0001deg] transition-transform font-normal w-[4.187rem] h-[2.063rem] bg-accent-blue rounded-2xl text-font-off-white text-base ml-3"
-                      >
-                        Settle
-                      </button>
-                    </div>
+                    <button
+                      hx-swap="innerHTML"
+                      hx-get={`/groups/pay/${result.groupTransactionToUsersToGroupsId}/${props.groupId}`}
+                      hx-target="#app"
+                      hx-push-url={`/groups/pay/${result.groupTransactionToUsersToGroupsId}/${props.groupId}`}
+                      class="flex items-center justify-center py-[.6875rem] px-[0.5rem] hover:-translate-y-0.5 rotate-[0.0001deg] transition-transform font-normal w-[4.187rem] h-[2.063rem] bg-accent-blue rounded-[1.25rem] text-font-off-white text-base ml-3"
+                    >
+                      <p class="h-fit">Settle</p>
+                    </button>
                   </div>
                 </div>
               </div>

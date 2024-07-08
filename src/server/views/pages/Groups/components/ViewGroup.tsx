@@ -161,6 +161,34 @@ export const ViewGroups = ({
         </>
         <div class="bg-[#232222] rounded-lg mt-4">
           <p class="text-font-off-white text-xl font-medium pt-3 text-center">
+            Owed
+          </p>
+          <p class="text-font-off-white font-medium text-sm text-center">
+            {totalOwed > 0 ? "You are owed " : "You owe "}
+            <span
+              class={`text-font-off-white font-medium text-sm text-center ${
+                totalOwed > 0 ? "text-positive-number" : "text-negative-number"
+              }`}
+            >
+              ${Math.abs(totalOwed).toFixed(2)}
+            </span>{" "}
+            overall
+          </p>
+          <OwedGroup
+            memberDetails={members}
+            currentUser={currentUser}
+            transactions={transactions}
+            owedPerMember={owedPerMember
+              .map((owed) => owed.filter((owed) => owed.amount > 0))
+              .filter((owed) => owed.length > 0)}
+            groupId={groupId}
+            url={url}
+          />
+          {/* <p class="text-font-off-white text-2xl pt-3
+            pb-1">Budget</p> <BudgetChart groupBudget={groupBudget} /> */}
+        </div>
+        <div class="bg-[#232222] rounded-lg mt-4">
+          <p class="text-font-off-white text-xl font-medium pt-3 text-center">
             Owing
           </p>
           <p class="text-font-off-white font-medium text-sm text-center">
@@ -174,12 +202,13 @@ export const ViewGroups = ({
             </span>{" "}
             overall
           </p>
-
           <OwedGroup
             memberDetails={members}
             currentUser={currentUser}
             transactions={transactions}
-            owedPerMember={owedPerMember}
+            owedPerMember={owedPerMember
+              .map((owed) => owed.filter((owed) => owed.amount < 0))
+              .filter((owed) => owed.length > 0)}
             groupId={groupId}
             url={url}
           />

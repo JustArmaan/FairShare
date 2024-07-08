@@ -3,12 +3,7 @@ import { type GroupWithTransactions } from "../../../../services/group.service";
 import type { getAllOwedForGroupTransactionWithTransactionId } from "../../../../services/owed.service";
 import type { ExtractFunctionReturnType } from "../../../../services/user.service";
 
-export const PendingItems = ({
-  currentUser,
-  transactions,
-  owedPerMember,
-  groupId,
-}: {
+export const PendingItems = (props: {
   selectedAccountId: string | null;
   memberDetails: UserSchema[];
   currentUser: UserSchema;
@@ -16,7 +11,6 @@ export const PendingItems = ({
   owedPerMember: ExtractFunctionReturnType<
     typeof getAllOwedForGroupTransactionWithTransactionId
   >[];
-  groupId: string;
 }) => {
   function maxCompanyNameLength(str: string, max: number) {
     return str.length > max ? str.substring(0, max - 3) + "..." : str;
@@ -50,24 +44,24 @@ export const PendingItems = ({
   }
   return (
     <div class="flex-col w-full justify-evenly rounded-lg py-1.5 px-4 mt-3 flex items-center">
-      {transactions &&
-        (transactions.length > 0 &&
-        owedPerMember
+      {props.transactions &&
+        (props.transactions.length > 0 &&
+        props.owedPerMember
           .map(
             (owedList) =>
-              owedList.find((owed) => owed.userId === currentUser.id)!
+              owedList.find((owed) => owed.userId === props.currentUser.id)!
           )
           .filter((owed) => owed && owed.pending && owed.amount > 0).length >
           0 ? (
-          owedPerMember
+          props.owedPerMember
             .map(
               (owedList) =>
-                owedList.find((owed) => owed.userId === currentUser.id)!
+                owedList.find((owed) => owed.userId === props.currentUser.id)!
             )
             .filter((owed) => owed.pending && owed.amount > 0)
             .map((owedList) => ({
               ...owedList,
-              transaction: transactions.find(
+              transaction: props.transactions?.find(
                 (transaction) => transaction.id === owedList.transactionId
               )!,
             }))
