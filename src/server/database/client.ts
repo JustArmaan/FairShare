@@ -20,5 +20,5 @@ const client = createClient(config);
 let dbSingleton: LibSQLDatabase | undefined;
 
 export const getDB = () => {
-  return (dbSingleton ??= drizzle(client));
+  return (dbSingleton ??= drizzle(client, { logger: true }));
 };

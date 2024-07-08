@@ -36,6 +36,13 @@
       "when": 1720462429200,
       "tag": "0003_cuddly_living_tribunal",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1720461794098,
+      "tag": "0003_burly_dexter_bennett",
+      "breakpoints": true
     }
   ]
 }
