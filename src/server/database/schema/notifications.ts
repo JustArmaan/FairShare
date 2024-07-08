@@ -1,12 +1,12 @@
-import { sqliteTable, text } from 'drizzle-orm/sqlite-core';
-import { usersToGroups } from './usersToGroups';
+import { sqliteTable, text, integer } from "drizzle-orm/sqlite-core";
+import { notificationType } from "./notificationType";
 
-export const notifications = sqliteTable('notifications', {
-  id: text('id').primaryKey(),
-  userGroupId: text('fk_user_group_id')
-    .references(() => usersToGroups.id, { onDelete: 'cascade' })
-    .notNull(),
-  message: text('message').notNull(),
-  timestamp: text('timestamp').notNull(),
-  route: text('route'),
+export const notifications = sqliteTable("notifications", {
+  id: text("id").primaryKey(),
+  notificationTypeId: text("notification_type_id").references(
+    () => notificationType.id
+  ),
+  message: text("message").notNull(),
+  timestamp: text("timestamp").notNull(),
+  readStatus: integer("read_status", { mode: "boolean" }),
 });
