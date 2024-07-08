@@ -77,3 +77,18 @@ export function handleColorClick(
     selectedColorInput.value = colorName;
   }
 }
+
+export function clearInviteInput() {
+  const inviteInput = document.getElementById(
+    "invite-input"
+  ) as HTMLInputElement;
+  const inviteButton = document.getElementById(
+    "send-invite-button"
+  ) as HTMLButtonElement;
+
+  if (inviteInput && inviteButton) {
+    inviteButton.addEventListener("click", () => {
+      inviteInput.value = "";
+    });
+  }
+}

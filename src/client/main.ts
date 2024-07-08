@@ -13,6 +13,7 @@ import {
   handleColorClick,
   initializeSelectedColor,
   initializeSelectedIcon,
+  clearInviteInput
 } from "./createGroup/createGroup";
 import { clipBoardCopyInviteLink } from "./inviteLink/inviteLink";
 
@@ -28,29 +29,13 @@ document.body.addEventListener("htmx:afterSwap", (event) => {
   clipBoardCopyInviteLink();
   initializeSelectedColor();
   initializeSelectedIcon();
+  clearInviteInput();
 
   if (!(event.target instanceof HTMLElement)) return;
   const excludeListId = new Set(["institutionSelector"]);
   if (excludeListId.has(event.target.id)) return;
   window.scrollTo({ top: 0 });
 
-  // Re-attach event listeners for icons
-  document
-    .querySelectorAll<HTMLElement>("[data-category-id]")
-    .forEach((iconElement) => {
-      iconElement.addEventListener("click", () =>
-        handleIconClick(iconElement.dataset.categoryId!, iconElement)
-      );
-    });
-
-  // Re-attach event listeners for colors
-  document
-    .querySelectorAll<HTMLElement>("[data-color]")
-    .forEach((colorElement) => {
-      colorElement.addEventListener("click", () =>
-        handleColorClick(colorElement.dataset.color!, colorElement)
-      );
-    });
 });
 
 export const apiVersion = 0;

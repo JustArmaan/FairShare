@@ -41,6 +41,4 @@ export const SelectIcon = (props: {
   );
 };
 
-
-
 export default SelectIcon;
