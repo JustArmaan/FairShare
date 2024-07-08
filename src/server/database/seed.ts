@@ -10,6 +10,11 @@ import { groupTransferStatus } from "./schema/groupTransferStatus";
 import { splitType } from "./schema/splitType";
 import { groups } from "./schema/group";
 import { accounts } from "./schema/accounts";
+import { notifications } from "./schema/notifications";
+import { groupInvite } from "./schema/groupInvite";
+import { genericNotification } from "./schema/genericNotification";
+import { groupNotification } from "./schema/groupNotification";
+import { notificationType } from "./schema/notificationType";
 
 const db = getDB();
 
@@ -137,6 +142,12 @@ const accountTypes = [
   { type: "cash" },
 ];
 
+const notificationTypes = [
+  { type: "generic" },
+  { type: "group" },
+  { type: "invite" },
+];
+
 const groupTransferStatusValues = [
   // keep parity with the interact vopay api status strings
   { status: "pending" },
@@ -176,6 +187,16 @@ console.log("Deleted all items");
 (await db.select().from(accounts)).length > 0 && (await db.delete(accounts));
 (await db.select().from(accountType)).length > 0 &&
   (await db.delete(accountType));
+(await db.select().from(notifications)).length > 0 &&
+  (await db.delete(notifications));
+(await db.select().from(groupInvite)).length > 0 &&
+  (await db.delete(groupInvite));
+(await db.select().from(genericNotification)).length > 0 &&
+  (await db.delete(genericNotification));
+(await db.select().from(groupNotification)).length > 0 &&
+  (await db.delete(groupNotification));
+(await db.select().from(notificationType)).length > 0 &&
+  (await db.delete(notificationType));
 
 try {
   await db.transaction(async (trx) => {
@@ -228,6 +249,13 @@ try {
       await trx.insert(groupTransferStatus).values({
         id: statusId,
         status: status.status,
+      });
+    }
+    for (const type of notificationTypes) {
+      const typeId = uuid();
+      await trx.insert(notificationType).values({
+        id: typeId,
+        type: type.type,
       });
     }
 
