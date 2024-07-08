@@ -22,8 +22,8 @@ async function convertToComponent(svgPath: string) {
   );
 }
 
-export function getNameFromPath(inputPath: string) {
-  const svgSplit = inputPath.split(path.sep);
+export function getNameFromPath(inputPath: string, separator?: string) {
+  const svgSplit = inputPath.split(separator ? separator : path.sep);
   const nameChars = svgSplit[svgSplit.length - 1].split(".")[0].split("");
   return nameChars.join("").replace(".", "");
 }
