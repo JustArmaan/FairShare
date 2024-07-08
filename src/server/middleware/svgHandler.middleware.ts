@@ -47,7 +47,6 @@ function replaceWithDiv(item: { img: HTMLElement; src: string | undefined }) {
     "../svgs/",
     `${getNameFromPath(item.src, "/")}.svg`
   );
-  console.log(svgPath);
   const svgContents = fs.readFileSync(svgPath, { encoding: "utf8" });
   const svgElement = parse(svgContents);
   svgElement.querySelectorAll("*:not(mask):not(mask *)").forEach((element) => {

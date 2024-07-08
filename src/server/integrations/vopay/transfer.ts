@@ -1,16 +1,16 @@
-import { findUser } from '../../services/user.service';
+import { findUser } from "../../services/user.service";
 import {
   createGroupTransfer,
   getGroupTransferById,
   getAllTransferStatuses,
   updateGroupTransfer,
-} from '../../services/plaid.transfer.service';
+} from "../../services/plaid.transfer.service";
 import {
   requestInteracTransfer,
   sendInteracTransfer,
   vopayRequest,
-} from './interac';
-import { getOwed } from '../../services/owed.service';
+} from "./interac";
+import { getOwed } from "../../services/owed.service";
 
 export async function createTransferForSender(
   senderId: string,
@@ -26,23 +26,21 @@ export async function createTransferForSender(
     // const idempotencyKey = uuid(); // use someday
     const response = await requestInteracTransfer(
       parsedAmount,
-      'CAD',
+      "CAD",
       sender!.email,
       sender!.firstName
     );
     const transferStatus = await getAllTransferStatuses();
-    console.log(transferStatus, 'all');
-    console.log(response, 'create transfer response');
 
     if (response?.Success) {
       await createGroupTransfer(
         {
           groupTransactionToUsersToGroupsId: owedId,
           groupTransferSenderStatusId: transferStatus!.find(
-            ({ status }) => status === 'requested'
+            ({ status }) => status === "requested"
           )!.id,
           groupTransferReceiverStatusId: transferStatus!.find(
-            ({ status }) => status === 'not-initiated'
+            ({ status }) => status === "not-initiated"
           )!.id,
           senderUserId: senderId,
           receiverUserId: receiverId,
@@ -55,10 +53,9 @@ export async function createTransferForSender(
         },
         groupId
       );
-      console.log('created transfer for sender', sender!.firstName);
     }
   } catch (error) {
-    console.error('Error initiating transfer:', error);
+    console.error("Error initiating transfer:", error);
     throw error;
   }
 }
@@ -78,7 +75,7 @@ export async function createTransferForReceiver(
     // const idempotencyKey = uuid(); // use someday
     const response = await sendInteracTransfer(
       Math.abs(owed!.amount),
-      'CAD',
+      "CAD",
       receiver!.email,
       receiver!.firstName,
       question,
@@ -86,14 +83,13 @@ export async function createTransferForReceiver(
     );
     const transferStatuses = await getAllTransferStatuses();
 
-    console.log(response, 'create transfer response receiver');
     if (response.Success) {
       await updateGroupTransfer(transfer!.id, {
         groupTransferSenderStatusId: transferStatuses!.find(
-          ({ status }) => status === 'complete'
+          ({ status }) => status === "complete"
         )!.id,
         groupTransferReceiverStatusId: transferStatuses!.find(
-          ({ status }) => status === 'requested'
+          ({ status }) => status === "requested"
         )!.id,
         senderCompletedTimestamp: new Date().toISOString(),
         receiverInitiatedTimestamp: new Date().toISOString(),
@@ -101,17 +97,16 @@ export async function createTransferForReceiver(
       });
     }
   } catch (error) {
-    console.error('Error initiating transfer:', error);
+    console.error("Error initiating transfer:", error);
     throw error;
   }
 }
 
 export async function setupVopayTransactionWebhook() {
-  const response = await vopayRequest('account/webhook-url', {
-    WebHookUrl: 'https://www.myfairshare.ca/api/v0/vopay-transactions-webhook',
-    Type: 'transaction',
+  const response = await vopayRequest("account/webhook-url", {
+    WebHookUrl: "https://www.myfairshare.ca/api/v0/vopay-transactions-webhook",
+    Type: "transaction",
   });
-  console.log(response, 'webhook setup response');
 }
 
 export async function completeTransfer(transferId: string) {
@@ -119,7 +114,7 @@ export async function completeTransfer(transferId: string) {
     const transferStatuses = (await getAllTransferStatuses())!;
     await updateGroupTransfer(transferId, {
       groupTransferReceiverStatusId: transferStatuses.find(
-        (transfer) => transfer.status === 'sent'
+        (transfer) => transfer.status === "sent"
       )!.id,
       receiverCompletedTimestamp: new Date().toISOString(),
     });

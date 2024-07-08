@@ -7,7 +7,7 @@ export const groupInvite = sqliteTable("groupInvite", {
   notificationId: text("notification_id")
     .references(() => notifications.id, { onDelete: "cascade" })
     .notNull(),
-  userGroupId: text("fk_user_group_id")
+  userGroupId: text("user_group_id")
     .references(() => usersToGroups.id, { onDelete: "cascade" })
     .notNull(),
 });

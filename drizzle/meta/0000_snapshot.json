@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "687e4004-29f5-4edb-945b-ea369519fe97",
+  "id": "552c4c99-5446-42c0-bcfd-f8795fe1d307",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "accounts": {
@@ -215,6 +215,50 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
+    "genericNotification": {
+      "name": "genericNotification",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "notification_id": {
+          "name": "notification_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "icon": {
+          "name": "icon",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "genericNotification_notification_id_notifications_id_fk": {
+          "name": "genericNotification_notification_id_notifications_id_fk",
+          "tableFrom": "genericNotification",
+          "tableTo": "notifications",
+          "columnsFrom": [
+            "notification_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
     "groups": {
       "name": "groups",
       "columns": {
@@ -256,6 +300,120 @@
       },
       "indexes": {},
       "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "groupInvite": {
+      "name": "groupInvite",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "notification_id": {
+          "name": "notification_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "fk_user_group_id": {
+          "name": "fk_user_group_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "groupInvite_notification_id_notifications_id_fk": {
+          "name": "groupInvite_notification_id_notifications_id_fk",
+          "tableFrom": "groupInvite",
+          "tableTo": "notifications",
+          "columnsFrom": [
+            "notification_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "groupInvite_fk_user_group_id_usersToGroups_id_fk": {
+          "name": "groupInvite_fk_user_group_id_usersToGroups_id_fk",
+          "tableFrom": "groupInvite",
+          "tableTo": "usersToGroups",
+          "columnsFrom": [
+            "fk_user_group_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "groupNotification": {
+      "name": "groupNotification",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "notification_id": {
+          "name": "notification_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "fk_user_group_id": {
+          "name": "fk_user_group_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "groupNotification_notification_id_notifications_id_fk": {
+          "name": "groupNotification_notification_id_notifications_id_fk",
+          "tableFrom": "groupNotification",
+          "tableTo": "notifications",
+          "columnsFrom": [
+            "notification_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "groupNotification_fk_user_group_id_usersToGroups_id_fk": {
+          "name": "groupNotification_fk_user_group_id_usersToGroups_id_fk",
+          "tableFrom": "groupNotification",
+          "tableTo": "usersToGroups",
+          "columnsFrom": [
+            "fk_user_group_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
@@ -569,6 +727,51 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
+    "inviteShareLink": {
+      "name": "inviteShareLink",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "users_to_groups_id": {
+          "name": "users_to_groups_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": "(current_timestamp)"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "inviteShareLink_users_to_groups_id_usersToGroups_id_fk": {
+          "name": "inviteShareLink_users_to_groups_id_usersToGroups_id_fk",
+          "tableFrom": "inviteShareLink",
+          "tableTo": "usersToGroups",
+          "columnsFrom": [
+            "users_to_groups_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
     "items": {
       "name": "items",
       "columns": {
@@ -674,11 +877,11 @@
           "notNull": true,
           "autoincrement": false
         },
-        "fk_user_group_id": {
-          "name": "fk_user_group_id",
+        "notification_type_id": {
+          "name": "notification_type_id",
           "type": "text",
           "primaryKey": false,
-          "notNull": true,
+          "notNull": false,
           "autoincrement": false
         },
         "message": {
@@ -695,9 +898,9 @@
           "notNull": true,
           "autoincrement": false
         },
-        "route": {
-          "name": "route",
-          "type": "text",
+        "read_status": {
+          "name": "read_status",
+          "type": "integer",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
@@ -705,20 +908,43 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "notifications_fk_user_group_id_usersToGroups_id_fk": {
-          "name": "notifications_fk_user_group_id_usersToGroups_id_fk",
+        "notifications_notification_type_id_notification_type_id_fk": {
+          "name": "notifications_notification_type_id_notification_type_id_fk",
           "tableFrom": "notifications",
-          "tableTo": "usersToGroups",
+          "tableTo": "notification_type",
           "columnsFrom": [
-            "fk_user_group_id"
+            "notification_type_id"
           ],
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
+          "onDelete": "no action",
           "onUpdate": "no action"
         }
       },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "notification_type": {
+      "name": "notification_type",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "type": {
+          "name": "type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
