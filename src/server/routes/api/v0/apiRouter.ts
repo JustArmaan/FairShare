@@ -164,7 +164,6 @@ router.post("/plaid-public-token", async (req, res) => {
       logo: details.logo,
       url: details.url,
     });
-    console.log("added!");
     res.status(200).send();
   } catch (error) {
     console.error(error);
@@ -196,8 +195,6 @@ function calculateKey(apiSharedSecret: string, transactionID: string): string {
   */
 
 router.post("/vopay-transactions-webhook", async (req, res) => {
-  console.log("WEBHOOK RECEIVED");
-  console.log(req.body);
   try {
     const payload = req.body as {
       TransactionID: string;
@@ -231,7 +228,8 @@ router.post("/vopay-transactions-webhook", async (req, res) => {
       const sender = await findUser(groupTransfer.senderUserId);
       await createNotificationWithWebsocket(
         group!.id,
-        `${sender!.firstName} has sent you $${payload.TransactionAmount
+        `${sender!.firstName} has sent you $${
+          payload.TransactionAmount
         }, please check your email for details.`,
         groupTransfer.receiverUserId,
         "groupInvite"
@@ -255,7 +253,8 @@ router.post("/vopay-transactions-webhook", async (req, res) => {
       const receiver = await findUser(groupTransfer.receiverUserId);
       await createNotificationWithWebsocket(
         group!.id,
-        `Your transfer to ${receiver!.firstName} of $${payload.TransactionAmount
+        `Your transfer to ${receiver!.firstName} of $${
+          payload.TransactionAmount
         } has been completed!`,
         groupTransfer.senderUserId,
         "groupInvite"
@@ -280,6 +279,6 @@ router.get("/groups/getname/:groupId", async (req, res) => {
     return res.status(404).json({ error: "Group not found", data: null });
   }
   return res.json({ error: null, data: { name: group.name } });
-})
+});
 
 export const apiRouterV0 = router;

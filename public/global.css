@@ -16,3 +16,28 @@
 * {
   scrollbar-width: none;
 }
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideOut {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
+
+.menu-open {
+  animation: slideIn 0.4s forwards;
+}
+
+.menu-close {
+  animation: slideOut 0.4s forwards;
+}
