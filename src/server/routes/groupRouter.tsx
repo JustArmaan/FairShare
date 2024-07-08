@@ -390,12 +390,14 @@ router.post("/addMember/:groupId", async (req, res) => {
       return res.status(400).send("User not found.");
     }
 
-    const inGroup = await checkUserInGroup(
-      member.id,
-      req.params.groupId as string
+    const inGroup = await checkUserExistsInGroup(
+      req.params.groupId as string,
+      member.id
     );
 
-    let content;
+    if (inGroup) {
+      return res.status(400).send("User is already in the group.");
+    }
 
     const currentGroup = await getGroupWithMembers(req.params.groupId);
 
@@ -403,33 +405,32 @@ router.post("/addMember/:groupId", async (req, res) => {
       return res.status(404).send("No such group");
     }
 
-    if (inGroup) {
-      return res.status(400).send("User is already in the group.");
-    } else {
-      await addMember(req.params.groupId, member.id, "Invited");
-      await createNotificationWithWebsocket(
-        req.params.groupId,
-        `You have been invited to join the group ${currentGroup.name} by ${currentUser.email}`,
-        member.id,
-        "groupInvite",
-        `/groups/${currentGroup.id}`
-      );
-    }
+    await addMember(req.params.groupId, member.id, "Invited");
+    await createNotificationWithWebsocket(
+      req.params.groupId,
+      `You have been invited to join the group ${currentGroup.name} by ${currentUser.email}`,
+      member.id,
+      "groupInvite",
+      `/groups/${currentGroup.id}`
+    );
+
     const group = await getGroupWithMembers(req.params.groupId);
 
     if (!group) return res.status(404).send("No such group");
 
-    if (!member) {
-      return res.status(400).send("User not found.");
-    } else {
-      content = (
-        <GroupMembers memberDetails={group.members} currentUser={currentUser} />
-      );
-    }
+    const content = (
+      <GroupMembers
+        memberDetails={group.members}
+        currentUser={currentUser}
+        groupId={group.id}
+      />
+    );
+
     const html = renderToHtml(content);
     res.send(html);
   } catch (error) {
     console.error(error);
+    res.status(500).send("An error occurred when adding a member");
   }
 });
 
@@ -703,14 +704,16 @@ router.post("/edit/:groupId", async (req, res) => {
 
 router.post("/deleteMember/:userID/:groupID", async (req, res) => {
   try {
+    console.log("running delete member");
     const userID = req.params.userID;
     const groupID = req.params.groupID;
 
     const totalOwed = await getUserTotalOwedForGroup(userID, groupID);
 
-    if (!totalOwed) {
+    if (totalOwed === null || totalOwed === undefined) {
       return res.status(500).send("An error occured when removing a member");
     }
+
     if (totalOwed < 0) {
       return res
         .status(400)
@@ -718,7 +721,17 @@ router.post("/deleteMember/:userID/:groupID", async (req, res) => {
     }
 
     await deleteMemberByGroup(userID, groupID);
-    res.status(204).send();
+
+    const html = renderToHtml(
+      <div
+        hx-get={`/groups/groupMembers/${groupID}`}
+        hx-trigger="load"
+        hx-swap="innerHTML"
+        hx-target="#groupMembers"
+      ></div>
+    );
+
+    res.send(html);
   } catch (error) {
     res.status(500).send("An error occurred when removing a member");
   }
@@ -851,14 +864,13 @@ router.post("/member/:approval", async (req, res) => {
 router.get("/selectIcon", async (req, res) => {
   const selectedIcon = req.query.selectedIcon as string;
   const selectedColor = req.query.selectedColor as string;
-  console.log("selectedIcon", selectedIcon, selectedColor);
   const html = renderToHtml(
     <div
-      id="select-group-icon"
-      class="w-full h-fit bg-primary-black rounded-md mt-1 flex flex-col items-center"
+      id="select-group-icon-container"
+      class="w-full h-fit bg-primary-black rounded-md mt-1 flex flex-col items-center animate-fade-in min-h-[50px]"
     >
       <div
-        id="select-group-icon"
+        id="select-group-icon-header"
         class="py-2 px-3 w-full h-fit flex justify-between"
       >
         <p class="text-primary-grey font-normal">Select Group Icon</p>
@@ -866,9 +878,9 @@ router.get("/selectIcon", async (req, res) => {
           hx-get="/groups/selectIconEmpty"
           hx-trigger="click"
           hx-swap="outerHTML"
-          hx-target="#select-group-icon"
+          hx-target="#select-group-icon-container"
           src="/activeIcons/expand_more.svg"
-          class="rotate-180"
+          class="rotate-180 cursor-pointer"
         />
       </div>
       <hr class="border-t border-primary-dark-grey w-11/12 mx-auto px-2" />
@@ -882,19 +894,18 @@ router.get("/selectIcon", async (req, res) => {
   );
   res.send(html);
 });
-
 router.get("/selectIconEmpty", async (req, res) => {
   const html = renderToHtml(
     <div
-      id="select-group-icon"
+      id="select-group-icon-container"
       hx-get="/groups/selectIcon"
       hx-trigger="click"
       hx-swap="outerHTML"
-      hx-target="#select-group-icon"
-      class="py-2 px-3  w-full h-fit flex justify-between bg-primary-black rounded-md mt-1"
+      hx-target="#select-group-icon-container"
+      class="py-2 px-3  w-full h-fit flex justify-between bg-primary-black rounded-md mt-1 animate-fade-in min-height-[50px]"
     >
       <p class="text-primary-grey font-normal">Select Group Icon</p>
-      <img src="/activeIcons/expand_more.svg" />
+      <img src="/activeIcons/expand_more.svg" class="cursor-pointer" />
     </div>
   );
   res.send(html);
@@ -982,6 +993,29 @@ router.get("/invite/:inviteTokenId", async (req, res) => {
       hx-swap="innerHTML"
       hx-trigger="load"
     ></div>
+  );
+
+  res.send(html);
+});
+
+router.get("/groupMembers/:groupId", async (req, res) => {
+  const groupWithMembers = await getGroupWithMembers(req.params.groupId);
+  const currentUser = await findUser(req.user!.id);
+
+  if (!groupWithMembers) {
+    return res.status(404).send("Group not found");
+  }
+
+  if (!currentUser) {
+    return res.status(404).send("User not found");
+  }
+
+  const html = renderToHtml(
+    <GroupMembers
+      memberDetails={groupWithMembers.members}
+      currentUser={currentUser}
+      groupId={groupWithMembers.id}
+    />
   );
 
   res.send(html);
