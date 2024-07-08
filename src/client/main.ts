@@ -16,6 +16,7 @@ import {
   clearInviteInput
 } from "./createGroup/createGroup";
 import { clipBoardCopyInviteLink } from "./inviteLink/inviteLink";
+import htmx from "htmx.org";
 
 main();
 splitTransfer();
@@ -73,30 +74,36 @@ document.addEventListener("htmx:afterSwap", () => {
   }
 
   const connectButton = document.querySelector("#connect-to-plaid");
-  console.log(connectButton);
   if (connectButton && connectButton instanceof HTMLElement) {
     connectButton.addEventListener("click", attachButton);
   }
 
   const navBar = document.querySelector("nav")?.querySelector("ul");
   if (window.android && navBar instanceof HTMLElement) {
-    console.log("setting prop");
     navBar.style.setProperty("padding-bottom", "0px");
+  }
+});
+
+document.querySelector("#app")?.addEventListener("htmx:afterSwap", () => {
+  const popMenu = document.querySelector(".popup-menu");
+  const aMenu = document.querySelector(".menu-a");
+
+  if (
+    popMenu &&
+    popMenu instanceof HTMLElement &&
+    aMenu?.getAttribute("hx-get")?.includes("false")
+  ) {
+    htmx.ajax("GET", "/menu?open=false", {
+      target: "#menuContainer",
+      swap: "outerHTML",
+    });
   }
 });
 
 document.addEventListener("htmx:beforeSwap", () => {
   const connectButton = document.querySelector("#connect-to-plaid");
-  const menuContainer = document.querySelector(".popup-menu");
-
   if (connectButton && connectButton instanceof HTMLElement) {
     connectButton.removeEventListener("click", attachButton);
-  }
-
-  if (menuContainer && menuContainer instanceof HTMLElement) {
-    console.log("menuContainer", menuContainer);
-
-    menuContainer.classList.add("hidden");
   }
 });
 

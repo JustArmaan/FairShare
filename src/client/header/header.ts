@@ -2,7 +2,6 @@ export async function changeHeader() {
   try {
     const header = document.getElementById("header");
     const url = window.location.href;
-    console.log(url);
     if (header) {
       if (
         url.includes("/groups/view") ||
@@ -12,7 +11,6 @@ export async function changeHeader() {
       ) {
         const groupId = url.split("/").pop();
         const groupName = await fetchGroupName(groupId!);
-        console.log(groupName);
         header.innerText = groupName;
       } else if (
         url.includes("groups") &&

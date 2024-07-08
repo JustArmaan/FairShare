@@ -3,41 +3,134 @@ export const Menu = (props: { value: boolean }) => {
     <div id="menuContainer">
       <div class="popup-menu">
         {props.value && (
-          <div class="menu display:none z-10 font-normal divide-y divide-font-off-white rounded-lg shadow w-44 dark:bg-gray-700 dark:divide-font-off-white fixed bottom-[6rem] end-0 bg-font-black">
-            <input type="hidden" name="original" value="" />
-            <h1 class="text-lg text-font-off-white font-semibold mb-4 py-2">
+          <div
+            class={`menu ${
+              props.value ? "menu-open" : "menu-close"
+            } z-10 font-normal bg-font-black rounded-tl-[1rem] divide-font-off-white w-[18.25rem] dark:divide-font-off-white fixed bottom-[5.45rem] end-0 backdrop-blur-[50px]`}
+          >
+            <p class="text-[2rem] font-medium text-font-off-white ml-[2.25rem] mt-[1.87rem] mb-[2rem]">
               More
-            </h1>
-            <ul
-              class="py-2 text-sm text-gray-700 dark:text-gray-400"
-              aria-labelledby="dropdownLargeButton"
-            >
-              <li>
-                <a
-                  hx-get="/institutions/page"
-                  hx-target="#app"
-                  hx-push-url="/institutions/page"
-                  hx-swap="innerHTML"
-                  hx-trigger="click"
-                  class="text-font-off-white hover:cursor-pointer hover:opacity-80 block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
-                >
-                  Manage Institutions
-                </a>
-              </li>
-            </ul>
-            <div class="py-1">
-              <a
-                href="/auth/logout"
-                class="block text-font-off-white px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white"
-              >
-                Sign out
-              </a>
+            </p>
+            <div class="ml-[2.25rem] ">
+              <input type="hidden" name="original" value="" />
+              <ul class="text-sm" aria-labelledby="dropdownLargeButton">
+                <li>
+                  <a
+                    hx-get="/transactions/transactionList"
+                    hx-target="#app"
+                    hx-push-url="/transactions/transactionList"
+                    hx-swap="innerHTML"
+                    hx-trigger="click"
+                    class="text-font-off-white hover:cursor-pointer hover:opacity-80 block hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white text-base"
+                  >
+                    View Recent Transactions
+                    <li>
+                      <a
+                        hx-get="/institutions/page"
+                        hx-target="#app"
+                        hx-push-url="/institutions/page"
+                        hx-swap="innerHTML"
+                        hx-trigger="click"
+                        class="text-font-off-white hover:cursor-pointer hover:opacity-80 block pt-[2rem] hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white text-base "
+                      >
+                        My Budgets
+                      </a>
+                    </li>
+                    <li>
+                      <a
+                        hx-get="/institutions/page"
+                        hx-target="#app"
+                        hx-push-url="/institutions/page"
+                        hx-swap="innerHTML"
+                        hx-trigger="click"
+                        class="text-font-off-white hover:cursor-pointer hover:opacity-80 block pt-[2rem] hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white text-base "
+                      >
+                        My Goals
+                      </a>
+                    </li>
+                    <li>
+                      <a
+                        hx-get="/institutions/page"
+                        hx-target="#app"
+                        hx-push-url="/institutions/page"
+                        hx-swap="innerHTML"
+                        hx-trigger="click"
+                        class="text-font-off-white hover:cursor-pointer hover:opacity-80 block pt-[2rem] hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white text-base "
+                      >
+                        My Investments
+                      </a>
+                    </li>
+                    <div class="w-[13.75rem] h-[0.0625rem] bg-primary-dark-grey self-center mt-[1.22rem]"></div>
+                    <li>
+                      <a
+                        hx-get="/institutions/page"
+                        hx-target="#app"
+                        hx-push-url="/institutions/page"
+                        hx-swap="innerHTML"
+                        hx-trigger="click"
+                        class="text-font-off-white hover:cursor-pointer hover:opacity-80 block pt-[1rem] hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white text-base "
+                      >
+                        Manage Cards
+                      </a>
+                    </li>
+                    <li>
+                      <a
+                        hx-get="/institutions/page"
+                        hx-target="#app"
+                        hx-push-url="/institutions/page"
+                        hx-swap="innerHTML"
+                        hx-trigger="click"
+                        class="text-font-off-white hover:cursor-pointer hover:opacity-80 block pt-[2rem] hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white text-base "
+                      >
+                        My Achievements
+                      </a>
+                    </li>
+                    <li>
+                      <a
+                        hx-get="/institutions/page"
+                        hx-target="#app"
+                        hx-push-url="/institutions/page"
+                        hx-swap="innerHTML"
+                        hx-trigger="click"
+                        class="text-font-off-white hover:cursor-pointer hover:opacity-80 block pt-[2rem] hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white text-base "
+                      >
+                        History
+                      </a>
+                    </li>
+                    <div class="w-[13.75rem] h-[0.0625rem] bg-primary-dark-grey self-center mt-[1.22rem]"></div>
+                    <li>
+                      <a
+                        hx-get="/institutions/page"
+                        hx-target="#app"
+                        hx-push-url="/institutions/page"
+                        hx-swap="innerHTML"
+                        hx-trigger="click"
+                        class="text-font-off-white hover:cursor-pointer hover:opacity-80 block pt-[1rem] hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white text-base "
+                      >
+                        Profile & Settings
+                      </a>
+                    </li>
+                    <li>
+                      <a
+                        hx-get="/auth/logout"
+                        hx-target="#app"
+                        hx-push-url="/auth/logout"
+                        hx-swap="innerHTML"
+                        hx-trigger="click"
+                        class="text-font-off-white hover:cursor-pointer hover:opacity-80 block pt-[2rem] hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white text-base mb-[2rem]"
+                      >
+                        Log Out
+                      </a>
+                    </li>
+                  </a>
+                </li>
+              </ul>
             </div>
           </div>
         )}
       </div>
       <a
-        class="parent flex flex-col items-center text-font-off-white dark:text-white group cursor-pointer group-hover:text-accent-red"
+        class="menu-a parent flex flex-col items-center text-font-off-white dark:text-white group cursor-pointer group-hover:text-accent-red"
         hx-get={`/menu?open=${!props.value}`}
         hx-target="#menuContainer"
         hx-trigger="click"

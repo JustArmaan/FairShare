@@ -50,7 +50,6 @@ export const TransactionsPage = (props: {
   const today = new Date();
   const currentMonth = String(today.getMonth() + 1).padStart(2, "0");
 
-  console.log(dateOptions);
   return (
     <div
       class="animate-fade-in"

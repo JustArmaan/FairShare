@@ -123,7 +123,6 @@ async function handleWebviewLink(addNew?: boolean) {
   const interval = setInterval(async () => {
     if (addNew) {
       const { count: newCount } = await isConnectedToPlaid();
-      console.log(count, newCount, "counts");
       if (newCount !== count) {
         htmx.ajax("GET", "/institutions/page", {
           target: "#app",
