@@ -15,6 +15,20 @@
       "when": 1720205213238,
       "tag": "0001_mature_midnight",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1720459303204,
+      "tag": "0002_huge_karnak",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1720459972906,
+      "tag": "0003_rich_joshua_kane",
+      "breakpoints": true
     }
   ]
 }
