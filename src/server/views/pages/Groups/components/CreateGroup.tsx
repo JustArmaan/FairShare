@@ -53,10 +53,15 @@ export const CreateGroup = ({
             hx-trigger="click"
             hx-swap="outerHTML"
             hx-target="#select-group-icon-container"
-            class="py-2 px-3  w-full h-fit flex justify-between bg-primary-black rounded-md mt-1"
+            class="py-2 px-3 w-full h-fit flex flex-col bg-primary-black rounded-md mt-1 max-h-[512px]"
           >
-            <p class="text-primary-grey font-normal">Select Group Icon</p>
-            <img src="/activeIcons/expand_more.svg" class="cursor-pointer" />
+            <div class="flex justify-between">
+              <p class="text-primary-grey font-normal">Select Group Icon</p>
+              <img
+                src="/activeIcons/expand_more.svg"
+                class="cursor-pointer w-[24px] aspect-square"
+              />
+            </div>
           </div>
 
           {/* <div class="flex justify-center mt-[1.38rem]">

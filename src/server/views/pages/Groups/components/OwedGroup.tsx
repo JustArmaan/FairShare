@@ -12,6 +12,7 @@ export const OwedGroup = (props: {
   >[];
   groupId: string;
   url?: string;
+  totalOwed: number;
 }) => {
   function maxCompanyNameLength(str: string, max: number) {
     return str.length > max ? str.substring(0, max - 3) + "..." : str;
@@ -45,23 +46,39 @@ export const OwedGroup = (props: {
     const year = date.getFullYear();
     return `${month} ${day}, ${year}`;
   }
+  const processedData =
+    props.transactions &&
+    props.transactions.length > 0 &&
+    owedForThisMember.length > 0 &&
+    owedForThisMember.map((owedList) => ({
+      ...owedList,
+      transaction: props.transactions?.find(
+        (transaction) => transaction.id === owedList.transactionId
+      )!,
+    }));
 
   return (
-    <div class="flex-col w-full justify-evenly rounded-lg py-1.5 px-4 mt-3 flex items-center">
-      {props.transactions &&
-        (props.transactions.length > 0 && owedForThisMember.length > 0 ? (
-          owedForThisMember
-            .map((owedList) => ({
-              ...owedList,
-              transaction: props.transactions?.find(
-                (transaction) => transaction.id === owedList.transactionId
-              )!,
-            }))
-            .map((result) => {
-              console.log(result.amount);
-              return result;
-            })
-            .map((result) => (
+    <>
+      {processedData && (
+        <div class="bg-[#232222] rounded-lg mt-4">
+          <p class="text-font-off-white text-xl font-medium pt-3 text-center">
+            {props.totalOwed > 0 ? "Owed" : "Owing"}
+          </p>
+          <p class="text-font-off-white font-medium text-sm text-center">
+            {props.totalOwed > 0 ? "You are owed " : "You owe "}
+            <span
+              class={`text-font-off-white font-medium text-sm text-center ${
+                props.totalOwed > 0
+                  ? "text-positive-number"
+                  : "text-negative-number"
+              }`}
+            >
+              ${Math.abs(props.totalOwed).toFixed(2)}
+            </span>{" "}
+            overall
+          </p>
+          <div class="flex-col w-full justify-evenly rounded-lg py-1.5 px-4 mt-3 flex items-center">
+            {processedData.map((result) => (
               <div class="w-full bg-primary-black relative mb-3 rounded-md py-[0.75rem] px-[0.69rem] shadow-[0px_2px_2px_0px_rgba(0,0,0,0.25)]">
                 <div class="flex justify-between w-full">
                   <p class="text-font-off-white self-start w-fit font-semibold text-lg">
@@ -114,11 +131,11 @@ export const OwedGroup = (props: {
                   </div>
                 </div>
               </div>
-            ))
-        ) : (
-          <p class="text-font-grey text-lg">No outstanding expenses.</p>
-        ))}
-    </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </>
   );
 };
 export default OwedGroup;

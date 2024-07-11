@@ -14,12 +14,17 @@ declare module "express-serve-static-core" {
 }
 
 export const configureApp = async (app: Express) => {
+  app.use("*", () => {
+    console.log("sfufer");
+  });
   app.use(express.json());
   app.use(express.urlencoded({ extended: false }));
   app.use(express.static("~/public"));
   app.use(cookieParser());
 
+  console.log("configure app");
   app.use("/", getUser, (req, res, next) => {
+    console.log("route hit");
     next();
   });
 

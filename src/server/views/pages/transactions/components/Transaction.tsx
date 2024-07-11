@@ -31,14 +31,20 @@ export const Transaction = ({
   url?: string;
 }) => {
   if (!transaction) throw new Error("404");
+  const hxAttr =
+    route === "AddTransaction"
+      ? {
+          "hx-post": `/transactions/addButton?checked=${checked}&transactionId=${transaction.id}&groupId=${groupId}`,
+        }
+      : {
+          "hx-get": `/transactions/details/${transaction.id}/?url=${url}`,
+          "hx-push-url": `/transactions/details/${transaction.id}/?url=${url}`,
+        };
+
   return (
     <button
       id={`transactionContainer-${transaction.id}`}
-      hx-get={`${
-        route === "AddTransaction"
-          ? `/transactions/addButton?checked=${checked}&transactionId=${transaction.id}&groupId=${groupId}`
-          : `/transactions/details/${transaction.id}/?url=${url}`
-      }`}
+      {...hxAttr}
       hx-trigger="click"
       hx-target={`${
         route === "AddTransaction"
@@ -46,11 +52,6 @@ export const Transaction = ({
           : "#app"
       }`}
       hx-swap={route === "AddTransaction" ? "outerHTML" : "innerHTML"}
-      hx-push-url={`${
-        route === "AddTransaction"
-          ? `/transactions/addButton?checked=${checked}&transactionId=${transaction.id}&groupId=${groupId}`
-          : `/transactions/details/${transaction.id}/?url=${url}`
-      }`}
       data-id={transaction.id}
       data-company={transaction.company}
       class={`transaction rounded-xl w-full h-fit`}

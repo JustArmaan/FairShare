@@ -1,6 +1,13 @@
 # Based on https://raw.githubusercontent.com/github/gitignore/main/Node.gitignore
 #
 
+# direnv
+
+.envrc
+
+.direnv/
+direnv
+
 # drizzle
 
 drizzle/
