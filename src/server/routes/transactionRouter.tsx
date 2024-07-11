@@ -50,6 +50,9 @@ import {
 import { CreateTransaction } from "../views/pages/Groups/components/ManualAdd";
 import { findUser } from "../services/user.service";
 import { v4 as uuid } from "uuid";
+import { ViewBillSplitPage } from "../views/pages/Groups/ViewBillSplitPage";
+import { group } from "console";
+
 const router = express.Router();
 
 router.get("/accountPicker/:itemId/:accountId", getUser, async (req, res) => {
@@ -427,4 +430,91 @@ router.post("/createTransaction/:groupId", async (req, res) => {
       .send("An error occurred while creating a transaction.");
   }
 });
+
+router.get("/viewBillSplit/:transactionId/:groupId", async (req, res) => {
+  const groupWithMembers = await getGroupWithMembers(req.params.groupId);
+  const currentUser = await findUser(req.user!.id);
+
+  if (!currentUser) throw new Error("404");
+
+  const transactionDetails = {
+    companyName: "Guu Thurlow",
+    address: "838 Thurlow St, Vancouver",
+    date: "March 28, 2024 16:04",
+    transactionId: "ID123456321",
+  };
+
+  const itemizedTransaction = [
+    {
+      item: "Ebi Mayo",
+      quantity: 1,
+      price: 16.0,
+      owingMembers: [
+        groupWithMembers?.members[0],
+        groupWithMembers?.members[1],
+      ],
+    },
+    {
+      item: "Asahi Pitcher",
+      quantity: 1,
+      price: 22.0,
+      owingMembers: [groupWithMembers?.members[0]],
+    },
+    {
+      item: "Katsu Curry",
+      quantity: 1,
+      price: 20.0,
+      owingMembers: [groupWithMembers?.members[1]],
+    },
+    {
+      item: "Beef Yakisoba",
+      quantity: 1,
+      price: 21.0,
+      owingMembers: [
+        groupWithMembers?.members[0],
+        groupWithMembers?.members[1],
+      ],
+    },
+    {
+      item: "AAA BBQ Beef",
+      quantity: 1,
+      price: 26.5,
+      owingMembers: [groupWithMembers?.members[0]],
+    },
+    {
+      item: "Oolong Tea",
+      quantity: 1,
+      price: 2.5,
+      owingMembers: [groupWithMembers?.members[1]],
+    },
+  ];
+
+  if (!groupWithMembers || !groupWithMembers.members) throw new Error("404");
+
+  const owedPerMember = groupWithMembers.members.map((member) => {
+    return {
+      member,
+      totalOwed: itemizedTransaction.reduce((sum, item) => {
+        if (
+          item.owingMembers.some((owingMember) => owingMember?.id === member.id)
+        ) {
+          return sum + item.price / item.owingMembers.length;
+        }
+        return sum;
+      }, 0),
+    };
+  });
+
+  const html = renderToHtml(
+    <ViewBillSplitPage
+      currentUser={currentUser}
+      groupWithMembers={groupWithMembers}
+      transactionDetails={transactionDetails}
+      receiptItems={itemizedTransaction}
+      owedPerMember={owedPerMember} // Pass the new array to the component
+    />
+  );
+  res.send(html);
+});
+
 export const transactionRouter = router;

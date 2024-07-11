@@ -208,6 +208,7 @@ export const ViewGroups = ({
           <Transaction
             transaction={transaction}
             tailwindColorClass={transaction.category.color}
+            groupId={groupId}
             url={`/groups/view/${groupId}`}
           />
         ))}{" "}

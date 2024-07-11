@@ -1,4 +1,3 @@
-import { group } from "console";
 import type { UserSchema } from "../../../interface/types";
 import { type GroupWithMembers } from "../../../services/group.service";
 import GroupMembers from "./components/GroupMembers";

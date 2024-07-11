@@ -739,8 +739,9 @@ router.post("/deleteMember/:userID/:groupID", async (req, res) => {
 
 router.get("/transactions/:groupId", async (req, res) => {
   const groupId = req.params.groupId;
-  const groupWithTransactions =
-    await getGroupWithMembersAndTransactions(groupId);
+  const groupWithTransactions = await getGroupWithMembersAndTransactions(
+    groupId
+  );
   const html = renderToHtml(
     <GroupTransactionsListPage
       group={groupWithTransactions as GroupMembersTransactions}
@@ -799,6 +800,8 @@ router.get("/getTransactions/:groupId", async (req, res) => {
           <Transaction
             transaction={transaction}
             tailwindColorClass={transaction.category.color}
+            groupId={req.params.groupId}
+            route="ViewBillSplit"
             url={url}
           />
         ))}
@@ -858,11 +861,11 @@ router.get("/selectIcon", async (req, res) => {
   const html = renderToHtml(
     <div
       id="select-group-icon-container"
-      class="w-full h-fit bg-primary-black rounded-md mt-1 flex flex-col items-center animate-fade-in min-h-[50px]"
+      class="w-full bg-primary-black rounded-md mt-1 flex flex-col items-center animate-fade-in"
     >
       <div
         id="select-group-icon-header"
-        class="py-2 px-3 w-full h-fit flex justify-between"
+        class="py-2 px-3 w-full flex justify-between items-center"
       >
         <p class="text-primary-grey font-normal">Select Group Icon</p>
         <img
@@ -871,7 +874,7 @@ router.get("/selectIcon", async (req, res) => {
           hx-swap="outerHTML"
           hx-target="#select-group-icon-container"
           src="/activeIcons/expand_more.svg"
-          class="rotate-180 cursor-pointer"
+          class="rotate-180 cursor-pointer w-[24px] h-[24px]"
         />
       </div>
       <hr class="border-t border-primary-dark-grey w-11/12 mx-auto px-2" />
@@ -885,6 +888,7 @@ router.get("/selectIcon", async (req, res) => {
   );
   res.send(html);
 });
+
 router.get("/selectIconEmpty", async (req, res) => {
   const html = renderToHtml(
     <div
@@ -896,7 +900,10 @@ router.get("/selectIconEmpty", async (req, res) => {
       class="py-2 px-3  w-full h-fit flex justify-between bg-primary-black rounded-md mt-1 animate-fade-in min-height-[50px]"
     >
       <p class="text-primary-grey font-normal">Select Group Icon</p>
-      <img src="/activeIcons/expand_more.svg" class="cursor-pointer" />
+      <img
+        src="/activeIcons/expand_more.svg"
+        class="cursor-pointer h-[24px] w-[24px]"
+      />
     </div>
   );
   res.send(html);

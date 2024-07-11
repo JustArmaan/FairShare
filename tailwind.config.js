@@ -71,6 +71,7 @@ export default {
       "primary-faded-black": "#4E4E4E",
       "primary-dark-grey": "#686868",
       "card-red": "#e60000",
+      "second-black-background": "#232222",
     },
     fontFamily: {
       sans: ["Work Sans", "sans-serif"],

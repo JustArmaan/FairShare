@@ -11,10 +11,10 @@ export const SelectIcon = (props: {
   const { icons, colors, selectedIcon, selectedColor } = props;
 
   return (
-    <div class="w-full bg-primary-black rounded-md p-4 animate-fade-in min-h-[200px]">
+    <div class="w-full bg-primary-black rounded-md p-4 animate-fade-in">
       <div class="grid grid-cols-[repeat(auto-fit,_minmax(4rem,_1fr))] mb-4 px-2">
         {icons.map((icon) => (
-          <div class="w-full h-full flex justify-center items-center mt-2">
+          <div class="w-full flex justify-center items-center mt-2">
             <div
               data-category-id={icon.icon}
               class={`flex justify-center items-center w-14 h-14 bg-primary-faded-black rounded-lg cursor-pointer ${

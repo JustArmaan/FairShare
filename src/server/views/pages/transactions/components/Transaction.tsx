@@ -1,3 +1,4 @@
+import { on } from "events";
 import { type TransactionSchema } from "../../../../interface/types";
 
 export function formatDate(timestamp: string) {
@@ -31,14 +32,18 @@ export const Transaction = ({
   url?: string;
 }) => {
   if (!transaction) throw new Error("404");
+  let onClickRoute;
+  if (route === "AddTransaction") {
+    onClickRoute = `/transactions/addButton?checked=${checked}&transactionId=${transaction.id}&groupId=${groupId}`;
+  } else if (route === "ViewBillSplit") {
+    onClickRoute = `/transactions/viewBillSplit/${transaction.id}/${groupId}`;
+  } else {
+    onClickRoute = `/transactions/details/${transaction.id}/?url=${url}`;
+  }
   return (
     <button
       id={`transactionContainer-${transaction.id}`}
-      hx-get={`${
-        route === "AddTransaction"
-          ? `/transactions/addButton?checked=${checked}&transactionId=${transaction.id}&groupId=${groupId}`
-          : `/transactions/details/${transaction.id}/?url=${url}`
-      }`}
+      hx-get={`${onClickRoute}`}
       hx-trigger="click"
       hx-target={`${
         route === "AddTransaction"
@@ -46,11 +51,6 @@ export const Transaction = ({
           : "#app"
       }`}
       hx-swap={route === "AddTransaction" ? "outerHTML" : "innerHTML"}
-      hx-push-url={`${
-        route === "AddTransaction"
-          ? `/transactions/addButton?checked=${checked}&transactionId=${transaction.id}&groupId=${groupId}`
-          : `/transactions/details/${transaction.id}/?url=${url}`
-      }`}
       data-id={transaction.id}
       data-company={transaction.company}
       class={`transaction rounded-xl w-full h-fit`}
