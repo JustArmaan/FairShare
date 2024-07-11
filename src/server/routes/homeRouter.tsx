@@ -106,16 +106,23 @@ router.get("/accountOverview/:accountId", async (req, res) => {
   );
 
   if (!accountWithTransactions) {
-    return;
+    return res.status(404).send("Account not found");
   }
 
   if (accountWithTransactions.transactions.length === 0) {
-    // this is a temp fix for this case!
     accountWithTransactions = await getAccountWithCurrentMonthTransactions(
       req.params.accountId,
       true
     );
     lastMonth = true;
+  }
+
+  if (accountWithTransactions?.transactions.length ?? 0 > 0) {
+    accountWithTransactions?.transactions.sort((a, b) => {
+      const dateA = a.timestamp ? new Date(a.timestamp) : new Date(0);
+      const dateB = b.timestamp ? new Date(b.timestamp) : new Date(0);
+      return dateA.getTime() - dateB.getTime();
+    });
   }
 
   const html = renderToHtml(

@@ -10,7 +10,7 @@ export const ItemPickerForm = (props: {
   return (
     <div class="picker-container">
       <div class="h-screen w-screen fixed top-0 left-0 bg-card-black opacity-80"></div>
-      <div class="fixed bottom-0 left-0 right-0 z-20 p-5 rounded-t-2xl shadow-lg bg-card-black">
+      <div class="z-[9999999] fixed bottom-0 left-0 right-0 p-5 rounded-t-2xl shadow-lg bg-card-black">
         <form class="flex flex-col mb-0 mt-3 justify-center text-font-off-white  border-b-primary-dark-grey">
           <div class="bg-primary-black rounded-xl">
             {props.items.map((item, index) => (
