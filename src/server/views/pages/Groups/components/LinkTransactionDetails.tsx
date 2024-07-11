@@ -4,8 +4,8 @@ const LinkTransactionDetails = (props: {
   totalOwed?: number;
 }) => {
   return (
-    <div class="w-full bg-primary-black p-4 rounded-lg mb-[2rem]">
-      <p class="text-font-off-white mb-2">
+    <div class="w-full bg-primary-black p-3 rounded-lg mb-[2rem]">
+      <p class="text-font-off-white mb-1">
         Paid by: You{" "}
         <span class="text-font-off-white">(${props.amount.toFixed(2)})</span>
       </p>
