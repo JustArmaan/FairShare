@@ -37,6 +37,7 @@ import { AddTransaction } from "../views/pages/Groups/components/AddTransaction.
 import {
   getAccountWithTransactions,
   getAccountsForUser,
+  getCashAccountWithTransaction,
   getItem,
   getItemsForUser,
 } from "../services/plaid.service";
@@ -50,7 +51,9 @@ import {
 import { TransactionList } from "../views/pages/transactions/components/TransactionList.tsx";
 import { AccountPickerForm } from "../views/pages/transactions/components/AccountPickerForm.tsx";
 import Transaction from "../views/pages/transactions/components/Transaction.tsx";
-import { getTransaction } from "../services/transaction.service.ts";
+import {
+  getTransaction,
+} from "../services/transaction.service.ts";
 import { ViewAndPayPage } from "../views/pages/Groups/ViewAndPayPage.tsx";
 import { InstitutionDropDown } from "../views/pages/Groups/components/InstitutionDropDown.tsx";
 import {
@@ -70,6 +73,7 @@ import { getOrCreateInviteLink } from "../utils/getOrCreateInviteLink.ts";
 import { checkUserExistsInGroup } from "../utils/userExistsInGroup.ts";
 import GroupMembers from "../views/pages/Groups/components/GroupMembers.tsx";
 import { deleteGroupInviteNotificationByNotificationId } from "../services/notification.service.ts";
+import { getOrCreateCashAccountForUser } from "../utils/getOrCreateCashAccount.ts";
 
 const router = express.Router();
 
@@ -222,8 +226,17 @@ router.get("/view/:groupId", async (req, res) => {
     const items = await getItemsForUser(req.user!.id);
     const defaultItem = items[0] && items[0].item;
 
-    const account = await getAccountsForUser(userId, defaultItem.id);
-    const accountId = account ? account[0].id : "";
+    console.log("defaultItem", defaultItem);
+
+    let accountId = "";
+
+    if (defaultItem) {
+      const account = await getAccountsForUser(userId, defaultItem.id);
+      accountId = account ? account[0].id : "";
+    } else {
+      const cashAccount = await getOrCreateCashAccountForUser(userId);
+      accountId = cashAccount ? cashAccount.id : "";
+    }
 
     const html = renderToHtml(
       <ViewGroups
@@ -245,15 +258,16 @@ router.get("/view/:groupId", async (req, res) => {
                 })),
               ]
         }
-        accountId={accountId} // refactor me!
+        accountId={accountId}
         selectedDepositAccountId={null}
-        itemId={defaultItem.id}
+        itemId={defaultItem ? defaultItem.id : undefined}
         url={`/groups/view/${group.id}`}
       />
     );
     res.send(html);
   } catch (error) {
     console.error(error);
+    res.status(500).send("An error occurred while processing the request.");
   }
 });
 
@@ -618,6 +632,51 @@ router.get("/addTransaction/:accountId/:groupId/:itemId", async (req, res) => {
   }
 });
 
+router.get("/addTransaction/:accountId/:groupId", async (req, res) => {
+  try {
+    const { accountId, groupId } = req.params;
+
+    // Get or create cash account for user
+    const cashAccount = await getOrCreateCashAccountForUser(req.user!.id);
+    console.log("cashAccount", cashAccount);
+    if (!cashAccount) {
+      return res.status(500).send("No cash account found");
+    }
+
+    const accountsWithTransactions = [
+      await getCashAccountWithTransaction(cashAccount.account_id),
+    ];
+    console.log("accountsWithTransactions", accountsWithTransactions);
+
+    let selectedAccountId = accountId;
+    if (selectedAccountId === "default") {
+      selectedAccountId = cashAccount.id;
+    }
+
+    const groupTransactions = await getGroupTransactions(groupId);
+    const currentUser = req.user;
+
+    const html = renderToHtml(
+      <AddTransaction
+        currentUser={currentUser!}
+        groupId={groupId}
+        // @ts-ignore
+        accounts={accountsWithTransactions ? accountsWithTransactions : []}
+        selectedAccountId={selectedAccountId}
+        groupTransactionIds={
+          groupTransactions?.map((transaction) => transaction.transactionId) ??
+          []
+        }
+        itemId={null}
+      />
+    );
+    res.send(html);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("An error occurred while processing the request.");
+  }
+});
+
 router.post("/edit/:groupId", async (req, res) => {
   try {
     const { groupName, selectedColor, temporaryGroup, selectedIcon } = req.body;
@@ -752,30 +811,38 @@ router.get("/transactions/:groupId", async (req, res) => {
   res.send(html);
 });
 
-router.get(
-  "/transactionList/:accountId/:groupId",
+router.get("/transactionList/:accountId/:groupId", async (req, res) => {
+  let account = await getAccountWithTransactions(req.params.accountId);
 
-  async (req, res) => {
-    const account = await getAccountWithTransactions(req.params.accountId);
-    const groupTransactions = await getGroupTransactions(req.params.groupId);
-    if (!account) throw new Error("404");
-    const groupTransactionIds = groupTransactions
-      ? groupTransactions.map(
-          (transaction) => transaction.transactionId as string
-        )
-      : [];
-    const html = renderToHtml(
-      <TransactionList
-        account={account}
-        route="AddTransaction"
-        groupId={req.params.groupId}
-        groupTransactionIds={groupTransactionIds}
-      />
-    );
-    res.send(html);
+  if (!account) {
+    const cashAccount = await getOrCreateCashAccountForUser(req.user!.id);
+    if (!cashAccount) {
+      return res.status(500).send("Failed to create or retrieve cash account");
+    }
+    // @ts-ignore
+    account = await getCashAccountWithTransaction(cashAccount.account_id);
+    if (!account) {
+      return res.status(500).send("Failed to retrieve cash account details");
+    }
   }
-);
 
+  const groupTransactions = await getGroupTransactions(req.params.groupId);
+  const groupTransactionIds = groupTransactions
+    ? groupTransactions.map(
+        (transaction) => transaction.transactionId as string
+      )
+    : [];
+
+  const html = renderToHtml(
+    <TransactionList
+      account={account}
+      route="AddTransaction"
+      groupId={req.params.groupId}
+      groupTransactionIds={groupTransactionIds}
+    />
+  );
+  res.send(html);
+});
 router.get("/accountPicker/:itemId/:accountId/:groupId", async (req, res) => {
   const accounts = await getAccountsForUser(req.user!.id, req.params.itemId);
   if (!accounts) throw new Error("Missing accounts for user");

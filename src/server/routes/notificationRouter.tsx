@@ -5,7 +5,10 @@ import { NotificationList } from "../views/pages/Notifications/NotificationList.
 import { NotificationIcon } from "../views/components/NavigationIcon.tsx";
 import { findUser } from "../services/user.service.ts";
 import NotificationPicker from "../views/pages/Notifications/components/NotificationPicker.tsx";
-import { getMostRecentNotifications } from "../utils/getNotifications.ts";
+import {
+  getMostRecentNotifications,
+  getSortedNotifications,
+} from "../utils/getNotifications.ts";
 import {
   deleteAllNotifications,
   getGroupInviteNotificaitonById,
@@ -37,11 +40,15 @@ router.get("/page", async (req, res) => {
 
 router.get("/notificationList/:userId", async (req, res) => {
   try {
-    const notifications = await getMostRecentNotifications(req.user!.id);
-    const inviteNotifications = await getGroupInviteNotificaitonById(
-      req.user!.id
-    );
-    const sort = req.query.sort as string;
+    const sort = (req.query.sort as string) || "Most Recent";
+    const userId = req.user!.id;
+    if (!userId) {
+      return res.status(404).send("No userId");
+    }
+
+    const notifications = await getSortedNotifications(userId, sort);
+
+    const inviteNotifications = await getGroupInviteNotificaitonById(userId);
 
     if (!notifications || !inviteNotifications) {
       return res.status(404).send("Problem with notification");
@@ -51,15 +58,16 @@ router.get("/notificationList/:userId", async (req, res) => {
       <NotificationList
         inviteNotifications={inviteNotifications}
         notifications={notifications}
-        selectedSort={sort ?? "Most Recent"}
+        selectedSort={sort}
       />
     );
 
-    await markAllNotificationsAsRead(req.user!.id);
+    await markAllNotificationsAsRead(userId);
 
     res.send(html);
   } catch (err) {
     console.error(err);
+    res.status(500).send("Error fetching notifications");
   }
 });
 

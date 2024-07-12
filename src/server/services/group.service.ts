@@ -18,6 +18,7 @@ import { groupTransactionToUsersToGroups } from "../database/schema/groupTransac
 import { filterUniqueTransactions } from "../utils/filter";
 import { plaidAccount } from "../database/schema/plaidAccount";
 import { splitEqualTransactions } from "../utils/equalSplit";
+import { cashAccount } from "../database/schema/cashAccount";
 
 const db = getDB();
 
@@ -335,9 +336,10 @@ export async function getTransactionsForGroup(groupId: string) {
       )
       .innerJoin(splitType, eq(splitType.id, groupTransactionState.splitTypeId))
       .innerJoin(accounts, eq(accounts.id, transactions.accountId))
-      .innerJoin(plaidAccount, eq(plaidAccount.accountsId, accounts.id))
-      .innerJoin(items, eq(items.id, plaidAccount.itemId))
-      .innerJoin(users, eq(items.userId, users.id))
+      .leftJoin(plaidAccount, eq(plaidAccount.accountsId, accounts.id))
+      .leftJoin(cashAccount, eq(cashAccount.account_id, accounts.id))
+      .leftJoin(items, eq(items.id, plaidAccount.itemId))
+      .leftJoin(users, eq(items.userId, users.id))
       .where(eq(transactionsToGroups.groupsId, groupId));
 
     return results.map((transaction) => ({

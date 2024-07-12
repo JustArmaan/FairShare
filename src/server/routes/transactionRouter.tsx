@@ -352,12 +352,7 @@ router.post("/createTransaction/:groupId", async (req, res) => {
       return res.status(500).send("Failed to get user");
     }
 
-    const {
-      transactionName,
-      transactionAmount,
-      selectedCategoryId,
-      selectedColor,
-    } = req.body;
+    const { transactionName, transactionAmount, selectedCategoryId } = req.body;
 
     if (
       !transactionName ||
@@ -373,13 +368,8 @@ router.post("/createTransaction/:groupId", async (req, res) => {
     if (!selectedCategoryId) {
       return res.status(400).send("Category not found.");
     }
-    const items = await getItemsForUser(req.user!.id);
-    const defaultItem = items[0] && items[0].item;
 
     const groupId = req.params.groupId;
-    const account = await getAccountsForUser(id, defaultItem.id);
-
-    const accountId = account ? account[0].id : "";
 
     const getCashAccount = await getCashAccountForUser(id);
 
@@ -413,7 +403,7 @@ router.post("/createTransaction/:groupId", async (req, res) => {
 
     const html = renderToHtml(
       <div
-        hx-get={`/groups/addTransaction/${accountId}/${groupId}`}
+        hx-get={`/groups/addTransaction/${cashAccount.account_id}/${groupId}`}
         hx-swap="innerHTML"
         hx-trigger="load"
         hx-target="#app"
@@ -427,4 +417,5 @@ router.post("/createTransaction/:groupId", async (req, res) => {
       .send("An error occurred while creating a transaction.");
   }
 });
+
 export const transactionRouter = router;

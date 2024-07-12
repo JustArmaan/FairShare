@@ -14,6 +14,7 @@ import { getAccount } from "./account.service.ts";
 import { plaidAccount } from "../database/schema/plaidAccount.ts";
 import { cashAccount } from "../database/schema/cashAccount.ts";
 import { getNextMonthYear } from "./transaction.service.ts";
+import { get } from "http";
 
 const db = getDB();
 
@@ -296,19 +297,29 @@ export async function getCashAccountWithTransaction(accountId: string) {
         categories: categories,
       })
       .from(accounts)
-      .innerJoin(transactions, eq(accounts.id, transactions.accountId))
-      .innerJoin(categories, eq(transactions.categoryId, categories.id))
+      .leftJoin(transactions, eq(accounts.id, transactions.accountId))
+      .leftJoin(categories, eq(transactions.categoryId, categories.id))
       .innerJoin(cashAccount, eq(accounts.id, cashAccount.account_id))
       .where(eq(accounts.id, accountId));
+
+    if (!result || result.length === 0) {
+      console.error("No account found for the given accountId");
+      return null;
+    }
+
+    const accountData = result[0].account;
+
+    const transactionsResult = result.map((row) => ({
+      ...row.transaction,
+      category: row.categories ? { ...row.categories } : null,
+    }));
+
     return {
-      ...result[0].account,
-      transactions: result.map((result) => ({
-        ...result.transaction,
-        category: { ...result.categories },
-      })),
+      ...accountData,
+      transactions: transactionsResult.filter((tx) => tx.id),
     };
   } catch (e) {
-    console.log(e, "at getCashAccountWithTransaction");
+    console.error(e, "at getCashAccountWithTransaction");
     return null;
   }
 }

@@ -2,6 +2,7 @@ import {
   getGenericNotificationById,
   getGroupNotificationById,
   getGroupInviteNotificaitonById,
+  getUnreadNotifications,
 } from "../services/notification.service";
 
 export async function getMostRecentNotifications(userId: string) {
@@ -54,4 +55,19 @@ export async function getAllNotifications(userId: string) {
     ...groupNotification,
     ...groupInviteNotification,
   ];
+}
+
+export async function getSortedNotifications(userId: string, sortType: string) {
+  switch (sortType) {
+    case "Most Recent":
+      return getMostRecentNotifications(userId);
+    case "Oldest to Newest":
+      return getOldestToNewestNotifications(userId);
+    case "Groups":
+      return getGroupNotificationById(userId);
+    case "Account":
+      return getGenericNotificationById(userId);
+    default:
+      throw new Error("Invalid sort type");
+  }
 }

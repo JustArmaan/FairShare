@@ -51,7 +51,11 @@ export const AddMembersPage = (props: {
         <span class="text-font-off-white">Invite Share Link</span>
         <div class="bg-primary-black w-full rounded-md text-font-off-white flex justify-between px-4 py-2 mt-1">
           <span id="invite-link">{props.inviteShareLink}</span>
-          <img id="clipboard-icon" src="/activeIcons/content_copy.svg" />
+          <img
+            id="clipboard-icon"
+            src="/activeIcons/content_copy.svg"
+            class="cursor-pointer"
+          />
         </div>
         <span class="text-font-off-white mt-4">Email or Phone Number</span>
         <div class="flex w-full">
