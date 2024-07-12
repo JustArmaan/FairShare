@@ -1,8 +1,8 @@
-import { updateOwedForGroupTransaction } from '../services/group.service';
-import type { Transaction } from '../services/transaction.service';
-import { createNotificationWithWebsocket } from './createNotification';
-import { type UserGroupSchema } from '../routes/groupRouter';
-import { type GroupWithEqualSplitTypeTransactionsAndMembers } from '../services/group.service';
+import { updateOwedForGroupTransaction } from "../services/group.service";
+import type { Transaction } from "../services/transaction.service";
+import { createNotificationWithWebsocket } from "./createNotification";
+import { type UserGroupSchema } from "../routes/groups/groupRouter";
+import { type GroupWithEqualSplitTypeTransactionsAndMembers } from "../services/group.service";
 
 export async function splitEqualTransactions(
   equalSplitGroupTransactions: GroupWithEqualSplitTypeTransactionsAndMembers,
@@ -22,11 +22,10 @@ export async function splitEqualTransactions(
         );
         await createNotificationWithWebsocket(
           groupId,
-          `You owe ${
-            transaction.transactionOwner.firstName
+          `You owe ${transaction.transactionOwner.firstName
           } $${equalSplitAmount.toFixed(2)}`,
           member.id,
-          'groupInvite'
+          "groupInvite"
         );
       } else if (member.id === transaction.transactionOwner.id) {
         await updateOwedForGroupTransaction(

@@ -74,61 +74,69 @@ export const Members = (props: {
   );
   return (
     <div class="flex-col bg-primary-black w-full rounded-sm py-[0.88rem]">
-      {[...totalOwed, ...totalOwed, ...totalOwed, ...totalOwed].map(
-        (member, index) => {
-          member.amount = 5.24;
-          return (
+      {totalOwed.map((member, index) => {
+        if (member.id !== props.currentUser.id) {
+          member.amount = member.amount * -1;
+        }
+        return (
+          <div
+            class={`flex flex-row justify-between w-full pl-[0.94rem] py-[0.5rem] ${1 !== totalOwed.length && index !== totalOwed.length - 1 ? "mb-[1rem]" : ""}`}
+          >
             <div
-              class={`flex flex-row justify-between w-full pl-[0.94rem] py-[0.5rem] ${1 !== totalOwed.length ? "mb-[1rem]" : ""}`}
+              class={`flex flex-row rounded-full bg-${member.color} h-[2rem] w-[2rem] mr-[0.87rem] justify-center items-center`}
             >
-              <div
-                class={`flex flex-row rounded-full bg-${member.color} h-[2rem] w-[2rem] mr-[0.87rem] justify-center items-center`}
-              >
-                <span class="flex justify-center self-center text-center text-sm font-semibold">
-                  {member.firstName?.split("", 1) ?? ""}
-                  {member.lastName?.split("", 1) ?? ""}
-                </span>
-              </div>
-              <div class="flex flex-col self-center">
-                <div class="flex flex-row items-center h-[1rem]">
-                  <p class="text-font-off-white text-[0.875rem] font-medium">
-                    {member.firstName}
-                  </p>
-                  {member.id === props.currentUser.id && (
-                    <div class="flex flex-row h-[0.8125rem] w-[2.125rem] bg-accent-purple rounded-[0.250rem] self-center justify-center items-center ml-[0.31rem]">
-                      <p class="font-normal text-font-off-white text-[0.625rem] text-center">
-                        You
-                      </p>
-                    </div>
-                  )}
-                </div>
-                <p class="text-font-grey flex w-fit text-[0.625rem] font-normal h-[0.75rem]">
-                  {
-                    //@ts-ignore
-                    member.type === "Owner" ? "Owner" : "Member"
-                  }
+              <span class="flex justify-center self-center text-center text-sm font-semibold">
+                {member.firstName?.split("", 1) ?? ""}
+                {member.lastName?.split("", 1) ?? ""}
+              </span>
+            </div>
+            <div class="flex flex-col self-center">
+              <div class="flex flex-row items-center h-[1rem]">
+                <p class="text-font-off-white text-[0.875rem] font-medium">
+                  {member.firstName}
                 </p>
-              </div>
-              <p class="flex flex-auto w-fit text-sm self-center justify-end h-[1rem]">
-                {member.amount !== 0 && (
-                  <p class="flex text-font-off-white w-fit text-sm font-medium self-center justify-end h-fit">
-                    {member.amount > 0 ? "You're Owed:" : "You Owe:"}
-                    <span
-                      class={`flex text-sm font-medium justify-end min-[360px]:mr-[2.81rem] mr-[0.94rem] ml-[0.25rem] ${
-                        member.amount > 0
-                          ? "text-positive-number"
-                          : "text-negative-number"
-                      }`}
-                    >
-                      ${Math.abs(member.amount).toFixed(2)}
-                    </span>
-                  </p>
+                {member.id === props.currentUser.id && (
+                  <div class="flex flex-row h-[0.8125rem] w-[2.125rem] bg-accent-purple rounded-[0.250rem] self-center justify-center items-center ml-[0.31rem]">
+                    <p class="font-normal text-font-off-white text-[0.625rem] text-center">
+                      You
+                    </p>
+                  </div>
                 )}
+              </div>
+              <p class="text-font-grey flex w-fit text-[0.625rem] font-normal h-[0.75rem]">
+                {
+                  //@ts-ignore
+                  member.type === "Owner" ? "Owner" : "Member"
+                }
               </p>
             </div>
-          );
-        }
-      )}
+            <p class="flex flex-auto w-fit text-sm self-center justify-end h-[1rem]">
+              {
+                <p
+                  class={`flex w-fit text-sm font-medium self-center justify-end h-fit ${member.amount === 0 ? "text-font-grey" : "text-font-off-white"}`}
+                >
+                  {member.id !== props.currentUser.id &&
+                    (member.amount === 0
+                      ? "Settled"
+                      : member.amount > 0
+                        ? "You're Owed:"
+                        : "You Owe:")}
+                  <span
+                    class={`flex text-sm font-medium justify-end min-[360px]:mr-[2.81rem] mr-[0.94rem] ml-[0.25rem] ${
+                      member.amount > 0
+                        ? "text-positive-number"
+                        : "text-negative-number"
+                    }`}
+                  >
+                    {member.id !== props.currentUser.id &&
+                      "$" + Math.abs(member.amount).toFixed(2)}
+                  </span>
+                </p>
+              }
+            </p>
+          </div>
+        );
+      })}
     </div>
   );
 };

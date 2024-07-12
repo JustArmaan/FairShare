@@ -98,7 +98,7 @@ router.post("/sync", async (req, res) => {
   ) {
     if (!item_id) return res.status(400).send();
     const { id } = (await getUserByItemId(item_id))!;
-    await syncTransactionsForUser(id);
+    await syncTransactionsForUser(id, "/sync");
 
     console.log("synced up");
   }
@@ -228,8 +228,7 @@ router.post("/vopay-transactions-webhook", async (req, res) => {
       const sender = await findUser(groupTransfer.senderUserId);
       await createNotificationWithWebsocket(
         group!.id,
-        `${sender!.firstName} has sent you $${
-          payload.TransactionAmount
+        `${sender!.firstName} has sent you $${payload.TransactionAmount
         }, please check your email for details.`,
         groupTransfer.receiverUserId,
         "groupInvite"
@@ -253,8 +252,7 @@ router.post("/vopay-transactions-webhook", async (req, res) => {
       const receiver = await findUser(groupTransfer.receiverUserId);
       await createNotificationWithWebsocket(
         group!.id,
-        `Your transfer to ${receiver!.firstName} of $${
-          payload.TransactionAmount
+        `Your transfer to ${receiver!.firstName} of $${payload.TransactionAmount
         } has been completed!`,
         groupTransfer.senderUserId,
         "groupInvite"

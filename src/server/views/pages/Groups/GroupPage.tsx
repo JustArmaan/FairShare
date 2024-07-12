@@ -79,13 +79,13 @@ export const GroupPage = (props: {
       </div>
       <div class="flex justify-center mt-[0.81rem]">
         <button
-          class={`rounded-lg p-4 bg-accent-blue text-font-off-white hover:-translate-y-0.5 transition-all`}
+          class={`rounded-lg p-[0.9rem] px-[1rem] bg-accent-blue text-font-off-white hover:-translate-y-0.5 transition-all`}
           hx-get="/groups/create"
           hx-swap="innerHTML"
           hx-target="#app"
           hx-push-url="/groups/create"
         >
-          <span class="text-lg font-semibold">Create New Group</span>
+          <span class="text-lg font-semibold h-[1rem]">Create New Group</span>
         </button>
       </div>
       <div class="h-20" />

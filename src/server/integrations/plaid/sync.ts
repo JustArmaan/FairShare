@@ -17,19 +17,75 @@ import {
 } from "../../services/plaid.service";
 import { plaidRequest } from "./link";
 import { io } from "../../main";
+import fs from "fs/promises";
+
+type StoreEntry = { timestamp: string; syncStore?: Set<string> };
+type ItemEntry = {
+  origin?: string;
+  items: {
+    id: string;
+    timestamp: string;
+    responses: { reqCursor: string | undefined; response: any }[];
+  }[];
+};
+
+type SyncEntry = StoreEntry | ItemEntry;
+
+type SyncLog = {
+  userId: string;
+  syncs: SyncEntry[];
+}[];
+
+await fs.writeFile("./sync.json", JSON.stringify([]), "utf8");
+
+async function writeToLog(userId: string, entry: SyncEntry) {
+  try {
+    const contents = await fs.readFile("./sync.json", "utf8");
+    const log = JSON.parse(contents) as SyncLog;
+    const value = log.find((user) => user.userId === userId);
+
+    if (!value) {
+      log.push({ userId, syncs: [entry] });
+    } else {
+      value.syncs.push(entry);
+    }
+    await fs.writeFile("./sync.json", JSON.stringify(log), {
+      encoding: "utf8",
+    });
+    console.log("Sync entry for userId: ", userId, " added!");
+  } catch (e) {
+    // @ts-ignore
+    if (e?.code === "ENOENT") {
+      console.log("enoent, creating log");
+      await fs.writeFile("./sync.json", JSON.stringify([]), {
+        encoding: "utf8",
+      });
+    }
+  }
+}
 
 const syncStore = new Set<string>();
 const syncQueue = new Set<string>();
 
-export async function syncTransactionsForUser(userId: string) {
+export async function syncTransactionsForUser(userId: string, origin?: string) {
+  const entry: SyncEntry = { timestamp: new Date(Date.now()).toLocaleString() };
   if (syncStore.has(userId)) {
+    entry.syncStore = { ...syncStore };
+    writeToLog(userId, entry);
     syncQueue.add(userId);
     return;
   }
   syncStore.add(userId);
 
   const items = await getItemsForUser(userId);
-  await Promise.all(items.map((item) => syncTransaction({ ...item, userId })));
+  const itemEntry: ItemEntry = { items: [], origin };
+  await Promise.all(
+    items.map(
+      async (item) => await syncTransaction({ ...item, userId }, itemEntry)
+    )
+  );
+  console.log(itemEntry);
+  writeToLog(userId, itemEntry);
 
   syncStore.delete(userId);
   if (syncQueue.has(userId)) {
@@ -88,7 +144,11 @@ type SyncResponse = {
   error_code: string | undefined;
 };
 
-async function syncTransaction({ item }: { item: Item; userId: string }) {
+async function syncTransaction(
+  { item }: { item: Item; userId: string },
+  entry?: ItemEntry
+) {
+  console.log(entry, "entry exists?");
   const count = 500;
   let cursor: string | undefined = item.nextCursor
     ? item.nextCursor
@@ -117,6 +177,20 @@ async function syncTransaction({ item }: { item: Item; userId: string }) {
 
     const { accounts } = response;
     if (accounts) await updateAccounts(accounts, item.id);
+
+    if (entry && !entry.items.find((item) => item.id)) {
+      console.log("pushing item into entry!");
+      entry.items.push({
+        id: item.id,
+        timestamp: new Date(Date.now()).toLocaleString(),
+        responses: [{ reqCursor: cursor, response }],
+      });
+    } else if (entry) {
+      console.log("creating new item in entry!");
+      entry.items
+        .find((item) => item.id)!
+        .responses.push({ reqCursor: cursor, response });
+    }
 
     const { added, modified, removed, next_cursor, has_more } = response;
     !added && console.log(response, "sync response where added is undefined");
