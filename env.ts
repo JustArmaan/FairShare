@@ -24,6 +24,6 @@ export const env = {
 };
 
 Object.entries(env).forEach(([key, value]) => {
-  if (!value && key !== "isDev")
+  if (!value && key !== "isDev" && key !== "dbLogging")
     throw new Error(`Missing env variable for ${key}`);
 });
