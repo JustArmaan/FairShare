@@ -112,11 +112,7 @@ export const Menu = (props: { value: boolean }) => {
                     </li>
                     <li>
                       <a
-                        hx-get="/auth/logout"
-                        hx-target="#app"
-                        hx-push-url="/auth/logout"
-                        hx-swap="innerHTML"
-                        hx-trigger="click"
+                        href="/auth/logout"
                         class="text-font-off-white hover:cursor-pointer hover:opacity-80 block pt-[2rem] hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white text-base mb-[2rem]"
                       >
                         Log Out
