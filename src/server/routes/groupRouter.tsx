@@ -58,8 +58,10 @@ import {
   getAccountsWithItemsForUser,
 } from "../services/account.service.ts";
 import { AccountSelector } from "../views/pages/Groups/components/AccountSelector.tsx";
-import { deleteNotificationForUserInGroup } from "../services/notification.service.ts";
-import { createNotificationWithWebsocket } from "../utils/createNotification.ts";
+import {
+  createGroupInviteWithWebsocket,
+  createGroupNotificationWithWebsocket,
+} from "../utils/createNotification.ts";
 import SelectIcon from "../views/pages/Groups/components/SelectIcon.tsx";
 import { AddMembersPage } from "../views/pages/Groups/AddMemberPage.tsx";
 import { getInviteLinkById } from "../services/invite.service.ts";
@@ -67,6 +69,7 @@ import { env } from "../../../env.ts";
 import { getOrCreateInviteLink } from "../utils/getOrCreateInviteLink.ts";
 import { checkUserExistsInGroup } from "../utils/userExistsInGroup.ts";
 import GroupMembers from "../views/pages/Groups/components/GroupMembers.tsx";
+import { deleteGroupInviteNotificationByNotificationId } from "../services/notification.service.ts";
 
 const router = express.Router();
 
@@ -406,12 +409,11 @@ router.post("/addMember/:groupId", async (req, res) => {
     }
 
     await addMember(req.params.groupId, member.id, "Invited");
-    await createNotificationWithWebsocket(
+
+    await createGroupInviteWithWebsocket(
       req.params.groupId,
-      `You have been invited to join the group ${currentGroup.name} by ${currentUser.email}`,
       member.id,
-      "groupInvite",
-      `/groups/${currentGroup.id}`
+      "groupInvite"
     );
 
     const group = await getGroupWithMembers(req.params.groupId);
@@ -739,8 +741,9 @@ router.post("/deleteMember/:userID/:groupID", async (req, res) => {
 
 router.get("/transactions/:groupId", async (req, res) => {
   const groupId = req.params.groupId;
-  const groupWithTransactions =
-    await getGroupWithMembersAndTransactions(groupId);
+  const groupWithTransactions = await getGroupWithMembersAndTransactions(
+    groupId
+  );
   const html = renderToHtml(
     <GroupTransactionsListPage
       group={groupWithTransactions as GroupMembersTransactions}
@@ -807,50 +810,66 @@ router.get("/getTransactions/:groupId", async (req, res) => {
   res.send(html);
 });
 
-router.post("/member/:approval/:groupId/:notificationId", async (req, res) => {
-  const { groupId, notificationId } = req.body;
-  const userId = req.user!.id;
-  const isApproved = req.params.approval === "accept";
+router.post(
+  "/member/:approval/:userToGroupId/:notificationId",
+  async (req, res) => {
+    const { userToGroupId, notificationId } = req.body;
+    const userId = req.user!.id;
+    const isApproved = req.params.approval === "accept";
 
-  const user = await findUser(userId);
+    const userToGroup = await getUserToGroupFromUserToGroupId(userToGroupId);
 
-  const owner = await getGroupOwner(groupId);
+    if (!userToGroup) {
+      return res.status(404).send("User not found in group");
+    }
 
-  if (!owner) {
-    return res.status(500).send("An error occured when accepting the invite");
-  }
+    let groupId = userToGroup.groupId;
 
-  if (isApproved) {
-    await changeMemberTypeInGroup(userId, groupId, "Member");
-    await deleteNotificationForUserInGroup(groupId, userId, notificationId);
-    await createNotificationWithWebsocket(
-      groupId,
-      `${user?.firstName} has accepted the invite to join the group`,
-      owner.userId,
-      "groupInvite"
+    const user = await findUser(userId);
+
+    const owner = await getGroupOwner(groupId);
+
+    if (!owner) {
+      return res.status(500).send("An error occured when accepting the invite");
+    }
+
+    if (isApproved) {
+      console.log(
+        groupId,
+        owner.userId,
+        `${user?.firstName} has accepted the invite to join the group`
+      );
+      await changeMemberTypeInGroup(userId, groupId, "Member");
+      await deleteGroupInviteNotificationByNotificationId(notificationId);
+      await createGroupNotificationWithWebsocket(
+        groupId,
+        "groupInvite",
+        owner.userId,
+        `${user?.firstName} has accepted the invite to join the group`
+      );
+    } else {
+      await deleteMemberByGroup(userId, groupId);
+      await deleteGroupInviteNotificationByNotificationId(notificationId);
+      await createGroupNotificationWithWebsocket(
+        groupId,
+        "groupInvite",
+        owner.userId,
+        `${user?.firstName} has declined the invite to join the group`
+      );
+    }
+
+    const html = renderToHtml(
+      <div
+        hx-get={`/groups/view/${groupId}`}
+        hx-trigger="load"
+        hx-target="#app"
+        hx-swap="innerHTML"
+        hx-push-url={`/groups/page/${groupId}`}
+      />
     );
-  } else {
-    await deleteMemberByGroup(userId, groupId);
-    await deleteNotificationForUserInGroup(groupId, userId, notificationId);
-    await createNotificationWithWebsocket(
-      groupId,
-      `${user?.firstName} has declined the invite to join the group`,
-      owner.userId,
-      "groupInvite"
-    );
+    res.send(html);
   }
-
-  const html = renderToHtml(
-    <div
-      hx-get={`/groups/view/${groupId}`}
-      hx-trigger="load"
-      hx-target="#app"
-      hx-swap="innerHTML"
-      hx-push-url={`/groups/page/${groupId}`}
-    />
-  );
-  res.send(html);
-});
+);
 
 router.get("/selectIcon", async (req, res) => {
   const selectedIcon = req.query.selectedIcon as string;

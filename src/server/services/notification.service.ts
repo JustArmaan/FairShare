@@ -10,6 +10,7 @@ import { groupNotification } from "../database/schema/groupNotification";
 import { genericNotification } from "../database/schema/genericNotification";
 import { notificationType } from "../database/schema/notificationType";
 import { groupInvite } from "../database/schema/groupInvite";
+import { th } from "@faker-js/faker";
 
 let db = getDB();
 
@@ -137,7 +138,7 @@ let db = getDB();
 //   }
 // }
 
-async function getNotificaitonTypeByType(type: string) {
+async function getNotificationTypeByType(type: string) {
   try {
     const results = await db
       .select()
@@ -154,7 +155,7 @@ export async function createGroupInviteNotification(
   userId: string
 ) {
   try {
-    const notificationType = await getNotificaitonTypeByType("invite");
+    const notificationType = await getNotificationTypeByType("invite");
     if (!notificationType) {
       return null;
     }
@@ -187,7 +188,7 @@ export async function createGenericNotification(
   userId: string
 ) {
   try {
-    const notificationType = await getNotificaitonTypeByType("generic");
+    const notificationType = await getNotificationTypeByType("generic");
     if (!notificationType) {
       return null;
     }
@@ -216,13 +217,13 @@ export async function createGenericNotification(
   }
 }
 
-export async function creategroupNotification(
+export async function createGroupNotification(
   userToGroupId: string,
   message: string,
   userId: string
 ) {
   try {
-    const notificationType = await getNotificaitonTypeByType("group");
+    const notificationType = await getNotificationTypeByType("group");
     if (!notificationType) {
       return null;
     }
@@ -252,7 +253,7 @@ export async function creategroupNotification(
 
 export async function getGroupInviteNotificaitonById(userId: string) {
   try {
-    const type = await getNotificaitonTypeByType("invite");
+    const type = await getNotificationTypeByType("invite");
     if (!type) {
       throw new Error("Notification type not found");
     }
@@ -272,9 +273,13 @@ export async function getGroupInviteNotificaitonById(userId: string) {
   }
 }
 
+export type InviteNotification = ArrayElement<
+  ExtractFunctionReturnType<typeof getGroupInviteNotificaitonById>
+>;
+
 export async function getGenericNotificationById(userId: string) {
   try {
-    const type = await getNotificaitonTypeByType("generic");
+    const type = await getNotificationTypeByType("generic");
     if (!type) {
       throw new Error("Notification type not found");
     }
@@ -297,9 +302,13 @@ export async function getGenericNotificationById(userId: string) {
   }
 }
 
+export type GenericNotification = ArrayElement<
+  ExtractFunctionReturnType<typeof getGenericNotificationById>
+>;
+
 export async function getGroupNotificationById(userId: string) {
   try {
-    const type = await getNotificaitonTypeByType("group");
+    const type = await getNotificationTypeByType("group");
     if (!type) {
       throw new Error("Notification type not found");
     }
@@ -322,58 +331,147 @@ export async function getGroupNotificationById(userId: string) {
   }
 }
 
+export type GroupNotification = ArrayElement<
+  ExtractFunctionReturnType<typeof getGroupNotificationById>
+>;
+
+export type CombinedNotification = GenericNotification | GroupNotification;
+
 export async function getUnreadNotifications(userId: string) {
+  try {
+    const groupInviteNotifications = await getGroupInviteNotificaitonById(
+      userId
+    );
+
+    if (!groupInviteNotifications) {
+      throw new Error("Failed to get group invite notifications");
+    }
+
+    const unreadGroupInviteNotifications = groupInviteNotifications.filter(
+      (n) => !n.notifications.readStatus
+    );
+
+    const genericNotifications = await getGenericNotificationById(userId);
+
+    if (!genericNotifications) {
+      throw new Error("Failed to get generic notifications");
+    }
+
+    const unreadGenericNotifications = genericNotifications.filter(
+      (n) => !n.notifications.readStatus
+    );
+
+    const groupNotifications = await getGroupNotificationById(userId);
+
+    if (!groupNotifications) {
+      throw new Error("Failed to get group notifications");
+    }
+
+    const unreadGroupNotifications = groupNotifications.filter(
+      (n) => !n.notifications.readStatus
+    );
+
+    const unreadNotifications = [
+      ...unreadGroupInviteNotifications,
+      ...unreadGenericNotifications,
+      ...unreadGroupNotifications,
+    ];
+
+    return unreadNotifications;
+  } catch (error) {
+    console.error("Error fetching unread notifications:", error);
+    throw error;
+  }
+}
+
+export async function markNotificationAsRead(notificationId: string) {
+  try {
+    await db
+      .update(notifications)
+      .set({ readStatus: true })
+      .where(eq(notifications.id, notificationId));
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+export async function markAllNotificationsAsRead(userId: string) {
+  try {
+    await db
+      .update(notifications)
+      .set({ readStatus: true })
+      .where(eq(notifications.userId, userId));
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+export async function deleteNotification(notificationId: string) {
+  try {
+    await db.delete(notifications).where(eq(notifications.id, notificationId));
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+export async function deleteGroupInviteNotificationByNotificationId(
+  notificationId: string
+) {
+  try {
+    await db
+      .delete(groupInvite)
+      .where(eq(groupInvite.notificationId, notificationId));
+
+    await db.delete(notifications).where(eq(notifications.id, notificationId));
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+export async function deleteGenericNotificationByNotificationId(
+  notificationId: string
+) {
+  try {
+    await db
+      .delete(genericNotification)
+      .where(eq(genericNotification.notificationId, notificationId));
+
+    await db.delete(notifications).where(eq(notifications.id, notificationId));
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+export async function deleteGroupNotificationByNotificationId(
+  notificationId: string
+) {
+  try {
+    await db
+      .delete(groupNotification)
+      .where(eq(groupNotification.notificationId, notificationId));
+
+    await db.delete(notifications).where(eq(notifications.id, notificationId));
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+export async function deleteAllNotifications(userId: string) {
   try {
     const results = await db
       .select()
       .from(notifications)
-      .leftJoin(
-        genericNotification,
-        eq(notifications.id, genericNotification.notificationId)
-      )
-      .leftJoin(
-        groupNotification,
-        eq(notifications.id, groupNotification.notificationId)
-      )
-      .leftJoin(groupInvite, eq(notifications.id, groupInvite.notificationId))
-      .where(
-        and(
-          eq(notifications.userId, userId),
-          eq(notifications.readStatus, false)
-        )
-      );
+      .where(eq(notifications.userId, userId));
 
-    const mappedResults = results.map((result) => {
-      const {
-        notifications: notification,
-        genericNotification,
-        groupNotification,
-        groupInvite,
-      } = result;
-
-      let specificNotification = {};
-
-      if (groupInvite && groupInvite.notificationId === notification.id) {
-        specificNotification = { ...notification, ...groupInvite };
-      } else if (
-        genericNotification &&
-        genericNotification.notificationId === notification.id
-      ) {
-        specificNotification = { ...notification, ...genericNotification };
-      } else if (
-        groupNotification &&
-        groupNotification.notificationId === notification.id
-      ) {
-        specificNotification = { ...notification, ...groupNotification };
-      } else {
-        specificNotification = { ...notification };
-      }
-
-      return specificNotification;
-    });
-
-    return mappedResults;
-  } catch (error) {
-    console.error(error);
+    for (const result of results) {
+      const { id } = result;
+      await db.delete(notifications).where(eq(notifications.id, id));
+      await deleteGenericNotificationByNotificationId(id);
+      await deleteGroupNotificationByNotificationId(id);
+      await deleteGroupInviteNotificationByNotificationId(id);
+    }
+  } catch (e) {
+    console.error(e, "deleteing all notifications");
+    throw new Error("Error deleting all notifications");
   }
 }

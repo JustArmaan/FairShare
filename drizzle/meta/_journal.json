@@ -99,6 +99,13 @@
       "when": 1720475060185,
       "tag": "0011_petite_purple_man",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "6",
+      "when": 1720808319633,
+      "tag": "0012_lame_cloak",
+      "breakpoints": true
     }
   ]
 }

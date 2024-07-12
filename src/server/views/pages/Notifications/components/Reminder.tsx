@@ -1,6 +1,33 @@
-import { type Notification } from "../../../../services/notification.service";
+import {
+  type InviteNotification,
+  type CombinedNotification,
+} from "../../../../services/notification.service";
 
-export const Reminder = (props: { notifications: Notification }) => {
+function isInviteNotification(
+  notification: any
+): notification is InviteNotification {
+  return notification.groupInvite !== undefined;
+}
+
+function isGenericNotification(
+  notification: any
+): notification is CombinedNotification & {
+  genericNotification: { message: string; notificationId: string };
+} {
+  return notification.genericNotification !== undefined;
+}
+
+function isGroupNotification(
+  notification: any
+): notification is CombinedNotification & {
+  groupNotification: { message: string; notificationId: string };
+} {
+  return notification.groupNotification !== undefined;
+}
+
+export const Reminder = (props: {
+  notifications: InviteNotification | CombinedNotification;
+}) => {
   const timeAgo = (timestamp: string) => {
     const now = Date.now();
     const date = new Date(timestamp);
@@ -16,7 +43,18 @@ export const Reminder = (props: { notifications: Notification }) => {
     return `${days} days ago`;
   };
 
-  const groupId = props.notifications.route?.split("/")[2];
+  const { notifications } = props;
+
+  let message = "";
+
+  if (isInviteNotification(notifications)) {
+    message = "You have a new group invite.";
+  } else if (isGenericNotification(notifications)) {
+    message = notifications.genericNotification.message || "No message.";
+  } else if (isGroupNotification(notifications)) {
+    message = notifications.groupNotification.message || "No message.";
+  }
+
   return (
     <div class="animate-fade-in mb-[1.25rem]">
       <div class="bg-primary-black rounded-xl shadow-[0_3px_2px_0_rgba(0,0,0,0.25)] mb-1 flex items-center justify-between relative h-[5.6875rem] ">
@@ -29,25 +67,29 @@ export const Reminder = (props: { notifications: Notification }) => {
           <div class="flex flex-col w-full">
             <div class="flex justify-between items-center w-full">
               <p class="text-font-off-white font-semibold mt-6 w-[17rem]">
-                {props.notifications.message}
+                {message}
               </p>
               <span class="text-xs text-font-grey m-2.5 items-end right-0 top-0 absolute">
-                {timeAgo(props.notifications.timestamp)}
+                {timeAgo(notifications.notifications.timestamp)}
               </span>
             </div>
             <div class="flex justify-end mt-4">
-              {props.notifications.route && (
+              {isInviteNotification(notifications) && (
                 <div class="flex">
                   <form>
                     <input
                       type="hidden"
                       name="notificationId"
-                      value={props.notifications.id}
+                      value={notifications.notifications.id}
                     />
-                    <input type="hidden" name="groupId" value={groupId} />
+                    <input
+                      type="hidden"
+                      name="userToGroupId"
+                      value={notifications.groupInvite.userGroupId}
+                    />
                     <button
                       class="bg-accent-blue text-font-off-white rounded-md hover:-translate-y-0.5 cursor-pointer transition-all w-[6.875rem] h-[1.875rem]  mr-4 mb-[0.60rem]"
-                      hx-post={`/groups/member/accept/groupId=${groupId}/notificationId=${props.notifications.id}`}
+                      hx-post={`/groups/member/accept/userToGroupId=${notifications.groupInvite.userGroupId}/notificationId=${notifications.notifications.id}`}
                       hx-target="#app"
                       hx-swap="innerHTML"
                       hx-trigger="click"
@@ -56,7 +98,7 @@ export const Reminder = (props: { notifications: Notification }) => {
                     </button>
                     <button
                       class="border-accent-blue border-[1px] text-font-off-white rounded-md hover:-translate-y-0.5 cursor-pointer transition-all w-[6.875rem] h-[1.875rem] mr-[2.69rem] mb-[0.60rem]"
-                      hx-post={`/groups/member/decline/groupId=${groupId}/notificationId=${props.notifications.id}`}
+                      hx-post={`/groups/member/decline/groupId=$userToGroupId=${notifications.groupInvite.userGroupId}/notificationId=${notifications.notifications.id}`}
                       hx-target="#app"
                       hx-swap="innerHTML"
                       hx-trigger="click"
@@ -69,8 +111,12 @@ export const Reminder = (props: { notifications: Notification }) => {
             </div>
           </div>
         </div>
-        <span class="animate-ping absolute inline-flex h-2.5 w-2.5 rounded-full bg-accent-blue opacity-100 right-5 top-[50%]"></span>
-        <span class="absolute inline-flex h-2.5 w-2.5 rounded-full bg-accent-blue opacity-100 right-5 top-[50%] z-20"></span>
+        {notifications.notifications.readStatus === false && (
+          <>
+            <span class="animate-ping absolute inline-flex h-2.5 w-2.5 rounded-full bg-accent-blue opacity-100 right-5 top-[50%]"></span>
+            <span class="absolute inline-flex h-2.5 w-2.5 rounded-full bg-accent-blue opacity-100 right-5 top-[50%] z-20"></span>
+          </>
+        )}
       </div>
     </div>
   );

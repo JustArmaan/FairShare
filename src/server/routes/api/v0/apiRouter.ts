@@ -18,7 +18,6 @@ import {
   createTransferForReceiver,
 } from "../../../integrations/vopay/transfer";
 import { getGroupTransferByTransactionId } from "../../../services/plaid.transfer.service";
-import { createNotificationWithWebsocket } from "../../../utils/createNotification";
 import { getGroup, getGroupByOwedId } from "../../../services/group.service";
 
 const router = Router();
@@ -194,83 +193,83 @@ function calculateKey(apiSharedSecret: string, transactionID: string): string {
 }
   */
 
-router.post("/vopay-transactions-webhook", async (req, res) => {
-  try {
-    const payload = req.body as {
-      TransactionID: string;
-      Status: string;
-      ValidationKey: string;
-      TransactionType: string;
-      TransactionAmount: number;
-    };
-    if (
-      payload.ValidationKey !==
-      calculateKey(env.vopaySharedSecret!, payload.TransactionID)
-    )
-      return res.status(404).send(); // simulate an empty route
-    if (
-      payload.TransactionType === "moneyrequest" &&
-      payload.Status === "successful"
-    ) {
-      const groupTransfer = (await getGroupTransferByTransactionId(
-        payload.TransactionID
-      ))!;
-      await createTransferForReceiver(
-        groupTransfer.id,
-        groupTransfer.receiverUserId,
-        payload.TransactionID,
-        "test question",
-        "test answer"
-      );
-      const group = await getGroupByOwedId(
-        groupTransfer.groupTransactionToUsersToGroupsId
-      );
-      const sender = await findUser(groupTransfer.senderUserId);
-      await createNotificationWithWebsocket(
-        group!.id,
-        `${sender!.firstName} has sent you $${
-          payload.TransactionAmount
-        }, please check your email for details.`,
-        groupTransfer.receiverUserId,
-        "groupInvite"
-      );
-    }
+// router.post("/vopay-transactions-webhook", async (req, res) => {
+//   try {
+//     const payload = req.body as {
+//       TransactionID: string;
+//       Status: string;
+//       ValidationKey: string;
+//       TransactionType: string;
+//       TransactionAmount: number;
+//     };
+//     if (
+//       payload.ValidationKey !==
+//       calculateKey(env.vopaySharedSecret!, payload.TransactionID)
+//     )
+//       return res.status(404).send(); // simulate an empty route
+//     if (
+//       payload.TransactionType === "moneyrequest" &&
+//       payload.Status === "successful"
+//     ) {
+//       const groupTransfer = (await getGroupTransferByTransactionId(
+//         payload.TransactionID
+//       ))!;
+//       await createTransferForReceiver(
+//         groupTransfer.id,
+//         groupTransfer.receiverUserId,
+//         payload.TransactionID,
+//         "test question",
+//         "test answer"
+//       );
+//       const group = await getGroupByOwedId(
+//         groupTransfer.groupTransactionToUsersToGroupsId
+//       );
+//       const sender = await findUser(groupTransfer.senderUserId);
+//       await createNotificationWithWebsocket(
+//         group!.id,
+//         `${sender!.firstName} has sent you $${
+//           payload.TransactionAmount
+//         }, please check your email for details.`,
+//         groupTransfer.receiverUserId,
+//         "groupInvite"
+//       );
+//     }
 
-    if (
-      payload.TransactionType === "bulkpayout" &&
-      payload.Status === "successful"
-    ) {
-      const groupTransfer = (await getGroupTransferByTransactionId(
-        payload.TransactionID
-      ))!;
-      await completeTransfer(groupTransfer.id);
+//     if (
+//       payload.TransactionType === "bulkpayout" &&
+//       payload.Status === "successful"
+//     ) {
+//       const groupTransfer = (await getGroupTransferByTransactionId(
+//         payload.TransactionID
+//       ))!;
+//       await completeTransfer(groupTransfer.id);
 
-      const group = await getGroupByOwedId(
-        groupTransfer.groupTransactionToUsersToGroupsId
-      );
+//       const group = await getGroupByOwedId(
+//         groupTransfer.groupTransactionToUsersToGroupsId
+//       );
 
-      const sender = await findUser(groupTransfer.senderUserId);
-      const receiver = await findUser(groupTransfer.receiverUserId);
-      await createNotificationWithWebsocket(
-        group!.id,
-        `Your transfer to ${receiver!.firstName} of $${
-          payload.TransactionAmount
-        } has been completed!`,
-        groupTransfer.senderUserId,
-        "groupInvite"
-      );
+//       const sender = await findUser(groupTransfer.senderUserId);
+//       const receiver = await findUser(groupTransfer.receiverUserId);
+//       await createNotificationWithWebsocket(
+//         group!.id,
+//         `Your transfer to ${receiver!.firstName} of $${
+//           payload.TransactionAmount
+//         } has been completed!`,
+//         groupTransfer.senderUserId,
+//         "groupInvite"
+//       );
 
-      await createNotificationWithWebsocket(
-        group!.id,
-        `${sender!.firstName}'s transfer to your account has been completed!`,
-        groupTransfer.receiverUserId,
-        "groupInvite"
-      );
-    }
-  } catch (e) {
-    console.error(e);
-  }
-});
+//       await createNotificationWithWebsocket(
+//         group!.id,
+//         `${sender!.firstName}'s transfer to your account has been completed!`,
+//         groupTransfer.receiverUserId,
+//         "groupInvite"
+//       );
+//     }
+//   } catch (e) {
+//     console.error(e);
+//   }
+// });
 
 router.get("/groups/getname/:groupId", async (req, res) => {
   const groupId = req.params.groupId;
