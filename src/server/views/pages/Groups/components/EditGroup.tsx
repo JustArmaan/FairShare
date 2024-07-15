@@ -1,7 +1,5 @@
 import { type UserSchema } from "../../../../interface/types";
-import { AddedMember } from "./Member";
 import { getGroupWithMembers } from "../../../../services/group.service";
-import AddMembersComponent from "./AddMemberForm";
 import GroupMembers from "./GroupMembers";
 
 export const colors = [
@@ -165,14 +163,14 @@ export const EditGroupPage = ({
               class="flex w-full"
             >
               <input
-                // id="invite-input"
+                id="invite-input"
                 class="bg-primary-black rounded-md w-full text-font-off-white flex justify-between px-2 mt-1 placeholder-primary-grey placeholder-font-light mr-3"
                 type="text"
                 name="emailOrPhone"
                 placeholder="Enter email or phone number"
               />
               <button
-                // id="send-invite-button"
+                id="send-invite-button"
                 type="submit"
                 class="bg-accent-blue rounded-md px-4 flex mt-1 items-center"
               >

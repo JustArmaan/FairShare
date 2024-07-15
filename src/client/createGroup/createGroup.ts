@@ -78,17 +78,49 @@ export function handleColorClick(
   }
 }
 
-// export function clearInviteInput() {
-//   const inviteInput = document.getElementById(
-//     "invite-input"
-//   ) as HTMLInputElement;
-//   const inviteButton = document.getElementById(
-//     "send-invite-button"
-//   ) as HTMLButtonElement;
+export function clearInviteInput() {
+  const inviteInput = document.getElementById(
+    "invite-input"
+  ) as HTMLInputElement;
+  const inviteButton = document.getElementById(
+    "send-invite-button"
+  ) as HTMLButtonElement;
 
-//   if (inviteInput && inviteButton) {
-//     inviteButton.addEventListener("click", () => {
-//       inviteInput.value = "";
-//     });
-//   }
-// }
+  if (inviteInput && inviteButton && !inviteButton.dataset.listenerAttached) {
+    document.addEventListener("htmx:afterSwap", () => {
+      inviteInput.value = "";
+    });
+    inviteButton.dataset.listenerAttached = "true";
+  }
+}
+
+export function openAndCloseSelectIcon() {
+  const selectIconContainer = document.getElementById(
+    "select-group-icon-container"
+  ) as HTMLElement;
+  const selectIconContainerOpen = document.getElementById(
+    "select-group-icon-container-open"
+  ) as HTMLElement;
+  const selectIconHeader = document.getElementById(
+    "select-group-icon-header"
+  ) as HTMLElement;
+
+  if (
+    selectIconContainer &&
+    selectIconContainerOpen &&
+    !selectIconContainer.dataset.listenerAttached &&
+    !selectIconHeader.dataset.listenerAttached
+  ) {
+    selectIconContainer.addEventListener("click", () => {
+      selectIconContainerOpen.classList.remove("hidden");
+      selectIconContainer.classList.add("hidden");
+    });
+    selectIconContainer.dataset.listenerAttached = "true";
+
+    selectIconHeader.addEventListener("click", () => {
+      selectIconContainerOpen.classList.add("hidden");
+      selectIconContainer.classList.remove("hidden");
+    });
+    selectIconHeader.dataset.listenerAttached = "true";
+  }
+}

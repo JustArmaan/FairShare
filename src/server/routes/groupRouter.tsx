@@ -51,9 +51,7 @@ import {
 import { TransactionList } from "../views/pages/transactions/components/TransactionList.tsx";
 import { AccountPickerForm } from "../views/pages/transactions/components/AccountPickerForm.tsx";
 import Transaction from "../views/pages/transactions/components/Transaction.tsx";
-import {
-  getTransaction,
-} from "../services/transaction.service.ts";
+import { getTransaction } from "../services/transaction.service.ts";
 import { ViewAndPayPage } from "../views/pages/Groups/ViewAndPayPage.tsx";
 import { InstitutionDropDown } from "../views/pages/Groups/components/InstitutionDropDown.tsx";
 import {
@@ -384,7 +382,11 @@ router.get("/create", async (req, res) => {
     if (!databaseUser) throw new Error("failed to create user");
 
     const html = renderToHtml(
-      <CreateGroup currentUser={{ ...databaseUser, type: "Owner" }} />
+      <CreateGroup
+        currentUser={{ ...databaseUser, type: "Owner" }}
+        icons={createIcons}
+        colors={colors}
+      />
     );
     res.send(html);
   } catch (error) {

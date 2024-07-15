@@ -13,7 +13,8 @@ import {
   handleColorClick,
   initializeSelectedColor,
   initializeSelectedIcon,
-  // clearInviteInput
+  openAndCloseSelectIcon,
+  clearInviteInput
 } from "./createGroup/createGroup";
 import { clipBoardCopyInviteLink } from "./inviteLink/inviteLink";
 import htmx from "htmx.org";
@@ -30,7 +31,8 @@ document.body.addEventListener("htmx:afterSwap", (event) => {
   clipBoardCopyInviteLink();
   initializeSelectedColor();
   initializeSelectedIcon();
-  // clearInviteInput();
+  openAndCloseSelectIcon();
+  clearInviteInput();
 
   if (!(event.target instanceof HTMLElement)) return;
   const excludeListId = new Set(["institutionSelector"]);

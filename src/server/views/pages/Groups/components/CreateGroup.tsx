@@ -1,18 +1,23 @@
 import { type UserSchemaWithMemberType } from "../../../../interface/types";
-// import { AddedMember } from "./Member";
-import { colors, createGroupNameInput } from "./EditGroup";
-import AddMembersComponent from "./AddMemberForm";
+import SelectIcon from "./SelectIcon";
 
 interface Icon {
-  id: string;
   icon: string;
   name: string;
 }
 
 export const CreateGroup = ({
   currentUser,
+  icons,
+  colors,
+  selectedIcon,
+  selectedColor,
 }: {
   currentUser: UserSchemaWithMemberType;
+  icons: Icon[];
+  colors: { name: string; bgClass: string }[];
+  selectedIcon?: string;
+  selectedColor?: string;
 }) => {
   return (
     <div class="animate-fade-in">
@@ -49,14 +54,32 @@ export const CreateGroup = ({
           </label>
           <div
             id="select-group-icon-container"
-            hx-get="/groups/selectIcon"
-            hx-trigger="click"
-            hx-swap="outerHTML"
-            hx-target="#select-group-icon-container"
             class="py-2 px-3  w-full h-fit flex justify-between bg-primary-black rounded-md mt-1"
           >
             <p class="text-primary-grey font-normal">Select Group Icon</p>
             <img src="/activeIcons/expand_more.svg" class="cursor-pointer" />
+          </div>
+          <div
+            id="select-group-icon-container-open"
+            class="w-full h-fit bg-primary-black rounded-md mt-1 flex flex-col items-center animate-fade-in min-h-[50px] hidden"
+          >
+            <div
+              id="select-group-icon-header"
+              class="py-2 px-3 w-full h-fit flex justify-between"
+            >
+              <p class="text-primary-grey font-normal">Select Group Icon</p>
+              <img
+                src="/activeIcons/expand_more.svg"
+                class="rotate-180 cursor-pointer"
+              />
+            </div>
+            <hr class="border-t border-primary-dark-grey w-11/12 mx-auto px-2" />
+            <SelectIcon
+              icons={icons}
+              colors={colors}
+              selectedIcon={selectedIcon}
+              selectedColor={selectedColor}
+            />
           </div>
 
           {/* <div class="flex justify-center mt-[1.38rem]">
