@@ -23,6 +23,7 @@ import { ErrorPage } from "./views/pages/Errors/Error";
 import { renderToHtml } from "jsxte";
 import { plaidMobileLinkRouter } from "./routes/plaidMobileLinkRouter";
 import { remapSvgs } from "./middleware/svgHandler.middleware";
+import { receiptRouter } from "./routes/receiptRouter";
 
 const app = express();
 const server = http.createServer(app);
@@ -38,6 +39,7 @@ app.use("/transactions", transactionRouter);
 app.use("/groups", groupRouter);
 app.use("/auth", authRouter);
 app.use("/transfer", transferRouter);
+app.use("/receipt", receiptRouter);
 app.use("/notification", notificationRouter);
 app.use("/institutions", institutionRouter);
 app.use("/mobile", plaidMobileLinkRouter);

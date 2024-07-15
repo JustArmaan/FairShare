@@ -11,6 +11,7 @@ import express, {
 } from "express";
 import { createUser, findUser } from "../services/user.service";
 import { faker } from "@faker-js/faker";
+import { create } from "domain";
 
 const colors = [
   "accent-blue",
@@ -118,6 +119,18 @@ export async function getUser(req: Request, res: Response, next: NextFunction) {
   //   req.user = getUser(testUserId);
   //   return next();
   // }
+
+  const fakeUser = {
+    id: "kp_642238bde5f044d5ab0b118c8d01d8c5",
+    firstName: "Byron",
+    lastName: "Dray",
+    email: "byron.dray@yahoo.com",
+    color: "category-color-0",
+    createdAt: new Date().toISOString(),
+  };
+
+  req.user = fakeUser;
+  return next();
 
   if (
     req.get("host")?.includes("render") &&

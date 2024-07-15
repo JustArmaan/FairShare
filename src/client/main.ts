@@ -14,10 +14,14 @@ import {
   initializeSelectedColor,
   initializeSelectedIcon,
   openAndCloseSelectIcon,
-  clearInviteInput
+  clearInviteInput,
 } from "./createGroup/createGroup";
 import { clipBoardCopyInviteLink } from "./inviteLink/inviteLink";
 import htmx from "htmx.org";
+import {
+  initializeCamera,
+  addFileInput,
+} from "./receiptScanning/receiptScanning";
 
 main();
 splitTransfer();
@@ -25,6 +29,12 @@ setupSocketListener();
 handleNavigation();
 
 document.body.addEventListener("htmx:afterSwap", (event) => {
+  const video = document.getElementById("cameraVideo");
+  if (video) {
+    console.log("Initializing camera after HTMX swap");
+    initializeCamera();
+  }
+
   highlightNavigationIcons();
   progressBar();
   attachFormListeners();
@@ -33,6 +43,7 @@ document.body.addEventListener("htmx:afterSwap", (event) => {
   initializeSelectedIcon();
   openAndCloseSelectIcon();
   clearInviteInput();
+  addFileInput();
 
   if (!(event.target instanceof HTMLElement)) return;
   const excludeListId = new Set(["institutionSelector"]);

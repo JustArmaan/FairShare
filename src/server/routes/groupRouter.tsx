@@ -2,7 +2,6 @@ import express from "express";
 import { GroupPage } from "../views/pages/Groups/GroupPage";
 import { renderToHtml } from "jsxte";
 import {
-  checkUserInGroup,
   deleteMemberByGroup,
   getGroupTransactions,
   getGroupWithMembersAndTransactions,
@@ -20,7 +19,6 @@ import {
   getUserToGroupFromUserToGroupId,
 } from "../services/group.service";
 import { findUser, getUserByEmailOnly } from "../services/user.service.ts";
-import { AddedMember } from "../views/pages/Groups/components/Member.tsx";
 import {
   createGroup,
   addMember,
@@ -223,8 +221,6 @@ router.get("/view/:groupId", async (req, res) => {
 
     const items = await getItemsForUser(req.user!.id);
     const defaultItem = items[0] && items[0].item;
-
-    console.log("defaultItem", defaultItem);
 
     let accountId = "";
 
