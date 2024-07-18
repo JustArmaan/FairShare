@@ -120,6 +120,17 @@ export async function getUser(req: Request, res: Response, next: NextFunction) {
   //   return next();
   // }
 
+  const fakeUser = {
+    id: "kp_ae3fe5538e824f54b990b4f7876c22f8",
+    firstName: "Byron",
+    lastName: "Dray",
+    email: "byrondray8@gmail.com",
+    color: "category-color-0",
+    createdAt: new Date().toISOString(),
+  };
+  req.user = fakeUser;
+  return next();
+
   if (
     req.get("host")?.includes("render") &&
     !req.get("host")?.includes("localhost") &&

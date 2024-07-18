@@ -1,17 +1,15 @@
 function handleReceivedImage(base64Image: string): void {
-  alert("handleReceivedImage called with data: " + base64Image);
-
   const imagePreviewAddPage = document.getElementById("imagePreviewAddPage");
 
   if (imagePreviewAddPage) {
     const img = document.createElement("img");
     img.src = `data:image/png;base64,${base64Image}`;
     img.className = "w-full max-w-xs mx-auto";
-    imagePreviewAddPage.innerHTML = ""; // Clear any existing content
+    imagePreviewAddPage.innerHTML = ""; 
     imagePreviewAddPage.appendChild(img);
     imagePreviewAddPage.classList.remove("hidden");
 
-    addRetakeAndAddMoreButtons(); // Add the retake and add more buttons
+    addRetakeAndAddMoreButtons(); 
   } else {
     alert("imagePreviewAddPage element not found");
   }
@@ -135,7 +133,7 @@ export function addFileInput() {
         if (file) {
           const reader = new FileReader();
           imagePreviewAddPage.classList.remove("hidden");
-          reader.onload = function(event) {
+          reader.onload = function (event) {
             const img = document.createElement("img");
             img.src = event.target?.result as string;
             img.className = "w-full max-w-xs mx-auto";
@@ -166,26 +164,28 @@ interface ReactNativeWebView {
 }
 
 export function onMessage(event: MessageEvent): void {
-  console.log("message called");
-  // alert("onMessage function called");
-
-  if (event.data) {
-    if (typeof event.data === "string") {
-      alert("Raw event data: " + event.data);
+  if (event.imageData) {
+    if (typeof event.imageData === "string") {
+      console.log("Raw event data: " + event.data);
     }
-    const data =
-      typeof event.data === "string" ? JSON.parse(event.data) : event.data;
+
+    let data;
+    try {
+      data =
+        typeof event === "string" ? JSON.parse(event) : event;
+    } catch (error) {
+      console.error("Failed to parse event data:", error);
+      return;
+    }
 
     if (data.type === "image") {
-      console.log("Image data received: ", data.imageData);
-      alert("Image data received: " + data.imageData);
+      console.log("Image data received: " + data.imageData);
       handleReceivedImage(data.imageData);
     } else {
       console.log('Message type is not "image".');
-      // alert('Message type is not "image".');
     }
   } else {
-    alert("No event data received.");
+    console.log("No event data received.");
   }
 }
 
