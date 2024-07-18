@@ -68,6 +68,7 @@ export const Nav = () => {
               hx-trigger="click"
               hx-swap="innerHTML"
               hx-push-url="/receipt/addReceipt"
+              onclick="console.log('HTMX click event');"
               class="flex flex-col items-center text-font-off-white dark:text-white"
             >
               <img

@@ -1,4 +1,4 @@
-export const AddReceiptPage = () => {
+const AddReceiptPage = () => {
   return (
     <div class="camera-capture-container text-left">
       <div class="flex justify-start w-fit items-center mt-2 mb-1">
@@ -18,11 +18,15 @@ export const AddReceiptPage = () => {
         </a>
       </div>
       <div class="px-[3.69rem]">
-        <div class="flex align-center">
-          <h1 class="text-font-off-white text-xl mr-1 mb-[1rem]">
+        <div class="flex items-center w-full">
+          <h1 class="text-font-off-white text-xl mr-2 mb-[1rem] leading-tight">
             Take photo of Receipt
           </h1>
-          <img src="/activeIcons/info.svg" alt="info icon" />
+          <img
+            src="/activeIcons/info.svg"
+            alt="info icon"
+            class="h-6 mb-[1rem]"
+          />
         </div>
         <div id="imagePreviewAddPage" class="mt-1 mb-[2.94rem] hidden"></div>
         <input
@@ -31,7 +35,7 @@ export const AddReceiptPage = () => {
           id="fileInputAddPage"
           class="hidden"
         />
-        <div class="flex flex-col ">
+        <div class="flex flex-col px-[1rem]">
           <label
             for="fileInputAddPage"
             class="button bg-accent-blue text-font-off-white py-2 px-4 rounded-lg mb-[2rem] text-center cursor-pointer"
@@ -40,15 +44,17 @@ export const AddReceiptPage = () => {
           </label>
           <button
             class="button bg-accent-blue text-font-off-white py-2 px-4 rounded-lg cursor-pointer"
-            hx-get="/receipt/captureCamera"
-            hx-target="#app"
-            hx-swap="innerHTML"
-            hx-trigger="click"
+            // hx-get="/receipt/addManually"
+            // hx-target="#app"
+            // hx-swap="innerHTML"
+            // hx-trigger="click"
           >
-            Open Camera
+            Add Manually
           </button>
         </div>
       </div>
     </div>
   );
 };
+
+export default AddReceiptPage;

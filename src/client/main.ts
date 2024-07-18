@@ -18,10 +18,7 @@ import {
 } from "./createGroup/createGroup";
 import { clipBoardCopyInviteLink } from "./inviteLink/inviteLink";
 import htmx from "htmx.org";
-import {
-  initializeCamera,
-  addFileInput,
-} from "./receiptScanning/receiptScanning";
+import { addFileInput, onMessage } from "./receiptScanning/receiptScanning";
 
 main();
 splitTransfer();
@@ -29,12 +26,6 @@ setupSocketListener();
 handleNavigation();
 
 document.body.addEventListener("htmx:afterSwap", (event) => {
-  const video = document.getElementById("cameraVideo");
-  if (video) {
-    console.log("Initializing camera after HTMX swap");
-    initializeCamera();
-  }
-
   highlightNavigationIcons();
   progressBar();
   attachFormListeners();
@@ -68,6 +59,8 @@ document.body.addEventListener("htmx:afterSwap", (event) => {
       );
     });
 });
+
+window.addEventListener("message", onMessage, false);
 
 export const apiVersion = 0;
 

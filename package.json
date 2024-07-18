@@ -14,7 +14,8 @@
     "studio": "drizzle-kit studio",
     "turso-local": "turso dev",
     "db-setup": "bun run generate && bun run push && bun run seed && echo 'Database Initialized!'",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "local-tunnel": "lt --port 3000"
   },
   "typings": "/index.d.ts",
   "dependencies": {

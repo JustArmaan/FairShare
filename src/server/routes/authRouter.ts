@@ -121,10 +121,10 @@ export async function getUser(req: Request, res: Response, next: NextFunction) {
   // }
 
   const fakeUser = {
-    id: "kp_642238bde5f044d5ab0b118c8d01d8c5",
+    id: "kp_ae3fe5538e824f54b990b4f7876c22f8",
     firstName: "Byron",
     lastName: "Dray",
-    email: "byron.dray@yahoo.com",
+    email: "byrondray8@gmail.com",
     color: "category-color-0",
     createdAt: new Date().toISOString(),
   };

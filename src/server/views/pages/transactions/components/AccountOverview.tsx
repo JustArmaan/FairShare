@@ -68,7 +68,7 @@ export const AccountOverview = ({
           class="balance flex flex-col text-font-off-white text-center 
               justify-center mt-2 mb-1"
         >
-          <p class="text-lg">Current Balance</p>
+          <p class="text-lg">Current Balanceeeeee</p>
           <p class="text-2xl font-semibold">
             ${parseFloat(account.balance!).toFixed(2)}
           </p>
