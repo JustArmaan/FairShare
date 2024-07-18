@@ -135,7 +135,7 @@ export function addFileInput() {
         if (file) {
           const reader = new FileReader();
           imagePreviewAddPage.classList.remove("hidden");
-          reader.onload = function (event) {
+          reader.onload = function(event) {
             const img = document.createElement("img");
             img.src = event.target?.result as string;
             img.className = "w-full max-w-xs mx-auto";
@@ -166,6 +166,7 @@ interface ReactNativeWebView {
 }
 
 export function onMessage(event: MessageEvent): void {
+  console.log("message called");
   // alert("onMessage function called");
 
   if (event.data) {
