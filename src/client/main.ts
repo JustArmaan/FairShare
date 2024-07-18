@@ -20,6 +20,12 @@ import { clipBoardCopyInviteLink } from "./inviteLink/inviteLink";
 import htmx from "htmx.org";
 import { addFileInput, onMessage } from "./receiptScanning/receiptScanning";
 
+// !!!
+// @ts-ignore
+window.onMessage = onMessage;
+
+// console.log("running");
+
 main();
 splitTransfer();
 setupSocketListener();
@@ -60,7 +66,7 @@ document.body.addEventListener("htmx:afterSwap", (event) => {
     });
 });
 
-window.addEventListener("message", onMessage, false);
+window.addEventListener("message", onMessage);
 
 export const apiVersion = 0;
 
@@ -133,6 +139,7 @@ document.addEventListener("htmx:beforeSwap", () => {
 declare global {
   interface Window {
     initMap: () => Promise<void>;
+    onMessage: () => void;
   }
 }
 
