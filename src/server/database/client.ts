@@ -3,6 +3,7 @@ import { createClient } from "@libsql/client";
 import { env } from "../../../env";
 
 const isDev = env.isDev;
+const logging = env.dbLogging;
 
 const url = isDev ? env.localDb : process.env.VITE_DB_URL;
 if (!url) throw new Error("Missing db url env variable");
@@ -20,5 +21,5 @@ const client = createClient(config);
 let dbSingleton: LibSQLDatabase | undefined;
 
 export const getDB = () => {
-  return (dbSingleton ??= drizzle(client, { logger: false }));
+  return (dbSingleton ??= drizzle(client, { logger: logging }));
 };

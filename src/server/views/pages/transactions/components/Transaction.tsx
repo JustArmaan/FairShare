@@ -32,18 +32,20 @@ export const Transaction = ({
   url?: string;
 }) => {
   if (!transaction) throw new Error("404");
-  let onClickRoute;
-  if (route === "AddTransaction") {
-    onClickRoute = `/transactions/addButton?checked=${checked}&transactionId=${transaction.id}&groupId=${groupId}`;
-  } else if (route === "ViewBillSplit") {
-    onClickRoute = `/transactions/viewBillSplit/${transaction.id}/${groupId}`;
-  } else {
-    onClickRoute = `/transactions/details/${transaction.id}/?url=${url}`;
-  }
+  const hxAttr =
+    route === "AddTransaction"
+      ? {
+          "hx-post": `/transactions/addButton?checked=${checked}&transactionId=${transaction.id}&groupId=${groupId}`,
+        }
+      : {
+          "hx-get": `/transactions/details/${transaction.id}/?url=${url}`,
+          "hx-push-url": `/transactions/details/${transaction.id}/?url=${url}`,
+        };
+
   return (
     <button
       id={`transactionContainer-${transaction.id}`}
-      hx-get={`${onClickRoute}`}
+      {...hxAttr}
       hx-trigger="click"
       hx-target={`${
         route === "AddTransaction"

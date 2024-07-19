@@ -244,7 +244,7 @@ router.get("/location/:transactionId", async (req, res) => {
   }
 });
 
-router.get("/addButton", async (req, res) => {
+router.post("/addButton", async (req, res) => {
   // sorry jeremy ^^^^
   const { checked, transactionId, groupId } = req.query as {
     [key: string]: string;
@@ -262,7 +262,7 @@ router.get("/addButton", async (req, res) => {
     if (!groupTransactions) throw new Error();
 
     const groupTransactionState = await createGroupTransactionState({
-      pending: true,
+      pending: false,
       groupTransactionId: groupTransactions[0].id,
     });
     await Promise.all(

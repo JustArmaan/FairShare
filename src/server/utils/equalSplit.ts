@@ -1,5 +1,5 @@
 import { updateOwedForGroupTransaction } from "../services/group.service";
-import { type UserGroupSchema } from "../routes/groupRouter";
+import { type UserGroupSchema } from "../routes/groups/groupRouter"; 
 import { type GroupWithEqualSplitTypeTransactionsAndMembers } from "../services/group.service";
 import { createGroupNotificationWithWebsocket } from "./createNotification";
 

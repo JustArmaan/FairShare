@@ -1,7 +1,7 @@
-import { env } from '../../../../env';
+import { env } from "../../../../env";
 
-import crypto from 'crypto';
-const shasum = crypto.createHash('sha1');
+import crypto from "crypto";
+const shasum = crypto.createHash("sha1");
 
 const key = env.vopayKey!;
 const secret = env.vopaySharedSecret!;
@@ -10,16 +10,16 @@ let storedSignature: string | null = null;
 
 function generateVopaySignature() {
   let date: Date | string = new Date();
-  if (signatureDate === date.toISOString().split('T')[0] && storedSignature) {
+  if (signatureDate === date.toISOString().split("T")[0] && storedSignature) {
     return storedSignature;
   }
 
   // convert to yyyy-mm-dd
-  date = date.toISOString().split('T')[0];
+  date = date.toISOString().split("T")[0];
   signatureDate = date;
 
   shasum.update(key + secret + date);
-  const signature = shasum.digest('hex');
+  const signature = shasum.digest("hex");
   storedSignature = signature;
   return signature;
 }
@@ -38,19 +38,13 @@ export async function vopayRequest(endpoint: string, body: any) {
     });
 
     const response = await fetch(`${env.vopayUrl!}/${endpoint}`, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        accept: 'application/json',
-        'content-type': 'application/x-www-form-urlencoded',
+        accept: "application/json",
+        "content-type": "application/x-www-form-urlencoded",
       },
       body: formData.toString(),
     });
-    console.log(
-      `${env.vopayUrl!}/${endpoint}`,
-      'endpoint',
-      formData.toString(),
-      'vopay body'
-    );
     return await response.json();
   } catch (e) {
     console.error(e);
@@ -72,7 +66,7 @@ export async function requestInteracTransfer(
   receiverName: string
 ) {
   try {
-    const response = await vopayRequest('interac/money-request', {
+    const response = await vopayRequest("interac/money-request", {
       // required fields
       Amount: amount,
       Currency: currency,
@@ -96,7 +90,7 @@ export async function sendInteracTransfer(
   answer: string
 ) {
   try {
-    const response = await vopayRequest('interac/bulk-payout', {
+    const response = await vopayRequest("interac/bulk-payout", {
       // required fields
       Amount: amount,
       Currency: currency,

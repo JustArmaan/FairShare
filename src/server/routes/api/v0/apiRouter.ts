@@ -97,7 +97,7 @@ router.post("/sync", async (req, res) => {
   ) {
     if (!item_id) return res.status(400).send();
     const { id } = (await getUserByItemId(item_id))!;
-    await syncTransactionsForUser(id);
+    await syncTransactionsForUser(id, "/sync");
 
     console.log("synced up");
   }

@@ -1,5 +1,5 @@
 import express from "express";
-import { GroupPage } from "../views/pages/Groups/GroupPage";
+import { GroupPage } from "../../views/pages/Groups/GroupPage.tsx";
 import { renderToHtml } from "jsxte";
 import {
   deleteMemberByGroup,
@@ -17,59 +17,60 @@ import {
   getGroupOwner,
   getUserTotalOwedForGroupWithOwingFlags,
   getUserToGroupFromUserToGroupId,
-} from "../services/group.service";
-import { findUser, getUserByEmailOnly } from "../services/user.service.ts";
+} from "../../services/group.service.ts";
+import { findUser, getUserByEmailOnly } from "../../services/user.service.ts";
 import {
   createGroup,
   addMember,
   getGroupWithMembers,
   updateGroup,
-} from "../services/group.service.ts";
-import CreateGroup from "../views/pages/Groups/components/CreateGroup.tsx";
+} from "../../services/group.service.ts";
+import CreateGroup from "../../views/pages/Groups/components/CreateGroup.tsx";
 import {
   EditGroupPage,
   colors,
-} from "../views/pages/Groups/components/EditGroup.tsx";
-import { ViewGroups } from "../views/pages/Groups/components/ViewGroup.tsx";
-import { AddTransaction } from "../views/pages/Groups/components/AddTransaction.tsx";
+} from "../../views/pages/Groups/components/EditGroup.tsx";
+import { ViewGroups } from "../../views/pages/Groups/components/ViewGroup.tsx";
+import { AddTransaction } from "../../views/pages/Groups/components/AddTransaction.tsx";
 import {
   getAccountWithTransactions,
   getAccountsForUser,
   getCashAccountWithTransaction,
   getItem,
   getItemsForUser,
-} from "../services/plaid.service";
-import type { ExtractFunctionReturnType } from "../services/user.service";
-import { GroupTransactionsListPage } from "../views/pages/Groups/TransactionsListGroupsPage.tsx";
+} from "../../services/plaid.service.ts";
+import type { ExtractFunctionReturnType } from "../../services/user.service.ts";
+import { GroupTransactionsListPage } from "../../views/pages/Groups/TransactionsListGroupsPage.tsx";
 import {
   getAllOwedForGroupTransactionWithMemberInfo,
   getAllOwedForGroupTransactionWithTransactionId,
   getGroupIdAndTransactionIdForOwed,
-} from "../services/owed.service.ts";
-import { TransactionList } from "../views/pages/transactions/components/TransactionList.tsx";
-import { AccountPickerForm } from "../views/pages/transactions/components/AccountPickerForm.tsx";
-import Transaction from "../views/pages/transactions/components/Transaction.tsx";
-import { getTransaction } from "../services/transaction.service.ts";
-import { ViewAndPayPage } from "../views/pages/Groups/ViewAndPayPage.tsx";
-import { InstitutionDropDown } from "../views/pages/Groups/components/InstitutionDropDown.tsx";
+} from "../../services/owed.service.ts";
+import { TransactionList } from "../../views/pages/transactions/components/TransactionList.tsx";
+import { AccountPickerForm } from "../../views/pages/transactions/components/AccountPickerForm.tsx";
+import Transaction from "../../views/pages/transactions/components/Transaction.tsx";
+import { getTransaction } from "../../services/transaction.service.ts";
+import { ViewAndPayPage } from "../../views/pages/Groups/ViewAndPayPage.tsx";
+import { InstitutionDropDown } from "../../views/pages/Groups/components/InstitutionDropDown.tsx";
 import {
   getAccountWithItem,
   getAccountsWithItemsForUser,
-} from "../services/account.service.ts";
-import { AccountSelector } from "../views/pages/Groups/components/AccountSelector.tsx";
+} from "../../services/account.service.ts";
+import { AccountSelector } from "../../views/pages/Groups/components/AccountSelector.tsx";
+import { deleteGroupInviteNotificationByNotificationId } from "../../services/notification.service.ts";
 import {
   createGroupInviteWithWebsocket,
   createGroupNotificationWithWebsocket,
-} from "../utils/createNotification.ts";
-import SelectIcon from "../views/pages/Groups/components/SelectIcon.tsx";
-import { AddMembersPage } from "../views/pages/Groups/AddMemberPage.tsx";
-import { getInviteLinkById } from "../services/invite.service.ts";
-import { env } from "../../../env.ts";
-import { getOrCreateInviteLink } from "../utils/getOrCreateInviteLink.ts";
-import { checkUserExistsInGroup } from "../utils/userExistsInGroup.ts";
-import GroupMembers from "../views/pages/Groups/components/GroupMembers.tsx";
-import { deleteGroupInviteNotificationByNotificationId } from "../services/notification.service.ts";
-import { getOrCreateCashAccountForUser } from "../utils/getOrCreateCashAccount.ts";
+} from "../../utils/createNotification.ts";
+import SelectIcon from "../../views/pages/Groups/components/SelectIcon.tsx";
+import { AddMembersPage } from "../../views/pages/Groups/AddMemberPage.tsx";
+import { getInviteLinkById } from "../../services/invite.service.ts";
+import { env } from "../../../../env.ts";
+import { getOrCreateInviteLink } from "../../utils/getOrCreateInviteLink.ts";
+import { checkUserExistsInGroup } from "../../utils/userExistsInGroup.ts";
+import GroupMembers from "../../views/pages/Groups/components/GroupMembers.tsx";
+import { groupViewSubRouter } from "./groupView.tsx";
+import { getOrCreateCashAccountForUser } from "../../utils/getOrCreateCashAccount.ts";
 
 const router = express.Router();
 
@@ -183,85 +184,6 @@ router.get("/page", async (req, res) => {
     res.send(html);
   } catch (err) {
     console.error(err);
-  }
-});
-
-const groupBudget = [
-  {
-    budgetGoal: 4000,
-    spending: 1175,
-  },
-];
-
-router.get("/view/:groupId", async (req, res) => {
-  try {
-    const userId = req.user!.id;
-    const currentUser = await findUser(userId);
-
-    if (!currentUser) throw new Error("No such user");
-
-    const group = await getGroupWithMembers(req.params.groupId);
-
-    if (!group) return res.status(404).send("No such group");
-
-    const transactions = await getTransactionsForGroup(group.id);
-
-    const owedPerMember = await Promise.all(
-      transactions
-        .map(async (transaction) => {
-          return (await getAllOwedForGroupTransactionWithTransactionId(
-            group.id,
-            transaction.id
-          )) as ExtractFunctionReturnType<
-            typeof getAllOwedForGroupTransactionWithTransactionId
-          >;
-        })
-        .filter((owed) => owed !== null)
-    );
-
-    const items = await getItemsForUser(req.user!.id);
-    const defaultItem = items[0] && items[0].item;
-
-    let accountId = "";
-
-    if (defaultItem) {
-      const account = await getAccountsForUser(userId, defaultItem.id);
-      accountId = account ? account[0].id : "";
-    } else {
-      const cashAccount = await getOrCreateCashAccountForUser(userId);
-      accountId = cashAccount ? cashAccount.id : "";
-    }
-
-    const html = renderToHtml(
-      <ViewGroups
-        groupId={group.id}
-        transactions={transactions}
-        members={group.members}
-        currentUser={currentUser}
-        groupBudget={groupBudget}
-        owedPerMember={
-          owedPerMember && owedPerMember.length > 0
-            ? owedPerMember
-            : [
-                group.members.map((member) => ({
-                  transactionId: "",
-                  userId: member.id,
-                  amount: 0,
-                  groupTransactionToUsersToGroupsId: "",
-                  pending: true,
-                })),
-              ]
-        }
-        accountId={accountId}
-        selectedDepositAccountId={null}
-        itemId={defaultItem ? defaultItem.id : undefined}
-        url={`/groups/view/${group.id}`}
-      />
-    );
-    res.send(html);
-  } catch (error) {
-    console.error(error);
-    res.status(500).send("An error occurred while processing the request.");
   }
 });
 
@@ -942,32 +864,12 @@ router.get("/selectIcon", async (req, res) => {
   const selectedIcon = req.query.selectedIcon as string;
   const selectedColor = req.query.selectedColor as string;
   const html = renderToHtml(
-    <div
-      id="select-group-icon-container"
-      class="w-full bg-primary-black rounded-md mt-1 flex flex-col items-center animate-fade-in"
-    >
-      <div
-        id="select-group-icon-header"
-        class="py-2 px-3 w-full flex justify-between items-center"
-      >
-        <p class="text-primary-grey font-normal">Select Group Icon</p>
-        <img
-          hx-get="/groups/selectIconEmpty"
-          hx-trigger="click"
-          hx-swap="outerHTML"
-          hx-target="#select-group-icon-container"
-          src="/activeIcons/expand_more.svg"
-          class="rotate-180 cursor-pointer w-[24px] h-[24px]"
-        />
-      </div>
-      <hr class="border-t border-primary-dark-grey w-11/12 mx-auto px-2" />
-      <SelectIcon
-        icons={createIcons}
-        colors={colors}
-        selectedIcon={selectedIcon}
-        selectedColor={selectedColor}
-      />
-    </div>
+    <SelectIcon
+      icons={createIcons}
+      colors={colors}
+      selectedIcon={selectedIcon}
+      selectedColor={selectedColor}
+    />
   );
   res.send(html);
 });
@@ -985,7 +887,7 @@ router.get("/selectIconEmpty", async (req, res) => {
       <p class="text-primary-grey font-normal">Select Group Icon</p>
       <img
         src="/activeIcons/expand_more.svg"
-        class="cursor-pointer h-[24px] w-[24px]"
+        class="cursor-pointer w-[24px] aspect-square"
       />
     </div>
   );
@@ -1101,5 +1003,7 @@ router.get("/groupMembers/:groupId", async (req, res) => {
 
   res.send(html);
 });
+
+router.use("/view", groupViewSubRouter);
 
 export const groupRouter = router;
