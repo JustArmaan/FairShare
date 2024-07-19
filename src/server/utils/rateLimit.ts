@@ -31,7 +31,9 @@ export const rateLimit = (options: RateLimitOptions) => {
       res.setHeader("Retry-After", retryAfter);
       return res
         .status(403)
-        .send(`Rate limit exceeded. Try again in ${retryAfter} seconds.`);
+        .send(
+          `The limit of ${maxRequests} scanned receipts was reached. Try again in ${retryAfter} seconds.`
+        );
     }
 
     recentTimestamps.push(now);

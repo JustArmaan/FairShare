@@ -25,15 +25,15 @@ import { receiptRouter } from "./routes/receiptRouter";
 
 /* test, remove me */
 
-import { pipeline } from "@xenova/transformers";
+// import { pipeline } from "@xenova/transformers";
 
-export async function print() {
-  const pipe = await pipeline("image-to-text", "FairShare/sk_invoice_receipts");
-  const out = await pipe(
-    "https://media-cdn.tripadvisor.com/media/photo-s/0c/c2/5a/e3/this-is-the-receipt-showing.jpg"
-  );
-  console.log(out);
-}
+// export async function print() {
+//   const pipe = await pipeline("image-to-text", "FairShare/sk_invoice_receipts");
+//   const out = await pipe(
+//     "https://media-cdn.tripadvisor.com/media/photo-s/0c/c2/5a/e3/this-is-the-receipt-showing.jpg"
+//   );
+//   console.log(out);
+// }
 
 
 const app = express();

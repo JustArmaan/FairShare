@@ -165,19 +165,43 @@ async function updateSerializedImages() {
 }
 
 async function sendImagesSeparately() {
-  const serializedImagesInput = document.getElementById(
-    "serializedImages"
-  ) as HTMLInputElement;
-  const images = JSON.parse(serializedImagesInput.value);
+  try {
+    const serializedImagesInput = document.getElementById(
+      "serializedImages"
+    ) as HTMLInputElement;
+    const images = JSON.parse(serializedImagesInput.value);
 
-  for (const image of images) {
-    await fetch("/receipt/next", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ image: image.src }),
-    });
+    for (const image of images) {
+      const response = await fetch("/receipt/next", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ image: image.src }),
+      });
+      if (response.status === 403) {
+        const errorText = await response.text();
+        const errorContainer = document.getElementById("errorContainer");
+
+        if (errorContainer) {
+          errorContainer.textContent = errorText;
+          errorContainer.classList.remove("hidden");
+          setTimeout(() => {
+            errorContainer.classList.add("hidden");
+          }, 8000);
+        }
+        break;
+      } else if (response.status === 413) {
+        const errorContainer = document.getElementById("errorContainer");
+
+        if (errorContainer) {
+          errorContainer.textContent =
+            "Image size was too large for the server to process. Please try again";
+        }
+      }
+    }
+  } catch (e) {
+    console.error("Error sending images separately:", e);
   }
 }
 
@@ -264,7 +288,6 @@ function updateChooseFromLibraryButton() {
   }
   updateSerializedImages();
 }
-
 
 function updateUIAfterDeletion() {
   const imagePreviewAddPage = document.getElementById("imagePreviewAddPage");
