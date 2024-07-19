@@ -19,9 +19,9 @@ import {
 import { clipBoardCopyInviteLink } from "./inviteLink/inviteLink";
 import htmx from "htmx.org";
 import {
-  addFileInput,
   initializeChooseFromLibraryButton,
   onMessage,
+  addTakePictureButton,
 } from "./receiptScanning/receiptScanning";
 
 // !!!
@@ -44,8 +44,8 @@ document.body.addEventListener("htmx:afterSwap", (event) => {
   initializeSelectedIcon();
   openAndCloseSelectIcon();
   clearInviteInput();
-  addFileInput();
   initializeChooseFromLibraryButton();
+  addTakePictureButton();
 
   if (!(event.target instanceof HTMLElement)) return;
   const excludeListId = new Set(["institutionSelector"]);

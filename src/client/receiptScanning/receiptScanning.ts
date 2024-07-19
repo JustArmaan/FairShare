@@ -1,9 +1,24 @@
 import htmx from "htmx.org";
+import heic2any from "heic2any";
+
+function addEventListenerWithFlag(
+  element: HTMLElement,
+  event: string,
+  handler: EventListenerOrEventListenerObject,
+  flag: string
+) {
+  if (element && !element.dataset[flag]) {
+    element.addEventListener(event, handler);
+    element.dataset[flag] = "true";
+  }
+}
 
 function handleReceivedImage(base64Image: string): void {
   const imagePreviewAddPage = document.getElementById("imagePreviewAddPage");
 
   if (imagePreviewAddPage) {
+    console.log("handleReceivedImage: Adding image to DOM");
+
     const imgContainer = document.createElement("div");
     imgContainer.className = "relative w-full max-w-xs mx-auto mb-1";
 
@@ -29,11 +44,32 @@ function handleReceivedImage(base64Image: string): void {
     addRetakeAndAddMoreButtons();
     updateChooseFromLibraryButton();
   } else {
-    console.log("imagePreviewAddPage element not found");
+    console.log("handleReceivedImage: imagePreviewAddPage element not found");
   }
 }
 
+// This still only works about 90% on iphone
 function compressImage(imageSrc: string, maxSize: number) {
+  return new Promise((resolve, reject) => {
+    if (imageSrc.startsWith("data:image/heic")) {
+      heic2any({ blob: dataURItoBlob(imageSrc), toType: "image/jpeg" })
+        .then((convertedBlob) => {
+          const reader = new FileReader();
+          reader.onload = (event) => {
+            compressImageFromDataURI(event.target?.result as string, maxSize)
+              .then(resolve)
+              .catch(reject);
+          };
+          reader.readAsDataURL(convertedBlob as Blob);
+        })
+        .catch(reject);
+    } else {
+      compressImageFromDataURI(imageSrc, maxSize).then(resolve).catch(reject);
+    }
+  });
+}
+
+function compressImageFromDataURI(imageSrc: string, maxSize: number) {
   return new Promise((resolve, reject) => {
     const img = new Image();
     img.src = imageSrc;
@@ -50,6 +86,17 @@ function compressImage(imageSrc: string, maxSize: number) {
     };
     img.onerror = (err) => reject(err);
   });
+}
+
+function dataURItoBlob(dataURI: string) {
+  const byteString = atob(dataURI.split(",")[1]);
+  const mimeString = dataURI.split(",")[0].split(":")[1].split(";")[0];
+  const ab = new ArrayBuffer(byteString.length);
+  const ia = new Uint8Array(ab);
+  for (let i = 0; i < byteString.length; i++) {
+    ia[i] = byteString.charCodeAt(i);
+  }
+  return new Blob([ab], { type: mimeString });
 }
 
 async function updateSerializedImages() {
@@ -82,6 +129,7 @@ function updateChooseFromLibraryButton() {
   let chooseFromLibraryButton = document.getElementById(
     "chooseFromLibraryButton"
   );
+  let takePicButton = document.getElementById("takePictureButton");
 
   if (imagePreviewAddPage) {
     if (imagePreviewAddPage.querySelectorAll("img").length > 0) {
@@ -90,17 +138,22 @@ function updateChooseFromLibraryButton() {
       nextButton.className =
         "button bg-accent-blue text-font-off-white py-2 px-4 rounded-lg mb-[2rem] text-center cursor-pointer";
       nextButton.innerText = "Next";
-      nextButton.setAttribute("hx-post", "/receipt/next"); // Change to the appropriate endpoint
+      nextButton.setAttribute("hx-post", "/receipt/next");
       nextButton.setAttribute("hx-trigger", "click");
       nextButton.setAttribute("hx-swap", "innerHTML");
       nextButton.setAttribute("hx-target", "#app");
       nextButton.setAttribute("hx-include", "#serializedImages");
 
-      if (chooseFromLibraryButton && chooseFromLibraryButton.parentNode) {
+      if (
+        chooseFromLibraryButton &&
+        chooseFromLibraryButton.parentNode &&
+        takePicButton
+      ) {
         chooseFromLibraryButton.parentNode.replaceChild(
           nextButton,
           chooseFromLibraryButton
         );
+        takePicButton.remove();
         htmx.process(nextButton);
       }
     } else {
@@ -110,9 +163,31 @@ function updateChooseFromLibraryButton() {
         chooseFromLibraryButton.className =
           "button bg-accent-blue text-font-off-white py-2 px-4 rounded-lg mb-[2rem] text-center cursor-pointer";
         chooseFromLibraryButton.innerText = "Choose from Library";
-        chooseFromLibraryButton.addEventListener(
+        addEventListenerWithFlag(
+          chooseFromLibraryButton,
           "click",
-          triggerFileInputClick
+          openImageLibrary,
+          "chooseFromLibraryClick"
+        );
+
+        takePicButton = document.createElement("button");
+        takePicButton.id = "takePictureButton";
+        takePicButton.className =
+          "button bg-accent-blue text-font-off-white py-2 px-4 rounded-lg mb-[2rem] text-center cursor-pointer";
+        takePicButton.innerText = "Take Picture";
+
+        addEventListenerWithFlag(
+          takePicButton,
+          "click",
+          (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            console.log("Take Picture button clicked");
+            if ((window as any).ReactNativeWebView) {
+              openCamera();
+            }
+          },
+          "takePictureClick"
         );
 
         const parentContainer = document.querySelector(".buttonContainer");
@@ -122,12 +197,18 @@ function updateChooseFromLibraryButton() {
             chooseFromLibraryButton,
             parentContainer.firstChild
           );
+          parentContainer.insertBefore(
+            takePicButton,
+            chooseFromLibraryButton.nextSibling
+          );
         }
       } else {
         chooseFromLibraryButton.innerText = "Choose from Library";
-        chooseFromLibraryButton.addEventListener(
+        addEventListenerWithFlag(
+          chooseFromLibraryButton,
           "click",
-          triggerFileInputClick
+          openImageLibrary,
+          "chooseFromLibraryClick"
         );
       }
     }
@@ -135,15 +216,8 @@ function updateChooseFromLibraryButton() {
   updateSerializedImages();
 }
 
-
 function updateUIAfterDeletion() {
   const imagePreviewAddPage = document.getElementById("imagePreviewAddPage");
-  console.log(
-    "Updating UI after deletion",
-    imagePreviewAddPage?.children,
-    "hello",
-    imagePreviewAddPage
-  );
 
   if (imagePreviewAddPage) {
     const imgElements = imagePreviewAddPage.querySelectorAll("img");
@@ -173,10 +247,7 @@ function updateUIAfterDeletion() {
           "button bg-accent-blue text-font-off-white py-2 px-4 rounded-lg mb-[2rem] text-center cursor-pointer";
         chooseFromLibraryButton.innerText = "Choose from Library";
         chooseFromLibraryButton.setAttribute("for", "fileInputAddPage");
-        chooseFromLibraryButton.addEventListener(
-          "click",
-          triggerFileInputClick
-        );
+        chooseFromLibraryButton.addEventListener("click", openImageLibrary);
 
         const parentContainer = document.querySelector(".buttonContainer");
         if (parentContainer) {
@@ -191,80 +262,10 @@ function updateUIAfterDeletion() {
   updateSerializedImages();
 }
 
-function triggerFileInputClick(event: MouseEvent): void {
-  event.preventDefault();
-  event.stopPropagation();
-  const fileInputAddPage = document.getElementById(
-    "fileInputAddPage"
-  ) as HTMLInputElement;
-  if (fileInputAddPage) {
-    fileInputAddPage.click();
-  }
-}
-
-function isMobileDevice(): boolean {
-  return /Mobi|Android/i.test(navigator.userAgent);
-}
-
-export function initializeCamera(): void {
-  const video = document.getElementById("cameraVideo") as HTMLVideoElement;
-  const canvas = document.getElementById("canvas") as HTMLCanvasElement;
-  const captureButton = document.getElementById("captureButton");
-  const imagePreviewCapturePage = document.getElementById(
-    "imagePreviewCapturePage"
-  );
-
-  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-    console.error("getUserMedia not supported on this browser.");
-    return;
-  }
-
-  if (video && canvas && captureButton && imagePreviewCapturePage) {
-    console.log("Elements found, initializing camera...");
-
-    navigator.mediaDevices
-      .getUserMedia({
-        video: { facingMode: isMobileDevice() ? "environment" : "user" },
-      })
-      .then((stream) => {
-        video.srcObject = stream;
-        video.play();
-        console.log("Camera stream started");
-      })
-      .catch((err) => {
-        console.error("Error accessing camera: ", err);
-      });
-
-    captureButton.addEventListener("click", () => {
-      const context = canvas.getContext("2d");
-      if (context) {
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
-        context.drawImage(video, 0, 0, canvas.width, canvas.height);
-      }
-
-      const img = document.createElement("img");
-      img.src = canvas.toDataURL("image/png");
-      img.className = "w-full max-w-xs mx-auto";
-      imagePreviewCapturePage.innerHTML = "";
-      imagePreviewCapturePage.appendChild(img);
-
-      const stream = video.srcObject as MediaStream;
-      if (stream) {
-        const tracks = stream.getTracks();
-        tracks.forEach((track) => track.stop());
-      }
-    });
-  } else {
-    console.error("Required elements not found for initializing camera");
-  }
-}
-
 function addRetakeAndAddMoreButtons() {
   const imagePreviewAddPage = document.getElementById("imagePreviewAddPage");
-  const fileInputAddPage = document.getElementById("fileInputAddPage");
 
-  if (imagePreviewAddPage && fileInputAddPage) {
+  if (imagePreviewAddPage) {
     const existingButtonsContainer = document.querySelector(
       ".dynamic-button-container"
     );
@@ -274,17 +275,16 @@ function addRetakeAndAddMoreButtons() {
 
     const buttonContainer = document.createElement("div");
     buttonContainer.className =
-      "flex justify-between w-full mt-4 dynamic-button-container";
+      "flex w-full mt-4 dynamic-button-container justify-between";
 
     const retakeButton = document.createElement("button");
     retakeButton.innerText = "Retake";
     retakeButton.className =
-      "button bg-accent-purple text-font-off-white px-2 py-1 rounded-lg text-center cursor-pointer w-[6rem] text-sm";
+      "button bg-accent-purple text-font-off-white px-2 py-1 rounded-lg text-center cursor-pointer w-[8rem] text-sm mx-1";
     retakeButton.addEventListener("click", (event) => {
       event.preventDefault();
       event.stopPropagation();
 
-      // Remove the last image without clearing the entire content
       const imgContainers =
         imagePreviewAddPage.querySelectorAll("div.relative");
       if (imgContainers.length > 0) {
@@ -301,77 +301,58 @@ function addRetakeAndAddMoreButtons() {
       updateChooseFromLibraryButton();
     });
 
-    const addMoreButton = document.createElement("button");
-    addMoreButton.innerText = "Add More";
-    addMoreButton.className =
-      "button bg-accent-blue text-font-off-white px-2 py-1 rounded-lg text-center cursor-pointer w-[6rem] text-sm";
-    addMoreButton.addEventListener("click", (event) => {
+    const takeAnotherPictureButton = document.createElement("button");
+    takeAnotherPictureButton.innerText = "Take Another Picture";
+    takeAnotherPictureButton.className =
+      "button bg-accent-blue text-font-off-white px-2 py-1 rounded-lg text-center cursor-pointer w-[8rem] text-sm mx-1";
+    takeAnotherPictureButton.addEventListener("click", (event) => {
       event.preventDefault();
       event.stopPropagation();
 
-      console.log("Add More button clicked");
-      // Trigger click event on file input
-      fileInputAddPage.click();
+      console.log("Take Another Picture button clicked");
+
+      if ((window as any).ReactNativeWebView) {
+        openCamera();
+      }
+    });
+
+    const addFromLibraryButton = document.createElement("button");
+    addFromLibraryButton.innerText = "Add from Library";
+    addFromLibraryButton.className =
+      "button bg-accent-blue text-font-off-white px-2 py-1 rounded-lg text-center cursor-pointer w-[8rem] text-sm mx-1";
+    addFromLibraryButton.addEventListener("click", (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+
+      openImageLibrary();
     });
 
     buttonContainer.appendChild(retakeButton);
-    buttonContainer.appendChild(addMoreButton);
+    buttonContainer.appendChild(takeAnotherPictureButton);
+    buttonContainer.appendChild(addFromLibraryButton);
 
     imagePreviewAddPage.appendChild(buttonContainer);
   }
 }
 
-export function addFileInput() {
-  document.addEventListener("htmx:afterSwap", () => {
-    const fileInputAddPage = document.getElementById("fileInputAddPage");
-    const imagePreviewAddPage = document.getElementById("imagePreviewAddPage");
+export function addTakePictureButton() {
+  const takePicButton = document.getElementById("takePictureButton");
 
-    if (fileInputAddPage && imagePreviewAddPage) {
-      fileInputAddPage.addEventListener("change", (e) => {
-        const file = (e.target as HTMLInputElement)?.files?.[0];
-        if (file) {
-          const reader = new FileReader();
-          reader.onload = function (event) {
-            const uniqueId = `${file.lastModified}-${file.size}`;
-
-            const existingImg = document.querySelector(
-              `img[data-id="${uniqueId}"]`
-            );
-            if (existingImg) {
-              console.log("Image already exists, not adding again.");
-              return;
-            }
-
-            const imgContainer = document.createElement("div");
-            imgContainer.className = "relative w-full max-w-xs mx-auto mb-1";
-
-            const img = document.createElement("img");
-            img.src = event.target?.result as string;
-            img.className = "w-full";
-            img.setAttribute("data-id", uniqueId);
-
-            const deleteButton = document.createElement("button");
-            deleteButton.className = "absolute top-0 right-0 p-2 rounded-full";
-            deleteButton.innerHTML = `<img src="/icons/delete.svg" alt="Delete" class="w-6 h-6 cursor-pointer">`;
-            deleteButton.addEventListener("click", (event) => {
-              event.preventDefault();
-              event.stopPropagation();
-              imagePreviewAddPage.removeChild(imgContainer);
-              updateUIAfterDeletion();
-            });
-
-            imgContainer.appendChild(img);
-            imgContainer.appendChild(deleteButton);
-            imagePreviewAddPage.appendChild(imgContainer);
-            imagePreviewAddPage.classList.remove("hidden");
-            addRetakeAndAddMoreButtons();
-            updateChooseFromLibraryButton();
-          };
-          reader.readAsDataURL(file);
+  if (takePicButton) {
+    addEventListenerWithFlag(
+      takePicButton,
+      "click",
+      (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        console.log("Take Picture button clicked");
+        if ((window as any).ReactNativeWebView) {
+          openCamera();
         }
-      });
-    }
-  });
+      },
+      "takePictureClick"
+    );
+  }
 }
 
 export interface MessageEvent {
@@ -420,12 +401,31 @@ export function openCamera() {
   }
 }
 
+export function openImageLibrary() {
+  if ((window as any).ReactNativeWebView) {
+    (window as any).ReactNativeWebView.postMessage(
+      JSON.stringify({ action: "openImageLibrary" })
+    );
+  }
+}
+
 export function initializeChooseFromLibraryButton() {
   const chooseFromLibraryButton = document.getElementById(
     "chooseFromLibraryButton"
   );
 
   if (chooseFromLibraryButton) {
-    chooseFromLibraryButton.addEventListener("click", triggerFileInputClick);
+    addEventListenerWithFlag(
+      chooseFromLibraryButton,
+      "click",
+      openImageLibrary,
+      "chooseFromLibraryClick"
+    );
   }
 }
+
+document.addEventListener("DOMContentLoaded", () => {
+  console.log("DOMContentLoaded");
+  initializeChooseFromLibraryButton();
+  addTakePictureButton();
+});

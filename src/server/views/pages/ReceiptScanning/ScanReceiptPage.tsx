@@ -35,12 +35,6 @@ const AddReceiptPage = () => {
           name="serializedImages"
           value=""
         ></input>
-        <input
-          type="file"
-          accept="image/*"
-          id="fileInputAddPage"
-          class="hidden"
-        />
         <div class="flex flex-col px-[1rem] buttonContainer">
           <label
             id="chooseFromLibraryButton"
@@ -48,6 +42,12 @@ const AddReceiptPage = () => {
             class="button bg-accent-blue text-font-off-white py-2 px-4 rounded-lg mb-[2rem] text-center cursor-pointer"
           >
             Choose from Library
+          </label>
+          <label
+            id="takePictureButton"
+            class="button bg-accent-blue text-font-off-white py-2 px-4 rounded-lg mb-[2rem] text-center cursor-pointer"
+          >
+            Take Picture
           </label>
           <button
             class="button bg-accent-blue text-font-off-white py-2 px-4 rounded-lg cursor-pointer"
