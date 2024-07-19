@@ -16,13 +16,12 @@ function handleReceivedImage(base64Image: string): void {
   const imagePreviewAddPage = document.getElementById("imagePreviewAddPage");
 
   if (imagePreviewAddPage) {
-    console.log("handleReceivedImage: Adding image to DOM");
 
     const imgContainer = document.createElement("div");
     imgContainer.className = "relative w-full max-w-xs mx-auto mb-1";
 
     const img = document.createElement("img");
-    img.src = `data:image/png;base64,${base64Image}`;
+    img.src = `data:image/jpeg;base64,${base64Image}`;
     img.className = "w-full";
 
     const deleteButton = document.createElement("button");
@@ -44,6 +43,14 @@ function handleReceivedImage(base64Image: string): void {
     updateChooseFromLibraryButton();
   } else {
     console.log("handleReceivedImage: imagePreviewAddPage element not found");
+  }
+}
+
+export function onMessage(event: MessageEvent): void {
+  if (event.imageData) {
+    handleReceivedImage(event.imageData);
+  } else {
+    console.log("No event data received.");
   }
 }
 
@@ -99,7 +106,6 @@ async function updateSerializedImages() {
     for (const img of images) {
       if (!img.src.includes("/icons/delete.svg")) {
         const blob = await convertImage(img.src);
-        console.log("Is blob a Blob?", blob instanceof Blob);
         imageDataArray.push({
           src: blob,
         });
@@ -186,7 +192,6 @@ function updateChooseFromLibraryButton() {
 
         nextButton.addEventListener("click", (event) => {
           event.preventDefault();
-          console.log("Next button clicked");
           sendImagesSeparately()
             .then(() => {
               console.log("Images sent successfully");
@@ -237,7 +242,6 @@ function updateChooseFromLibraryButton() {
         takePicButton.innerText = "Take Picture";
 
         takePicButton.addEventListener("click", () => {
-          console.log("Take Picture button clicked");
           if ((window as any).ReactNativeWebView) {
             openCamera();
           }
@@ -307,7 +311,6 @@ function updateUIAfterDeletion() {
       }
       takePicButton.innerText = "Take Picture";
       takePicButton.addEventListener("click", () => {
-        console.log("Take Picture button clicked");
         if ((window as any).ReactNativeWebView) {
           openCamera();
         }
@@ -374,8 +377,6 @@ function addRetakeAndAddMoreButtons() {
       event.preventDefault();
       event.stopPropagation();
 
-      console.log("Take Another Picture button clicked");
-
       if ((window as any).ReactNativeWebView) {
         openCamera();
       }
@@ -398,7 +399,6 @@ export function addTakePictureButton() {
       (event) => {
         event.preventDefault();
         event.stopPropagation();
-        console.log("Take Picture button clicked");
         if ((window as any).ReactNativeWebView) {
           openCamera();
         }
@@ -419,31 +419,6 @@ interface Window {
 
 interface ReactNativeWebView {
   postMessage(message: string): void;
-}
-
-export function onMessage(event: MessageEvent): void {
-  if (event.imageData) {
-    if (typeof event.imageData === "string") {
-      console.log("Raw event data: " + event.imageData);
-    }
-
-    let data;
-    try {
-      data = typeof event === "string" ? JSON.parse(event) : event;
-    } catch (error) {
-      console.error("Failed to parse event data:", error);
-      return;
-    }
-
-    if (data.type === "image") {
-      console.log("Image data received: " + data.imageData);
-      handleReceivedImage(data.imageData);
-    } else {
-      console.log('Message type is not "image".');
-    }
-  } else {
-    console.log("No event data received.");
-  }
 }
 
 export function openCamera() {
