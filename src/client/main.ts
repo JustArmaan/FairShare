@@ -13,10 +13,22 @@ import {
   handleColorClick,
   initializeSelectedColor,
   initializeSelectedIcon,
-  // clearInviteInput
+  openAndCloseSelectIcon,
+  clearInviteInput,
 } from "./createGroup/createGroup";
 import { clipBoardCopyInviteLink } from "./inviteLink/inviteLink";
 import htmx from "htmx.org";
+import {
+  initializeChooseFromLibraryButton,
+  onMessage,
+  addTakePictureButton,
+} from "./receiptScanning/receiptScanning";
+
+// !!!
+// @ts-ignore
+window.onMessage = onMessage;
+
+// console.log("running");
 
 main();
 splitTransfer();
@@ -30,7 +42,10 @@ document.body.addEventListener("htmx:afterSwap", (event) => {
   clipBoardCopyInviteLink();
   initializeSelectedColor();
   initializeSelectedIcon();
-  // clearInviteInput();
+  openAndCloseSelectIcon();
+  clearInviteInput();
+  initializeChooseFromLibraryButton();
+  addTakePictureButton();
 
   if (!(event.target instanceof HTMLElement)) return;
   const excludeListId = new Set(["institutionSelector"]);
@@ -55,6 +70,8 @@ document.body.addEventListener("htmx:afterSwap", (event) => {
       );
     });
 });
+
+window.addEventListener("message", onMessage);
 
 export const apiVersion = 0;
 
@@ -127,6 +144,7 @@ document.addEventListener("htmx:beforeSwap", () => {
 declare global {
   interface Window {
     initMap: () => Promise<void>;
+    onMessage: () => void;
   }
 }
 

@@ -113,6 +113,21 @@ export async function getCashAccountForUser(userId: string) {
   }
 }
 
+export async function getCashAccountWithTransactions(userId: string) {
+  try {
+    const result = await db
+      .select()
+      .from(cashAccount)
+      .innerJoin(users, eq(users.id, cashAccount.userId))
+      .innerJoin(transactions, eq(transactions.accountId, cashAccount.id))
+      .where(eq(cashAccount.userId, userId));
+    return result;
+  } catch (error) {
+    console.error(error, "in getCashAccountWithTransactions");
+    return null;
+  }
+}
+
 export async function createCashAccount(account: Omit<cashAccount, "id">) {
   try {
     await db.insert(cashAccount).values({

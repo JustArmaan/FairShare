@@ -2,7 +2,6 @@ import express from "express";
 import { GroupPage } from "../views/pages/Groups/GroupPage";
 import { renderToHtml } from "jsxte";
 import {
-  checkUserInGroup,
   deleteMemberByGroup,
   getGroupTransactions,
   getGroupWithMembersAndTransactions,
@@ -20,7 +19,6 @@ import {
   getUserToGroupFromUserToGroupId,
 } from "../services/group.service";
 import { findUser, getUserByEmailOnly } from "../services/user.service.ts";
-import { AddedMember } from "../views/pages/Groups/components/Member.tsx";
 import {
   createGroup,
   addMember,
@@ -37,6 +35,7 @@ import { AddTransaction } from "../views/pages/Groups/components/AddTransaction.
 import {
   getAccountWithTransactions,
   getAccountsForUser,
+  getCashAccountWithTransaction,
   getItem,
   getItemsForUser,
 } from "../services/plaid.service";
@@ -58,8 +57,10 @@ import {
   getAccountsWithItemsForUser,
 } from "../services/account.service.ts";
 import { AccountSelector } from "../views/pages/Groups/components/AccountSelector.tsx";
-import { deleteNotificationForUserInGroup } from "../services/notification.service.ts";
-import { createNotificationWithWebsocket } from "../utils/createNotification.ts";
+import {
+  createGroupInviteWithWebsocket,
+  createGroupNotificationWithWebsocket,
+} from "../utils/createNotification.ts";
 import SelectIcon from "../views/pages/Groups/components/SelectIcon.tsx";
 import { AddMembersPage } from "../views/pages/Groups/AddMemberPage.tsx";
 import { getInviteLinkById } from "../services/invite.service.ts";
@@ -67,6 +68,8 @@ import { env } from "../../../env.ts";
 import { getOrCreateInviteLink } from "../utils/getOrCreateInviteLink.ts";
 import { checkUserExistsInGroup } from "../utils/userExistsInGroup.ts";
 import GroupMembers from "../views/pages/Groups/components/GroupMembers.tsx";
+import { deleteGroupInviteNotificationByNotificationId } from "../services/notification.service.ts";
+import { getOrCreateCashAccountForUser } from "../utils/getOrCreateCashAccount.ts";
 
 const router = express.Router();
 
@@ -219,8 +222,15 @@ router.get("/view/:groupId", async (req, res) => {
     const items = await getItemsForUser(req.user!.id);
     const defaultItem = items[0] && items[0].item;
 
-    const account = await getAccountsForUser(userId, defaultItem.id);
-    const accountId = account ? account[0].id : "";
+    let accountId = "";
+
+    if (defaultItem) {
+      const account = await getAccountsForUser(userId, defaultItem.id);
+      accountId = account ? account[0].id : "";
+    } else {
+      const cashAccount = await getOrCreateCashAccountForUser(userId);
+      accountId = cashAccount ? cashAccount.id : "";
+    }
 
     const html = renderToHtml(
       <ViewGroups
@@ -242,15 +252,16 @@ router.get("/view/:groupId", async (req, res) => {
                 })),
               ]
         }
-        accountId={accountId} // refactor me!
+        accountId={accountId}
         selectedDepositAccountId={null}
-        itemId={defaultItem.id}
+        itemId={defaultItem ? defaultItem.id : undefined}
         url={`/groups/view/${group.id}`}
       />
     );
     res.send(html);
   } catch (error) {
     console.error(error);
+    res.status(500).send("An error occurred while processing the request.");
   }
 });
 
@@ -367,7 +378,11 @@ router.get("/create", async (req, res) => {
     if (!databaseUser) throw new Error("failed to create user");
 
     const html = renderToHtml(
-      <CreateGroup currentUser={{ ...databaseUser, type: "Owner" }} />
+      <CreateGroup
+        currentUser={{ ...databaseUser, type: "Owner" }}
+        icons={createIcons}
+        colors={colors}
+      />
     );
     res.send(html);
   } catch (error) {
@@ -406,12 +421,11 @@ router.post("/addMember/:groupId", async (req, res) => {
     }
 
     await addMember(req.params.groupId, member.id, "Invited");
-    await createNotificationWithWebsocket(
+
+    await createGroupInviteWithWebsocket(
       req.params.groupId,
-      `You have been invited to join the group ${currentGroup.name} by ${currentUser.email}`,
       member.id,
-      "groupInvite",
-      `/groups/${currentGroup.id}`
+      "groupInvite"
     );
 
     const group = await getGroupWithMembers(req.params.groupId);
@@ -616,6 +630,51 @@ router.get("/addTransaction/:accountId/:groupId/:itemId", async (req, res) => {
   }
 });
 
+router.get("/addTransaction/:accountId/:groupId", async (req, res) => {
+  try {
+    const { accountId, groupId } = req.params;
+
+    // Get or create cash account for user
+    const cashAccount = await getOrCreateCashAccountForUser(req.user!.id);
+    console.log("cashAccount", cashAccount);
+    if (!cashAccount) {
+      return res.status(500).send("No cash account found");
+    }
+
+    const accountsWithTransactions = [
+      await getCashAccountWithTransaction(cashAccount.account_id),
+    ];
+    console.log("accountsWithTransactions", accountsWithTransactions);
+
+    let selectedAccountId = accountId;
+    if (selectedAccountId === "default") {
+      selectedAccountId = cashAccount.id;
+    }
+
+    const groupTransactions = await getGroupTransactions(groupId);
+    const currentUser = req.user;
+
+    const html = renderToHtml(
+      <AddTransaction
+        currentUser={currentUser!}
+        groupId={groupId}
+        // @ts-ignore
+        accounts={accountsWithTransactions ? accountsWithTransactions : []}
+        selectedAccountId={selectedAccountId}
+        groupTransactionIds={
+          groupTransactions?.map((transaction) => transaction.transactionId) ??
+          []
+        }
+        itemId={null}
+      />
+    );
+    res.send(html);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("An error occurred while processing the request.");
+  }
+});
+
 router.post("/edit/:groupId", async (req, res) => {
   try {
     const { groupName, selectedColor, temporaryGroup, selectedIcon } = req.body;
@@ -750,30 +809,38 @@ router.get("/transactions/:groupId", async (req, res) => {
   res.send(html);
 });
 
-router.get(
-  "/transactionList/:accountId/:groupId",
+router.get("/transactionList/:accountId/:groupId", async (req, res) => {
+  let account = await getAccountWithTransactions(req.params.accountId);
 
-  async (req, res) => {
-    const account = await getAccountWithTransactions(req.params.accountId);
-    const groupTransactions = await getGroupTransactions(req.params.groupId);
-    if (!account) throw new Error("404");
-    const groupTransactionIds = groupTransactions
-      ? groupTransactions.map(
-          (transaction) => transaction.transactionId as string
-        )
-      : [];
-    const html = renderToHtml(
-      <TransactionList
-        account={account}
-        route="AddTransaction"
-        groupId={req.params.groupId}
-        groupTransactionIds={groupTransactionIds}
-      />
-    );
-    res.send(html);
+  if (!account) {
+    const cashAccount = await getOrCreateCashAccountForUser(req.user!.id);
+    if (!cashAccount) {
+      return res.status(500).send("Failed to create or retrieve cash account");
+    }
+    // @ts-ignore
+    account = await getCashAccountWithTransaction(cashAccount.account_id);
+    if (!account) {
+      return res.status(500).send("Failed to retrieve cash account details");
+    }
   }
-);
 
+  const groupTransactions = await getGroupTransactions(req.params.groupId);
+  const groupTransactionIds = groupTransactions
+    ? groupTransactions.map(
+        (transaction) => transaction.transactionId as string
+      )
+    : [];
+
+  const html = renderToHtml(
+    <TransactionList
+      account={account}
+      route="AddTransaction"
+      groupId={req.params.groupId}
+      groupTransactionIds={groupTransactionIds}
+    />
+  );
+  res.send(html);
+});
 router.get("/accountPicker/:itemId/:accountId/:groupId", async (req, res) => {
   const accounts = await getAccountsForUser(req.user!.id, req.params.itemId);
   if (!accounts) throw new Error("Missing accounts for user");
@@ -810,50 +877,66 @@ router.get("/getTransactions/:groupId", async (req, res) => {
   res.send(html);
 });
 
-router.post("/member/:approval/:groupId/:notificationId", async (req, res) => {
-  const { groupId, notificationId } = req.body;
-  const userId = req.user!.id;
-  const isApproved = req.params.approval === "accept";
+router.post(
+  "/member/:approval/:userToGroupId/:notificationId",
+  async (req, res) => {
+    const { userToGroupId, notificationId } = req.body;
+    const userId = req.user!.id;
+    const isApproved = req.params.approval === "accept";
 
-  const user = await findUser(userId);
+    const userToGroup = await getUserToGroupFromUserToGroupId(userToGroupId);
 
-  const owner = await getGroupOwner(groupId);
+    if (!userToGroup) {
+      return res.status(404).send("User not found in group");
+    }
 
-  if (!owner) {
-    return res.status(500).send("An error occured when accepting the invite");
-  }
+    let groupId = userToGroup.groupId;
 
-  if (isApproved) {
-    await changeMemberTypeInGroup(userId, groupId, "Member");
-    await deleteNotificationForUserInGroup(groupId, userId, notificationId);
-    await createNotificationWithWebsocket(
-      groupId,
-      `${user?.firstName} has accepted the invite to join the group`,
-      owner.userId,
-      "groupInvite"
+    const user = await findUser(userId);
+
+    const owner = await getGroupOwner(groupId);
+
+    if (!owner) {
+      return res.status(500).send("An error occured when accepting the invite");
+    }
+
+    if (isApproved) {
+      console.log(
+        groupId,
+        owner.userId,
+        `${user?.firstName} has accepted the invite to join the group`
+      );
+      await changeMemberTypeInGroup(userId, groupId, "Member");
+      await deleteGroupInviteNotificationByNotificationId(notificationId);
+      await createGroupNotificationWithWebsocket(
+        groupId,
+        "groupInvite",
+        owner.userId,
+        `${user?.firstName} has accepted the invite to join the group`
+      );
+    } else {
+      await deleteMemberByGroup(userId, groupId);
+      await deleteGroupInviteNotificationByNotificationId(notificationId);
+      await createGroupNotificationWithWebsocket(
+        groupId,
+        "groupInvite",
+        owner.userId,
+        `${user?.firstName} has declined the invite to join the group`
+      );
+    }
+
+    const html = renderToHtml(
+      <div
+        hx-get={`/groups/view/${groupId}`}
+        hx-trigger="load"
+        hx-target="#app"
+        hx-swap="innerHTML"
+        hx-push-url={`/groups/page/${groupId}`}
+      />
     );
-  } else {
-    await deleteMemberByGroup(userId, groupId);
-    await deleteNotificationForUserInGroup(groupId, userId, notificationId);
-    await createNotificationWithWebsocket(
-      groupId,
-      `${user?.firstName} has declined the invite to join the group`,
-      owner.userId,
-      "groupInvite"
-    );
+    res.send(html);
   }
-
-  const html = renderToHtml(
-    <div
-      hx-get={`/groups/view/${groupId}`}
-      hx-trigger="load"
-      hx-target="#app"
-      hx-swap="innerHTML"
-      hx-push-url={`/groups/page/${groupId}`}
-    />
-  );
-  res.send(html);
-});
+);
 
 router.get("/selectIcon", async (req, res) => {
   const selectedIcon = req.query.selectedIcon as string;

@@ -1,6 +1,5 @@
 import type {
   AccountWithTransactions,
-  getCashAccountWithTransaction,
 } from "../../../../services/plaid.service";
 import {
   generatePathStyles,

@@ -24,7 +24,6 @@ import {
 import { ViewGroups } from "../views/pages/Groups/components/ViewGroup";
 import { getAccountsForUser } from "../services/plaid.service";
 import { createTransferForSender } from "../integrations/vopay/transfer";
-import { createNotificationWithWebsocket } from "../utils/createNotification";
 
 const router = express.Router();
 
@@ -459,65 +458,65 @@ router.post("/splitOptions/edit", async (req, res) => {
   res.send(html);
 });
 
-router.post("/initiate/transfer/sender", async (req, res) => {
-  const { transactionId, groupId, receiverIds } = req.body as {
-    [key: string]: string;
-  };
-  const receiverIdList = receiverIds.split(",");
-  const userId = req.user!.id;
+// router.post("/initiate/transfer/sender", async (req, res) => {
+//   const { transactionId, groupId, receiverIds } = req.body as {
+//     [key: string]: string;
+//   };
+//   const receiverIdList = receiverIds.split(",");
+//   const userId = req.user!.id;
 
-  const owedInfo = await getAllOwedForGroupTransactionWithMemberInfo(
-    groupId,
-    transactionId
-  );
+//   const owedInfo = await getAllOwedForGroupTransactionWithMemberInfo(
+//     groupId,
+//     transactionId
+//   );
 
-  const currentUser = owedInfo?.find((owed) => owed.user.id === userId);
+//   const currentUser = owedInfo?.find((owed) => owed.user.id === userId);
 
-  if (!currentUser) {
-    return res.status(403).send("You need to be signed in to use this feature");
-  }
+//   if (!currentUser) {
+//     return res.status(403).send("You need to be signed in to use this feature");
+//   }
 
-  const parsedAmount = Math.floor(Math.abs(currentUser!.amount) * 100) / 100;
+//   const parsedAmount = Math.floor(Math.abs(currentUser!.amount) * 100) / 100;
 
-  await createTransferForSender(
-    userId,
-    receiverIdList[0],
-    parsedAmount,
-    groupId,
-    owedInfo!.find((owed) => owed.user.id === userId)!.owedId
-  );
+//   await createTransferForSender(
+//     userId,
+//     receiverIdList[0],
+//     parsedAmount,
+//     groupId,
+//     owedInfo!.find((owed) => owed.user.id === userId)!.owedId
+//   );
 
-  const receiver = await findUser(receiverIdList[0]);
+//   const receiver = await findUser(receiverIdList[0]);
 
-  await createNotificationWithWebsocket(
-    groupId,
-    `A request of $${parsedAmount.toFixed(2)} to ${
-      receiver!.firstName
-    } for an Interac e transfer has been sent to your email.`,
-    userId,
-    "groupInvite"
-  );
+//   await createNotificationWithWebsocket(
+//     groupId,
+//     `A request of $${parsedAmount.toFixed(2)} to ${
+//       receiver!.firstName
+//     } for an Interac e transfer has been sent to your email.`,
+//     userId,
+//     "groupInvite"
+//   );
 
-  await createNotificationWithWebsocket(
-    groupId,
-    `${req.user!.firstName} has initiated a transfer of $${parsedAmount.toFixed(
-      2
-    )}. We'll notify you when the transfer is complete.`,
-    receiverIdList[0],
-    "groupInvite"
-  );
+//   await createNotificationWithWebsocket(
+//     groupId,
+//     `${req.user!.firstName} has initiated a transfer of $${parsedAmount.toFixed(
+//       2
+//     )}. We'll notify you when the transfer is complete.`,
+//     receiverIdList[0],
+//     "groupInvite"
+//   );
 
-  res.send(
-    renderToHtml(
-      <div
-        hx-get={`/groups/view/${groupId}`}
-        hx-trigger="load"
-        hx-swap="innerHTML"
-        hx-target="#app"
-        hx-push-url={`/groups/view/${groupId}`}
-      ></div>
-    )
-  );
-});
+//   res.send(
+//     renderToHtml(
+//       <div
+//         hx-get={`/groups/view/${groupId}`}
+//         hx-trigger="load"
+//         hx-swap="innerHTML"
+//         hx-target="#app"
+//         hx-push-url={`/groups/view/${groupId}`}
+//       ></div>
+//     )
+//   );
+// });
 
 export const transferRouter = router;

@@ -1,15 +1,12 @@
 import express from "express";
 import { renderToHtml } from "jsxte";
-import { getTransactionsForUser } from "../services/transaction.service";
 import {
   getAccountWithCurrentMonthTransactions,
-  getAccountWithTransactions,
   getAccountsForUser,
   getCashAccountForUser,
   getCashAccountWithTransaction,
   getItem,
   getItemsForUser,
-  getPlaidAccountsForUser,
 } from "../services/plaid.service";
 import MyAccountsPage from "../views/pages/transactions/MyAccountsPage";
 import { AccountOverview } from "../views/pages/transactions/components/AccountOverview";
@@ -143,6 +140,7 @@ router.get("/accountOverview/cashAccount/:cashAccountId", async (req, res) => {
     itemId: "",
   };
 
+  // @ts-ignore
   const html = renderToHtml(<AccountOverview account={account} />);
   res.send(html);
 });

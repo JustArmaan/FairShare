@@ -63,7 +63,12 @@ export const Nav = () => {
         <div class="rounded-full bg-accent-blue size-12">
           <li class="flex justify-center items-center">
             <a
-              href=""
+              hx-get="/receipt/addReceipt"
+              hx-target="#app"
+              hx-trigger="click"
+              hx-swap="innerHTML"
+              hx-push-url="/receipt/addReceipt"
+              onclick="console.log('HTMX click event');"
               class="flex flex-col items-center text-font-off-white dark:text-white"
             >
               <img

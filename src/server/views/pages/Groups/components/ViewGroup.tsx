@@ -47,7 +47,7 @@ export const ViewGroups = ({
 
   accountId: string;
   selectedDepositAccountId: string | null;
-  itemId: string;
+  itemId?: string;
   url: string;
 }) => {
   const calculateTotalOwed = (
@@ -214,7 +214,11 @@ export const ViewGroups = ({
         ))}{" "}
       </div>
       <button
-        hx-get={`/groups/addTransaction/${accountId}/${groupId}/${itemId}`}
+        hx-get={
+          itemId
+            ? `/groups/addTransaction/${accountId}/${groupId}/${itemId}`
+            : `/groups/addTransaction/${accountId}/${groupId}`
+        }
         hx-trigger="click"
         hx-target="#app"
         hx-swap="innerHTML"

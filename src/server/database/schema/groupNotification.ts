@@ -10,4 +10,5 @@ export const groupNotification = sqliteTable("groupNotification", {
   userGroupId: text("user_group_id")
     .references(() => usersToGroups.id, { onDelete: "cascade" })
     .notNull(),
+  message: text("message").notNull(),
 });

@@ -1,8 +1,12 @@
 import { Reminder } from "./components/Reminder";
-import { type Notification } from "../../../services/notification.service";
+import {
+  type InviteNotification,
+  type CombinedNotification,
+} from "../../../services/notification.service";
 
 export const NotificationList = (props: {
-  notifications: Notification[];
+  inviteNotifications: InviteNotification[];
+  notifications: CombinedNotification[];
   selectedSort: string;
 }) => {
   return (
@@ -25,43 +29,42 @@ export const NotificationList = (props: {
           </div>
         </div>
       </div>
-      {props.notifications.length ? (
+
+      {props.inviteNotifications.length > 0 && (
         <div>
-          {props.notifications.length > 0 && (
-            <p class="text-primary-grey font-medium ">Group Invites</p>
-          )}
+          <p class="text-primary-grey font-medium">Group Invites</p>
+          {props.inviteNotifications.map((notification) => {
+            return <Reminder notifications={notification} />;
+          })}
+        </div>
+      )}
+
+      {props.notifications.length > 0 && (
+        <div>
+          <p class="text-primary-grey font-medium">Notifications</p>
           {props.notifications.map((notification) => {
             return <Reminder notifications={notification} />;
           })}
-          <p class="text-accent-blue flex justify-center self-center ">
-            All up to date
-          </p>
-          <form>
-            <input
-              type="hidden"
-              name="userToGroupId"
-              value={props.notifications[0].id}
-            />
-            <p
-              class="text-primary-faded-black flex justify-center self-center"
-              hx-post="/notification/clearNotifications"
-              hx-target="#app"
-              hx-swap="innerHTML"
-              hx-trigger="click"
-            >
-              Clear
-            </p>
-          </form>
-        </div>
-      ) : (
-        <div>
-          <p class="text-font-off-white font-semibold text-3xl">
-            No Notifications
-          </p>
         </div>
       )}
+
+      {props.inviteNotifications.length === 0 &&
+        props.notifications.length === 0 && (
+          <div>
+            <p class="text-font-off-white font-semibold text-3xl">
+              No Notifications
+            </p>
+          </div>
+        )}
+
       <div class="notification-selector-form" />
       <div class="mb-24"></div>
+      <div
+        hx-get={`/notification/notificationIcon`}
+        hx-swap="outerHTML"
+        hx-trigger="load"
+        hx-target="#notification-icon"
+      />
     </div>
   );
 };

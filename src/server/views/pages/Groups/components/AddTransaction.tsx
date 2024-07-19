@@ -1,14 +1,17 @@
 import type { UserSchema } from "../../../../interface/types";
-import { getAccountWithTransactions } from "../../../../services/plaid.service";
+import { getAccountWithTransactions, getCashAccountWithTransaction } from "../../../../services/plaid.service";
+import type { getCashAccountForUser } from "../../../../services/transaction.service";
 import type { ExtractFunctionReturnType } from "../../../../services/user.service";
 
 export const AddTransaction = (props: {
   currentUser: UserSchema;
   groupId: string;
-  accounts: ExtractFunctionReturnType<typeof getAccountWithTransactions>[];
+  accounts:
+    | ExtractFunctionReturnType<typeof getAccountWithTransactions>[]
+    | ExtractFunctionReturnType<typeof getCashAccountWithTransaction>[];
   selectedAccountId: string;
   groupTransactionIds: string[];
-  itemId: string;
+  itemId: string | null;
 }) => {
   return (
     <div class="animate-fade-in" hx-push-url={`/groups/addTransaction`}>
@@ -35,32 +38,38 @@ export const AddTransaction = (props: {
       <div class="flex justify-between">
         <div class="flex flex-col">
           <div class="hidden rotate-90"></div>
-          <div
-            hx-get={`/home/itemPicker/${props.itemId}?groupId=${props.groupId}`}
-            hx-target=".account-selector-form"
-            hx-swap="innerHTML"
-            class="flex justify-start w-fit items-center hover:-translate-y-0.5 transition-transform cursor-pointer"
-          >
-            <p class="text-font-off-white mr-3 text-xl">Change Institution</p>
-            <img
-              class="h-3"
-              src="/images/right-triangle.svg"
-              alt="triangle icon"
-            />
-          </div>
-          <div
-            hx-get={`/groups/accountPicker/${props.itemId}/${props.selectedAccountId}/${props.groupId}`}
-            hx-target=".account-selector-form"
-            hx-swap="innerHTML"
-            class="flex justify-start w-fit items-center hover:-translate-y-0.5 transition-transform cursor-pointer"
-          >
-            <p class="text-font-off-white mr-3 text-xl">Change Account</p>
-            <img
-              class="h-3"
-              src="/images/right-triangle.svg"
-              alt="triangle icon"
-            />
-          </div>
+          {props.itemId && (
+            <>
+              <div
+                hx-get={`/home/itemPicker/${props.itemId}?groupId=${props.groupId}`}
+                hx-target=".account-selector-form"
+                hx-swap="innerHTML"
+                class="flex justify-start w-fit items-center hover:-translate-y-0.5 transition-transform cursor-pointer"
+              >
+                <p class="text-font-off-white mr-3 text-xl">
+                  Change Institution
+                </p>
+                <img
+                  class="h-3"
+                  src="/images/right-triangle.svg"
+                  alt="triangle icon"
+                />
+              </div>
+              <div
+                hx-get={`/groups/accountPicker/${props.itemId}/${props.selectedAccountId}/${props.groupId}`}
+                hx-target=".account-selector-form"
+                hx-swap="innerHTML"
+                class="flex justify-start w-fit items-center hover:-translate-y-0.5 transition-transform cursor-pointer"
+              >
+                <p class="text-font-off-white mr-3 text-xl">Change Account</p>
+                <img
+                  class="h-3"
+                  src="/images/right-triangle.svg"
+                  alt="triangle icon"
+                />
+              </div>
+            </>
+          )}
         </div>
         <div class="flex justify-between">
           <button
@@ -69,7 +78,7 @@ export const AddTransaction = (props: {
             hx-swap="innerHTML"
             hx-target="#app"
           >
-            <span class="text`-base font-semibold">Add transaction</span>
+            <span class="text-base font-semibold">Add transaction</span>
           </button>
         </div>
       </div>
