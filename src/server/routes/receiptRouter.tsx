@@ -2,6 +2,9 @@ import express from "express";
 import { renderToHtml } from "jsxte";
 import AddReceiptPage from "../views/pages/ReceiptScanning/ScanReceiptPage";
 import { rateLimit } from "../utils/rateLimit";
+import path from "path";
+import fs from "fs";
+import upload from "../utils/multerConfig";
 
 const router = express.Router();
 
@@ -18,17 +21,45 @@ router.get("/addReceipt", async (req, res) => {
 
 const rateLimitOptions = {
   windowMs: 60000,
-  maxRequests: 1,
+  maxRequests: 5,
 };
 
 router.post(
   "/next",
   rateLimit(rateLimitOptions),
-  async (req: express.Request, res: express.Response) => {
+  upload.single("image"),
+  async (req: express.Request, res) => {
     try {
-      const imageData: string = req.body.image;
-      console.log("Received image data:", imageData);
-      res.send("Success");
+      const outDir = path.join(
+        __dirname,
+        "..",
+        "..",
+        "py-receipt-server",
+        "temp"
+      );
+
+      if (!req.file) {
+        return res.status(400).send("No file uploaded.");
+      }
+
+      const imageData = req.file.buffer;
+      const filename = `image_${Date.now()}.jpg`;
+      const filePath = path.join(outDir, filename);
+
+      const writeStream = fs.createWriteStream(filePath);
+
+      writeStream.write(imageData);
+      writeStream.end();
+
+      writeStream.on("finish", () => {
+        console.log(`Image saved to ${filePath}`);
+        res.send("Success");
+      });
+
+      writeStream.on("error", (err) => {
+        console.error("Error writing file:", err);
+        res.status(500).send("Internal Server Error");
+      });
     } catch (error) {
       console.error("Error processing receipt:", error);
       res.status(500).send("Internal Server Error");
