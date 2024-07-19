@@ -147,6 +147,8 @@ export function main() {
   document.body.addEventListener("htmx:responseError", function (evt) {
     const xhr = (evt as CustomEvent).detail.xhr;
     const status = xhr.status;
+    console.log("Response Error Status:", status); // Add this
+    console.log("Response Text:", xhr.responseText); // Add this
     const errorContainer = document.getElementById("errorContainer");
     const successContainer = document.getElementById("success-container");
 
@@ -157,7 +159,7 @@ export function main() {
       successContainer.classList.add("hidden");
     }
 
-    if (status === 400 || status === 500) {
+    if (status === 400 || status === 500 || status === 401 || status === 403) {
       evt.preventDefault();
 
       if (errorContainer) {
@@ -166,6 +168,11 @@ export function main() {
         } else if (status === 500) {
           errorContainer.textContent =
             "An internal server error occurred. Please try again later.";
+        } else if (status === 401 || status === 403) {
+          console.log("Response Error Status:", status);
+          errorContainer.textContent =
+            xhr.responseText ||
+            "You are not authorized to perform this action.";
         }
         errorContainer.classList.remove("hidden");
         setTimeout(() => {

@@ -1,4 +1,3 @@
-import htmx from "htmx.org";
 import heic2any from "heic2any";
 
 function addEventListenerWithFlag(
@@ -191,29 +190,30 @@ function updateChooseFromLibraryButton() {
 
   if (imagePreviewAddPage) {
     if (imagePreviewAddPage.querySelectorAll("img").length > 0) {
-      const nextButton = document.createElement("button");
-      nextButton.id = "nextButton";
-      nextButton.className =
-        "button bg-accent-blue text-font-off-white py-2 px-4 rounded-lg mb-[2rem] text-center cursor-pointer";
-      nextButton.innerText = "Next";
-      nextButton.setAttribute("type", "button");
+      let nextButton = document.getElementById("nextButton");
+      if (!nextButton) {
+        nextButton = document.createElement("button");
+        nextButton.id = "nextButton";
+        nextButton.className =
+          "button bg-accent-blue text-font-off-white py-2 px-4 rounded-lg mb-[2rem] text-center cursor-pointer";
+        nextButton.innerText = "Next";
+        nextButton.setAttribute("type", "button");
 
-      nextButton.addEventListener("click", (event) => {
-        event.preventDefault();
-        sendImagesSeparately();
-      });
+        nextButton.addEventListener("click", (event) => {
+          event.preventDefault();
+          sendImagesSeparately();
+        });
 
-      if (
-        chooseFromLibraryButton &&
-        chooseFromLibraryButton.parentNode &&
-        takePicButton
-      ) {
-        chooseFromLibraryButton.parentNode.replaceChild(
-          nextButton,
-          chooseFromLibraryButton
-        );
-        takePicButton.remove();
-        htmx.process(nextButton);
+        if (chooseFromLibraryButton && chooseFromLibraryButton.parentNode) {
+          chooseFromLibraryButton.parentNode.insertBefore(
+            nextButton,
+            chooseFromLibraryButton
+          );
+        }
+      }
+      // Remove the take picture button if there are images
+      if (takePicButton && takePicButton.parentNode) {
+        takePicButton.parentNode.removeChild(takePicButton);
       }
     } else {
       if (!chooseFromLibraryButton) {
@@ -224,6 +224,20 @@ function updateChooseFromLibraryButton() {
         chooseFromLibraryButton.innerText = "Choose from Library";
         chooseFromLibraryButton.addEventListener("click", openImageLibrary);
 
+        const parentContainer = document.querySelector(".buttonContainer");
+
+        if (parentContainer) {
+          parentContainer.insertBefore(
+            chooseFromLibraryButton,
+            parentContainer.firstChild
+          );
+        }
+      } else {
+        chooseFromLibraryButton.innerText = "Choose from Library";
+        chooseFromLibraryButton.addEventListener("click", openImageLibrary);
+      }
+
+      if (!takePicButton) {
         takePicButton = document.createElement("button");
         takePicButton.id = "takePictureButton";
         takePicButton.className =
@@ -241,18 +255,16 @@ function updateChooseFromLibraryButton() {
 
         if (parentContainer) {
           parentContainer.insertBefore(
-            chooseFromLibraryButton,
-            parentContainer.firstChild
+            takePicButton,
+            chooseFromLibraryButton.nextSibling
           );
         }
-      } else {
-        chooseFromLibraryButton.innerText = "Choose from Library";
-        chooseFromLibraryButton.addEventListener("click", openImageLibrary);
       }
     }
   }
   updateSerializedImages();
 }
+
 
 function updateUIAfterDeletion() {
   const imagePreviewAddPage = document.getElementById("imagePreviewAddPage");
@@ -342,7 +354,7 @@ function addRetakeAndAddMoreButtons() {
     const retakeButton = document.createElement("button");
     retakeButton.innerText = "Retake";
     retakeButton.className =
-      "button bg-accent-purple text-font-off-white px-2 py-1 rounded-lg text-center cursor-pointer w-[8rem] text-sm mx-1";
+      "button bg-accent-purple text-font-off-white px-2 py-1 rounded-lg text-center cursor-pointer w-[6rem] text-sm mx-1";
     retakeButton.addEventListener("click", (event) => {
       event.preventDefault();
       event.stopPropagation();
@@ -364,9 +376,9 @@ function addRetakeAndAddMoreButtons() {
     });
 
     const takeAnotherPictureButton = document.createElement("button");
-    takeAnotherPictureButton.innerText = "Take Another Picture";
+    takeAnotherPictureButton.innerText = "Add More";
     takeAnotherPictureButton.className =
-      "button bg-accent-blue text-font-off-white px-2 py-1 rounded-lg text-center cursor-pointer w-[8rem] text-sm mx-1";
+      "button bg-accent-blue text-font-off-white px-2 py-1 rounded-lg text-center cursor-pointer w-[6rem] text-sm mx-1";
     takeAnotherPictureButton.addEventListener("click", (event) => {
       event.preventDefault();
       event.stopPropagation();
@@ -378,20 +390,20 @@ function addRetakeAndAddMoreButtons() {
       }
     });
 
-    const addFromLibraryButton = document.createElement("button");
-    addFromLibraryButton.innerText = "Add from Library";
-    addFromLibraryButton.className =
-      "button bg-accent-blue text-font-off-white px-2 py-1 rounded-lg text-center cursor-pointer w-[8rem] text-sm mx-1";
-    addFromLibraryButton.addEventListener("click", (event) => {
-      event.preventDefault();
-      event.stopPropagation();
+    // const addFromLibraryButton = document.createElement("button");
+    // addFromLibraryButton.innerText = "Add from Library";
+    // addFromLibraryButton.className =
+    //   "button bg-accent-blue text-font-off-white px-2 py-1 rounded-lg text-center cursor-pointer w-[8rem] text-sm mx-1";
+    // addFromLibraryButton.addEventListener("click", (event) => {
+    //   event.preventDefault();
+    //   event.stopPropagation();
 
-      openImageLibrary();
-    });
+    //   openImageLibrary();
+    // });
 
     buttonContainer.appendChild(retakeButton);
     buttonContainer.appendChild(takeAnotherPictureButton);
-    buttonContainer.appendChild(addFromLibraryButton);
+    // buttonContainer.appendChild(addFromLibraryButton);
 
     imagePreviewAddPage.appendChild(buttonContainer);
   }

@@ -17,6 +17,10 @@ const AddReceiptPage = () => {
           />
         </a>
       </div>
+      <div
+        id="errorContainer"
+        class="text-accent-red bg-opacity-10 border border-accent-red p-4 rounded shadow hidden text-center mt-4"
+      ></div>
       <div class="px-[3.69rem]">
         <div class="flex items-center w-full">
           <h1 class="text-font-off-white text-xl mr-2 mb-[1rem] leading-tight">
