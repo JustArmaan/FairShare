@@ -30,13 +30,20 @@ const AddReceiptPage = () => {
         </div>
         <div id="imagePreviewAddPage" class="mt-1 mb-[2.94rem] hidden"></div>
         <input
+          type="hidden"
+          id="serializedImages"
+          name="serializedImages"
+          value=""
+        ></input>
+        <input
           type="file"
           accept="image/*"
           id="fileInputAddPage"
           class="hidden"
         />
-        <div class="flex flex-col px-[1rem]">
+        <div class="flex flex-col px-[1rem] buttonContainer">
           <label
+            id="chooseFromLibraryButton"
             for="fileInputAddPage"
             class="button bg-accent-blue text-font-off-white py-2 px-4 rounded-lg mb-[2rem] text-center cursor-pointer"
           >

@@ -15,4 +15,14 @@ router.get("/addReceipt", async (req, res) => {
   }
 });
 
+router.post("/next", async (req, res) => {
+  try {
+    console.log("req.body:", req.body);
+    res.send("Success");
+  } catch (error) {
+    console.error("Error processing receipt:", error);
+    res.status(500).send("Internal Server Error");
+  }
+});
+
 export const receiptRouter = router;

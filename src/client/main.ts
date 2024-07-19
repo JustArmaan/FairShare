@@ -18,7 +18,11 @@ import {
 } from "./createGroup/createGroup";
 import { clipBoardCopyInviteLink } from "./inviteLink/inviteLink";
 import htmx from "htmx.org";
-import { addFileInput, onMessage } from "./receiptScanning/receiptScanning";
+import {
+  addFileInput,
+  initializeChooseFromLibraryButton,
+  onMessage,
+} from "./receiptScanning/receiptScanning";
 
 // !!!
 // @ts-ignore
@@ -41,6 +45,7 @@ document.body.addEventListener("htmx:afterSwap", (event) => {
   openAndCloseSelectIcon();
   clearInviteInput();
   addFileInput();
+  initializeChooseFromLibraryButton();
 
   if (!(event.target instanceof HTMLElement)) return;
   const excludeListId = new Set(["institutionSelector"]);
