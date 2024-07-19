@@ -56,13 +56,11 @@ export const CreateGroup = ({
             id="select-group-icon-container"
             class="py-2 px-3  w-full h-fit flex justify-between bg-primary-black rounded-md mt-1"
           >
-            <div class="flex justify-between">
-              <p class="text-primary-grey font-normal">Select Group Icon</p>
-              <img
-                src="/activeIcons/expand_more.svg"
-                class="cursor-pointer w-[24px] aspect-square"
-              />
-            </div>
+            <p class="text-primary-grey font-normal">Select Group Icon</p>
+            <img
+              src="/activeIcons/expand_more.svg"
+              class="cursor-pointer w-[24px] aspect-square"
+            />
           </div>
           <div
             id="select-group-icon-container-open"

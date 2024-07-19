@@ -496,6 +496,7 @@ router.get("/edit/:groupId", async (req, res) => {
         currentUser={currentUser}
         group={group}
         inviteShareLink={shareLink}
+        icons={createIcons}
       />
     );
     res.send(html);
