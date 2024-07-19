@@ -172,7 +172,6 @@ async function sendImagesSeparately() {
   const images = JSON.parse(serializedImagesInput.value);
 
   for (const image of images) {
-    console.log("Sending image:", image.src);
     await fetch("/receipt/next", {
       method: "POST",
       headers: {
@@ -294,6 +293,30 @@ function updateUIAfterDeletion() {
             chooseFromLibraryButton,
             parentContainer.firstChild
           );
+        }
+      }
+      let takePicButton = document.getElementById("takePictureButton");
+      if (!takePicButton) {
+        takePicButton = document.createElement("button");
+        takePicButton.id = "takePictureButton";
+        takePicButton.className =
+          "button bg-accent-blue text-font-off-white py-2 px-4 rounded-lg mb-[2rem] text-center cursor-pointer";
+      }
+      takePicButton.innerText = "Take Picture";
+      takePicButton.addEventListener("click", () => {
+        console.log("Take Picture button clicked");
+        if ((window as any).ReactNativeWebView) {
+          openCamera();
+        }
+      });
+
+      const parentContainer = document.querySelector(".buttonContainer");
+      const addManuallyButton = document.querySelector("#addManuallyButton");
+      if (parentContainer) {
+        if (addManuallyButton) {
+          parentContainer.insertBefore(takePicButton, addManuallyButton);
+        } else {
+          parentContainer.appendChild(takePicButton);
         }
       }
     }
