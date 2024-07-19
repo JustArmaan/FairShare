@@ -51,52 +51,93 @@ function handleReceivedImage(base64Image: string): void {
 // This still only works about 90% on iphone
 function compressImage(imageSrc: string, maxSize: number) {
   return new Promise((resolve, reject) => {
-    if (imageSrc.startsWith("data:image/heic")) {
-      heic2any({ blob: dataURItoBlob(imageSrc), toType: "image/jpeg" })
-        .then((convertedBlob) => {
-          const reader = new FileReader();
-          reader.onload = (event) => {
-            compressImageFromDataURI(event.target?.result as string, maxSize)
-              .then(resolve)
-              .catch(reject);
-          };
-          reader.readAsDataURL(convertedBlob as Blob);
-        })
-        .catch(reject);
-    } else {
-      compressImageFromDataURI(imageSrc, maxSize).then(resolve).catch(reject);
+    try {
+      if (imageSrc.startsWith("data:image/heic")) {
+        heic2any({ blob: dataURItoBlob(imageSrc), toType: "image/jpeg" })
+          .then((convertedBlob) => {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+              compressImageFromDataURI(event.target?.result as string, maxSize)
+                .then(resolve)
+                .catch((err) => {
+                  console.error("Error compressing image from data URI:", err);
+                  reject(err);
+                });
+            };
+            reader.onerror = (err) => {
+              console.error("Error reading converted blob as data URL:", err);
+              reject(err);
+            };
+            reader.readAsDataURL(convertedBlob as Blob);
+          })
+          .catch((err) => {
+            console.error("Error converting HEIC to JPEG:", err);
+            reject(err);
+          });
+      } else {
+        compressImageFromDataURI(imageSrc, maxSize)
+          .then(resolve)
+          .catch((err) => {
+            console.error("Error compressing image from data URI:", err);
+            reject(err);
+          });
+      }
+    } catch (err) {
+      console.error("Unexpected error in compressImage function:", err);
+      reject(err);
     }
   });
 }
 
 function compressImageFromDataURI(imageSrc: string, maxSize: number) {
   return new Promise((resolve, reject) => {
-    const img = new Image();
-    img.src = imageSrc;
-    img.onload = () => {
-      const canvas = document.createElement("canvas");
-      const ctx = canvas.getContext("2d");
-      const ratio = Math.min(maxSize / img.width, maxSize / img.height);
-      canvas.width = img.width * ratio;
-      canvas.height = img.height * ratio;
-      if (ctx) {
-        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-      }
-      resolve(canvas.toDataURL("image/jpeg", 0.7));
-    };
-    img.onerror = (err) => reject(err);
+    try {
+      const img = new Image();
+      img.src = imageSrc;
+      img.onload = () => {
+        try {
+          const canvas = document.createElement("canvas");
+          const ctx = canvas.getContext("2d");
+          const ratio = Math.min(maxSize / img.width, maxSize / img.height);
+          canvas.width = img.width * ratio;
+          canvas.height = img.height * ratio;
+          if (ctx) {
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+          }
+          resolve(canvas.toDataURL("image/jpeg", 0.7));
+        } catch (err) {
+          console.error("Error drawing image on canvas:", err);
+          reject(err);
+        }
+      };
+      img.onerror = (err) => {
+        console.error("Error loading image for compression:", err);
+        reject(err);
+      };
+    } catch (err) {
+      console.error(
+        "Unexpected error in compressImageFromDataURI function:",
+        err
+      );
+      reject(err);
+    }
   });
 }
 
 function dataURItoBlob(dataURI: string) {
-  const byteString = atob(dataURI.split(",")[1]);
-  const mimeString = dataURI.split(",")[0].split(":")[1].split(";")[0];
-  const ab = new ArrayBuffer(byteString.length);
-  const ia = new Uint8Array(ab);
-  for (let i = 0; i < byteString.length; i++) {
-    ia[i] = byteString.charCodeAt(i);
+  try {
+    const byteString = atob(dataURI.split(",")[1]);
+    const mimeString = dataURI.split(",")[0].split(":")[1].split(";")[0];
+    const ab = new ArrayBuffer(byteString.length);
+    const ia = new Uint8Array(ab);
+    for (let i = 0; i < byteString.length; i++) {
+      ia[i] = byteString.charCodeAt(i);
+    }
+    return new Blob([ab], { type: mimeString });
+  } catch (err) {
+    console.error("Error converting data URI to Blob:", err);
+    throw err;
   }
-  return new Blob([ab], { type: mimeString });
 }
 
 async function updateSerializedImages() {
@@ -124,6 +165,24 @@ async function updateSerializedImages() {
   }
 }
 
+async function sendImagesSeparately() {
+  const serializedImagesInput = document.getElementById(
+    "serializedImages"
+  ) as HTMLInputElement;
+  const images = JSON.parse(serializedImagesInput.value);
+
+  for (const image of images) {
+    console.log("Sending image:", image.src);
+    await fetch("/receipt/next", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ image: image.src }),
+    });
+  }
+}
+
 function updateChooseFromLibraryButton() {
   const imagePreviewAddPage = document.getElementById("imagePreviewAddPage");
   let chooseFromLibraryButton = document.getElementById(
@@ -138,11 +197,12 @@ function updateChooseFromLibraryButton() {
       nextButton.className =
         "button bg-accent-blue text-font-off-white py-2 px-4 rounded-lg mb-[2rem] text-center cursor-pointer";
       nextButton.innerText = "Next";
-      nextButton.setAttribute("hx-post", "/receipt/next");
-      nextButton.setAttribute("hx-trigger", "click");
-      nextButton.setAttribute("hx-swap", "innerHTML");
-      nextButton.setAttribute("hx-target", "#app");
-      nextButton.setAttribute("hx-include", "#serializedImages");
+      nextButton.setAttribute("type", "button");
+
+      nextButton.addEventListener("click", (event) => {
+        event.preventDefault();
+        sendImagesSeparately();
+      });
 
       if (
         chooseFromLibraryButton &&
@@ -163,12 +223,7 @@ function updateChooseFromLibraryButton() {
         chooseFromLibraryButton.className =
           "button bg-accent-blue text-font-off-white py-2 px-4 rounded-lg mb-[2rem] text-center cursor-pointer";
         chooseFromLibraryButton.innerText = "Choose from Library";
-        addEventListenerWithFlag(
-          chooseFromLibraryButton,
-          "click",
-          openImageLibrary,
-          "chooseFromLibraryClick"
-        );
+        chooseFromLibraryButton.addEventListener("click", openImageLibrary);
 
         takePicButton = document.createElement("button");
         takePicButton.id = "takePictureButton";
@@ -176,19 +231,12 @@ function updateChooseFromLibraryButton() {
           "button bg-accent-blue text-font-off-white py-2 px-4 rounded-lg mb-[2rem] text-center cursor-pointer";
         takePicButton.innerText = "Take Picture";
 
-        addEventListenerWithFlag(
-          takePicButton,
-          "click",
-          (event) => {
-            event.preventDefault();
-            event.stopPropagation();
-            console.log("Take Picture button clicked");
-            if ((window as any).ReactNativeWebView) {
-              openCamera();
-            }
-          },
-          "takePictureClick"
-        );
+        takePicButton.addEventListener("click", () => {
+          console.log("Take Picture button clicked");
+          if ((window as any).ReactNativeWebView) {
+            openCamera();
+          }
+        });
 
         const parentContainer = document.querySelector(".buttonContainer");
 
@@ -197,19 +245,10 @@ function updateChooseFromLibraryButton() {
             chooseFromLibraryButton,
             parentContainer.firstChild
           );
-          parentContainer.insertBefore(
-            takePicButton,
-            chooseFromLibraryButton.nextSibling
-          );
         }
       } else {
         chooseFromLibraryButton.innerText = "Choose from Library";
-        addEventListenerWithFlag(
-          chooseFromLibraryButton,
-          "click",
-          openImageLibrary,
-          "chooseFromLibraryClick"
-        );
+        chooseFromLibraryButton.addEventListener("click", openImageLibrary);
       }
     }
   }

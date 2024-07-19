@@ -17,7 +17,8 @@ router.get("/addReceipt", async (req, res) => {
 
 router.post("/next", async (req, res) => {
   try {
-    console.log("req.body:", req.body);
+    const imageData = req.body.image;
+    console.log("Received image data:", imageData);
     res.send("Success");
   } catch (error) {
     console.error("Error processing receipt:", error);
