@@ -4,8 +4,10 @@ from PIL import Image
 from transformers import DonutProcessor, VisionEncoderDecoderModel
 from io import BytesIO
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)
 
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 processor = DonutProcessor.from_pretrained("AdamCodd/donut-receipts-extract")
@@ -52,15 +54,19 @@ def generate_text_from_image(model, image_path: str, processor, device):
     decoded_text = processor.token2json(decoded_text)
     return decoded_text
 
+@app.route('/echo', methods=['GET'])
+def echo():
+    return jsonify({ "echo": "echo" }), 200
+
 @app.route('/extract_text', methods=['POST'])
 def extract_text():
     data = request.get_json()
-    image_url = data.get('image_url')
-    if not image_url:
+    image_path = data.get('image_path')
+    if not image_path:
         return jsonify({"error": "No image URL provided"}), 400
 
     try:
-        extracted_text = generate_text_from_image(model, image_url, processor, device)
+        extracted_text = generate_text_from_image(model, image_path, processor, device)
         return jsonify({"extracted_text": extracted_text})
     except Exception as e:
         return jsonify({"error": str(e)}), 500

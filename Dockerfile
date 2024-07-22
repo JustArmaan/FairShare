@@ -1,4 +1,4 @@
-FROM oven/bun
+FROM nixos/nix
 
 # Set the working directory
 WORKDIR /usr/src/app
@@ -6,16 +6,10 @@ WORKDIR /usr/src/app
 # Copy package files
 COPY package*.json bun.lockb ./
 
-RUN bun i 
-RUN bun i "express@>=5.0.0-beta.1" 
-
-# RUN bun x tailwindcss -i src/server/views/tailwind.css -o public/output.css
-
 # Copy all other project files
 COPY . .
 
-# Set environment to production
-ENV NODE_ENV production
+RUN echo $(ls -1 /tmp/dir)
 
 # Set default command to start the app
-CMD [ "bun", "tailwind-build", "&&", "bun", "run", "build", "&&", "bun", "start" ]
+CMD [ "sudo bash /usr/src/app/scripts/start.sh" ]

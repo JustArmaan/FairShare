@@ -1,16 +1,45 @@
 import path from "path";
-import fs from "fs/promises";
-import { v4 as uuid } from "uuid";
-const outDir = path.join(__dirname, "~/src/py-receipt-server/temp");
 
-export async function getReceiptData(base64Image: string) {
-  const buffer = Buffer.from(base64Image, "base64");
-  const id = uuid();
+getReceiptData(
+  path.join(__dirname, "../../../py-receipt-server/temp/receipt.jpg")
+);
 
-  const outPath = path.join(outDir, id);
-  console.log("Writing to path: ", outPath);
+type LineItem = {
+  item_key: string;
+  item_name: string;
+  item_quantity: string;
+  item_value: string;
+};
 
-  await fs.writeFile(outPath, buffer);
+type ExtractedText = {
+  date: string;
+  discount: string;
+  line_items: LineItem[];
+  phone: string;
+  store_addr: string;
+  store_name: string;
+  subtotal: string;
+  svc: string;
+  tax: string;
+  time: string;
+  tips: string;
+  total: string;
+};
 
-  // await fetch()
+type ReceiptResponse = {
+  extracted_text: ExtractedText;
+};
+
+export async function getReceiptData(
+  imagePath: string
+): Promise<ReceiptResponse> {
+  const responseData = await fetch("http://127.0.0.1:5000/extract_text", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ image_path: imagePath }),
+  });
+
+  return responseData.json();
 }

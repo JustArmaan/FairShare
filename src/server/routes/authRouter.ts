@@ -11,7 +11,6 @@ import express, {
 } from "express";
 import { createUser, findUser } from "../services/user.service";
 import { faker } from "@faker-js/faker";
-import { create } from "domain";
 
 const colors = [
   "accent-blue",
