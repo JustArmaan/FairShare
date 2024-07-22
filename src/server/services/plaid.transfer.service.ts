@@ -6,7 +6,7 @@ import { usersToGroups } from '../database/schema/usersToGroups';
 import { groupTransactionToUsersToGroups } from '../database/schema/groupTransactionToUsersToGroups';
 import { groupTransferStatus } from '../database/schema/groupTransferStatus';
 import { v4 as uuidv4 } from 'uuid';
-import { createNotificationForUserInGroups } from './notification.service';
+// import { createNotificationForUserInGroups } from './notification.service';
 import { getUserInfoFromAccount } from './account.service';
 import { getGroupTransactionToUserToGroupById } from './group.service';
 import { transactionsToGroups } from '../database/schema/transactionsToGroups';

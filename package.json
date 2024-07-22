@@ -2,7 +2,7 @@
   "name": "app",
   "version": "0.0.1",
   "scripts": {
-    "dev": "nodemon -e ts,tsx,html -w src -x bun run src/server/main.tsx",
+    "dev": "nodemon -e ts,tsx,html -w src -x npx tsx src/server/main.tsx",
     "start": "bun src/server/main.tsx",
     "build": "vite build",
     "tailwind-watch": "bun x tailwindcss -i ./src/server/views/tailwind.css -o ./public/output.css --watch",
