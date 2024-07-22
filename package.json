@@ -16,7 +16,6 @@
     "db-setup": "bun run generate && bun run push && bun run seed && echo 'Database Initialized!'",
     "typecheck": "tsc --noEmit",
     "local-tunnel": "lt --port 3000"
-    "test-unit": k
   },
   "typings": "/index.d.ts",
   "dependencies": {
