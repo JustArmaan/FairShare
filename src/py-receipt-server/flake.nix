@@ -27,6 +27,7 @@
                   export Protobuf_LIBRARIES="${pkgs.lib.getLib pkgs.python312Packages.protobuf}"
                   export LD_LIBRARY_PATH="${pkgs.lib.makeLibraryPath buildInputs}:$LD_LIBRARY_PATH"
                   export LD_LIBRARY_PATH="${pkgs.stdenv.cc.cc.lib.outPath}/lib:$LD_LIBRARY_PATH" 
+                  export RUSTFLAGS="-A invalid_reference_casting"
 
                   # export CMAKE_ARGS="-DONNX_USE_PROTOBUF_SHARED_LIBS=OFF"
 

@@ -16,7 +16,6 @@ function handleReceivedImage(base64Image: string): void {
   const imagePreviewAddPage = document.getElementById("imagePreviewAddPage");
 
   if (imagePreviewAddPage) {
-
     const imgContainer = document.createElement("div");
     imgContainer.className = "relative w-full max-w-xs mx-auto mb-1";
 
