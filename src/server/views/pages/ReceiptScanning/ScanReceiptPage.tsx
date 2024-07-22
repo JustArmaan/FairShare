@@ -56,10 +56,11 @@ const AddReceiptPage = () => {
           <button
             class="button bg-accent-blue text-font-off-white py-2 px-4 rounded-lg cursor-pointer"
             id="addManuallyButton"
-            // hx-get="/receipt/addManually"
-            // hx-target="#app"
-            // hx-swap="innerHTML"
-            // hx-trigger="click"
+            hx-get="/receipt/addManually"
+            hx-target="#app"
+            hx-swap="innerHTML"
+            hx-trigger="click"
+            hx-push-url="/receipt/addManually"
           >
             Add Manually
           </button>

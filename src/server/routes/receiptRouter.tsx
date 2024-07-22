@@ -6,6 +6,7 @@ import path from "path";
 import fs from "fs";
 import upload from "../utils/multerConfig";
 import { AddReceiptManuallyPage } from "../views/pages/ReceiptScanning/AddReceiptManuallyPage";
+import { ro } from "@faker-js/faker";
 
 const router = express.Router();
 
@@ -70,6 +71,34 @@ router.post(
 
 router.get("/addManually", async (req, res) => {
   const html = renderToHtml(<AddReceiptManuallyPage />);
+
+  res.send(html);
+});
+
+router.get("/addInput", async (req, res) => {
+  const html = `
+    <div class="flex justify-between mb-1 w-full receipt-input-container">
+      <input
+        type="text"
+        placeholder="Item Name"
+        class="w-[50%] bg-primary-faded-black text-font-off-white pl-2"
+      />
+      <input
+        type="text"
+        placeholder="Quantity"
+        class="w-[20%] bg-primary-faded-black text-font-off-white text-center"
+      />
+      <input
+        type="text"
+        placeholder="Price"
+        class="w-[20%] bg-primary-faded-black text-font-off-white text-center"
+      />
+    </div>`;
+  res.send(html);
+});
+
+router.get("/addPaymentMethod", async (req, res) => {
+  const html = renderToHtml(`<div>This still needs to be implemented</div>`);
 
   res.send(html);
 });
