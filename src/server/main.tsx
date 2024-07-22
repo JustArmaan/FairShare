@@ -26,7 +26,7 @@ import { receiptRouter } from "./routes/receiptRouter";
 import { getReceiptData } from "./integrations/receipts/getReceiptData";
 
 export async function print() {
-  getReceiptData;
+  getReceiptData; //ignore me
 }
 
 const app = express();

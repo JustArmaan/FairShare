@@ -16,13 +16,12 @@ function handleReceivedImage(base64Image: string): void {
   const imagePreviewAddPage = document.getElementById("imagePreviewAddPage");
 
   if (imagePreviewAddPage) {
-    console.log("handleReceivedImage: Adding image to DOM");
 
     const imgContainer = document.createElement("div");
     imgContainer.className = "relative w-full max-w-xs mx-auto mb-1";
 
     const img = document.createElement("img");
-    img.src = `data:image/png;base64,${base64Image}`;
+    img.src = `data:image/jpeg;base64,${base64Image}`;
     img.className = "w-full";
 
     const deleteButton = document.createElement("button");
@@ -47,96 +46,49 @@ function handleReceivedImage(base64Image: string): void {
   }
 }
 
-// This still only works about 90% on iphone
-function compressImage(imageSrc: string, maxSize: number) {
-  return new Promise((resolve, reject) => {
+export function onMessage(event: MessageEvent): void {
+  if (event.imageData) {
+    handleReceivedImage(event.imageData);
+  } else {
+    console.log("No event data received.");
+  }
+}
+
+function dataURItoBlob(dataURI: string) {
+  const byteString = atob(dataURI.split(",")[1]);
+  const mimeString = dataURI.split(",")[0].split(":")[1].split(";")[0];
+  const ab = new ArrayBuffer(byteString.length);
+  const ia = new Uint8Array(ab);
+  for (let i = 0; i < byteString.length; i++) {
+    ia[i] = byteString.charCodeAt(i);
+  }
+  return new Blob([ab], { type: mimeString });
+}
+
+function convertImage(imageSrc: string) {
+  return new Promise<Blob>((resolve, reject) => {
     try {
       if (imageSrc.startsWith("data:image/heic")) {
         heic2any({ blob: dataURItoBlob(imageSrc), toType: "image/jpeg" })
           .then((convertedBlob) => {
-            const reader = new FileReader();
-            reader.onload = (event) => {
-              compressImageFromDataURI(event.target?.result as string, maxSize)
-                .then(resolve)
-                .catch((err) => {
-                  console.error("Error compressing image from data URI:", err);
-                  reject(err);
-                });
-            };
-            reader.onerror = (err) => {
-              console.error("Error reading converted blob as data URL:", err);
-              reject(err);
-            };
-            reader.readAsDataURL(convertedBlob as Blob);
+            if (Array.isArray(convertedBlob)) {
+              resolve(convertedBlob[0]);
+            } else {
+              resolve(convertedBlob);
+            }
           })
           .catch((err) => {
             console.error("Error converting HEIC to JPEG:", err);
             reject(err);
           });
       } else {
-        compressImageFromDataURI(imageSrc, maxSize)
-          .then(resolve)
-          .catch((err) => {
-            console.error("Error compressing image from data URI:", err);
-            reject(err);
-          });
+        resolve(dataURItoBlob(imageSrc));
       }
     } catch (err) {
-      console.error("Unexpected error in compressImage function:", err);
+      console.error("Unexpected error in convertImage function:", err);
       reject(err);
     }
   });
-}
-
-function compressImageFromDataURI(imageSrc: string, maxSize: number) {
-  return new Promise((resolve, reject) => {
-    try {
-      const img = new Image();
-      img.src = imageSrc;
-      img.onload = () => {
-        try {
-          const canvas = document.createElement("canvas");
-          const ctx = canvas.getContext("2d");
-          const ratio = Math.min(maxSize / img.width, maxSize / img.height);
-          canvas.width = img.width * ratio;
-          canvas.height = img.height * ratio;
-          if (ctx) {
-            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-          }
-          resolve(canvas.toDataURL("image/jpeg", 0.7));
-        } catch (err) {
-          console.error("Error drawing image on canvas:", err);
-          reject(err);
-        }
-      };
-      img.onerror = (err) => {
-        console.error("Error loading image for compression:", err);
-        reject(err);
-      };
-    } catch (err) {
-      console.error(
-        "Unexpected error in compressImageFromDataURI function:",
-        err
-      );
-      reject(err);
-    }
-  });
-}
-
-function dataURItoBlob(dataURI: string) {
-  try {
-    const byteString = atob(dataURI.split(",")[1]);
-    const mimeString = dataURI.split(",")[0].split(":")[1].split(";")[0];
-    const ab = new ArrayBuffer(byteString.length);
-    const ia = new Uint8Array(ab);
-    for (let i = 0; i < byteString.length; i++) {
-      ia[i] = byteString.charCodeAt(i);
-    }
-    return new Blob([ab], { type: mimeString });
-  } catch (err) {
-    console.error("Error converting data URI to Blob:", err);
-    throw err;
-  }
 }
 
 async function updateSerializedImages() {
@@ -153,31 +105,70 @@ async function updateSerializedImages() {
 
     for (const img of images) {
       if (!img.src.includes("/icons/delete.svg")) {
-        const compressedSrc = await compressImage(img.src, 800);
+        const blob = await convertImage(img.src);
         imageDataArray.push({
-          src: compressedSrc,
+          src: blob,
         });
       }
     }
 
-    serializedImagesInput.value = JSON.stringify(imageDataArray);
+    serializedImagesInput.value = JSON.stringify(
+      imageDataArray.map((image) => URL.createObjectURL(image.src))
+    );
   }
 }
 
-async function sendImagesSeparately() {
-  const serializedImagesInput = document.getElementById(
-    "serializedImages"
-  ) as HTMLInputElement;
-  const images = JSON.parse(serializedImagesInput.value);
+async function sendImageStream(blob: Blob) {
+  const formData = new FormData();
+  formData.append("image", blob, "image.jpg");
 
-  for (const image of images) {
-    await fetch("/receipt/next", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ image: image.src }),
-    });
+  const result = await fetch("/receipt/next", {
+    method: "POST",
+    body: formData,
+  });
+
+  return result;
+}
+
+async function sendImagesSeparately() {
+  try {
+    const serializedImagesInput = document.getElementById(
+      "serializedImages"
+    ) as HTMLInputElement;
+    const imageUrls = JSON.parse(serializedImagesInput.value);
+
+    for (const imageUrl of imageUrls) {
+      const response = await fetch(imageUrl);
+      const blob = await response.blob();
+      const responseResult = await sendImageStream(blob);
+
+      if (responseResult.status === 403) {
+        const errorText = await responseResult.text();
+        const errorContainer = document.getElementById("errorContainer");
+
+        if (errorContainer) {
+          errorContainer.textContent = errorText;
+          errorContainer.classList.remove("hidden");
+          setTimeout(() => {
+            errorContainer.classList.add("hidden");
+          }, 8000);
+        }
+        break;
+      } else if (responseResult.status === 413) {
+        const errorContainer = document.getElementById("errorContainer");
+
+        if (errorContainer) {
+          errorContainer.textContent =
+            "Image size was too large for the server to process. Please try again";
+          errorContainer.classList.remove("hidden");
+          setTimeout(() => {
+            errorContainer.classList.add("hidden");
+          }, 8000);
+        }
+      }
+    }
+  } catch (e) {
+    console.error("Error sending images separately:", e);
   }
 }
 
@@ -201,7 +192,13 @@ function updateChooseFromLibraryButton() {
 
         nextButton.addEventListener("click", (event) => {
           event.preventDefault();
-          sendImagesSeparately();
+          sendImagesSeparately()
+            .then(() => {
+              console.log("Images sent successfully");
+            })
+            .catch((err) => {
+              console.error("Error sending images:", err);
+            });
         });
 
         if (chooseFromLibraryButton && chooseFromLibraryButton.parentNode) {
@@ -245,7 +242,6 @@ function updateChooseFromLibraryButton() {
         takePicButton.innerText = "Take Picture";
 
         takePicButton.addEventListener("click", () => {
-          console.log("Take Picture button clicked");
           if ((window as any).ReactNativeWebView) {
             openCamera();
           }
@@ -264,7 +260,6 @@ function updateChooseFromLibraryButton() {
   }
   updateSerializedImages();
 }
-
 
 function updateUIAfterDeletion() {
   const imagePreviewAddPage = document.getElementById("imagePreviewAddPage");
@@ -316,7 +311,6 @@ function updateUIAfterDeletion() {
       }
       takePicButton.innerText = "Take Picture";
       takePicButton.addEventListener("click", () => {
-        console.log("Take Picture button clicked");
         if ((window as any).ReactNativeWebView) {
           openCamera();
         }
@@ -383,27 +377,13 @@ function addRetakeAndAddMoreButtons() {
       event.preventDefault();
       event.stopPropagation();
 
-      console.log("Take Another Picture button clicked");
-
       if ((window as any).ReactNativeWebView) {
         openCamera();
       }
     });
 
-    // const addFromLibraryButton = document.createElement("button");
-    // addFromLibraryButton.innerText = "Add from Library";
-    // addFromLibraryButton.className =
-    //   "button bg-accent-blue text-font-off-white px-2 py-1 rounded-lg text-center cursor-pointer w-[8rem] text-sm mx-1";
-    // addFromLibraryButton.addEventListener("click", (event) => {
-    //   event.preventDefault();
-    //   event.stopPropagation();
-
-    //   openImageLibrary();
-    // });
-
     buttonContainer.appendChild(retakeButton);
     buttonContainer.appendChild(takeAnotherPictureButton);
-    // buttonContainer.appendChild(addFromLibraryButton);
 
     imagePreviewAddPage.appendChild(buttonContainer);
   }
@@ -419,7 +399,6 @@ export function addTakePictureButton() {
       (event) => {
         event.preventDefault();
         event.stopPropagation();
-        console.log("Take Picture button clicked");
         if ((window as any).ReactNativeWebView) {
           openCamera();
         }
@@ -440,31 +419,6 @@ interface Window {
 
 interface ReactNativeWebView {
   postMessage(message: string): void;
-}
-
-export function onMessage(event: MessageEvent): void {
-  if (event.imageData) {
-    if (typeof event.imageData === "string") {
-      console.log("Raw event data: " + event.imageData);
-    }
-
-    let data;
-    try {
-      data = typeof event === "string" ? JSON.parse(event) : event;
-    } catch (error) {
-      console.error("Failed to parse event data:", error);
-      return;
-    }
-
-    if (data.type === "image") {
-      console.log("Image data received: " + data.imageData);
-      handleReceivedImage(data.imageData);
-    } else {
-      console.log('Message type is not "image".');
-    }
-  } else {
-    console.log("No event data received.");
-  }
 }
 
 export function openCamera() {
@@ -497,9 +451,3 @@ export function initializeChooseFromLibraryButton() {
     );
   }
 }
-
-document.addEventListener("DOMContentLoaded", () => {
-  console.log("DOMContentLoaded");
-  initializeChooseFromLibraryButton();
-  addTakePictureButton();
-});

@@ -71,6 +71,7 @@ document.body.addEventListener("htmx:afterSwap", (event) => {
     });
 });
 
+// @ts-ignore
 window.addEventListener("message", onMessage);
 
 export const apiVersion = 0;

@@ -3,6 +3,7 @@ import { getGroupWithMembers } from "../../../../services/group.service";
 import GroupMembers from "./GroupMembers";
 import { InviteMemberInput } from "./InviteMemberInput";
 import { InviteShareLink } from "./InviteShareLink";
+import SelectIcon from "./SelectIcon";
 
 export const colors = [
   { name: "accent-purple", bgClass: "bg-accent-purple" },
@@ -48,10 +49,12 @@ export const EditGroupPage = ({
   currentUser,
   group,
   inviteShareLink,
+  icons,
 }: {
   currentUser: UserSchema;
   group: UserGroupSchema;
   inviteShareLink: string;
+  icons: { icon: string; name: string }[];
 }) => {
   return (
     <div class="animate-fade-in">
@@ -100,14 +103,35 @@ export const EditGroupPage = ({
         </label>
         <div
           id="select-group-icon-container"
-          hx-get="/groups/selectIcon"
-          hx-trigger="click"
-          hx-swap="outerHTML"
-          hx-target="#select-group-icon-container"
-          class="py-2 px-3 w-full h-fit flex justify-between bg-primary-black rounded-md mt-1 min-h-[50px]  transition-all duration-300 ease-in-out"
+          class="py-2 px-3  w-full h-fit flex justify-between bg-primary-black rounded-md mt-1"
         >
           <p class="text-primary-grey font-normal">Select Group Icon</p>
-          <img src="/activeIcons/expand_more.svg" class="cursor-pointer" />
+          <img
+            src="/activeIcons/expand_more.svg"
+            class="cursor-pointer w-[24px] aspect-square"
+          />
+        </div>
+        <div
+          id="select-group-icon-container-open"
+          class="w-full h-fit bg-primary-black rounded-md mt-1 flex flex-col items-center animate-fade-in min-h-[50px] hidden"
+        >
+          <div
+            id="select-group-icon-header"
+            class="py-2 px-3 w-full h-fit flex justify-between"
+          >
+            <p class="text-primary-grey font-normal">Select Group Icon</p>
+            <img
+              src="/activeIcons/expand_more.svg"
+              class="rotate-180 cursor-pointer"
+            />
+          </div>
+          <hr class="border-t border-primary-dark-grey w-11/12 mx-auto px-2" />
+          <SelectIcon
+            icons={icons}
+            colors={colors}
+            selectedIcon={group.icon}
+            selectedColor={group.color}
+          />
         </div>
 
         {/* <div class="flex text-font-off-white mt-3 justify-center has-tooltip">
