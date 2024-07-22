@@ -5,6 +5,7 @@ import { rateLimit } from "../utils/rateLimit";
 import path from "path";
 import fs from "fs";
 import upload from "../utils/multerConfig";
+import { AddReceiptManuallyPage } from "../views/pages/ReceiptScanning/AddReceiptManuallyPage";
 
 const router = express.Router();
 
@@ -66,5 +67,11 @@ router.post(
     }
   }
 );
+
+router.get("/addManually", async (req, res) => {
+  const html = renderToHtml(<AddReceiptManuallyPage />);
+
+  res.send(html);
+});
 
 export const receiptRouter = router;

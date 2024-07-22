@@ -764,6 +764,7 @@ router.get("/transactionList/:accountId/:groupId", async (req, res) => {
   );
   res.send(html);
 });
+
 router.get("/accountPicker/:itemId/:accountId/:groupId", async (req, res) => {
   const accounts = await getAccountsForUser(req.user!.id, req.params.itemId);
   if (!accounts) throw new Error("Missing accounts for user");
