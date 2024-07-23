@@ -1,17 +1,17 @@
-import { getDB } from '../database/client';
-import { groupTransfer } from '../database/schema/groupTransfer';
-import { eq, or } from 'drizzle-orm';
-import { findUser, type ExtractFunctionReturnType } from './user.service';
-import { usersToGroups } from '../database/schema/usersToGroups';
-import { groupTransactionToUsersToGroups } from '../database/schema/groupTransactionToUsersToGroups';
-import { groupTransferStatus } from '../database/schema/groupTransferStatus';
-import { v4 as uuidv4 } from 'uuid';
+import { getDB } from "../database/client";
+import { groupTransfer } from "../database/schema/groupTransfer";
+import { eq, or } from "drizzle-orm";
+import { findUser, type ExtractFunctionReturnType } from "./user.service";
+import { usersToGroups } from "../database/schema/usersToGroups";
+import { groupTransactionToUsersToGroups } from "../database/schema/groupTransactionToUsersToGroups";
+import { groupTransferStatus } from "../database/schema/groupTransferStatus";
+import { v4 as uuidv4 } from "uuid";
 // import { createNotificationForUserInGroups } from './notification.service';
-import { getUserInfoFromAccount } from './account.service';
-import { getGroupTransactionToUserToGroupById } from './group.service';
-import { transactionsToGroups } from '../database/schema/transactionsToGroups';
-import { groupTransactionState } from '../database/schema/groupTransactionState';
-import { groups } from '../database/schema/group';
+import { getUserInfoFromAccount } from "./account.service";
+import { getGroupTransactionToUserToGroupById } from "./group.service";
+import { transactionsToGroups } from "../database/schema/transactionsToGroups";
+import { groupTransactionState } from "../database/schema/groupTransactionState";
+import { groups } from "../database/schema/group";
 
 const db = getDB();
 
@@ -23,7 +23,7 @@ export async function getGroupTransferById(id: string) {
       .where(eq(groupTransfer.id, id));
     return result[0];
   } catch (error) {
-    console.error(error, 'at getGroupTransferById');
+    console.error(error, "at getGroupTransferById");
     return null;
   }
 }
@@ -44,7 +44,7 @@ export async function getGroupTransferByTransactionId(
       );
     return result[0];
   } catch (e) {
-    console.error(e, 'at getGroupTransferByOwedId');
+    console.error(e, "at getGroupTransferByOwedId");
   }
 }
 
@@ -57,7 +57,7 @@ export async function getGroupTransferByOwedId(owedId: string) {
       .where(eq(groupTransfer.groupTransactionToUsersToGroupsId, owedId));
     return result[0].id;
   } catch (e) {
-    console.error(e, 'at getGroupTransferByOwedId');
+    console.error(e, "at getGroupTransferByOwedId");
   }
 }
 
@@ -66,7 +66,7 @@ export type GroupTransfer = ExtractFunctionReturnType<
 >;
 
 export async function createGroupTransfer(
-  transfer: Omit<GroupTransfer, 'id'>,
+  transfer: Omit<GroupTransfer, "id">,
   groupId: string
 ) {
   try {
@@ -165,7 +165,7 @@ export async function getAllTransferStatuses() {
 
 export async function updateGroupTransfer(
   id: string,
-  newGroupTransfer: Omit<Partial<GroupTransfer>, 'id'>
+  newGroupTransfer: Omit<Partial<GroupTransfer>, "id">
 ) {
   try {
     await db

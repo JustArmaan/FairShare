@@ -75,7 +75,7 @@ if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
 
 # Example usage
-# image_path = "/home/Root/Downloads/receipt2.jpg"
-# extracted_text = generate_text_from_image(model, image_path, processor, device)
-# print("Extracted Text:", extracted_text)
+image_path = "/home/Root/Downloads/receipt2.jpg"
+extracted_text = generate_text_from_image(model, image_path, processor, device)
+print("Extracted Text:", extracted_text)
 
