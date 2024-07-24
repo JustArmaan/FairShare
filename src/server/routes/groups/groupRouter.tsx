@@ -38,6 +38,7 @@ import {
   getCashAccountWithTransaction,
   getItem,
   getItemsForUser,
+  type AccountSchema,
 } from "../../services/plaid.service.ts";
 import type { ExtractFunctionReturnType } from "../../services/user.service.ts";
 import { GroupTransactionsListPage } from "../../views/pages/Groups/TransactionsListGroupsPage.tsx";
@@ -49,7 +50,11 @@ import {
 import { TransactionList } from "../../views/pages/transactions/components/TransactionList.tsx";
 import { AccountPickerForm } from "../../views/pages/transactions/components/AccountPickerForm.tsx";
 import Transaction from "../../views/pages/transactions/components/Transaction.tsx";
-import { getTransaction } from "../../services/transaction.service.ts";
+import {
+  getCashAccountForUser,
+  getTransaction,
+  type CashAccount,
+} from "../../services/transaction.service.ts";
 import { ViewAndPayPage } from "../../views/pages/Groups/ViewAndPayPage.tsx";
 import { InstitutionDropDown } from "../../views/pages/Groups/components/InstitutionDropDown.tsx";
 import {
@@ -768,14 +773,29 @@ router.get("/transactionList/:accountId/:groupId", async (req, res) => {
 router.get("/accountPicker/:itemId/:accountId/:groupId", async (req, res) => {
   const accounts = await getAccountsForUser(req.user!.id, req.params.itemId);
   if (!accounts) throw new Error("Missing accounts for user");
-  const html = renderToHtml(
-    <AccountPickerForm
-      accounts={accounts}
-      selectedAccountId={req.params.accountId}
-      groupId={req.params.groupId as string}
-      itemId={req.params.itemId}
-    />
-  );
+
+  const cashAccount = await getCashAccountForUser(req.user!.id);
+
+  const props: {
+    accounts: AccountSchema[];
+    selectedAccountId: string;
+    groupId: string;
+    itemId: string;
+    cashAccount?: CashAccount | null;
+  } = {
+    accounts,
+    selectedAccountId: req.params.accountId,
+    groupId: req.params.groupId,
+    itemId: req.params.itemId,
+  };
+
+  if (cashAccount) {
+    props.cashAccount = cashAccount;
+  } else {
+    props.cashAccount = null;
+  }
+
+  const html = renderToHtml(<AccountPickerForm {...props} />);
   res.send(html);
 });
 

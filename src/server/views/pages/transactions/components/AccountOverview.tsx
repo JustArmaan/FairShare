@@ -1,6 +1,4 @@
-import type {
-  AccountWithTransactions,
-} from "../../../../services/plaid.service";
+import type { AccountWithTransactions } from "../../../../services/plaid.service";
 import {
   generatePathStyles,
   mapTransactionsToCategories,
@@ -63,15 +61,26 @@ export const AccountOverview = ({
             </p>
           </div>
         </div>
-        <div
-          class="balance flex flex-col text-font-off-white text-center 
-              justify-center mt-2 mb-1"
-        >
-          <p class="text-lg">Current Balance</p>
-          <p class="text-2xl font-semibold">
-            ${parseFloat(account.balance!).toFixed(2)}
-          </p>
-        </div>
+        {account.itemId ? (
+          <div
+            class="balance flex flex-col text-font-off-white text-center 
+        justify-center mt-2 mb-1"
+          >
+            <p class="text-lg">Current Balance</p>
+            <p class="text-2xl font-semibold">
+              {"$" + parseFloat(account.balance!).toFixed(2)}
+            </p>
+          </div>
+        ) : (
+          <div
+            class="balance flex flex-col text-font-off-white text-center 
+        justify-center mt-2 mb-1"
+          >
+            <p class="text-2xl font-semibold">
+              These are manually added transactions
+            </p>
+          </div>
+        )}
         <div class="w-full h-[1px] bg-font-grey rounded mb-2 opacity-50"></div>
         <div class="transactions flex flex-col">
           {account.transactions.slice(0, 2).map((transaction) => (

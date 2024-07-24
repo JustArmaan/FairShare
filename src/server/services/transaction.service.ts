@@ -105,6 +105,7 @@ export async function getCashAccountForUser(userId: string) {
       .from(cashAccount)
       .innerJoin(users, eq(users.id, cashAccount.userId))
       .where(eq(cashAccount.userId, userId));
+    console.log(result), "result in getCashAccountForUser";
     if (result.length === 0) return null;
     return result[0].cashAccount;
   } catch (error) {
@@ -112,6 +113,8 @@ export async function getCashAccountForUser(userId: string) {
     return null;
   }
 }
+
+export type CashAccount = ExtractFunctionReturnType<typeof getCashAccount>;
 
 export async function getCashAccountWithTransactions(userId: string) {
   try {

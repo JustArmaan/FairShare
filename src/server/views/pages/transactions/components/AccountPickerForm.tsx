@@ -1,11 +1,12 @@
-import { cashAccount } from "../../../../database/schema/cashAccount";
 import type { AccountSchema } from "../../../../services/plaid.service";
+import type { CashAccount } from "../../../../services/transaction.service";
 
 export const AccountPickerForm = (props: {
   accounts: AccountSchema[];
   selectedAccountId: string;
   groupId?: string;
   itemId: string;
+  cashAccount?: CashAccount | null;
 }) => {
   return (
     <div class="picker-container">
@@ -46,7 +47,39 @@ export const AccountPickerForm = (props: {
                   <div class="w-full h-px bg-primary-dark-grey rounded mb-2 opacity-75"></div>
                 )}
               </>
-            ))}
+            ))}{" "}
+            {props.cashAccount && (
+              <>
+                <div class="w-full h-px bg-primary-dark-grey rounded mb-2 opacity-75"></div>
+                <div
+                  class="w-full flex justify-between p-4 hover:opacity-80 cursor-pointer"
+                  hx-get={
+                    props.groupId
+                      ? `/groups/addTransaction/${props.cashAccount.id}/${props.groupId}/${props.itemId}?cashAccount=true`
+                      : `/transactions/page/${props.itemId}/${props.cashAccount.id}?cashAccount=true`
+                  }
+                  hx-swap="innerHTML"
+                  hx-target="#app"
+                  hx-push-url={
+                    props.groupId
+                      ? `/groups/addTransaction/${props.cashAccount.id}/${props.groupId}?cashAccount=true`
+                      : `/transactions/page/${props.cashAccount.id}?cashAccount=true`
+                  }
+                >
+                  <label class="" for={props.cashAccount.id}>
+                    Manually Added Tranasactions
+                  </label>
+                  <input
+                    type="radio"
+                    id={props.cashAccount.id}
+                    name="selectedAccount"
+                    value={props.cashAccount.id}
+                    class="radio-picker w-6 h-6 cursor-pointer"
+                    checked={props.cashAccount.id === props.selectedAccountId}
+                  />
+                </div>
+              </>
+            )}
           </div>
           <button
             class="text-accent-blue mt-4  py-2 cursor-pointer bg-primary-black rounded-xl font-semibold text-lg"

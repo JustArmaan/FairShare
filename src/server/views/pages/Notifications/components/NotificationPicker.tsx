@@ -3,7 +3,6 @@ const notificationSortOptions = [
   "Oldest to Newest",
   "Groups",
   "Account",
-  "Unseen Notifications",
 ];
 export const NotificationPicker = (props: {
   currentUserId: string;

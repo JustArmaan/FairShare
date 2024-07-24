@@ -51,7 +51,6 @@ import { CreateTransaction } from "../views/pages/Groups/components/ManualAdd";
 import { findUser } from "../services/user.service";
 import { v4 as uuid } from "uuid";
 import { ViewBillSplitPage } from "../views/pages/Groups/ViewBillSplitPage";
-import { group } from "console";
 
 const router = express.Router();
 

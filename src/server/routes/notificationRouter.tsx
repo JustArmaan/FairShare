@@ -5,10 +5,7 @@ import { NotificationList } from "../views/pages/Notifications/NotificationList.
 import { NotificationIcon } from "../views/components/NavigationIcon.tsx";
 import { findUser } from "../services/user.service.ts";
 import NotificationPicker from "../views/pages/Notifications/components/NotificationPicker.tsx";
-import {
-  getMostRecentNotifications,
-  getSortedNotifications,
-} from "../utils/getNotifications.ts";
+import { getSortedNotifications } from "../utils/getNotifications.ts";
 import {
   deleteAllNotifications,
   getGroupInviteNotificaitonById,
