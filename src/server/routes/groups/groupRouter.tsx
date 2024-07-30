@@ -388,6 +388,10 @@ router.post("/create", async (req, res) => {
 
     const { groupName, selectedIcon, temporaryGroup, selectedColor } = req.body;
 
+    if (selectedColor.includes("primary-dark-grey")) {
+      return res.status(400).send("Please select a color.");
+    }
+
     if (
       !groupName ||
       groupName === "" ||
@@ -607,6 +611,10 @@ router.post("/edit/:groupId", async (req, res) => {
   try {
     const { groupName, selectedColor, temporaryGroup, selectedIcon } = req.body;
     console.log("req.body", req.body);
+
+    if (selectedColor.includes("primary-dark-grey")) {
+      return res.status(400).send("Please select a color.");
+    }
 
     const isTemp = temporaryGroup === "on";
     const currentGroup = await getGroupWithMembers(req.params.groupId);
@@ -1022,6 +1030,47 @@ router.get("/groupMembers/:groupId", async (req, res) => {
       groupId={groupWithMembers.id}
     />
   );
+
+  res.send(html);
+});
+
+router.get("/updateIcon", async (req, res) => {
+  const { icon, color, temporary } = req.query;
+
+  let selectedIcon = icon;
+  let selectedColor = color;
+
+  if (!icon || icon === "null") {
+    selectedIcon = createIcons[0].icon;
+  }
+
+  if (!color || color === "null") {
+    selectedColor = "primary-dark-grey";
+  }
+
+  console.log(
+    "icon",
+    selectedIcon,
+    "color",
+    selectedColor,
+    "temporary",
+    temporary
+  );
+  const borderClass =
+    temporary === "true"
+      ? `border-[3px] border-dashed border-${selectedColor}`
+      : `bg-${selectedColor}`;
+
+  const textColor =
+    temporary === "true" ? `text-${selectedColor}` : "text-card-black";
+
+  const html = renderToHtml(`
+    <div class="${borderClass} rounded-sm h-[3.875rem] aspect-square flex items-center justify-center">
+      <div class="${textColor}">
+        <img custom-color class="w-[1.87rem] h-[1.87rem]" src="${selectedIcon}" alt="Selected Icon"/>
+      </div>
+    </div>
+  `);
 
   res.send(html);
 });

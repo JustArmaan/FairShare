@@ -115,7 +115,6 @@ export function mapTransactionsToCategories(transactions: TransactionSchema[]) {
 }
 
 const formatDateString = (dateString: string): string => {
-  console.log(dateString, "dateString");
   const date = new Date(dateString);
   if (isNaN(date.getTime())) {
     const [year, month, day] = dateString.split("T")[0].split("-");
