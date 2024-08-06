@@ -58,7 +58,10 @@ export const EditGroupPage = ({
 }) => {
   return (
     <div class="animate-fade-in">
-      <div class="flex justify-between items-center mb-1 mt-[28px] text-font-off-white">
+      <div
+        class="flex justify-between items-center mb-1 mt-[28px] text-font-off-white"
+        id="create-back-button"
+      >
         <a
           hx-get={`/groups/view/${group.id}`}
           hx-trigger="click"

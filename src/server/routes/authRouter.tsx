@@ -11,6 +11,10 @@ import express, {
 } from "express";
 import { createUser, findUser } from "../services/user.service";
 import { faker } from "@faker-js/faker";
+import { renderToHtml } from "jsxte";
+import { LoginPage } from "../views/pages/Login-Register/LoginPage";
+import { RegisterPage } from "../views/pages/Login-Register/RegisterPage";
+import { EnterInfoRegisterPage } from "../views/pages/Login-Register/EnterInfoRegisterPage";
 
 const colors = [
   "accent-blue",
@@ -110,6 +114,31 @@ router.get("/callback", async (req, res) => {
   const url = new URL(`${req.protocol}://${req.get("host")}${req.url}`);
   await kindeClient.handleRedirectToApp(sessionManager(req, res), url);
   return res.redirect("/");
+});
+
+router.get("/loginPage", async (req, res) => {
+  const html = renderToHtml(<LoginPage />);
+  res.send(html);
+});
+
+router.get("/registerPage", async (req, res) => {
+  const html = renderToHtml(<RegisterPage />);
+  res.send(html);
+});
+
+router.post("/registerContinue", async (req, res) => {
+  const { email, password, confirmPassword } = req.body;
+  if (password !== confirmPassword) {
+    return res.status(400).send("Passwords do not match");
+  }
+
+  if (!email || !password || !confirmPassword) {
+    return res.status(400).send("Missing email or password");
+  }
+
+  const html = renderToHtml(<EnterInfoRegisterPage email={email} />);
+
+  res.send(html);
 });
 
 export async function getUser(req: Request, res: Response, next: NextFunction) {

@@ -132,6 +132,7 @@ function updateIconPreview() {
 }
 
 export function initializeGroupForm() {
+  clearSelectedIconAndColor();
   const temporaryGroupCheckbox = document.getElementById("temporaryGroup");
   if (
     temporaryGroupCheckbox &&
@@ -235,6 +236,8 @@ export function clearInviteInput() {
     inviteButton.dataset.listenerAttached = "true";
   }
 }
-function forEach(arg0: (element: any) => void) {
-  throw new Error("Function not implemented.");
+
+function clearSelectedIconAndColor() {
+  selectedIcon = null;
+  selectedColor = null;
 }

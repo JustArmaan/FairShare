@@ -7,7 +7,6 @@ interface Icon {
 }
 
 export const CreateGroup = ({
-  currentUser,
   icons,
   colors,
   selectedIcon,
@@ -21,7 +20,10 @@ export const CreateGroup = ({
 }) => {
   return (
     <div id="create-group-page" class="animate-fade-in">
-      <div class="flex justify-start w-fit items-center mb-1 mt-[28px]">
+      <div
+        class="flex justify-start w-fit items-center mb-1 mt-[28px]"
+        id="create-back-button"
+      >
         <a
           hx-get="/groups/page"
           hx-trigger="click"
@@ -102,6 +104,7 @@ export const CreateGroup = ({
 
           <div class="flex justify-center items-center mt-3 mb-4">
             <button
+              id="create-group-button"
               type="button"
               hx-post="/groups/create"
               hx-target="#app"
