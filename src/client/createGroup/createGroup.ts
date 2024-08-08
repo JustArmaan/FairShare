@@ -147,7 +147,6 @@ export function initializeGroupForm() {
   initializeSelectedIcon();
   initializeSelectedColor();
 
-  // Update hidden inputs initially
   const selectedIconInput = document.getElementById(
     "selectedIcon"
   ) as HTMLInputElement;
@@ -159,7 +158,6 @@ export function initializeGroupForm() {
     selectedColorInput.value = selectedColor ?? "";
   }
 
-  // Attach event listeners to icon elements
   document.querySelectorAll("[data-category-id]").forEach((element) => {
     const htmlElement = element as HTMLElement;
     if (!htmlElement.dataset.listenerAttached) {
@@ -173,7 +171,6 @@ export function initializeGroupForm() {
     }
   });
 
-  // Attach event listeners to color elements
   const colors = document.querySelectorAll(
     "[data-color]"
   ) as NodeListOf<HTMLElement>;

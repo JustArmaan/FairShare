@@ -15,6 +15,7 @@ import { renderToHtml } from "jsxte";
 import { LoginPage } from "../views/pages/Login-Register/LoginPage";
 import { RegisterPage } from "../views/pages/Login-Register/RegisterPage";
 import { EnterInfoRegisterPage } from "../views/pages/Login-Register/EnterInfoRegisterPage";
+import crypto from "crypto";
 
 const colors = [
   "accent-blue",
@@ -111,6 +112,7 @@ router.get("/logout", async (req, res) => {
 });
 
 router.get("/callback", async (req, res) => {
+  console.log("Callback hit");
   const url = new URL(`${req.protocol}://${req.get("host")}${req.url}`);
   await kindeClient.handleRedirectToApp(sessionManager(req, res), url);
   return res.redirect("/");
@@ -139,6 +141,65 @@ router.post("/registerContinue", async (req, res) => {
   const html = renderToHtml(<EnterInfoRegisterPage email={email} />);
 
   res.send(html);
+});
+
+router.get("/apple", async (req, res) => {
+  console.log("Attempting Apple login");
+
+  const sessionManagement = sessionManager(req, res);
+
+  try {
+    const appleLoginUrl = await kindeClient.login(sessionManagement, {
+      authUrlParams: {
+        connection_id: "conn_01903daac1e14079d59fdac37e9b5a46",
+      },
+    });
+
+    console.log("Redirecting to Apple login URL:", appleLoginUrl.toString());
+    res.redirect(appleLoginUrl.toString());
+  } catch (error) {
+    console.error("Failed to initiate Apple login:", error);
+    res.status(500).send("Failed to initiate login with Apple.");
+  }
+});
+
+router.get("/google", async (req, res) => {
+  const sessionManagement = sessionManager(req, res);
+
+  try {
+    const googleLoginUri = await kindeClient.login(sessionManagement, {
+      authUrlParams: {
+        connection_id: "conn_01903daa9ef0716a2e484234e2064f59",
+      },
+    });
+
+    console.log("Redirecting to Apple login URL:", googleLoginUri.toString());
+    res.redirect(googleLoginUri.toString());
+  } catch (error) {
+    console.error("Failed to initiate Apple login:", error);
+    res.status(500).send("Failed to initiate login with Apple.");
+  }
+});
+
+router.get("/email", async (req, res) => {
+  console.log("Attempting Apple login");
+
+  const sessionManagement = sessionManager(req, res);
+
+  try {
+    const appleLoginUrl = await kindeClient.login(sessionManagement, {
+      authUrlParams: {
+        connection_id: "conn_01903150248b71cea7ed350e0954af51",
+        login_hint: "email",
+      },
+    });
+
+    console.log("Redirecting to Apple login URL:", appleLoginUrl.toString());
+    res.redirect(appleLoginUrl.toString());
+  } catch (error) {
+    console.error("Failed to initiate Apple login:", error);
+    res.status(500).send("Failed to initiate login with Apple.");
+  }
 });
 
 export async function getUser(req: Request, res: Response, next: NextFunction) {

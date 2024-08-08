@@ -19,7 +19,7 @@ export function setupSocketListener() {
       ) {
         newTransactions.transactionIds.map((id) => {
           htmx.ajax("GET", `/transactions/transaction/${id}`, {
-            target: "#transactionList-${newTransactions.accountId}",
+            target: `#transactionList-${newTransactions.accountId}`,
             swap: "afterbegin",
             event: "load",
           });
@@ -31,7 +31,7 @@ export function setupSocketListener() {
           "GET",
           `/home/accountOverview/account/${newTransactions.accountId}`,
           {
-            target: `accountOverview-${newTransactions.accountId}`,
+            target: `#accountOverview-${newTransactions.accountId}`,
             swap: "outerHTML",
             event: "load",
           }
@@ -54,10 +54,20 @@ export function setupSocketListener() {
 
       if (notificationList) {
         htmx.ajax("GET", `/notification/notificationList/${groupId}`, {
-          target: "#notification-list",
+          target: "#notificationList",
           swap: "outerHTML",
           event: "load",
         });
+      }
+
+      if ((window as any).ReactNativeWebView) {
+        (window as any).ReactNativeWebView.postMessage(
+          JSON.stringify({
+            action: "triggerNotification",
+            title: "Group Invite",
+            message: `You have been invited to join group ${groupId}`,
+          })
+        );
       }
     });
   });

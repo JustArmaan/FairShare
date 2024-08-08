@@ -4,7 +4,7 @@ export const RegisterPage = () => {
       <a
         hx-get="/onboard"
         hx-trigger="click"
-        hx-target="#app"
+        hx-target="body"
         hx-swap="innerHTML"
         hx-push-url="/onboard"
         class="text-font-off-white text-4xl cursor-pointer my-2 flex items-center"
