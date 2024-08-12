@@ -1,13 +1,16 @@
-import { sqliteTable, text } from 'drizzle-orm/sqlite-core';
-import { groupTransactionState } from './groupTransactionState';
-import { transactions } from './transaction';
+import { real, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import { transactions } from "./transaction";
 
-export const transactionReceipt = sqliteTable('transactionReceipt', {
-  id: text('id').primaryKey(),
-  groupTransactionStateId: text('fk_group_transaction_state_id')
-    .references(() => groupTransactionState.id, { onDelete: 'cascade' })
-    .notNull(),
-  transactionId: text('fk_transaction_id')
-    .references(() => transactions.id)
-    .notNull(),
+export const transactionReceipt = sqliteTable("transactionReceipt", {
+  id: text("id").primaryKey(),
+  transactionId: text("fk_transaction_id").references(() => transactions.id),
+  total: real("total").notNull(),
+  subtotal: real("subtotal").notNull(),
+  phone: text("phone").notNull(),
+  storeAddress: text("store_address").notNull(),
+  storeName: text("store_name").notNull(),
+  tax: real("tax").notNull(),
+  tips: real("tips").notNull(),
+  timestamp: text("timestamp"),
+  discount: real("discount").notNull(),
 });

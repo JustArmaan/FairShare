@@ -23,13 +23,6 @@ import { plaidMobileLinkRouter } from "./routes/plaidMobileLinkRouter";
 import { remapSvgs } from "./middleware/svgHandler.middleware";
 import { receiptRouter } from "./routes/receiptRouter";
 
-// import { getReceiptData } from "./integrations/receipts/getReceiptData";
-
-
-// export async function print() {
-//   getReceiptData; //ignore me
-// }
-
 const app = express();
 const server = http.createServer(app);
 

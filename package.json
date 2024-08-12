@@ -4,6 +4,7 @@
   "scripts": {
     "dev": "nodemon -e ts,tsx,html -w src -x bun run src/server/main.tsx",
     "start": "bun src/server/main.tsx",
+    "python-service": "source src/py-receipt-server/.venv/bin/activate && pip install -r src/py-receipt-server/requirements.txt && python -m src.py-receipt-server.app",
     "build": "vite build",
     "tailwind-watch": "bun x tailwindcss -i ./src/server/views/tailwind.css -o ./public/output.css --watch",
     "tailwind-build": "bun x tailwindcss -i ./src/server/views/tailwind.css -o ./public/output.css",
