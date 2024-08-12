@@ -15,6 +15,7 @@ import {
   initializeSelectedIcon,
   openAndCloseSelectIcon,
   clearInviteInput,
+  initializeGroupForm,
 } from "./createGroup/createGroup";
 import { clipBoardCopyInviteLink } from "./inviteLink/inviteLink";
 import htmx from "htmx.org";
@@ -40,12 +41,11 @@ document.body.addEventListener("htmx:afterSwap", (event) => {
   progressBar();
   attachFormListeners();
   clipBoardCopyInviteLink();
-  initializeSelectedColor();
-  initializeSelectedIcon();
   openAndCloseSelectIcon();
   clearInviteInput();
   initializeChooseFromLibraryButton();
   addTakePictureButton();
+  initializeGroupForm();
 
   if (!(event.target instanceof HTMLElement)) return;
   const excludeListId = new Set(["institutionSelector"]);

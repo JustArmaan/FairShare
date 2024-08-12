@@ -58,7 +58,10 @@ export const EditGroupPage = ({
 }) => {
   return (
     <div class="animate-fade-in">
-      <div class="flex justify-between items-center mb-1 mt-[28px] text-font-off-white">
+      <div
+        class="flex justify-between items-center mb-1 mt-[28px] text-font-off-white"
+        id="create-back-button"
+      >
         <a
           hx-get={`/groups/view/${group.id}`}
           hx-trigger="click"
@@ -91,13 +94,48 @@ export const EditGroupPage = ({
       </div>
 
       <div class="flex flex-col">
-        <label class="text-font-off-white justify-start bold">Group Name</label>
-        <input
-          class="px-4 py-2 justify-center items-center text-font-off-white bg-primary-black rounded-md mt-2"
-          type="text"
-          name="groupName"
-          value={group.name}
-        />
+        <div class="flex items-center space-x-4">
+          <div id="icon-preview" class="flex items-center">
+            <div
+              id="icon-container"
+              class="h-[3.875rem] aspect-square flex items-center justify-center"
+            >
+              <div
+                class={`${
+                  group.temporary === "true"
+                    ? `border-[3px] border-dashed border-${group.color} rounded-sm`
+                    : `bg-${group.color} rounded-sm`
+                }  h-[3.875rem] aspect-square flex items-center justify-center`}
+                id="icon-content"
+              >
+                <div
+                  class={`${
+                    group.temporary === "true"
+                      ? `text-${group.color}`
+                      : "text-card-black"
+                  } `}
+                >
+                  <img
+                    custom-color
+                    class="w-[1.87rem] h-[1.87rem]"
+                    src={group.icon}
+                    alt=""
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="flex flex-col flex-grow">
+            <label class="text-font-off-white font-bold">Group Name</label>
+            <input
+              class="px-4 py-2 justify-center items-center text-font-off-white bg-primary-black rounded-md mt-2 w-full"
+              type="text"
+              name="groupName"
+              value={group.name}
+            />
+          </div>
+        </div>
+
         <label class="text-font-off-white justify-start semibold flex flex-col text-lg mt-[0.68rem]">
           Select Icon
         </label>

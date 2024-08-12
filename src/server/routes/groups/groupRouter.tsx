@@ -38,6 +38,7 @@ import {
   getCashAccountWithTransaction,
   getItem,
   getItemsForUser,
+  type AccountSchema,
 } from "../../services/plaid.service.ts";
 import type { ExtractFunctionReturnType } from "../../services/user.service.ts";
 import { GroupTransactionsListPage } from "../../views/pages/Groups/TransactionsListGroupsPage.tsx";
@@ -49,7 +50,11 @@ import {
 import { TransactionList } from "../../views/pages/transactions/components/TransactionList.tsx";
 import { AccountPickerForm } from "../../views/pages/transactions/components/AccountPickerForm.tsx";
 import Transaction from "../../views/pages/transactions/components/Transaction.tsx";
-import { getTransaction } from "../../services/transaction.service.ts";
+import {
+  getCashAccountForUser,
+  getTransaction,
+  type CashAccount,
+} from "../../services/transaction.service.ts";
 import { ViewAndPayPage } from "../../views/pages/Groups/ViewAndPayPage.tsx";
 import { InstitutionDropDown } from "../../views/pages/Groups/components/InstitutionDropDown.tsx";
 import {
@@ -383,6 +388,10 @@ router.post("/create", async (req, res) => {
 
     const { groupName, selectedIcon, temporaryGroup, selectedColor } = req.body;
 
+    if (selectedColor.includes("primary-dark-grey")) {
+      return res.status(400).send("Please select a color.");
+    }
+
     if (
       !groupName ||
       groupName === "" ||
@@ -603,6 +612,10 @@ router.post("/edit/:groupId", async (req, res) => {
     const { groupName, selectedColor, temporaryGroup, selectedIcon } = req.body;
     console.log("req.body", req.body);
 
+    if (selectedColor.includes("primary-dark-grey")) {
+      return res.status(400).send("Please select a color.");
+    }
+
     const isTemp = temporaryGroup === "on";
     const currentGroup = await getGroupWithMembers(req.params.groupId);
 
@@ -764,17 +777,33 @@ router.get("/transactionList/:accountId/:groupId", async (req, res) => {
   );
   res.send(html);
 });
+
 router.get("/accountPicker/:itemId/:accountId/:groupId", async (req, res) => {
   const accounts = await getAccountsForUser(req.user!.id, req.params.itemId);
   if (!accounts) throw new Error("Missing accounts for user");
-  const html = renderToHtml(
-    <AccountPickerForm
-      accounts={accounts}
-      selectedAccountId={req.params.accountId}
-      groupId={req.params.groupId as string}
-      itemId={req.params.itemId}
-    />
-  );
+
+  const cashAccount = await getCashAccountForUser(req.user!.id);
+
+  const props: {
+    accounts: AccountSchema[];
+    selectedAccountId: string;
+    groupId: string;
+    itemId: string;
+    cashAccount?: CashAccount | null;
+  } = {
+    accounts,
+    selectedAccountId: req.params.accountId,
+    groupId: req.params.groupId,
+    itemId: req.params.itemId,
+  };
+
+  if (cashAccount) {
+    props.cashAccount = cashAccount;
+  } else {
+    props.cashAccount = null;
+  }
+
+  const html = renderToHtml(<AccountPickerForm {...props} />);
   res.send(html);
 });
 
@@ -1001,6 +1030,47 @@ router.get("/groupMembers/:groupId", async (req, res) => {
       groupId={groupWithMembers.id}
     />
   );
+
+  res.send(html);
+});
+
+router.get("/updateIcon", async (req, res) => {
+  const { icon, color, temporary } = req.query;
+
+  let selectedIcon = icon;
+  let selectedColor = color;
+
+  if (!icon || icon === "null") {
+    selectedIcon = createIcons[0].icon;
+  }
+
+  if (!color || color === "null") {
+    selectedColor = "primary-dark-grey";
+  }
+
+  console.log(
+    "icon",
+    selectedIcon,
+    "color",
+    selectedColor,
+    "temporary",
+    temporary
+  );
+  const borderClass =
+    temporary === "true"
+      ? `border-[3px] border-dashed border-${selectedColor}`
+      : `bg-${selectedColor}`;
+
+  const textColor =
+    temporary === "true" ? `text-${selectedColor}` : "text-card-black";
+
+  const html = renderToHtml(`
+    <div class="${borderClass} rounded-sm h-[3.875rem] aspect-square flex items-center justify-center">
+      <div class="${textColor}">
+        <img custom-color class="w-[1.87rem] h-[1.87rem]" src="${selectedIcon}" alt="Selected Icon"/>
+      </div>
+    </div>
+  `);
 
   res.send(html);
 });

@@ -82,14 +82,6 @@ function updatePercentages(category: Category, categories: Category[]) {
   return category;
 }
 
-const iconColors = [
-  "bg-accent-red",
-  "bg-accent-blue",
-  "bg-accent-green",
-  "bg-accent-yellow",
-  "bg-accent-purple",
-];
-
 export function mapTransactionsToCategories(transactions: TransactionSchema[]) {
   const categories = transactions.reduce((categories, transaction) => {
     if (transaction.amount <= 0) return categories;
@@ -121,6 +113,17 @@ export function mapTransactionsToCategories(transactions: TransactionSchema[]) {
   }, [] as Category[]);
   return categories.map((category) => updatePercentages(category, categories));
 }
+
+const formatDateString = (dateString: string): string => {
+  const date = new Date(dateString);
+  if (isNaN(date.getTime())) {
+    const [year, month, day] = dateString.split("T")[0].split("-");
+    return `${year}-${month}`;
+  }
+  const year = date.getFullYear();
+  const month = ("0" + (date.getMonth() + 1)).slice(-2);
+  return `${year}-${month}`;
+};
 
 export const BreakdownPage = ({
   transactions,
@@ -167,8 +170,10 @@ export const BreakdownPage = ({
     selectedYear = new Date().getFullYear();
   }
 
-  const dateOptions = uniqueYearMonth?.reverse().map((yearMonth) => {
-    const [year, month] = yearMonth.split("-"); 
+  const formattedUniqueYearMonth = uniqueYearMonth?.map(formatDateString);
+
+  const dateOptions = formattedUniqueYearMonth?.reverse().map((yearMonth) => {
+    const [year, month] = yearMonth.split("-");
     return { year, month };
   });
 
@@ -185,7 +190,9 @@ export const BreakdownPage = ({
     return Object.keys(uniqueYearsObj);
   }
 
-  const uniqueYears = extractUniqueYearsWithReduce(uniqueYearMonth || []);
+  const uniqueYears = extractUniqueYearsWithReduce(
+    formattedUniqueYearMonth || []
+  );
 
   return (
     <div class="text-font-off-white h-fit page animate-fade-in">
