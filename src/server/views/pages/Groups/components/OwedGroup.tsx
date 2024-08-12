@@ -12,7 +12,7 @@ export const OwedGroup = (props: {
   >[];
   groupId: string;
   url?: string;
-  totalOwed: number;
+  owing?: boolean;
 }) => {
   function maxCompanyNameLength(str: string, max: number) {
     return str.length > max ? str.substring(0, max - 3) + "..." : str;
@@ -57,23 +57,31 @@ export const OwedGroup = (props: {
       )!,
     }));
 
+  const totalOwing = processedData
+    ? processedData
+        .filter((result) =>
+          props.owing ? result.amount > 0 : result.amount < 0
+        )
+        .reduce((acc, result) => acc + result.amount, 0)
+    : 0;
+
   return (
     <>
       {processedData && (
         <div class="bg-[#232222] rounded-lg mt-4">
           <p class="text-font-off-white text-xl font-medium pt-3 text-center">
-            {props.totalOwed > 0 ? "Owed" : "Owing"}
+            {totalOwing ? "Owed" : "Owing"}
           </p>
           <p class="text-font-off-white font-medium text-sm text-center">
-            {props.totalOwed > 0 ? "You are owed " : "You owe "}
+            {totalOwing > 0 ? "You are owed " : "You owe "}
             <span
               class={`text-font-off-white font-medium text-sm text-center ${
-                props.totalOwed > 0
+                totalOwing && totalOwing > 0
                   ? "text-positive-number"
                   : "text-negative-number"
               }`}
             >
-              ${Math.abs(props.totalOwed).toFixed(2)}
+              ${Math.abs(totalOwing)}
             </span>{" "}
             overall
           </p>

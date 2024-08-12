@@ -97,7 +97,7 @@ export const GroupItem = (props: {
                       <div
                         class={`flex rounded-full bg-${member.color} h-[calc(100%_-_1px)] p-px aspect-square justify-center brightness-[.40]  `}
                       >
-                        <span class="flex justify-center self-center text-center text-sm font-semibold">
+                        <span class="flex justify-center self-center text-center text-sm font-semibold ">
                           {member.firstName.split("", 1)}
                           {member.lastName?.split("", 1)}
                         </span>
@@ -107,7 +107,7 @@ export const GroupItem = (props: {
                     <div
                       class={`-ml-4 flex rounded-full bg-${member.color} h-[1.875rem] aspect-square justify-center border-2 border-primary-black`}
                     >
-                      <span class="flex justify-center self-center text-center text-xs font-semibold">
+                      <span class="flex justify-center self-center text-center text-xs font-semibold h-3">
                         {member.firstName.split("", 1)}
                         {member.lastName?.split("", 1)}
                       </span>

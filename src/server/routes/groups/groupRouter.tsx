@@ -734,9 +734,8 @@ router.post("/deleteMember/:userID/:groupID", async (req, res) => {
 
 router.get("/transactions/:groupId", async (req, res) => {
   const groupId = req.params.groupId;
-  const groupWithTransactions = await getGroupWithMembersAndTransactions(
-    groupId
-  );
+  const groupWithTransactions =
+    await getGroupWithMembersAndTransactions(groupId);
   const html = renderToHtml(
     <GroupTransactionsListPage
       group={groupWithTransactions as GroupMembersTransactions}

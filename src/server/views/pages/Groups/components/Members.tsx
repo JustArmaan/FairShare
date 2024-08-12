@@ -67,7 +67,6 @@ export const Members = (props: {
     typeof getAllOwedForGroupTransaction
   >[];
 }) => {
-  console.log(props.memberDetails);
   const totalOwed = calculateTotalOwedAll(
     props.owedPerMember,
     props.memberDetails

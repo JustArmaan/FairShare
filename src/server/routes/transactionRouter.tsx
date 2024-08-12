@@ -244,7 +244,6 @@ router.get("/location/:transactionId", async (req, res) => {
 });
 
 router.post("/addButton", async (req, res) => {
-  // sorry jeremy ^^^^
   const { checked, transactionId, groupId } = req.query as {
     [key: string]: string;
   };
