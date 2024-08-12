@@ -1,6 +1,9 @@
 export const ScanReceiptHelper = () => {
   return (
-    <div class="w-full  text-font-off-white bg-primary-black rounded-md p-2 mb-4">
+    <div
+      id="scanReceiptHelper"
+      class="w-full  text-font-off-white bg-primary-black rounded-md p-2 mb-4"
+    >
       <div class="flex flex-col justify-center items-center">
         <h1 class="text-xl text-center font-semibold w-full mb-[1.59rem]">
           Capture or upload a receipt for automatic transcription!

@@ -42,7 +42,6 @@ const fakeReceiptData: ReceiptData = {
 export const AddReceiptManuallyPage = (props: {}) => {
   return (
     <div class="bg-primary-black-page w-full h-fit">
-        Hello
       <ReceiptForm />
     </div>
   );

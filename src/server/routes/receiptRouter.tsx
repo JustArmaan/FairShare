@@ -7,6 +7,7 @@ import fs from "fs";
 import upload from "../utils/multerConfig";
 import { AddReceiptManuallyPage } from "../views/pages/ReceiptScanning/AddReceiptManuallyPage";
 import { ro } from "@faker-js/faker";
+import { BillSplitReceipt } from "../views/pages/Groups/components/BillSplitReceipt";
 
 const router = express.Router();
 
@@ -62,6 +63,61 @@ router.post(
         console.error("Error writing file:", err);
         res.status(500).send("Internal Server Error");
       });
+
+      const transactionDetails = {
+        companyName: "Guu Thurlow",
+        address: "838 Thurlow St, Vancouver",
+        date: "March 28, 2024 16:04",
+        transactionId: "ID123456321",
+      };
+
+      const itemizedTransaction = [
+        {
+          item: "Ebi Mayo",
+          quantity: 1,
+          price: 16.0,
+          owingMembers: [],
+        },
+        {
+          item: "Asahi Pitcher",
+          quantity: 1,
+          price: 22.0,
+          owingMembers: [],
+        },
+        {
+          item: "Katsu Curry",
+          quantity: 1,
+          price: 20.0,
+          owingMembers: [],
+        },
+        {
+          item: "Beef Yakisoba",
+          quantity: 1,
+          price: 21.0,
+          owingMembers: [],
+        },
+        {
+          item: "AAA BBQ Beef",
+          quantity: 1,
+          price: 26.5,
+          owingMembers: [],
+        },
+        {
+          item: "Oolong Tea",
+          quantity: 1,
+          price: 2.5,
+          owingMembers: [],
+        },
+      ];
+
+      const html = renderToHtml(
+        <BillSplitReceipt
+          transactionsDetails={transactionDetails}
+          receiptItems={itemizedTransaction}
+        />
+      );
+
+      res.send(html);
     } catch (error) {
       console.error("Error processing receipt:", error);
       res.status(500).send("Internal Server Error");

@@ -250,10 +250,10 @@ export async function getUser(req: Request, res: Response, next: NextFunction) {
       }
       const user = await findUser(profile.id);
       // const user = {
-      //   id: "kp_ae3fe5538e824f54b990b4f7876c22f8",
+      //   id: "kp_b20575f122824fe5b0099f12948a4912",
       //   firstName: "Byron",
       //   lastName: "Dray",
-      //   email: "byrondray8@gmail.com",
+      //   email: "byrondray2@gmail.com",
       //   color: "category-color-0",
       //   createdAt: new Date().toISOString(),
       // };

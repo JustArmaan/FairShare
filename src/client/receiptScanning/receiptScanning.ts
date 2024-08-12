@@ -14,6 +14,7 @@ function addEventListenerWithFlag(
 
 function handleReceivedImage(base64Image: string): void {
   const imagePreviewAddPage = document.getElementById("imagePreviewAddPage");
+  const scanReceiptHelper = document.getElementById("scanReceiptHelper");
 
   if (imagePreviewAddPage) {
     const imgContainer = document.createElement("div");
@@ -40,6 +41,10 @@ function handleReceivedImage(base64Image: string): void {
 
     addRetakeAndAddMoreButtons();
     updateChooseFromLibraryButton();
+
+    if (scanReceiptHelper) {
+      scanReceiptHelper.style.display = "none";
+    }
   } else {
     console.log("handleReceivedImage: imagePreviewAddPage element not found");
   }

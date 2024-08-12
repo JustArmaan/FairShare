@@ -3,22 +3,6 @@ import { ScanReceiptHelper } from "./components/ScanReceiptHelper";
 const AddReceiptPage = () => {
   return (
     <div class="camera-capture-container text-left">
-      {/* <div class="flex justify-start w-fit items-center mt-2 mb-1">
-        <a
-          hx-get={"/home/page/default"}
-          hx-trigger="click"
-          hx-target="#app"
-          hx-swap="innerHTML"
-          hx-push-url={"/home/page/default"}
-          class="text-font-off-white text-4xl cursor-pointer"
-        >
-          <img
-            src="/icons/arrow_back_ios.svg"
-            alt="back arrow icon"
-            class="hover:-translate-y-0.5 transition-transform hover:opacity-80 h-6"
-          />
-        </a>
-      </div> */}
       <div
         id="errorContainer"
         class="text-accent-red bg-opacity-10 border border-accent-red p-4 rounded shadow hidden text-center my-4"
