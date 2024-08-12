@@ -72,9 +72,9 @@ export const Nav = () => {
               class="flex flex-col items-center text-font-off-white dark:text-white"
             >
               <img
-                src="/images/moreButton.svg"
-                alt="plus icon"
-                class="p-2.5 mt-0.5"
+                src="/activeIcons/navCamera.svg"
+                alt="camera icon"
+                class="p-2.5 items-center"
               ></img>
             </a>
           </li>

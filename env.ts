@@ -20,6 +20,9 @@ export const env = {
   vopayUrl: process.env.VITE_VOPAY_URL,
   playwrightEmail: process.env.VITE_PLAYWRIGHT_EMAIL,
   playwrightPassword: process.env.VITE_PLAYWRIGHT_PASSWORD,
+  kindeEmailConnectionId: process.env.VITE_KINDE_EMAIL_CONNECTION_ID,
+  kindeAppleConnectionId: process.env.VITE_KINDE_APPLE_CONNECTION_ID,
+  kindeGoogleConnectionId: process.env.VITE_KINDE_GOOGLE_CONNECTION_ID,
   dbLogging: process.env.VITE_DB_LOGGING ? true : false,
 };
 

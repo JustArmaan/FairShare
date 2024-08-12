@@ -1,7 +1,9 @@
+import { ScanReceiptHelper } from "./components/ScanReceiptHelper";
+
 const AddReceiptPage = () => {
   return (
     <div class="camera-capture-container text-left">
-      <div class="flex justify-start w-fit items-center mt-2 mb-1">
+      {/* <div class="flex justify-start w-fit items-center mt-2 mb-1">
         <a
           hx-get={"/home/page/default"}
           hx-trigger="click"
@@ -16,21 +18,14 @@ const AddReceiptPage = () => {
             class="hover:-translate-y-0.5 transition-transform hover:opacity-80 h-6"
           />
         </a>
-      </div>
+      </div> */}
       <div
         id="errorContainer"
         class="text-accent-red bg-opacity-10 border border-accent-red p-4 rounded shadow hidden text-center my-4"
       ></div>
-      <div class="px-[3.69rem]">
+      <div>
         <div class="flex items-center w-full">
-          <h1 class="text-font-off-white text-xl mr-2 mb-[1rem] leading-tight">
-            Take photo of Receipt
-          </h1>
-          <img
-            src="/activeIcons/info.svg"
-            alt="info icon"
-            class="h-6 mb-[1rem]"
-          />
+          <ScanReceiptHelper />
         </div>
         <div id="imagePreviewAddPage" class="mt-1 mb-[2.94rem] hidden"></div>
         <input

@@ -151,7 +151,7 @@ router.get("/apple", async (req, res) => {
   try {
     const appleLoginUrl = await kindeClient.login(sessionManagement, {
       authUrlParams: {
-        connection_id: "conn_01903daac1e14079d59fdac37e9b5a46",
+        connection_id: env.kindeAppleConnectionId,
       },
     });
 
@@ -169,7 +169,7 @@ router.get("/google", async (req, res) => {
   try {
     const googleLoginUri = await kindeClient.login(sessionManagement, {
       authUrlParams: {
-        connection_id: "conn_01903daa9ef0716a2e484234e2064f59",
+        connection_id: env.kindeGoogleConnectionId,
       },
     });
 
@@ -189,7 +189,7 @@ router.get("/email", async (req, res) => {
   try {
     const appleLoginUrl = await kindeClient.login(sessionManagement, {
       authUrlParams: {
-        connection_id: "conn_01903150248b71cea7ed350e0954af51",
+        connection_id: env.kindeEmailConnectionId,
         login_hint: "email",
       },
     });
