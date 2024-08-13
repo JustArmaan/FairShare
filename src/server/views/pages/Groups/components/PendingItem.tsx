@@ -4,7 +4,6 @@ import type { getAllOwedForGroupTransactionWithTransactionId } from "../../../..
 import type { ExtractFunctionReturnType } from "../../../../services/user.service";
 
 export const PendingItems = (props: {
-  selectedAccountId: string | null;
   memberDetails: UserSchema[];
   currentUser: UserSchema;
   transactions?: GroupWithTransactions;

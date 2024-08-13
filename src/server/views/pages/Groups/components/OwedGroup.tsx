@@ -3,28 +3,7 @@ import { type GroupWithTransactions } from "../../../../services/group.service";
 import type { getAllOwedForGroupTransactionWithTransactionId } from "../../../../services/owed.service";
 import type { ExtractFunctionReturnType } from "../../../../services/user.service";
 
-export const OwedGroup = (props: {
-  memberDetails: UserSchema[];
-  currentUser: UserSchema;
-  transactions?: GroupWithTransactions;
-  owedPerMember: ExtractFunctionReturnType<
-    typeof getAllOwedForGroupTransactionWithTransactionId
-  >[];
-  groupId: string;
-  url?: string;
-  owing?: boolean;
-}) => {
-  function maxCompanyNameLength(str: string, max: number) {
-    return str.length > max ? str.substring(0, max - 3) + "..." : str;
-  }
-  const owedForThisMember = props.owedPerMember
-    .map(
-      (owedList) =>
-        owedList.find((owed) => owed.userId === props.currentUser.id)!
-    )
-    .filter((owed) => owed && !owed.pending);
-
-  function formatDate(dateString: string) {
+export  function formatDate(dateString: string) {
     const months = [
       "January",
       "February",
@@ -46,45 +25,73 @@ export const OwedGroup = (props: {
     const year = date.getFullYear();
     return `${month} ${day}, ${year}`;
   }
+
+export const OwedGroup = (props: {
+  memberDetails: UserSchema[];
+  currentUser: UserSchema;
+  transactions?: GroupWithTransactions;
+  owedPerMember: ExtractFunctionReturnType<
+    typeof getAllOwedForGroupTransactionWithTransactionId
+  >[];
+  groupId: string;
+  url?: string;
+  owing?: boolean;
+}) => {
+  function maxCompanyNameLength(str: string, max: number) {
+    return str.length > max ? str.substring(0, max - 3) + "..." : str;
+  }
+
+  const owedForThisMember = props.owedPerMember
+    .map(
+      (owedList) =>
+        owedList.find((owed) => owed.userId === props.currentUser.id)!
+    )
+    .filter((owed) => owed && !owed.pending);
+
   const processedData =
     props.transactions &&
     props.transactions.length > 0 &&
     owedForThisMember.length > 0 &&
-    owedForThisMember.map((owedList) => ({
-      ...owedList,
-      transaction: props.transactions?.find(
-        (transaction) => transaction.id === owedList.transactionId
-      )!,
-    }));
-
+    owedForThisMember
+      .map((owedList) => ({
+        ...owedList,
+        transaction: props.transactions?.find(
+          (transaction) => transaction.id === owedList.transactionId
+        )!,
+      }))
+      .filter((result) =>
+        props.owing ? result.amount < 0 : result.amount > 0
+      );
   const totalOwing = processedData
-    ? processedData
-        .filter((result) =>
-          props.owing ? result.amount > 0 : result.amount < 0
-        )
-        .reduce((acc, result) => acc + result.amount, 0)
+    ? processedData.reduce((acc, result) => acc + result.amount, 0)
     : 0;
 
   return (
     <>
-      {processedData && (
+      {processedData && processedData.length > 0 && (
         <div class="bg-[#232222] rounded-lg mt-4">
           <p class="text-font-off-white text-xl font-medium pt-3 text-center">
-            {totalOwing ? "Owed" : "Owing"}
+            {props.owing ? "Owing" : "Owed"}
           </p>
-          <p class="text-font-off-white font-medium text-sm text-center">
-            {totalOwing > 0 ? "You are owed " : "You owe "}
-            <span
-              class={`text-font-off-white font-medium text-sm text-center ${
-                totalOwing && totalOwing > 0
-                  ? "text-positive-number"
-                  : "text-negative-number"
-              }`}
-            >
-              ${Math.abs(totalOwing)}
-            </span>{" "}
-            overall
-          </p>
+          {totalOwing !== 0 ? (
+            <p class="text-font-off-white font-medium text-sm text-center">
+              {totalOwing > 0 ? "You are owed " : "You owe "}
+              <span
+                class={`text-font-off-white font-medium text-sm text-center ${
+                  totalOwing && totalOwing > 0
+                    ? "text-positive-number"
+                    : "text-negative-number"
+                }`}
+              >
+                ${Math.abs(totalOwing)}
+              </span>{" "}
+              overall
+            </p>
+          ) : (
+            <p class="text-font-off-white font-medium text-sm text-center">
+              Your bills are even.
+            </p>
+          )}
           <div class="flex-col w-full justify-evenly rounded-lg py-1.5 px-4 mt-3 flex items-center">
             {processedData.map((result) => (
               <div class="w-full bg-primary-black relative mb-3 rounded-md py-[0.75rem] px-[0.69rem] shadow-[0px_2px_2px_0px_rgba(0,0,0,0.25)]">
@@ -119,10 +126,10 @@ export const OwedGroup = (props: {
                   <div class="flex flex-row justify-center text-font-off-white mt-[0.5rem]">
                     <button
                       hx-swap="innerHTML"
-                      hx-get={`/transactions/details/${result.transactionId}/?url=${props.url}`}
-                      hx-push-url={`/transactions/details/${result.transactionId}/?url=${props.url}`}
+                      hx-get={``}
+                      hx-push-url={``}
                       hx-target="#app"
-                      class="flex items-center justify-center py-[.6875rem] px-[0.5rem] hover:-translate-y-0.5 rotate-[0.0001deg] transition-transform font-normal w-[4.187rem] h-[2.063rem] border-accent-blue border-[2px] rounded-[1.25rem] text-font-off-white text-base"
+                      class="w-[5.4rem] flex items-center justify-center hover:-translate-y-0.5 rotate-[0.0001deg] transition-transform font-normal border-accent-blue border-[2px] rounded-[1.25rem] text-font-off-white text-base"
                     >
                       <p>View</p>
                     </button>
@@ -132,9 +139,9 @@ export const OwedGroup = (props: {
                       hx-get={`/groups/pay/${result.groupTransactionToUsersToGroupsId}/${props.groupId}`}
                       hx-target="#app"
                       hx-push-url={`/groups/pay/${result.groupTransactionToUsersToGroupsId}/${props.groupId}`}
-                      class="flex items-center justify-center py-[.6875rem] px-[0.5rem] hover:-translate-y-0.5 rotate-[0.0001deg] transition-transform font-normal w-[4.187rem] h-[2.063rem] bg-accent-blue rounded-[1.25rem] text-font-off-white text-base ml-3"
+                      class="w-[5.4rem] flex items-center justify-center hover:-translate-y-0.5 rotate-[0.0001deg] transition-transform font-normal bg-accent-blue rounded-[1.25rem] text-font-off-white text-base ml-3"
                     >
-                      <p class="h-fit">Settle</p>
+                      <p class="h-fit">{props.owing ? "Settle" : "Remind"}</p>
                     </button>
                   </div>
                 </div>

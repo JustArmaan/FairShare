@@ -6,7 +6,6 @@ import {
   getGroupTransactions,
   getGroupWithMembersAndTransactions,
   getGroupsAndAllMembersForUser,
-  getTransactionsForGroup,
   type GroupMembersTransactions,
   getUsersToGroup,
   updateUsersToGroup,
@@ -30,14 +29,12 @@ import {
   EditGroupPage,
   colors,
 } from "../../views/pages/Groups/components/EditGroup.tsx";
-import { ViewGroups } from "../../views/pages/Groups/components/ViewGroup.tsx";
 import { AddTransaction } from "../../views/pages/Groups/components/AddTransaction.tsx";
 import {
   getAccountWithTransactions,
   getAccountsForUser,
   getCashAccountWithTransaction,
   getItem,
-  getItemsForUser,
   type AccountSchema,
 } from "../../services/plaid.service.ts";
 import type { ExtractFunctionReturnType } from "../../services/user.service.ts";
@@ -78,44 +75,6 @@ import { groupViewSubRouter } from "./groupView.tsx";
 import { getOrCreateCashAccountForUser } from "../../utils/getOrCreateCashAccount.ts";
 
 const router = express.Router();
-
-const icons = [
-  {
-    id: "2707335e-ad80-458a-a1e6-fb25300e5621",
-    name: "Heart",
-    icon: "/groupIcons/heart.svg",
-  },
-  {
-    id: "2707335e-ad80-458a-a1e6-fb25300e5622",
-    name: "Star",
-    icon: "/groupIcons/star.svg",
-  },
-  {
-    id: "2707335e-ad80-458a-a1e6-fb25300e5623",
-    name: "Drink",
-    icon: "/groupIcons/drink.svg",
-  },
-  {
-    id: "2707335e-ad80-458a-a1e6-fb25300e5624",
-    name: "Diamond",
-    icon: "/groupIcons/diamond.svg",
-  },
-  {
-    id: "2707335e-ad80-458a-a1e6-fb25300e5625",
-    name: "Food",
-    icon: "/groupIcons/food.svg",
-  },
-  {
-    id: "2707335e-ad80-458a-a1e6-fb25300e5626",
-    name: "Crown",
-    icon: "/groupIcons/crown.svg",
-  },
-  {
-    id: "2707335e-ad80-458a-a1e6-fb25300e5627",
-    name: "Gift",
-    icon: "/groupIcons/gift.svg",
-  },
-];
 
 const createIcons = [
   {
@@ -1047,14 +1006,6 @@ router.get("/updateIcon", async (req, res) => {
     selectedColor = "primary-dark-grey";
   }
 
-  console.log(
-    "icon",
-    selectedIcon,
-    "color",
-    selectedColor,
-    "temporary",
-    temporary
-  );
   const borderClass =
     temporary === "true"
       ? `border-[3px] border-dashed border-${selectedColor}`

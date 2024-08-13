@@ -48,7 +48,7 @@ document.body.addEventListener("htmx:afterSwap", (event) => {
   initializeGroupForm();
 
   if (!(event.target instanceof HTMLElement)) return;
-  const excludeListId = new Set(["institutionSelector"]);
+  const excludeListId = new Set(["institutionSelector", "owed-owing-history"]);
   if (excludeListId.has(event.target.id)) return;
   window.scrollTo({ top: 0 });
 

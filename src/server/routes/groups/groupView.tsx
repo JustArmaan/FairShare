@@ -14,8 +14,57 @@ import {
 } from "../../services/plaid.service";
 import { renderToHtml } from "jsxte";
 import { ViewGroups } from "../../views/pages/Groups/components/ViewGroup";
+import {
+  OwedOwingHistory,
+  tabs,
+} from "../../views/pages/Groups/components/OwedOwingHistory";
 
 const router = express.Router();
+
+router.get("/OwedOwingHistory", async (req, res) => {
+  const { groupId, tab } = req.query as { [key: string]: string };
+
+  const userId = req.user!.id;
+  const currentUser = await findUser(userId);
+
+  if (!currentUser) throw new Error("No such user");
+
+  const group = await getGroupWithMembers(groupId);
+
+  if (!group) return res.status(404).send("No such group");
+
+  const transactions = await getTransactionsForGroup(group.id);
+
+  const owedPerMember = await Promise.all(
+    transactions
+      .map(async (transaction) => {
+        return (await getAllOwedForGroupTransactionWithTransactionId(
+          group.id,
+          transaction.id
+        )) as ExtractFunctionReturnType<
+          typeof getAllOwedForGroupTransactionWithTransactionId
+        >;
+      })
+      .filter((owed) => owed !== null)
+  );
+
+  if (!tabs.some((validTab) => tab === validTab)) {
+    return res.status(400).send("Invalid Tab");
+  }
+
+  const html = renderToHtml(
+    <OwedOwingHistory
+      selectedTab={tab as (typeof tabs)[number]}
+      url={`/groups/view/${group.id}`}
+      groupId={groupId}
+      owedPerMember={owedPerMember}
+      transactions={transactions}
+      members={group.members}
+      currentUser={currentUser}
+    />
+  );
+  res.send(html);
+});
 
 router.get("/:groupId", async (req, res) => {
   const userId = req.user!.id;
@@ -76,7 +125,6 @@ router.get("/:groupId", async (req, res) => {
             ]
       }
       accountId={accountId} // refactor me!
-      selectedDepositAccountId={null}
       itemId={defaultItem.id}
       url={`/groups/view/${group.id}`}
     />

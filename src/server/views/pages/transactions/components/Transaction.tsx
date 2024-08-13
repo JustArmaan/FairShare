@@ -1,4 +1,3 @@
-import { on } from "events";
 import { type TransactionSchema } from "../../../../interface/types";
 
 export function formatDate(timestamp: string) {
@@ -80,6 +79,12 @@ export const Transaction = ({
               <p class="text-gray-400 text-sm text-font-off-white w-fit">
                 {transaction.timestamp && formatDate(transaction.timestamp)}
               </p>
+              {groupId && (
+                <p class="text-font-off-white font-semibold w-fit text-left">
+                  {/* @ts-ignore */}
+                  {transaction.user.firstName}
+                </p>
+              )}
             </div>
           </div>
           <div

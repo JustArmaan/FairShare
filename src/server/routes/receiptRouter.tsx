@@ -12,7 +12,6 @@ const router = express.Router();
 
 router.get("/addReceipt", async (req, res) => {
   try {
-    console.log("AddReceiptPage route hit");
     const html = renderToHtml(<AddReceiptPage />);
     res.send(html);
   } catch (error) {

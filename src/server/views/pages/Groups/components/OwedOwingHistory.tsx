@@ -8,7 +8,7 @@ import type { GroupWithTransactions } from "../../../../services/group.service";
 import type { ExtractFunctionReturnType } from "../../../../services/user.service";
 import type { getAllOwedForGroupTransactionWithTransactionId } from "../../../../services/owed.service";
 
-const tabs = ["owed", "owing", "history"] as const;
+export const tabs = ["owed", "owing", "history"] as const;
 
 export const OwedOwingHistory = (props: {
   members: UserSchemaWithMemberType[];
@@ -17,24 +17,22 @@ export const OwedOwingHistory = (props: {
   owedPerMember: ExtractFunctionReturnType<
     typeof getAllOwedForGroupTransactionWithTransactionId
   >[];
-  selectedDepositAccountId: string | null;
   groupId: string;
   url: string;
   selectedTab: (typeof tabs)[number];
 }) => {
-  // todo: setup router for this component and make sure tab clicking works
   const buttonBaseClasslist =
     "bg-primary-black hover:-translate-y-0.5 w-[6rem] h-[2rem] transition-transform text-font-off-white px-5 rounded-lg shadow-lg hover:bg-blue-600 flex flex-row justify-center font-normal border-font-off-white  mr-[0.90rem]";
-  const buttonSelectedClasslist = "border-[4px]";
+  const buttonSelectedClasslist = "border-[3px]";
   const buttonUnselectedClasslist = "bg-primary-black";
 
   return (
-    <>
-      <div id="owed-owing-history" class="flex flex-row mt-[1.90rem]">
+    <div id="owed-owing-history">
+      <div class="flex flex-row mt-[1.90rem]">
         {tabs.map((tab) => (
           <button
             class={`${buttonBaseClasslist} ${props.selectedTab === tab ? buttonSelectedClasslist : buttonUnselectedClasslist}`}
-            hx-get={`/groups/OwedOwingHistory?groupId=${props.groupId}&tab=${tab}`}
+            hx-get={`/groups/view/OwedOwingHistory?groupId=${props.groupId}&tab=${tab}`}
             hx-trigger={props.selectedTab !== tab ? "click" : "none"}
             hx-swap="outerHTML"
             hx-target="#owed-owing-history"
@@ -54,7 +52,6 @@ export const OwedOwingHistory = (props: {
         transactions={props.transactions}
         owedPerMember={props.owedPerMember}
         groupId={props.groupId}
-        selectedAccountId={props.selectedDepositAccountId}
       />
       {props.selectedTab !== "history" && (
         <OwedGroup
@@ -62,13 +59,11 @@ export const OwedOwingHistory = (props: {
           memberDetails={props.members}
           currentUser={props.currentUser}
           transactions={props.transactions}
-          owedPerMember={props.owedPerMember
-            .map((owed) => owed.filter((owed) => owed.amount > 0))
-            .filter((owed) => owed.length > 0)}
+          owedPerMember={props.owedPerMember.filter((owed) => owed.length > 0)}
           groupId={props.groupId}
           url={props.url}
         />
       )}
-    </>
+    </div>
   );
 };
