@@ -45,11 +45,13 @@ export type ReceiptLineItem = ArrayElement<ReceiptLineItems>;
 export async function createReceiptLineItems(
   receiptLineItems: ReceiptLineItems
 ) {
-  let results;
+  let results: ReceiptLineItems = [];
 
   receiptLineItems.forEach(async (item) => {
     let result = await db.insert(receiptLineItem).values(item).returning();
-    results.push(result[0]);
+    if (result !== undefined && result[0] !== undefined && result.length > 0) {
+      results.push(result[0]);
+    }
   });
 
   return results;

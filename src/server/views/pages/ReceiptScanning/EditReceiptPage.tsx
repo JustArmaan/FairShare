@@ -24,24 +24,23 @@ export const EditReceiptPage = (props: {
           class="hover:-translate-y-0.5 transition-transform hover:opacity-80 h-6"
         />
       </a>
-      <form>
-        <AddReceiptManuallyPage
-          transactionsDetails={props.transactionsDetails}
-          receiptItems={props.receiptItems}
-        />
-        <div class="mt-auto p-4 w-full fixed flex bottom-20 flex-col justify-center items-center z-50">
-          <button
-            id="confirm-receipt-button"
-            hx-post="/receipt/postReceipt"
-            hx-target="#app"
-            hx-swap="innerHTML"
-            hx-triiger="click"
-            class="bg-accent-blue text-font-off-white py-2 px-4 rounded-lg shadow-md w-[18.12rem]"
-          >
-            Confirm
-          </button>
-        </div>
-      </form>
+      <AddReceiptManuallyPage
+        transactionsDetails={props.transactionsDetails}
+        receiptItems={props.receiptItems}
+      />
+      <div class="mt-auto p-4 w-full fixed flex bottom-20 flex-col justify-center items-center z-50">
+        <button
+          id="confirm-receipt-button"
+          hx-post="/receipt/postReceipt"
+          hx-target="#app"
+          hx-swap="innerHTML"
+          hx-trigger="click"
+          hx-include="#items-container input, [name=subtotal], [name=tax], [name=discount], [name=tips], [name=total], [name=storeName], [name=storeAddress], [name=timestamp]"
+          class="bg-accent-blue text-font-off-white py-2 px-4 rounded-lg shadow-md w-[18.12rem]"
+        >
+          Confirm
+        </button>
+      </div>
     </div>
   );
 };

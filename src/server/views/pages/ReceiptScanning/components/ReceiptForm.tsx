@@ -7,8 +7,6 @@ export const ReceiptForm = (props: {
   transactionsDetails?: Receipt;
   receiptItems?: ReceiptLineItems;
 }) => {
-  console.log("props", props.receiptItems);
-
   return (
     <>
       <div class="flex flex-col justify-center bg-primary-black text-font-off-white px-[0.87rem] pt-[2.25rem] pb-[9.7rem] placeholder-font-off-white max-w-[500px] mx-auto">
@@ -16,6 +14,7 @@ export const ReceiptForm = (props: {
           <div class="px-[2.16rem]">
             <input
               type="text"
+              name="storeName"
               placeholder={
                 !props.transactionsDetails?.[0]?.storeName ?? "Enter Store Name"
                   ? "Enter Store Name"
@@ -26,6 +25,7 @@ export const ReceiptForm = (props: {
             />
             <input
               type="text"
+              name="storeAddress"
               placeholder={
                 !props.transactionsDetails?.[0]?.storeAddress
                   ? "Enter Store Address"
@@ -44,6 +44,7 @@ export const ReceiptForm = (props: {
                   ? "Enter Date and Time"
                   : undefined
               }
+              name="timestamp"
               value={props.transactionsDetails?.[0].timestamp ?? ""}
               class="w-full bg-primary-faded-black text-font-off-white mb-1 pl-4"
             />
@@ -54,6 +55,7 @@ export const ReceiptForm = (props: {
                   ? "Enter Transaction ID"
                   : undefined
               }
+              name="transactionId"
               value={props.transactionsDetails?.[0].transactionId ?? ""}
               class="w-full bg-primary-faded-black text-font-off-white mb-[2.12rem] pl-4"
             />
@@ -128,6 +130,7 @@ export const ReceiptForm = (props: {
               </label>
               <input
                 type="text"
+                name="subtotal"
                 placeholder={
                   !props.transactionsDetails?.[0].subtotal
                     ? "Subtotal"
@@ -143,6 +146,7 @@ export const ReceiptForm = (props: {
               </label>
               <input
                 type="text"
+                name="tax"
                 placeholder={
                   !props.transactionsDetails?.[0].tax ? "Tax" : undefined
                 }
@@ -156,6 +160,7 @@ export const ReceiptForm = (props: {
               </label>
               <input
                 type="text"
+                name="tips"
                 placeholder={
                   !props.transactionsDetails?.[0].tips ? "Tip" : undefined
                 }
@@ -173,6 +178,7 @@ export const ReceiptForm = (props: {
                 </label>
                 <input
                   type="text"
+                  name="discount"
                   placeholder={
                     !props.transactionsDetails?.[0].discount
                       ? "Discount"
@@ -190,6 +196,7 @@ export const ReceiptForm = (props: {
               </label>
               <input
                 type="text"
+                name="total"
                 placeholder={
                   !props.transactionsDetails?.[0].total ? "Total" : undefined
                 }

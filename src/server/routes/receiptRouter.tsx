@@ -13,7 +13,6 @@ import { EditReceiptPage } from "../views/pages/ReceiptScanning/EditReceiptPage"
 import {
   createReceipt,
   createReceiptLineItems,
-  type Receipt,
   type ReceiptLineItem,
   type ReceiptLineItems,
 } from "../services/receipt.service";
@@ -27,9 +26,7 @@ router.post("/editReceipt", async (req, res) => {
     const transactionDetails = JSON.parse(transactionsDetails);
     let itemizedTransaction = JSON.parse(receiptItems);
 
-    console.log("Transaction Details:", itemizedTransaction);
     itemizedTransaction = itemizedTransaction.flat(1);
-    console.log("Itemized Transaction:", itemizedTransaction);
 
     const html = renderToHtml(
       <EditReceiptPage
@@ -247,18 +244,23 @@ router.post("/postReceipt", async (req, res) => {
       ...items
     } = req.body;
 
+    const parseOrFallback = (value: string, fallback: number = 0) => {
+      const parsed = parseFloat(value);
+      return isNaN(parsed) ? fallback : parsed;
+    };
+
     const receipt = {
       id: uuidv4(),
       storeName,
       storeAddress,
       timestamp,
       transactionId,
-      subtotal: parseFloat(subtotal),
-      tax: parseFloat(tax),
-      tips: parseFloat(tips),
-      discount: parseFloat(discount),
+      subtotal: parseOrFallback(subtotal),
+      tax: parseOrFallback(tax),
+      tips: parseOrFallback(tips),
+      discount: parseOrFallback(discount),
       phone: "",
-      total: parseFloat(total),
+      total: parseOrFallback(total),
     };
 
     const savedReceipt = await createReceipt([receipt]);
@@ -278,6 +280,7 @@ router.post("/postReceipt", async (req, res) => {
           lineItems[index] =
             lineItems[index] ||
             ({
+              id: uuidv4(),
               transactionReceiptId: savedReceipt.id,
             } as ReceiptLineItem);
 
@@ -288,7 +291,7 @@ router.post("/postReceipt", async (req, res) => {
           ) {
             lineItems[index][field] =
               field === "quantity" || field === "costPerItem"
-                ? parseFloat(items[key])
+                ? parseOrFallback(items[key])
                 : items[key];
           }
         }
@@ -303,5 +306,4 @@ router.post("/postReceipt", async (req, res) => {
     res.status(500).send("Internal Server Error");
   }
 });
-
 export const receiptRouter = router;
