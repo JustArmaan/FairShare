@@ -1,14 +1,3 @@
-import path from "path";
-import { fileURLToPath } from 'url';
-import { dirname } from 'path';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
-getReceiptData(
-  path.join(__dirname, "../../../py-receipt-server/temp/receipt.jpg")
-);
-
 type LineItem = {
   item_key: string;
   item_name: string;
@@ -38,6 +27,7 @@ type ReceiptResponse = {
 export async function getReceiptData(
   imagePath: string
 ): Promise<ReceiptResponse> {
+  console.log("Getting receipt data for image:", imagePath);
   const responseData = await fetch("http://127.0.0.1:5000/extract_text", {
     method: "POST",
     headers: {

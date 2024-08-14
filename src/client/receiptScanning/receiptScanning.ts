@@ -1,4 +1,5 @@
 import heic2any from "heic2any";
+import htmx from "htmx.org";
 
 function addEventListenerWithFlag(
   element: HTMLElement,
@@ -139,14 +140,14 @@ async function sendImagesSeparately() {
     const serializedImagesInput = document.getElementById(
       "serializedImages"
     ) as HTMLInputElement;
-    const imageUrls = JSON.parse(serializedImagesInput.value);
+    const imageUrls = JSON.parse(serializedImagesInput!.value);
 
     for (const imageUrl of imageUrls) {
       const response = await fetch(imageUrl);
       const blob = await response.blob();
       const responseResult = await sendImageStream(blob);
 
-      if (responseResult.status === 403) {
+      if (responseResult.status === 403 || responseResult.status === 413) {
         const errorText = await responseResult.text();
         const errorContainer = document.getElementById("errorContainer");
 
@@ -158,18 +159,15 @@ async function sendImagesSeparately() {
           }, 8000);
         }
         break;
-      } else if (responseResult.status === 413) {
-        const errorContainer = document.getElementById("errorContainer");
-
-        if (errorContainer) {
-          errorContainer.textContent =
-            "Image size was too large for the server to process. Please try again";
-          errorContainer.classList.remove("hidden");
-          setTimeout(() => {
-            errorContainer.classList.add("hidden");
-          }, 8000);
-        }
       }
+
+      const data = await responseResult.json();
+
+      htmx.ajax("POST", "/receipt/confirmReceipt", {
+        swap: "innerHTML",
+        target: "#app",
+        values: data,
+      });
     }
   } catch (e) {
     console.error("Error sending images separately:", e);

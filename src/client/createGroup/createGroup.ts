@@ -91,7 +91,6 @@ function updateIconPreview() {
     temporaryGroup && temporaryGroup.checked ? "true" : "false";
   console.log(isTemporary, selectedColor, selectedIcon);
   if (temporaryGroup !== undefined && selectedColor && selectedIcon) {
-    console.log("Updating icon preview");
     htmx.ajax(
       "GET",
       `/groups/updateIcon?icon=${selectedIcon}&color=${selectedColor}&temporary=${isTemporary}`,

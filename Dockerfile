@@ -1,15 +1,22 @@
 FROM nixos/nix
 
-# Set the working directory
-WORKDIR /usr/src/app
+# Set environment variables for non-interactive nix commands
+ENV USER root
 
-# Copy package files
-COPY package*.json bun.lockb ./
+# Copy the flake.nix file to the container
+COPY flake.nix /root/flake.nix
 
-# Copy all other project files
+# Install Git as it's required for Nix flakes
+RUN nix-env -iA nixpkgs.git
+
+
+# Initialize the Nix flake environment
+RUN nix flake init --experimental-features 'nix-command flakes'
+
 COPY . .
 
-RUN echo $(ls -1 /tmp/dir)
+# Run nix develop to set up the development environment
+# RUN nix develop /root --experimental-features 'nix-command flakes' --command bash -c "echo 'Development environment ready'"
 
-# Set default command to start the app
-CMD [ "sudo bash /usr/src/app/scripts/start.sh" ]
+
+CMD [ "nix", "develop", "/root", "--experimental-features", "nix-command flakes", "--command", "bash", "-c", "bash scripts/start.sh"]

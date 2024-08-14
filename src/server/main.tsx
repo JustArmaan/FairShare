@@ -23,18 +23,10 @@ import { plaidMobileLinkRouter } from "./routes/plaidMobileLinkRouter";
 import { remapSvgs } from "./middleware/svgHandler.middleware";
 import { receiptRouter } from "./routes/receiptRouter";
 
-// import { getReceiptData } from "./integrations/receipts/getReceiptData";
-
-
-// export async function print() {
-//   getReceiptData; //ignore me
-// }
-
 const app = express();
 const server = http.createServer(app);
 
 await configureApp(app);
-
 
 app.use(indexRouter);
 app.use("/api/v0", apiRouterV0);
@@ -55,6 +47,7 @@ app.use("", (req, res, next) => {
   // req.url === "/test" && console.log(req.headers, req.url);
   const hxRequest = req.headers["hx-request"] === "true";
   if (hxRequest) {
+    console.log("hxRequest", req.url);
     const html = renderToHtml(<ErrorPage status="404" />);
     return res.send(html);
   }
@@ -72,6 +65,4 @@ const runningServer = server.listen(PORT as number, () => {
 
 ViteExpress.bind(app, runningServer);
 
-
 app.use(errorHandler);
-

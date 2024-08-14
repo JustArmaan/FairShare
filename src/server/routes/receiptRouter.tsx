@@ -6,10 +6,44 @@ import path from "path";
 import fs from "fs";
 import upload from "../utils/multerConfig";
 import { AddReceiptManuallyPage } from "../views/pages/ReceiptScanning/AddReceiptManuallyPage";
-import { ro } from "@faker-js/faker";
-import { BillSplitReceipt } from "../views/pages/Groups/components/BillSplitReceipt";
+import { getReceiptData } from "../integrations/receipts/getReceiptData";
+import { ConfirmReceiptPage } from "../views/pages/ReceiptScanning/ConfirmReceiptPage";
+import { v4 as uuidv4 } from "uuid";
+import { EditReceiptPage } from "../views/pages/ReceiptScanning/EditReceiptPage";
+import {
+  createReceipt,
+  createReceiptLineItems,
+  type Receipt,
+  type ReceiptLineItem,
+  type ReceiptLineItems,
+} from "../services/receipt.service";
 
 const router = express.Router();
+
+router.post("/editReceipt", async (req, res) => {
+  const { transactionsDetails, receiptItems } = req.body;
+
+  try {
+    const transactionDetails = JSON.parse(transactionsDetails);
+    let itemizedTransaction = JSON.parse(receiptItems);
+
+    console.log("Transaction Details:", itemizedTransaction);
+    itemizedTransaction = itemizedTransaction.flat(1);
+    console.log("Itemized Transaction:", itemizedTransaction);
+
+    const html = renderToHtml(
+      <EditReceiptPage
+        transactionsDetails={transactionDetails}
+        receiptItems={itemizedTransaction}
+      />
+    );
+
+    res.send(html);
+  } catch (error) {
+    console.error("Error processing receipt items:", error);
+    res.status(500).send("Internal Server Error");
+  }
+});
 
 router.get("/addReceipt", async (req, res) => {
   try {
@@ -56,7 +90,6 @@ router.post(
 
       writeStream.on("finish", () => {
         console.log(`Image saved to ${filePath}`);
-        res.send("Success");
       });
 
       writeStream.on("error", (err) => {
@@ -64,66 +97,99 @@ router.post(
         res.status(500).send("Internal Server Error");
       });
 
-      const transactionDetails = {
-        companyName: "Guu Thurlow",
-        address: "838 Thurlow St, Vancouver",
-        date: "March 28, 2024 16:04",
-        transactionId: "ID123456321",
-      };
+      const relativePath =
+        "/py-receipt-server/temp/" + filePath.split("\\").pop();
 
-      const itemizedTransaction = [
+      const receiptResponse = await getReceiptData(
+        __dirname + "/../.." + relativePath
+      );
+
+      const { extracted_text } = receiptResponse;
+
+      const transactionDetails: {
+        id: string;
+        timestamp: string | null;
+        transactionId: string | null;
+        total: number;
+        subtotal: number;
+        phone: string;
+        storeAddress: string;
+        storeName: string;
+        tax: number;
+        tips: number;
+        discount: number;
+      }[] = [
         {
-          item: "Ebi Mayo",
-          quantity: 1,
-          price: 16.0,
-          owingMembers: [],
-        },
-        {
-          item: "Asahi Pitcher",
-          quantity: 1,
-          price: 22.0,
-          owingMembers: [],
-        },
-        {
-          item: "Katsu Curry",
-          quantity: 1,
-          price: 20.0,
-          owingMembers: [],
-        },
-        {
-          item: "Beef Yakisoba",
-          quantity: 1,
-          price: 21.0,
-          owingMembers: [],
-        },
-        {
-          item: "AAA BBQ Beef",
-          quantity: 1,
-          price: 26.5,
-          owingMembers: [],
-        },
-        {
-          item: "Oolong Tea",
-          quantity: 1,
-          price: 2.5,
-          owingMembers: [],
+          id: uuidv4(),
+          timestamp: null,
+          transactionId: null,
+          total: parseFloat(extracted_text.total.slice(1)) || 0,
+          subtotal: parseFloat(extracted_text.subtotal.slice(1)) || 0,
+          phone: extracted_text.phone || "",
+          storeAddress: extracted_text.store_addr || "",
+          storeName: extracted_text.store_name || "",
+          tax: parseFloat(extracted_text.tax.slice(1)) || 0,
+          tips: parseFloat(extracted_text.tips.slice(1)) || 0,
+          discount: 0,
         },
       ];
 
-      const html = renderToHtml(
-        <BillSplitReceipt
-          transactionsDetails={transactionDetails}
-          receiptItems={itemizedTransaction}
-        />
-      );
+      const itemizedTransaction: {
+        id: string;
+        productName: string;
+        quantity: number;
+        costPerItem: number;
+        transactionReceiptId: string;
+      }[] = extracted_text.line_items.map((item) => ({
+        id: uuidv4(),
+        productName: item.item_name,
+        quantity: parseFloat(item.item_quantity),
+        costPerItem: parseFloat(item.item_value.slice(1)),
+        transactionReceiptId: transactionDetails[0].id,
+      }));
 
-      res.send(html);
+      const transactionDetailsJSON = JSON.stringify(transactionDetails);
+      const itemizedTransactionJSON = JSON.stringify(itemizedTransaction);
+
+      const data = {
+        transactionsDetails: transactionDetailsJSON,
+        itemizedTransaction: itemizedTransactionJSON,
+      };
+
+      res.json(data);
     } catch (error) {
       console.error("Error processing receipt:", error);
       res.status(500).send("Internal Server Error");
     }
   }
 );
+
+router.post("/confirmReceipt", async (req, res) => {
+  console.log("POST request received at /confirmReceipt", req.body);
+
+  const { transactionsDetails, itemizedTransaction } = req.body;
+
+  if (!transactionsDetails || !itemizedTransaction) {
+    return res.status(400).send("Missing required data.");
+  }
+
+  try {
+    const transactionDetails = JSON.parse(transactionsDetails);
+    let receiptItems = JSON.parse(itemizedTransaction);
+
+    const html = renderToHtml(
+      <ConfirmReceiptPage
+        transactionsDetails={transactionDetails}
+        receiptItems={[receiptItems]}
+      />
+    );
+
+    res.send(html);
+  } catch (error) {
+    console.error("Error parsing data:", error);
+    res.status(500).send("Internal Server Error");
+  }
+});
 
 router.get("/addManually", async (req, res) => {
   const html = renderToHtml(<AddReceiptManuallyPage />);
@@ -132,20 +198,26 @@ router.get("/addManually", async (req, res) => {
 });
 
 router.get("/addInput", async (req, res) => {
+  const index = req.query.index;
+  console.log("Index:", index);
+
   const html = `
     <div class="flex justify-between mb-1 w-full receipt-input-container">
       <input
         type="text"
+        name="items[${index}].productName"
         placeholder="Item Name"
         class="w-[50%] bg-primary-faded-black text-font-off-white pl-2"
       />
       <input
         type="text"
+        name="items[${index}].quantity"
         placeholder="Quantity"
         class="w-[20%] bg-primary-faded-black text-font-off-white text-center"
       />
       <input
         type="text"
+        name="items[${index}].costPerItem"
         placeholder="Price"
         class="w-[20%] bg-primary-faded-black text-font-off-white text-center"
       />
@@ -157,6 +229,79 @@ router.get("/addPaymentMethod", async (req, res) => {
   const html = renderToHtml(`<div>This still needs to be implemented</div>`);
 
   res.send(html);
+});
+
+router.post("/postReceipt", async (req, res) => {
+  console.log("POST request received at /postReceipt", req.body);
+  try {
+    const {
+      storeName,
+      storeAddress,
+      timestamp,
+      transactionId,
+      subtotal,
+      tax,
+      tips,
+      discount,
+      total,
+      ...items
+    } = req.body;
+
+    const receipt = {
+      id: uuidv4(),
+      storeName,
+      storeAddress,
+      timestamp,
+      transactionId,
+      subtotal: parseFloat(subtotal),
+      tax: parseFloat(tax),
+      tips: parseFloat(tips),
+      discount: parseFloat(discount),
+      phone: "",
+      total: parseFloat(total),
+    };
+
+    const savedReceipt = await createReceipt([receipt]);
+
+    const lineItems: ReceiptLineItems = [] as ReceiptLineItems;
+
+    for (const key in items) {
+      if (Object.prototype.hasOwnProperty.call(items, key)) {
+        const keyParts = key.split(".");
+
+        if (keyParts.length === 2 && keyParts[0].startsWith("items[")) {
+          const indexPart = keyParts[0].slice(6, -1);
+          const index = parseInt(indexPart, 10);
+
+          const field = keyParts[1] as keyof ReceiptLineItem;
+
+          lineItems[index] =
+            lineItems[index] ||
+            ({
+              transactionReceiptId: savedReceipt.id,
+            } as ReceiptLineItem);
+
+          if (
+            field === "productName" ||
+            field === "quantity" ||
+            field === "costPerItem"
+          ) {
+            lineItems[index][field] =
+              field === "quantity" || field === "costPerItem"
+                ? parseFloat(items[key])
+                : items[key];
+          }
+        }
+      }
+    }
+
+    await createReceiptLineItems(lineItems);
+    console.log("Receipt saved successfully");
+    res.send("Receipt saved successfully");
+  } catch (error) {
+    console.error("Error saving receipt:", error);
+    res.status(500).send("Internal Server Error");
+  }
 });
 
 export const receiptRouter = router;
