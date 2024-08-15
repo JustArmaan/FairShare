@@ -244,10 +244,12 @@ export async function getUser(req: Request, res: Response, next: NextFunction) {
       const profile = await kindeClient.getUserProfile(
         sessionManager(req, res)
       );
+
       if (!profile) {
         const logoutUrl = await kindeClient.logout(sessionManager(req, res));
         return res.redirect(logoutUrl.toString());
       }
+
       const user = await findUser(profile.id);
       // const user = {
       //   id: "kp_b20575f122824fe5b0099f12948a4912",

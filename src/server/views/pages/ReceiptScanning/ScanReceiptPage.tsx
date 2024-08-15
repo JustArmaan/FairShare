@@ -11,6 +11,13 @@ const AddReceiptPage = () => {
         <div class="flex items-center w-full">
           <ScanReceiptHelper />
         </div>
+        <div
+          id="loadingSpinner"
+          class="hidden fixed top-1/3 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50"
+        >
+          <div class="animate-spin rounded-full h-12 w-12 border-t-4 border-accent-blue"></div>
+        </div>
+
         <div id="imagePreviewAddPage" class="mt-1 mb-[2.94rem] hidden"></div>
         <input
           type="hidden"

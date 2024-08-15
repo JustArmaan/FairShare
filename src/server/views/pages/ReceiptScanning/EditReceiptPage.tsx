@@ -24,6 +24,10 @@ export const EditReceiptPage = (props: {
           class="hover:-translate-y-0.5 transition-transform hover:opacity-80 h-6"
         />
       </a>
+      <div
+        id="errorContainer"
+        class="text-accent-red bg-opacity-10 border border-accent-red p-4 rounded shadow hidden text-center mt-4 mb-4"
+      ></div>
       <AddReceiptManuallyPage
         transactionsDetails={props.transactionsDetails}
         receiptItems={props.receiptItems}

@@ -27,6 +27,10 @@ export const ConfirmReceiptPage = (props: {
           class="hover:-translate-y-0.5 transition-transform hover:opacity-80 h-6"
         />
       </a>
+      <div
+        id="errorContainer"
+        class="text-accent-red bg-opacity-10 border border-accent-red p-4 rounded shadow hidden text-center mt-4 mb-4"
+      ></div>
       <BillSplitReceipt
         transactionsDetails={props.transactionsDetails}
         receiptItems={props.receiptItems}
@@ -53,6 +57,10 @@ export const ConfirmReceiptPage = (props: {
           <button
             id="confirm-receipt-button"
             type="button"
+            hx-post="/receipt/postReceiptBulk"
+            hx-trigger="click"
+            hx-target="#app"
+            hx-swap="innerHTML"
             class="bg-accent-blue text-font-off-white py-2 px-4 rounded-lg shadow-md w-[18.12rem]"
           >
             Confirm

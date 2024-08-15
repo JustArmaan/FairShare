@@ -141,6 +141,9 @@ async function sendImagesSeparately() {
       "serializedImages"
     ) as HTMLInputElement;
     const imageUrls = JSON.parse(serializedImagesInput!.value);
+    const loadingSpinner = document.getElementById("loadingSpinner");
+
+    loadingSpinner?.classList.remove("hidden");
 
     for (const imageUrl of imageUrls) {
       const response = await fetch(imageUrl);
@@ -163,14 +166,19 @@ async function sendImagesSeparately() {
 
       const data = await responseResult.json();
 
+      // Process the response with htmx
       htmx.ajax("POST", "/receipt/confirmReceipt", {
         swap: "innerHTML",
         target: "#app",
         values: data,
       });
     }
+
+    loadingSpinner?.classList.add("hidden");
   } catch (e) {
     console.error("Error sending images separately:", e);
+    const loadingSpinner = document.getElementById("loadingSpinner");
+    loadingSpinner?.classList.add("hidden");
   }
 }
 

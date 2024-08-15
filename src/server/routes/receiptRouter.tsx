@@ -244,6 +244,18 @@ router.post("/postReceipt", async (req, res) => {
       ...items
     } = req.body;
 
+    if (!storeName) {
+      return res.status(400).send("Please add a store name to continue.");
+    }
+
+    if (!storeAddress) {
+      return res.status(400).send("Please add a store address to continue.");
+    }
+
+    if (!timestamp) {
+      return res.status(400).send("Please add a timestamp to continue.");
+    }
+
     const parseOrFallback = (value: string, fallback: number = 0) => {
       const parsed = parseFloat(value);
       return isNaN(parsed) ? fallback : parsed;
@@ -284,15 +296,27 @@ router.post("/postReceipt", async (req, res) => {
               transactionReceiptId: savedReceipt.id,
             } as ReceiptLineItem);
 
-          if (
-            field === "productName" ||
-            field === "quantity" ||
-            field === "costPerItem"
-          ) {
-            lineItems[index][field] =
-              field === "quantity" || field === "costPerItem"
-                ? parseOrFallback(items[key])
-                : items[key];
+          if (field === "quantity") {
+            const quantity = parseOrFallback(items[key], undefined);
+            if (quantity === null || quantity <= 0) {
+              return res
+                .status(400)
+                .send(`Invalid quantity for item ${index}.`);
+            }
+            lineItems[index].quantity = quantity;
+          } else if (field === "costPerItem") {
+            const costPerItem = parseOrFallback(items[key], undefined);
+            if (costPerItem === null || costPerItem <= 0) {
+              return res.status(400).send(`Invalid price for item ${index}.`);
+            }
+            lineItems[index].costPerItem = costPerItem;
+          } else if (field === "productName") {
+            if (!items[key]) {
+              return res
+                .status(400)
+                .send(`Product name for item ${index} cannot be empty.`);
+            }
+            lineItems[index].productName = items[key];
           }
         }
       }
@@ -306,4 +330,91 @@ router.post("/postReceipt", async (req, res) => {
     res.status(500).send("Internal Server Error");
   }
 });
+
+router.post("/postReceiptBulk", async (req, res) => {
+  console.log("POST request received at /postReceiptBulk", req.body);
+  const { transactionsDetails, receiptItems } = req.body;
+
+  try {
+    const transactionDetailsArray = JSON.parse(transactionsDetails);
+    let itemizedTransaction = JSON.parse(receiptItems);
+
+    itemizedTransaction = itemizedTransaction.flat(1);
+
+    const transactionDetails = transactionDetailsArray[0];
+
+    if (!transactionDetails.storeName) {
+      return res
+        .status(400)
+        .send("Edit the receipt and add a store name to continue.");
+    }
+
+    if (!transactionDetails.storeAddress) {
+      return res
+        .status(400)
+        .send("Edit the receipt and add a store address to continue.");
+    }
+
+    if (!transactionDetails.timestamp) {
+      return res
+        .status(400)
+        .send("Edit the receipt and add a timestamp to continue.");
+    }
+
+    for (let i = 0; i < itemizedTransaction.length; i++) {
+      const item = itemizedTransaction[i];
+
+      if (!item.productName || typeof item.productName !== "string") {
+        return res
+          .status(400)
+          .send(`Item ${i + 1}: Product name is missing or invalid.`);
+      }
+
+      if (
+        !item.quantity ||
+        isNaN(parseFloat(item.quantity)) ||
+        parseFloat(item.quantity) <= 0
+      ) {
+        return res
+          .status(400)
+          .send(`Item ${i + 1}: Quantity is missing or invalid.`);
+      }
+
+      if (
+        !item.costPerItem ||
+        isNaN(parseFloat(item.costPerItem)) ||
+        parseFloat(item.costPerItem) <= 0
+      ) {
+        return res
+          .status(400)
+          .send(`Item ${i + 1}: Price is missing or invalid.`);
+      }
+    }
+
+    const savedReceipt = await createReceipt([transactionDetails]);
+
+    const lineItems: ReceiptLineItems = [] as ReceiptLineItems;
+
+    for (let i = 0; i < itemizedTransaction.length; i++) {
+      const item = itemizedTransaction[i];
+
+      lineItems.push({
+        id: uuidv4(),
+        transactionReceiptId: savedReceipt.id,
+        productName: item.productName,
+        quantity: parseFloat(item.quantity),
+        costPerItem: parseFloat(item.costPerItem),
+      });
+    }
+
+    await createReceiptLineItems(lineItems);
+
+    console.log("Receipt and line items saved successfully");
+    res.send("Receipt processed successfully.");
+  } catch (error) {
+    console.error("Error processing receipt items:", error);
+    res.status(500).send("Internal Server Error");
+  }
+});
+
 export const receiptRouter = router;
