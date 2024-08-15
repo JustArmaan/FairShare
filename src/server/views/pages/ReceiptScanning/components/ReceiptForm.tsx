@@ -64,7 +64,10 @@ export const ReceiptForm = (props: {
           <div id="items-container">
             {(props.receiptItems?.length ?? 0) > 0 ? (
               props.receiptItems?.map((item, index) => (
-                <div class="flex justify-between mb-1 w-full receipt-input-container">
+                <div
+                  class="flex justify-between mb-1 w-full receipt-input-container"
+                  data-index={index}
+                >
                   <input
                     type="text"
                     placeholder="Item Name"
@@ -86,10 +89,23 @@ export const ReceiptForm = (props: {
                     value={item.costPerItem}
                     class="w-[20%] bg-primary-faded-black text-font-off-white text-center"
                   />
+                  <button
+                    type="button"
+                    class="flex items-center justify-center"
+                  >
+                    <img
+                      src="/icons/delete.svg"
+                      alt="Delete item"
+                      class="h-6 w-6 ml-2 delete-item"
+                    />
+                  </button>
                 </div>
               ))
             ) : (
-              <div class="flex justify-between mb-1 w-full receipt-input-container">
+              <div
+                class="flex justify-between mb-1 w-full receipt-input-container"
+                data-index="0"
+              >
                 <input
                   type="text"
                   name="items[0].productName"
@@ -108,6 +124,13 @@ export const ReceiptForm = (props: {
                   placeholder="Price"
                   class="w-[20%] bg-primary-faded-black text-font-off-white text-center"
                 />
+                <button type="button" class="flex items-center justify-center">
+                  <img
+                    src="/icons/delete.svg"
+                    alt="Delete item"
+                    class="h-6 w-6 ml-2 delete-item"
+                  />
+                </button>
               </div>
             )}
           </div>

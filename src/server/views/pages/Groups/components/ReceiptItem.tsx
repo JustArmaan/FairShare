@@ -1,11 +1,9 @@
 import type {
-  ArrayElement,
   UserSchemaWithMemberType,
 } from "../../../../interface/types";
 import type { ReceiptLineItems } from "../../../../services/receipt.service";
 
 export const ReceiptItem = (props: { receiptItem: ReceiptLineItems }) => {
-  console.log("props", props.receiptItem);
   return (
     <>
       {props.receiptItem.map((item, index) => (

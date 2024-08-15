@@ -166,8 +166,6 @@ router.post(
 );
 
 router.post("/confirmReceipt", async (req, res) => {
-  console.log("POST request received at /confirmReceipt", req.body);
-
   const { transactionsDetails, itemizedTransaction } = req.body;
 
   if (!transactionsDetails || !itemizedTransaction) {
@@ -200,10 +198,9 @@ router.get("/addManually", async (req, res) => {
 
 router.get("/addInput", async (req, res) => {
   const index = req.query.index;
-  console.log("Index:", index);
-
+  
   const html = `
-    <div class="flex justify-between mb-1 w-full receipt-input-container">
+    <div class="flex justify-between mb-1 w-full receipt-input-container" data-index={index}>
       <input
         type="text"
         name="items[${index}].productName"
@@ -222,6 +219,13 @@ router.get("/addInput", async (req, res) => {
         placeholder="Price"
         class="w-[20%] bg-primary-faded-black text-font-off-white text-center"
       />
+      <button type="button" class="flex items-center justify-center">
+        <img
+          src="/icons/delete.svg"
+          alt="Delete item"
+          class="h-6 w-6 ml-2 delete-item"
+        />
+      </button>
     </div>`;
   res.send(html);
 });
@@ -233,7 +237,6 @@ router.get("/addPaymentMethod", async (req, res) => {
 });
 
 router.post("/postReceipt", async (req, res) => {
-  console.log("POST request received at /postReceipt", req.body);
   try {
     const {
       storeName,
@@ -413,7 +416,6 @@ router.post("/postReceiptBulk", async (req, res) => {
 
     await createReceiptLineItems(lineItems);
 
-    console.log("Receipt and line items saved successfully");
     res.send("Receipt processed successfully.");
   } catch (error) {
     console.error("Error processing receipt items:", error);

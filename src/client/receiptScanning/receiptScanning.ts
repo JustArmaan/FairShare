@@ -285,13 +285,19 @@ function updateUIAfterDeletion() {
     const imgElements = imagePreviewAddPage.querySelectorAll("img");
 
     if (imgElements.length === 0) {
+      const scanReceiptHelper = document.getElementById("scanReceiptHelper");
       imagePreviewAddPage.classList.add("hidden");
 
       const dynamicButtonsContainer = document.querySelector(
         ".dynamic-button-container"
       );
+
       if (dynamicButtonsContainer) {
         dynamicButtonsContainer.remove();
+      }
+
+      if (scanReceiptHelper) {
+        scanReceiptHelper.style.display = "block";
       }
 
       const nextButton = document.getElementById("nextButton");
@@ -467,4 +473,25 @@ export function initializeChooseFromLibraryButton() {
       "chooseFromLibraryClick"
     );
   }
+}
+
+function removeItem(index: string) {
+  const itemRow = document.querySelector(`[data-index='${index}']`);
+  if (itemRow) {
+    itemRow.remove();
+  }
+}
+
+export function attachDeleteEventListeners() {
+  const deleteButtons = document.querySelectorAll(".delete-item");
+
+  deleteButtons.forEach((button) => {
+    const index = button.closest("[data-index]")?.getAttribute("data-index");
+    if (!index) {
+      return;
+    }
+    button.addEventListener("click", () => {
+      removeItem(index);
+    });
+  });
 }
