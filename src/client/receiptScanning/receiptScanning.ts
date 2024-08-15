@@ -142,6 +142,7 @@ async function sendImagesSeparately() {
     ) as HTMLInputElement;
     const imageUrls = JSON.parse(serializedImagesInput!.value);
     const loadingSpinner = document.getElementById("loadingSpinner");
+    const errorContainer = document.getElementById("errorContainer");
 
     loadingSpinner?.classList.remove("hidden");
 
@@ -150,12 +151,10 @@ async function sendImagesSeparately() {
       const blob = await response.blob();
       const responseResult = await sendImageStream(blob);
 
-      if (responseResult.status === 403 || responseResult.status === 413) {
+      if (!responseResult.ok) {
         const errorText = await responseResult.text();
-        const errorContainer = document.getElementById("errorContainer");
-
         if (errorContainer) {
-          errorContainer.textContent = errorText;
+          errorContainer.innerText = errorText;
           errorContainer.classList.remove("hidden");
           setTimeout(() => {
             errorContainer.classList.add("hidden");
@@ -166,7 +165,6 @@ async function sendImagesSeparately() {
 
       const data = await responseResult.json();
 
-      // Process the response with htmx
       htmx.ajax("POST", "/receipt/confirmReceipt", {
         swap: "innerHTML",
         target: "#app",
@@ -177,6 +175,15 @@ async function sendImagesSeparately() {
     loadingSpinner?.classList.add("hidden");
   } catch (e) {
     console.error("Error sending images separately:", e);
+    const errorContainer = document.getElementById("errorContainer");
+    if (errorContainer) {
+      errorContainer.innerText =
+        "An error occurred while processing the images.";
+      errorContainer.classList.remove("hidden");
+      setTimeout(() => {
+        errorContainer.classList.add("hidden");
+      }, 8000);
+    }
     const loadingSpinner = document.getElementById("loadingSpinner");
     loadingSpinner?.classList.add("hidden");
   }

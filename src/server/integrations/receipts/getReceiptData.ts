@@ -28,6 +28,7 @@ export async function getReceiptData(
   imagePath: string
 ): Promise<ReceiptResponse> {
   console.log("Getting receipt data for image:", imagePath);
+
   const responseData = await fetch("http://127.0.0.1:5000/extract_text", {
     method: "POST",
     headers: {
@@ -35,6 +36,11 @@ export async function getReceiptData(
     },
     body: JSON.stringify({ image_path: imagePath }),
   });
+
+  if (!responseData.ok) {
+    const errorData = await responseData.json();
+    throw new Error(errorData.error || "Failed to extract text from the image");
+  }
 
   return responseData.json();
 }

@@ -156,7 +156,11 @@ router.post(
       res.json(data);
     } catch (error) {
       console.error("Error processing receipt:", error);
-      res.status(500).send("Internal Server Error");
+      res
+        .status(500)
+        .send(
+          "There was an error proccesing the receipt. Please try again with better lighting, clear image, and no glare or creases."
+        );
     }
   }
 );
