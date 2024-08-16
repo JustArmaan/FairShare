@@ -22,6 +22,7 @@ import { renderToHtml } from "jsxte";
 import { plaidMobileLinkRouter } from "./routes/plaidMobileLinkRouter";
 import { remapSvgs } from "./middleware/svgHandler.middleware";
 import { receiptRouter } from "./routes/receiptRouter";
+import { billSplitRouter } from "./routes/billSplitRouter";
 
 const app = express();
 const server = http.createServer(app);
@@ -41,7 +42,9 @@ app.use("/transfer", transferRouter);
 app.use("/notification", notificationRouter);
 app.use("/institutions", institutionRouter);
 app.use("/mobile", plaidMobileLinkRouter);
+app.use("/billSplit", billSplitRouter);
 app.use("/error", errorRouter);
+
 
 app.use("", (req, res, next) => {
   // req.url === "/test" && console.log(req.headers, req.url);

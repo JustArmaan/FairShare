@@ -198,7 +198,7 @@ router.get("/addManually", async (req, res) => {
 
 router.get("/addInput", async (req, res) => {
   const index = req.query.index;
-  
+
   const html = `
     <div class="flex justify-between mb-1 w-full receipt-input-container" data-index={index}>
       <input
@@ -330,8 +330,17 @@ router.post("/postReceipt", async (req, res) => {
     }
 
     await createReceiptLineItems(lineItems);
-    console.log("Receipt saved successfully");
-    res.send("Receipt saved successfully");
+
+    const html = renderToHtml(
+      <div
+        hx-get={`/billSplit/overview/${savedReceipt.id}`}
+        hx-trigger="load"
+        hx-swap="innerHTML"
+        hx-target="#app"
+      />
+    );
+
+    res.send(html);
   } catch (error) {
     console.error("Error saving receipt:", error);
     res.status(500).send("Internal Server Error");
@@ -416,7 +425,16 @@ router.post("/postReceiptBulk", async (req, res) => {
 
     await createReceiptLineItems(lineItems);
 
-    res.send("Receipt processed successfully.");
+    const html = renderToHtml(
+      <div
+        hx-get={`/billSplit/overview/${savedReceipt.id}`}
+        hx-trigger="load"
+        hx-swap="innerHTML"
+        hx-target="#app"
+      />
+    );
+
+    res.send(html);
   } catch (error) {
     console.error("Error processing receipt items:", error);
     res.status(500).send("Internal Server Error");

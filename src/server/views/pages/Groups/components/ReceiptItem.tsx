@@ -56,3 +56,4 @@ export const ReceiptItem = (props: { receiptItem: ReceiptLineItems }) => {
     </>
   );
 };
+
