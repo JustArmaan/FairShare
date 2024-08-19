@@ -9,6 +9,7 @@ const options = [
 export const SplitOptions = (props: {
   splitType: string;
   receiptId: string;
+  groupId: string;
 }) => {
   return (
     <div
@@ -44,7 +45,7 @@ export const SplitOptions = (props: {
                     ? "text-font-grey"
                     : "text-font-off-white"
                 } hover:bg-primary-black hover:text-font-off-white`}
-                hx-get={`/billSplit/splitOptions/${props.receiptId}?splitType=${option.value}`}
+                hx-get={`/billSplit/changeSplitOption/${props.receiptId}/${props.groupId}?splitType=${option.value}`}
                 hx-swap="outerHTML"
                 hx-target="#splitOptions"
               >

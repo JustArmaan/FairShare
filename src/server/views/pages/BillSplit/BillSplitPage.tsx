@@ -37,7 +37,7 @@ export const BillSplitPage = (props: {
       >
         <button
           type="button"
-          hx-get={`/billSplit/splitOptions/${props.transactionsDetails[0].id}?splitType=Equally`}
+          hx-get={`/billSplit/changeSplitOption/${props.transactionsDetails[0].id}/${props.group.id}?splitType=Equally`}
           hx-target="#split-bill-button"
           hx-swap="innerHTML"
           class="rounded-md w-[13.4rem] h-10 bg-accent-blue justify-center text-font-off-white text-sm my-2"

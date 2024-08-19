@@ -17,7 +17,6 @@ export const ReceiptItem = (props: { receiptItem: ReceiptLineItems }) => {
                   if (index === 3 && item.owingMembers.length > 4) {
                     return (
                       <div
-                        key={index}
                         class="-ml-4 rounded-full relative w-fit"
                       >
                         <div class="flex items-center justify-center absolute h-[1.875rem] aspect-square rounded-full z-10 border-2 border-primary-black bg-font-black">

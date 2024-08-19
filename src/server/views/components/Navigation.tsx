@@ -63,7 +63,7 @@ export const Nav = () => {
         <div class="rounded-full bg-accent-blue size-12">
           <li class="flex justify-center items-center">
             <a
-              hx-get="/billSplit/overview/df7478a5-5e0b-48cb-bc34-d57d93b29d50"
+              hx-get="/receipt/addReceipt" //change this to the group id
               hx-target="#app"
               hx-trigger="click"
               hx-swap="innerHTML"
