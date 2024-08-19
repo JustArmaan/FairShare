@@ -1,5 +1,8 @@
 import type { UserSchema } from "../../../../interface/types";
-import { getAccountWithTransactions, getCashAccountWithTransaction } from "../../../../services/plaid.service";
+import {
+  getAccountWithTransactions,
+  getCashAccountWithTransaction,
+} from "../../../../services/plaid.service";
 import type { getCashAccountForUser } from "../../../../services/transaction.service";
 import type { ExtractFunctionReturnType } from "../../../../services/user.service";
 
@@ -59,7 +62,7 @@ export const AddTransaction = (props: {
                 hx-get={`/groups/accountPicker/${props.itemId}/${props.selectedAccountId}/${props.groupId}`}
                 hx-target=".account-selector-form"
                 hx-swap="innerHTML"
-                class="flex justify-start w-fit items-center hover:-translate-y-0.5 transition-transform cursor-pointer"
+                class="flex justify-start w-fit items-center hover:-translate-y-0.5 transition-transform cursor-pointer rotate-[0.00001deg]"
               >
                 <p class="text-font-off-white mr-3 text-xl">Change Account</p>
                 <img

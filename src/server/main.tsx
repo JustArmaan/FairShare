@@ -22,12 +22,12 @@ import { renderToHtml } from "jsxte";
 import { plaidMobileLinkRouter } from "./routes/plaidMobileLinkRouter";
 import { remapSvgs } from "./middleware/svgHandler.middleware";
 import { receiptRouter } from "./routes/receiptRouter";
+import { splitRouter } from "./routes/splitRouter";
 
 const app = express();
 const server = http.createServer(app);
 
 await configureApp(app);
-
 
 app.use(indexRouter);
 app.use("/api/v0", apiRouterV0);
@@ -41,6 +41,7 @@ app.use("/auth", authRouter);
 app.use("/transfer", transferRouter);
 app.use("/notification", notificationRouter);
 app.use("/institutions", institutionRouter);
+app.use("/split", splitRouter);
 app.use("/mobile", plaidMobileLinkRouter);
 app.use("/error", errorRouter);
 
@@ -65,6 +66,4 @@ const runningServer = server.listen(PORT as number, () => {
 
 ViteExpress.bind(app, runningServer);
 
-
 app.use(errorHandler);
-

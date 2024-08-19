@@ -3,28 +3,28 @@ import { type GroupWithTransactions } from "../../../../services/group.service";
 import type { getAllOwedForGroupTransactionWithTransactionId } from "../../../../services/owed.service";
 import type { ExtractFunctionReturnType } from "../../../../services/user.service";
 
-export  function formatDate(dateString: string) {
-    const months = [
-      "January",
-      "February",
-      "March",
-      "April",
-      "May",
-      "June",
-      "July",
-      "August",
-      "September",
-      "October",
-      "November",
-      "December",
-    ];
+export function formatDate(dateString: string) {
+  const months = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ];
 
-    const date = new Date(dateString);
-    const month = months[date.getMonth()];
-    const day = date.getDate();
-    const year = date.getFullYear();
-    return `${month} ${day}, ${year}`;
-  }
+  const date = new Date(dateString);
+  const month = months[date.getMonth()];
+  const day = date.getDate();
+  const year = date.getFullYear();
+  return `${month} ${day}, ${year}`;
+}
 
 export const OwedGroup = (props: {
   memberDetails: UserSchema[];
@@ -119,16 +119,15 @@ export const OwedGroup = (props: {
                   <p class="text-font-off-white self-start mt-[1.25rem] text-[0.875rem]">
                     Paid by:{" "}
                     <span class="text-font-off-white self-start font-semibold">
-                      {props.currentUser.firstName}
-                      {/* This needs to be whoever paid for the bill originally */}
+                      {result.transaction.user!.firstName}
                     </span>
                   </p>
                   <div class="flex flex-row justify-center text-font-off-white mt-[0.5rem]">
                     <button
                       hx-swap="innerHTML"
-                      hx-get={``}
-                      hx-push-url={``}
+                      hx-get={`/split/view?owedId=${result.groupTransactionToUsersToGroupsId}&groupId=${props.groupId}`}
                       hx-target="#app"
+                      hx-push-url={`/split/view?owedId=${result.groupTransactionToUsersToGroupsId}&groupId=${props.groupId}`}
                       class="w-[5.4rem] flex items-center justify-center hover:-translate-y-0.5 rotate-[0.0001deg] transition-transform font-normal border-accent-blue border-[2px] rounded-[1.25rem] text-font-off-white text-base"
                     >
                       <p>View</p>
@@ -136,9 +135,9 @@ export const OwedGroup = (props: {
 
                     <button
                       hx-swap="innerHTML"
-                      hx-get={`/groups/pay/${result.groupTransactionToUsersToGroupsId}/${props.groupId}`}
+                      hx-get={""} // should be a quick settle/send notification reminder
                       hx-target="#app"
-                      hx-push-url={`/groups/pay/${result.groupTransactionToUsersToGroupsId}/${props.groupId}`}
+                      hx-push-url={``} // see above comment
                       class="w-[5.4rem] flex items-center justify-center hover:-translate-y-0.5 rotate-[0.0001deg] transition-transform font-normal bg-accent-blue rounded-[1.25rem] text-font-off-white text-base ml-3"
                     >
                       <p class="h-fit">{props.owing ? "Settle" : "Remind"}</p>

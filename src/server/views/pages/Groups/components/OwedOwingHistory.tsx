@@ -22,7 +22,7 @@ export const OwedOwingHistory = (props: {
   selectedTab: (typeof tabs)[number];
 }) => {
   const buttonBaseClasslist =
-    "bg-primary-black hover:-translate-y-0.5 w-[6rem] h-[2rem] transition-transform text-font-off-white px-5 rounded-lg shadow-lg hover:bg-blue-600 flex flex-row justify-center font-normal border-font-off-white  mr-[0.90rem]";
+    "rotate-[0.00001deg] bg-primary-black hover:-translate-y-0.5 w-[6rem] h-[2rem] transition-transform text-font-off-white px-5 rounded-lg shadow-lg hover:bg-blue-600 flex flex-row justify-center font-normal border-font-off-white  mr-[0.90rem]";
   const buttonSelectedClasslist = "border-[3px]";
   const buttonUnselectedClasslist = "bg-primary-black";
 

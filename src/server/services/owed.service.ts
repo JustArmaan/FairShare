@@ -8,6 +8,7 @@ import { v4 as uuid } from "uuid";
 import { users } from "../database/schema/users";
 import { groupTransactionState } from "../database/schema/groupTransactionState";
 import { splitType } from "../database/schema/splitType";
+import { transactions } from "../database/schema/transaction";
 
 type Owed = ExtractFunctionReturnType<typeof getOwed>;
 
@@ -329,5 +330,60 @@ export async function getAllOwedForGroupPendingTransactionWithTransactionId(
   } catch (e) {
     console.error(e, "at getOwed");
     return null;
+  }
+}
+
+export async function getGroupTransactionDetails(
+  groupTransactionStateId: string
+) {
+  try {
+    const results = await db
+      .select({ groupTransactionToUsersToGroups, users, transactions })
+      .from(groupTransactionState)
+      .innerJoin(
+        groupTransactionToUsersToGroups,
+        eq(
+          groupTransactionToUsersToGroups.groupTransactionStateId,
+          groupTransactionState.id
+        )
+      )
+      .innerJoin(
+        transactionsToGroups,
+        eq(groupTransactionState.groupTransactionId, transactionsToGroups.id)
+      )
+      .innerJoin(
+        transactions,
+        eq(transactions.id, transactionsToGroups.transactionId)
+      )
+      .innerJoin(
+        usersToGroups,
+        eq(usersToGroups.id, groupTransactionToUsersToGroups.usersToGroupsId)
+      )
+      .innerJoin(users, eq(users.id, usersToGroups.userId))
+      .where(eq(groupTransactionState.id, groupTransactionStateId));
+
+    return results;
+  } catch (e) {
+    console.trace();
+    console.error(e);
+  }
+}
+
+export async function getGroupTransactionStateIdFromOwedId(owedId: string) {
+  try {
+    const results = await db
+      .select()
+      .from(groupTransactionToUsersToGroups)
+      .innerJoin(
+        groupTransactionState,
+        eq(
+          groupTransactionToUsersToGroups.groupTransactionStateId,
+          groupTransactionState.id
+        )
+      );
+    return results[0];
+  } catch (e) {
+    console.trace();
+    console.error(e);
   }
 }

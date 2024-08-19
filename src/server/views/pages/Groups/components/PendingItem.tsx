@@ -3,6 +3,10 @@ import { type GroupWithTransactions } from "../../../../services/group.service";
 import type { getAllOwedForGroupTransactionWithTransactionId } from "../../../../services/owed.service";
 import type { ExtractFunctionReturnType } from "../../../../services/user.service";
 
+export function maxCompanyNameLength(str: string, max: number) {
+  return str.length > max ? str.substring(0, max - 3) + "..." : str;
+}
+
 export const PendingItems = (props: {
   memberDetails: UserSchema[];
   currentUser: UserSchema;
@@ -12,10 +16,6 @@ export const PendingItems = (props: {
   >[];
   groupId: string;
 }) => {
-  function maxCompanyNameLength(str: string, max: number) {
-    return str.length > max ? str.substring(0, max - 3) + "..." : str;
-  }
-
   function firstLetterUppercase(str: string) {
     return str.charAt(0).toUpperCase() + str.slice(1);
   }
