@@ -1,12 +1,15 @@
+import type { GroupWithMembers } from "../../../services/group.service";
 import type {
   Receipt,
   ReceiptLineItems,
 } from "../../../services/receipt.service";
 import { AddReceiptManuallyPage } from "./AddReceiptManuallyPage";
+import { SelectGroup } from "./components/SelectGroup";
 
 export const EditReceiptPage = (props: {
   transactionsDetails: Receipt;
   receiptItems: ReceiptLineItems;
+  groups: GroupWithMembers[];
 }) => {
   return (
     <div class="flex flex-col">
@@ -28,6 +31,8 @@ export const EditReceiptPage = (props: {
         id="errorContainer"
         class="text-accent-red bg-opacity-10 border border-accent-red p-4 rounded shadow hidden text-center mt-4 mb-4"
       ></div>
+      <h2 class="text-font-off-white font-semibold text-xl mb-1">Select Group</h2>
+      <SelectGroup groups={props.groups} />
       <AddReceiptManuallyPage
         transactionsDetails={props.transactionsDetails}
         receiptItems={props.receiptItems}
