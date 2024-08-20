@@ -209,16 +209,16 @@ export async function getUser(req: Request, res: Response, next: NextFunction) {
   //   return next();
   // }
 
-  const fakeUser = {
-    id: "kp_2094a928179447078aa5f5f27df766bc",
-    firstName: "Byron",
-    lastName: "Dray",
-    email: "byrondray8@gmail.com",
-    color: "category-color-0",
-    createdAt: new Date().toISOString(),
-  };
-  req.user = fakeUser;
-  return next();
+  // const fakeUser = {
+  //   id: "kp_06ecdab4f54c4f5fa74e36708294f4ee",
+  //   firstName: "Byron",
+  //   lastName: "Dray",
+  //   email: "byrondray8@gmail.com",
+  //   color: "category-color-0",
+  //   createdAt: new Date().toISOString(),
+  // };
+  // req.user = fakeUser;
+  // return next();
 
   if (
     req.get("host")?.includes("render") &&

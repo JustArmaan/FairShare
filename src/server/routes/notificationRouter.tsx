@@ -12,6 +12,7 @@ import {
   getUnreadNotifications,
   markAllNotificationsAsRead,
 } from "../services/notification.service.ts";
+import { getGroupOwnerWithGroupId } from "../services/group.service.ts";
 
 const router = express.Router();
 
@@ -50,12 +51,16 @@ router.get("/notificationList/:userId", async (req, res) => {
     if (!notifications || !inviteNotifications) {
       return res.status(404).send("Problem with notification");
     }
+    const groupOwner = await getGroupOwnerWithGroupId(
+      inviteNotifications[0].groupInvite.id
+    );
 
     const html = renderToHtml(
       <NotificationList
         inviteNotifications={inviteNotifications}
         notifications={notifications}
         selectedSort={sort}
+        groupOwner={groupOwner ?? undefined}
       />
     );
 

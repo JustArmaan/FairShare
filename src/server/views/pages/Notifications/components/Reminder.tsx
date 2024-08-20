@@ -1,7 +1,13 @@
+import type { getGroupOwnerWithGroupId } from "../../../../services/group.service";
 import {
   type InviteNotification,
   type CombinedNotification,
 } from "../../../../services/notification.service";
+import type { ExtractFunctionReturnType } from "../../../../services/user.service";
+
+export type GroupOwner = ExtractFunctionReturnType<
+  typeof getGroupOwnerWithGroupId
+>;
 
 function isInviteNotification(
   notification: any
@@ -27,12 +33,13 @@ function isGroupNotification(
 
 export const Reminder = (props: {
   notifications: InviteNotification | CombinedNotification;
+  groupOwner?: GroupOwner;
 }) => {
   const timeAgo = (timestamp: string) => {
+    console.log(timestamp, "timestamp");
     const now = Date.now();
     const date = new Date(timestamp);
-    const dateMillis = date.getTime();
-    const diff = Math.floor((now - dateMillis) / 1000);
+    const diff = Math.floor((now - date.getTime()) / 1000);
 
     if (diff < 60) return `${diff} seconds ago`;
     const minutes = Math.floor(diff / 60);
@@ -40,7 +47,13 @@ export const Reminder = (props: {
     const hours = Math.floor(minutes / 60);
     if (hours < 24) return `${hours} hours ago`;
     const days = Math.floor(hours / 24);
-    return `${days} days ago`;
+    if (days < 7) return `${days} days ago`;
+    const weeks = Math.floor(days / 7);
+    if (weeks < 4) return `${weeks} weeks ago`;
+    const months = Math.floor(days / 30);
+    if (months < 12) return `${months} months ago`;
+    const years = Math.floor(days / 365);
+    return `${years} years ago`;
   };
 
   const { notifications } = props;
@@ -48,7 +61,7 @@ export const Reminder = (props: {
   let message = "";
 
   if (isInviteNotification(notifications)) {
-    message = "You have a new group invite.";
+    message = `Invite from to join "${notifications.groups.name}"`;
   } else if (isGenericNotification(notifications)) {
     message = notifications.genericNotification.message || "No message.";
   } else if (isGroupNotification(notifications)) {
@@ -57,8 +70,8 @@ export const Reminder = (props: {
 
   return (
     <div class="animate-fade-in mb-[1.25rem]">
-      <div class="bg-primary-black rounded-xl shadow-[0_3px_2px_0_rgba(0,0,0,0.25)] mb-1 flex items-center justify-between relative h-[5.6875rem] ">
-        <div class="flex items-center w-full">
+      <div class="bg-primary-black rounded-xl shadow-[0_3px_2px_0_rgba(0,0,0,0.25)] mb-1 flex justify-between relative h-[5.6875rem] ">
+        <div class="flex w-full">
           <div class="flex p-3 pl-4 pr-4 mr-4 ml-4 bg-accent-red rounded-xl self-center items-center justify-center ">
             <div class="flex items-center justify-center w-10 h-10">
               <img src="/groupIcons/groups.svg" alt="" class="w-10" />
@@ -66,14 +79,19 @@ export const Reminder = (props: {
           </div>
           <div class="flex flex-col w-full">
             <div class="flex justify-between items-center w-full">
-              <p class="text-font-off-white font-semibold mt-6 w-[17rem]">
-                {message}
-              </p>
+              <div class="flex-row">
+                <p class="text-font-off-white font-normal mt-[0.56rem] w-[17rem]">
+                  {message}
+                </p>
+                <span class="text-font-grey font-normal text-xs mt-[0.25rem] align-top">
+                  Sent from {``}
+                </span>
+              </div>
               <span class="text-xs text-font-grey m-2.5 items-end right-0 top-0 absolute">
                 {timeAgo(notifications.notifications.timestamp)}
               </span>
             </div>
-            <div class="flex justify-end mt-4">
+            <div class="flex justify-end">
               {isInviteNotification(notifications) && (
                 <div class="flex">
                   <form>

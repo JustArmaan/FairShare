@@ -3,11 +3,18 @@ import {
   type InviteNotification,
   type CombinedNotification,
 } from "../../../services/notification.service";
+import type { getGroupOwnerWithGroupId } from "../../../services/group.service";
+import type { ExtractFunctionReturnType } from "../../../services/user.service";
+
+export type GroupOwner = ExtractFunctionReturnType<
+  typeof getGroupOwnerWithGroupId
+>;
 
 export const NotificationList = (props: {
   inviteNotifications: InviteNotification[];
   notifications: CombinedNotification[];
   selectedSort: string;
+  groupOwner?: GroupOwner;
 }) => {
   return (
     <div id="notification-list">
@@ -34,7 +41,12 @@ export const NotificationList = (props: {
         <div>
           <p class="text-primary-grey font-medium">Group Invites</p>
           {props.inviteNotifications.map((notification) => {
-            return <Reminder notifications={notification} />;
+            return (
+              <Reminder
+                notifications={notification}
+                groupOwner={props.groupOwner}
+              />
+            );
           })}
         </div>
       )}

@@ -3,7 +3,7 @@ import { usersToGroups } from "../database/schema/usersToGroups";
 import { and, eq } from "drizzle-orm";
 import { v4 as uuidv4 } from "uuid";
 import type { ExtractFunctionReturnType } from "./user.service";
-import { getUsersToGroup } from "./group.service";
+import { getGroupOwnerWithGroupId, getUsersToGroup } from "./group.service";
 import { notifications } from "../database/schema/notifications";
 import { type ArrayElement } from "../interface/types";
 import { groupNotification } from "../database/schema/groupNotification";
@@ -11,6 +11,7 @@ import { genericNotification } from "../database/schema/genericNotification";
 import { notificationType } from "../database/schema/notificationType";
 import { groupInvite } from "../database/schema/groupInvite";
 import { th } from "@faker-js/faker";
+import { groups } from "../database/schema/group";
 
 let db = getDB();
 
@@ -261,6 +262,8 @@ export async function getGroupInviteNotificaitonById(userId: string) {
       .select()
       .from(notifications)
       .innerJoin(groupInvite, eq(notifications.id, groupInvite.notificationId))
+      .innerJoin(usersToGroups, eq(groupInvite.userGroupId, usersToGroups.id))
+      .innerJoin(groups, eq(usersToGroups.groupId, groups.id))
       .where(
         and(
           eq(notifications.userId, userId),
@@ -473,5 +476,19 @@ export async function deleteAllNotifications(userId: string) {
   } catch (e) {
     console.error(e, "deleteing all notifications");
     throw new Error("Error deleting all notifications");
+  }
+}
+
+export async function getGroupNameByUserGroupId(userGroupId: string) {
+  try {
+    const result = await db
+      .select({ name: groups.name })
+      .from(usersToGroups)
+      .innerJoin(groups, eq(usersToGroups.groupId, groups.id))
+      .where(eq(usersToGroups.id, userGroupId));
+    return result[0];
+  } catch (error) {
+    console.error(error, "getting group name by user group id");
+    throw new Error("Error getting group name by user group id");
   }
 }

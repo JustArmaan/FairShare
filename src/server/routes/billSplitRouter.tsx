@@ -29,7 +29,7 @@ router.get("/overview/:receiptId", async (req, res) => {
   console.log("Receipt items:", receiptItems);
 
   const groupWithMemebers = await getGroupWithMembers(
-    "e4abc596-5e2f-444d-8a62-9b8789d18963"
+    "7570af54-bfe1-4175-898d-a2272d28e735"
   );
 
   console.log("Group with members:", groupWithMemebers);
