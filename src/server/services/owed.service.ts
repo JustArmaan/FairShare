@@ -380,7 +380,8 @@ export async function getGroupTransactionStateIdFromOwedId(owedId: string) {
           groupTransactionToUsersToGroups.groupTransactionStateId,
           groupTransactionState.id
         )
-      );
+      )
+      .where(eq(groupTransactionToUsersToGroups.id, owedId));
     return results[0];
   } catch (e) {
     console.trace();

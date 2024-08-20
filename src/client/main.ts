@@ -52,6 +52,7 @@ document.body.addEventListener("htmx:afterSwap", (event) => {
     "institutionSelector",
     "owed-owing-history",
     "transaction-picker-container",
+    "link-transfer-dropdown",
   ]);
   if (excludeListId.has(event.target.id)) return;
   window.scrollTo({ top: 0 });
@@ -120,6 +121,19 @@ document.addEventListener("htmx:afterSwap", () => {
   const navBar = document.querySelector("nav")?.querySelector("ul");
   if (window.android && navBar instanceof HTMLElement) {
     navBar.style.setProperty("padding-bottom", "0px");
+  }
+
+  const hide = document.getElementById("hide");
+  const txt = document.getElementById("txt");
+  resize();
+  txt?.addEventListener("input", resize);
+
+  function resize() {
+    if (hide && txt) {
+      //@ts-ignore
+      hide.textContent = txt?.value;
+      txt.style.width = hide?.offsetWidth + 10 + "px";
+    }
   }
 });
 

@@ -21,9 +21,11 @@ router.get("/view", async (req, res) => {
   const user = req.user!;
 
   const details = await getGroupTransactionStateIdFromOwedId(owedId);
+  console.log(details, "here");
   const results = await getGroupTransactionDetails(
     details!.groupTransactionState.id
   );
+  console.log(details);
 
   if (!results) throw new Error("no results");
 
@@ -49,8 +51,6 @@ router.get("/view", async (req, res) => {
             0
           )) * -1;
 
-  const itemsWithAllTransactions = getItemsWithAllTransactions(user.id);
-
   const html = renderToHtml(
     <SplitDetails
       transaction={results[0].transactions!}
@@ -60,6 +60,7 @@ router.get("/view", async (req, res) => {
       linkedTransactionAccountName="Scotiabank Visa ***4" // hard coded
       pending={false} // hard coded
       groupId={groupId}
+      owedId={owedId}
     />
   );
 

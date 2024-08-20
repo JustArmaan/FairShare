@@ -83,7 +83,7 @@ export const OwedGroup = (props: {
                     : "text-negative-number"
                 }`}
               >
-                ${Math.abs(totalOwing)}
+                ${Math.abs(totalOwing).toFixed(2)}
               </span>{" "}
               overall
             </p>

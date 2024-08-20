@@ -25,6 +25,7 @@ export const SplitDetails = (props: {
   pending?: boolean;
   linkedTransactionAccountName?: string;
   groupId: string;
+  owedId: string;
 }) => {
   return (
     <div id="split-details" class="text-font-off-white">
@@ -65,7 +66,7 @@ export const SplitDetails = (props: {
             <button
               hx-get={
                 props.amountOwed < 0 && !props.pending
-                  ? "/split/settle"
+                  ? `/split/settle?owedId=${props.owedId}&groupId=${props.groupId}`
                   : props.amountOwed > 0 && props.pending
                     ? "Confirm"
                     : ""
@@ -75,7 +76,7 @@ export const SplitDetails = (props: {
               hx-swap="innerHTML"
               hx-push-url={
                 props.amountOwed < 0 && !props.pending
-                  ? "/split/settle"
+                  ? `/split/settle?owedId=${props.owedId}&groupId=${props.groupId}`
                   : props.amountOwed > 0 && props.pending
                     ? "Confirm"
                     : ""

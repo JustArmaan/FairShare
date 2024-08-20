@@ -11,8 +11,9 @@ export const TransactionSelector = (props: {
       <p>Choose Transaction:</p>
       {props.itemWithTransactions.transactions
         .filter(
-          (transaction) => transaction.amount > 0
-          // && transaction.category.name === "TRANSFER_OUT"
+          (transaction) =>
+            transaction.amount > 0 &&
+            transaction.category.name === "TRANSFER_OUT"
         )
         .sort((a, b) => {
           const score =
