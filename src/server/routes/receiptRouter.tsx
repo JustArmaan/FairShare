@@ -16,6 +16,11 @@ import {
   type ReceiptLineItem,
   type ReceiptLineItems,
 } from "../services/receipt.service";
+import {
+  getGroupsAndAllMembersForUser,
+  getGroupWithMembers,
+} from "../services/group.service";
+import { SelectGroup } from "../views/pages/ReceiptScanning/components/SelectGroup";
 
 const router = express.Router();
 
@@ -28,10 +33,20 @@ router.post("/editReceipt", async (req, res) => {
 
     itemizedTransaction = itemizedTransaction.flat(1);
 
+    const groupsWithAllMembers = await getGroupsAndAllMembersForUser(
+      req.user!.id
+    );
+
+    if (groupsWithAllMembers instanceof Error) {
+      console.error("Error fetching groups:", groupsWithAllMembers);
+      return res.status(500).send("Internal Server Error");
+    }
+
     const html = renderToHtml(
       <EditReceiptPage
         transactionsDetails={transactionDetails}
         receiptItems={itemizedTransaction}
+        groups={groupsWithAllMembers}
       />
     );
 
@@ -439,6 +454,25 @@ router.post("/postReceiptBulk", async (req, res) => {
     console.error("Error processing receipt items:", error);
     res.status(500).send("Internal Server Error");
   }
+});
+
+router.get("/selectGroup", async (req, res) => {
+  const groupId = req.query.groupId as string;
+
+  const groupsWithAllMembers = await getGroupsAndAllMembersForUser(
+    req.user!.id
+  );
+
+  if (groupsWithAllMembers instanceof Error) {
+    console.error("Error fetching groups:", groupsWithAllMembers);
+    return res.status(500).send("Internal Server Error");
+  }
+
+  const html = renderToHtml(
+    <SelectGroup groups={groupsWithAllMembers} selectedGroupId={groupId} />
+  );
+
+  res.send(html);
 });
 
 export const receiptRouter = router;
