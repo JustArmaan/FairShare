@@ -8,17 +8,15 @@ import { SplitEqually } from "../views/pages/BillSplit/components/SplitEqually";
 import { SplitByAmount } from "../views/pages/BillSplit/components/SplitAmount";
 import { SplitByPercentage } from "../views/pages/BillSplit/components/SplitPercentage";
 import { SplitByItems } from "../views/pages/BillSplit/components/SplitItems";
+import { findUser } from "../services/user.service";
 
 const router = express.Router();
 
-router.get("/overview/:receiptId", async (req, res) => {
+router.get("/overview/:receiptId/:groupId", async (req, res) => {
   const receiptId = req.params.receiptId;
-
-  console.log("Receipt ID:", receiptId);
+  const groupId = req.params.groupId;
 
   const receipt = await getReceipt(receiptId);
-
-  console.log("Receipt:", receipt);
 
   if (!receipt) {
     return res.status(404).send("Receipt not found");
@@ -26,16 +24,16 @@ router.get("/overview/:receiptId", async (req, res) => {
 
   const receiptItems = await getReceiptLineItems(receipt[0].id);
 
-  console.log("Receipt items:", receiptItems);
-
-  const groupWithMemebers = await getGroupWithMembers(
-    "7570af54-bfe1-4175-898d-a2272d28e735"
-  );
-
-  console.log("Group with members:", groupWithMemebers);
+  const groupWithMemebers = await getGroupWithMembers(groupId);
 
   if (!groupWithMemebers) {
     return res.status(404).send("Group not found");
+  }
+
+  const currentUser = await findUser(req.user!.id);
+
+  if (!currentUser) {
+    return res.status(404).send("User not found");
   }
 
   const html = renderToHtml(
@@ -43,6 +41,7 @@ router.get("/overview/:receiptId", async (req, res) => {
       group={groupWithMemebers}
       transactionsDetails={receipt}
       receiptItems={receiptItems}
+      currentUser={currentUser}
     />
   );
 
@@ -85,9 +84,14 @@ router.get("/changeSplitOption/:receiptId/:groupId", async (req, res) => {
 
   const receipt = await getReceipt(receiptId);
   const groupWithMemebers = await getGroupWithMembers(groupId);
+  const currentUser = await findUser(req.user!.id);
 
   if (!groupWithMemebers || !receipt) {
     return res.status(404).send("Group or receipt not found");
+  }
+
+  if (!currentUser) {
+    return res.status(404).send("User not found");
   }
 
   let html;
@@ -103,7 +107,11 @@ router.get("/changeSplitOption/:receiptId/:groupId", async (req, res) => {
     );
   } else if (splitType === "Equally") {
     html = renderToHtml(
-      <SplitEqually group={groupWithMemebers} transactionDetails={receipt} />
+      <SplitEqually
+        group={groupWithMemebers}
+        transactionDetails={receipt}
+        currentUser={currentUser}
+      />
     );
   } else if (splitType === "Amount") {
     html = renderToHtml(
@@ -118,7 +126,11 @@ router.get("/changeSplitOption/:receiptId/:groupId", async (req, res) => {
     );
   } else if (splitType === "Items") {
     html = renderToHtml(
-      <SplitByItems group={groupWithMemebers} transactionDetails={receipt} />
+      <SplitByItems
+        group={groupWithMemebers}
+        transactionDetails={receipt}
+        currentUser={currentUser}
+      />
     );
   }
 

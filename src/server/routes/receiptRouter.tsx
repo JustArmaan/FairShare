@@ -354,7 +354,7 @@ router.post("/postReceipt", async (req, res) => {
 
     const html = renderToHtml(
       <div
-        hx-get={`/billSplit/overview/${savedReceipt.id}`}
+        hx-get={`/billSplit/overview/${savedReceipt.id}/${selectedGroup}`}
         hx-trigger="load"
         hx-swap="innerHTML"
         hx-target="#app"
@@ -370,7 +370,7 @@ router.post("/postReceipt", async (req, res) => {
 
 router.post("/postReceiptBulk", async (req, res) => {
   console.log("POST request received at /postReceiptBulk", req.body);
-  const { transactionsDetails, receiptItems } = req.body;
+  const { transactionsDetails, receiptItems, selectedGroup } = req.body;
 
   try {
     const transactionDetailsArray = JSON.parse(transactionsDetails);
@@ -428,7 +428,10 @@ router.post("/postReceiptBulk", async (req, res) => {
       }
     }
 
-    const savedReceipt = await createReceipt([transactionDetails]);
+    const savedReceipt = await createReceipt([
+      ...transactionDetails,
+      selectedGroup,
+    ]);
 
     const lineItems: ReceiptLineItems = [] as ReceiptLineItems;
 
@@ -448,7 +451,7 @@ router.post("/postReceiptBulk", async (req, res) => {
 
     const html = renderToHtml(
       <div
-        hx-get={`/billSplit/overview/${savedReceipt.id}`}
+        hx-get={`/billSplit/overview/${savedReceipt.id}/${selectedGroup}`}
         hx-trigger="load"
         hx-swap="innerHTML"
         hx-target="#app"
