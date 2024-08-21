@@ -61,7 +61,7 @@ router.get("/notificationList/:userId", async (req, res) => {
     if (!notifications || !inviteNotifications) {
       return res.status(404).send("Problem with notification");
     }
-
+    console.log(notifications, "notifications");
     const html = renderToHtml(
       <NotificationList
         inviteNotifications={inviteNotifications}
