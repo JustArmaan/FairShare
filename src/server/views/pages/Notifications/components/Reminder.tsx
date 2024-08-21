@@ -86,7 +86,7 @@ export const Reminder = (props: {
                   {message}
                 </p>
                 <span class="text-font-grey font-normal text-xs mt-[0.25rem] align-top">
-                  Sent from {``}
+                  Sent from {props.groupOwner?.firstName}
                 </span>
               </div>
               <span class="text-xs text-font-grey m-2.5 items-end right-0 top-0 absolute">

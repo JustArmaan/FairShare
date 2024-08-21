@@ -221,7 +221,6 @@ export async function getGroupOwnerWithGroupId(groupId: string) {
     return result[0];
   } catch (error) {
     console.error(error);
-    return null;
   }
 }
 

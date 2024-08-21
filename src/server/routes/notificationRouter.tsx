@@ -61,16 +61,12 @@ router.get("/notificationList/:userId", async (req, res) => {
     if (!notifications || !inviteNotifications) {
       return res.status(404).send("Problem with notification");
     }
-    const groupOwner = await getGroupOwnerWithGroupId(
-      inviteNotifications[0].groupInvite.id
-    );
 
     const html = renderToHtml(
       <NotificationList
         inviteNotifications={inviteNotifications}
         notifications={notifications}
         selectedSort={sort}
-        groupOwner={groupOwner ?? undefined}
       />
     );
 
@@ -160,13 +156,19 @@ router.get("/reminder/:notificationId", async (req, res) => {
     notifications = await getGroupNotificationByNotificationId(notificationId);
   }
 
-  console.log(notifications, "notifications");
-
   if (!notifications) {
     return res.status(404).send("No notifications found");
   }
 
-  const html = renderToHtml(<Reminder notifications={notifications} />);
+  const groupOwner = await getGroupOwnerWithGroupId(notifications.groups.id);
+
+  if (!groupOwner) {
+    res.status(404).send("No group owner found");
+  }
+
+  const html = renderToHtml(
+    <Reminder notifications={notifications} groupOwner={groupOwner} />
+  );
 
   await markNotificationAsRead(notificationId);
 

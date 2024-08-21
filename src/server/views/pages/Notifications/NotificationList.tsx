@@ -14,7 +14,6 @@ export const NotificationList = (props: {
   inviteNotifications: InviteNotification[];
   notifications: CombinedNotification[];
   selectedSort: string;
-  groupOwner?: GroupOwner;
 }) => {
   return (
     <div id="notification-list">
