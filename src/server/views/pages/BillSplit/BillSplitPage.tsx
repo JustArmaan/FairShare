@@ -1,3 +1,4 @@
+import type { UserSchema } from "../../../interface/types";
 import type { GroupWithMembers } from "../../../services/group.service";
 import type {
   Receipt,
@@ -10,6 +11,7 @@ export const BillSplitPage = (props: {
   transactionsDetails: Receipt;
   receiptItems: ReceiptLineItems;
   group: GroupWithMembers;
+  currentUser: UserSchema;
 }) => {
   return (
     <>
