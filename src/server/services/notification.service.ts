@@ -151,6 +151,15 @@ export async function getNotificationTypeByType(type: string) {
   }
 }
 
+export async function getNotificationTypeById(typeId: string) {
+  const result = await db
+    .select()
+    .from(notificationType)
+    .where(eq(notificationType.id, typeId));
+
+  return result[0];
+}
+
 export async function createGroupInviteNotification(
   userToGroupId: string,
   userId: string
@@ -338,30 +347,6 @@ export type GroupNotification = ArrayElement<
   ExtractFunctionReturnType<typeof getGroupNotificationById>
 >;
 
-export async function getCombinedNotification(
-  notifId: string
-): Promise<CombinedNotification | null> {
-  const result = await db
-    .select()
-    .from(notifications)
-    .leftJoin(
-      genericNotification,
-      eq(notifications.id, genericNotification.notificationId)
-    )
-    .leftJoin(
-      groupNotification,
-      eq(notifications.id, groupNotification.notificationId)
-    )
-    .innerJoin(
-      usersToGroups,
-      eq(groupNotification.userGroupId, usersToGroups.id)
-    )
-    .innerJoin(groups, eq(usersToGroups.groupId, groups.id))
-    .where(eq(notifications.id, notifId));
-
-  return result.length > 0 ? result[0] : null;
-}
-
 export type CombinedNotification = GenericNotification | GroupNotification;
 
 export async function getUnreadNotifications(userId: string) {
@@ -514,5 +499,69 @@ export async function getGroupNameByUserGroupId(userGroupId: string) {
   } catch (error) {
     console.error(error, "getting group name by user group id");
     throw new Error("Error getting group name by user group id");
+  }
+}
+
+export async function getGroupInviteByNotificationId(notificationId: string) {
+  try {
+    const result = await db
+      .select()
+      .from(notifications)
+      .innerJoin(groupInvite, eq(notifications.id, groupInvite.notificationId))
+      .innerJoin(usersToGroups, eq(groupInvite.userGroupId, usersToGroups.id))
+      .innerJoin(groups, eq(usersToGroups.groupId, groups.id))
+      .where(eq(notifications.id, notificationId));
+    return result[0];
+  } catch (error) {
+    console.error(error, "getting group invite by notification id");
+    throw new Error("Error getting group invite by notification id");
+  }
+}
+
+export async function getGroupNotificationByNotificationId(
+  notificationId: string
+) {
+  try {
+    const result = await db
+      .select()
+      .from(notifications)
+      .innerJoin(
+        groupNotification,
+        eq(notifications.id, groupNotification.notificationId)
+      )
+      .innerJoin(
+        usersToGroups,
+        eq(groupNotification.userGroupId, usersToGroups.id)
+      )
+      .innerJoin(groups, eq(usersToGroups.groupId, groups.id))
+      .where(eq(notifications.id, notificationId));
+    return result[0];
+  } catch (error) {
+    console.error(error, "getting group notification by notification id");
+    throw new Error("Error getting group notification by notification id");
+  }
+}
+
+export async function getGenericNotificationByNotificationId(
+  notificationId: string
+) {
+  try {
+    const result = await db
+      .select()
+      .from(notifications)
+      .innerJoin(
+        genericNotification,
+        eq(notifications.id, genericNotification.notificationId)
+      )
+      .innerJoin(
+        usersToGroups,
+        eq(genericNotification.userId, usersToGroups.id)
+      )
+      .innerJoin(groups, eq(usersToGroups.groupId, groups.id))
+      .where(eq(notifications.id, notificationId));
+    return result[0];
+  } catch (error) {
+    console.error(error, "getting generic notification by notification id");
+    throw new Error("Error getting generic notification by notification id");
   }
 }

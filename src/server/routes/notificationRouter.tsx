@@ -8,13 +8,17 @@ import NotificationPicker from "../views/pages/Notifications/components/Notifica
 import { getSortedNotifications } from "../utils/getNotifications.ts";
 import {
   deleteAllNotifications,
-  getCombinedNotification,
   getGenericNotificationById,
+  getGenericNotificationByNotificationId,
+  getGroupInviteByNotificationId,
   getGroupInviteNotificaitonById,
   getGroupNotificationById,
+  getGroupNotificationByNotificationId,
+  getNotificationTypeById,
   getNotificationTypeByType,
   getUnreadNotifications,
   markAllNotificationsAsRead,
+  markNotificationAsRead,
   type CombinedNotification,
 } from "../services/notification.service.ts";
 import { getGroupOwnerWithGroupId } from "../services/group.service.ts";
@@ -69,8 +73,6 @@ router.get("/notificationList/:userId", async (req, res) => {
         groupOwner={groupOwner ?? undefined}
       />
     );
-
-    await markAllNotificationsAsRead(userId);
 
     res.send(html);
   } catch (err) {
@@ -140,7 +142,7 @@ router.get("/reminder/:notificationId", async (req, res) => {
   const notifcationTypeId = req.query.notificationTypeId as string;
   const notificationId = req.params.notificationId;
 
-  const notificationType = await getNotificationTypeByType(notifcationTypeId);
+  const notificationType = await getNotificationTypeById(notifcationTypeId);
 
   if (!notificationType) {
     return res.status(404).send("No notification type found");
@@ -149,19 +151,24 @@ router.get("/reminder/:notificationId", async (req, res) => {
   let notifications;
 
   if (notificationType.type === "invite") {
-    notifications = await getGroupInviteNotificaitonById(notificationId);
+    notifications = await getGroupInviteByNotificationId(notificationId);
   } else if (notificationType.type === "generic") {
-    notifications = await getGenericNotificationById(notificationId);
+    notifications = await getGenericNotificationByNotificationId(
+      notificationId
+    );
   } else if (notificationType.type === "group") {
-    notifications = await getGroupNotificationById(notificationId);
+    notifications = await getGroupNotificationByNotificationId(notificationId);
   }
+
+  console.log(notifications, "notifications");
 
   if (!notifications) {
     return res.status(404).send("No notifications found");
   }
 
-  // @ts-ignore
   const html = renderToHtml(<Reminder notifications={notifications} />);
+
+  await markNotificationAsRead(notificationId);
 
   res.send(html);
 });
