@@ -139,7 +139,7 @@ let db = getDB();
 //   }
 // }
 
-async function getNotificationTypeByType(type: string) {
+export async function getNotificationTypeByType(type: string) {
   try {
     const results = await db
       .select()
@@ -337,6 +337,30 @@ export async function getGroupNotificationById(userId: string) {
 export type GroupNotification = ArrayElement<
   ExtractFunctionReturnType<typeof getGroupNotificationById>
 >;
+
+export async function getCombinedNotification(
+  notifId: string
+): Promise<CombinedNotification | null> {
+  const result = await db
+    .select()
+    .from(notifications)
+    .leftJoin(
+      genericNotification,
+      eq(notifications.id, genericNotification.notificationId)
+    )
+    .leftJoin(
+      groupNotification,
+      eq(notifications.id, groupNotification.notificationId)
+    )
+    .innerJoin(
+      usersToGroups,
+      eq(groupNotification.userGroupId, usersToGroups.id)
+    )
+    .innerJoin(groups, eq(usersToGroups.groupId, groups.id))
+    .where(eq(notifications.id, notifId));
+
+  return result.length > 0 ? result[0] : null;
+}
 
 export type CombinedNotification = GenericNotification | GroupNotification;
 

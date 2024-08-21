@@ -31,7 +31,9 @@ export const EditReceiptPage = (props: {
         id="errorContainer"
         class="text-accent-red bg-opacity-10 border border-accent-red p-4 rounded shadow hidden text-center mt-4 mb-4"
       ></div>
-      <h2 class="text-font-off-white font-semibold text-xl mb-1">Select Group</h2>
+      <h2 class="text-font-off-white font-semibold text-xl mb-1">
+        Select Group
+      </h2>
       <SelectGroup groups={props.groups} />
       <AddReceiptManuallyPage
         transactionsDetails={props.transactionsDetails}
@@ -44,7 +46,7 @@ export const EditReceiptPage = (props: {
           hx-target="#app"
           hx-swap="innerHTML"
           hx-trigger="click"
-          hx-include="#items-container input, [name=subtotal], [name=tax], [name=discount], [name=tips], [name=total], [name=storeName], [name=storeAddress], [name=timestamp]"
+          hx-include="#items-container input, [name=subtotal], [name=tax], [name=discount], [name=tips], [name=total], [name=storeName], [name=storeAddress], [name=timestamp], [name=selectedGroup]"
           class="bg-accent-blue text-font-off-white py-2 px-4 rounded-lg shadow-md w-[18.12rem]"
         >
           Confirm

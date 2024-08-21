@@ -263,6 +263,7 @@ router.post("/postReceipt", async (req, res) => {
       tips,
       discount,
       total,
+      selectedGroup,
       ...items
     } = req.body;
 
@@ -278,6 +279,10 @@ router.post("/postReceipt", async (req, res) => {
       return res.status(400).send("Please add a timestamp to continue.");
     }
 
+    if (!selectedGroup) {
+      return res.status(400).send("Please select a group to continue.");
+    }
+
     const parseOrFallback = (value: string, fallback: number = 0) => {
       const parsed = parseFloat(value);
       return isNaN(parsed) ? fallback : parsed;
@@ -289,6 +294,7 @@ router.post("/postReceipt", async (req, res) => {
       storeAddress,
       timestamp,
       transactionId,
+      groupId: selectedGroup,
       subtotal: parseOrFallback(subtotal),
       tax: parseOrFallback(tax),
       tips: parseOrFallback(tips),

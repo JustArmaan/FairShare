@@ -68,6 +68,8 @@ export const Reminder = (props: {
     message = notifications.groupNotification.message || "No message.";
   }
 
+  console.log(notifications, "notifications");
+
   return (
     <div class="animate-fade-in mb-[1.25rem]">
       <div class="bg-primary-black rounded-xl shadow-[0_3px_2px_0_rgba(0,0,0,0.25)] mb-1 flex justify-between relative h-[5.6875rem] ">

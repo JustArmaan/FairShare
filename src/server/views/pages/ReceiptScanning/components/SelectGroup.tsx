@@ -103,6 +103,11 @@ export const SelectGroup = (props: {
                 />
               </button>
             </div>
+            <input
+              type="hidden"
+              name="selectedGroup"
+              value={selectedGroup.id}
+            />
           </>
         )}
       </div>
