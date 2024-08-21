@@ -45,8 +45,8 @@ export const NotificationList = (props: {
                 <div
                   hx-get={`/notification/reminder/${notification.notifications.id}?notificationTypeId=${notification.notifications.notificationTypeId}`}
                   hx-trigger="load"
-                  hx-swap="afterbegin"
-                  hx-targer="#notification-container"
+                  hx-swap="beforeend"
+                  hx-target="#notification-container"
                 />
               );
             })}
@@ -57,12 +57,14 @@ export const NotificationList = (props: {
           <div>
             <p class="text-primary-grey font-medium">Notifications</p>
             {props.notifications.reverse().map((notification) => {
-              <div
-                hx-get={`/notification/reminder/${notification.notifications.id}?notificationTypeId=${notification.notifications.notificationTypeId}`}
-                hx-trigger="load"
-                hx-swap="afterbegin"
-                hx-targer="#notification-container"
-              />;
+              return (
+                <div
+                  hx-get={`/notification/reminder/${notification.notifications.id}?notificationTypeId=${notification.notifications.notificationTypeId}`}
+                  hx-trigger="load"
+                  hx-swap="beforeend"
+                  hx-target="#notification-container"
+                />
+              );
             })}
           </div>
         )}
@@ -78,7 +80,6 @@ export const NotificationList = (props: {
       </div>
 
       <div class="notification-selector-form" />
-      <div class="mb-24"></div>
       <div
         hx-get={`/notification/notificationIcon`}
         hx-swap="outerHTML"

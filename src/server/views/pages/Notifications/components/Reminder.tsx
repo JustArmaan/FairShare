@@ -85,7 +85,7 @@ export const Reminder = (props: {
           <div class="flex flex-col w-full">
             <div class="flex justify-between items-center w-full">
               <div class="flex-row">
-                <p class="text-font-off-white font-normal mt-[0.30rem] w-[17rem]">
+                <p class="text-font-off-white font-normal mt-[0.36rem] w-[16rem]">
                   {message}
                 </p>
                 <span class="text-font-grey font-normal text-xs mt-[0.25rem] align-top">
