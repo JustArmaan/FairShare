@@ -56,3 +56,22 @@ export async function createReceiptLineItems(
 
   return results;
 }
+
+export async function getReceiptDetailsFromReceiptItemId(
+  receiptItemId: string
+) {
+  const results = await db
+    .select()
+    .from(receiptLineItem)
+    .innerJoin(
+      transactionReceipt,
+      eq(receiptLineItem.transactionReceiptId, transactionReceipt.id)
+    )
+    .where(eq(receiptLineItem.id, receiptItemId));
+
+  if (results.length === 0) {
+    return undefined;
+  }
+
+  return results[0];
+}

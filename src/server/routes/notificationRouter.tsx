@@ -138,6 +138,13 @@ router.get("/reminder/:notificationId", async (req, res) => {
   const notifcationTypeId = req.query.notificationTypeId as string;
   const notificationId = req.params.notificationId;
 
+  console.log(
+    "notificationId",
+    notificationId,
+    "notifcationTypeId",
+    notifcationTypeId
+  );
+
   const notificationType = await getNotificationTypeById(notifcationTypeId);
 
   if (!notificationType) {

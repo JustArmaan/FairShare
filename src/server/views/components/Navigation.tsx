@@ -63,12 +63,13 @@ export const Nav = () => {
         <div class="rounded-full bg-accent-blue size-12">
           <li class="flex justify-center items-center">
             <a
-              // hx-get="/receipt/addReceipt" //change this to the group id
-              hx-get="/billSplit/overview/8c4dba4a-ba94-4cf5-91be-ea933b0ca19b/30105ae8-7cb6-45a9-ae81-683df62273ca"
+              // hx-get="/receipt/addReceipt"
+              hx-get="/billSplit/overview/8af0dfca-f089-439d-8587-c42574eccdf6/e49f7193-4dbe-453b-b271-81a58414fe3e"
               hx-target="#app"
               hx-trigger="click"
               hx-swap="innerHTML"
-              hx-push-url="/receipt/addReceipt"
+              // hx-push-url="/receipt/addReceipt"
+              hx-push-url="/billSplit/overview/8af0dfca-f089-439d-8587-c42574eccdf6/e49f7193-4dbe-453b-b271-81a58414fe3e"
               onclick="console.log('HTMX click event');"
               class="flex flex-col items-center text-font-off-white dark:text-white"
             >

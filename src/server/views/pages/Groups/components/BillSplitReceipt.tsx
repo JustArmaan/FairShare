@@ -1,3 +1,4 @@
+import type { GroupWithMembers } from "../../../../services/group.service";
 import type {
   Receipt,
   ReceiptLineItems,
@@ -7,9 +8,14 @@ import { ReceiptItem } from "./ReceiptItem";
 export const BillSplitReceipt = (props: {
   transactionsDetails: Receipt;
   receiptItems: ReceiptLineItems[];
+  groupWithMembers?: GroupWithMembers;
+  isSplit?: boolean;
 }) => {
   return (
-    <div class="w-full bg-primary-black pt-[2.63rem] pb-[7.9rem] px-4 text-font-off-white flex flex-col rounded-md relative">
+    <div
+      class="w-full bg-primary-black pt-[2.63rem] pb-[7.9rem] px-4 text-font-off-white flex flex-col rounded-md relative"
+      id="billSplitReceipt"
+    >
       <div class="flex flex-col items-center justify-center">
         <h1 class="text-lg mb-[0.63rem]">
           {props.transactionsDetails[0].storeName}
@@ -32,13 +38,19 @@ export const BillSplitReceipt = (props: {
         <div class="flex justify-end w-full space-x-7">
           <p class="w-1/6 text-center text-font-grey">Qty</p>
           <p class="w-1/6 text-right text-font-grey">Price</p>
+          {props.isSplit && <p class="w-1/6 text-right text-font-grey"></p>}
         </div>
       </div>
 
       <hr class="border-t border-font-grey w-full mt-[0.2rem] mb-4 mx-auto" />
 
       {props.receiptItems.map((receiptItem) => {
-        return <ReceiptItem receiptItem={receiptItem} />;
+        return (
+          <ReceiptItem
+            receiptItem={receiptItem}
+            isSplit={props.isSplit === true}
+          />
+        );
       })}
 
       <div class="flex flex-col items-end mt-4">

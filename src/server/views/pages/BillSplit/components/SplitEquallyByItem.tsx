@@ -1,34 +1,23 @@
 import type { UserSchema } from "../../../../interface/types";
 import type { GroupWithMembers } from "../../../../services/group.service";
-import type { Receipt } from "../../../../services/receipt.service";
+import type { ReceiptLineItem } from "../../../../services/receipt.service";
 
-export const SplitByItems = (props: {
-  group: GroupWithMembers;
-  transactionDetails: Receipt;
+export const SplitEquallyByItem = (props: {
+  receiptItem: ReceiptLineItem;
+  groupWithMembers: GroupWithMembers;
   currentUser: UserSchema;
 }) => {
-  const totalOwed = parseFloat(props.transactionDetails[0].total.toFixed(2));
-  const splitAmount = (totalOwed / props.group.members.length).toFixed(2);
-
+  const splitAmount = (
+    props.receiptItem.costPerItem / props.groupWithMembers.members.length
+  ).toFixed(2);
   return (
-    <div class="bg-primary-black text-font-off-white w-full rounded-lg p-4" id="split-by-items">
-      <div class="flex justify-center items-center border-b border-font-grey pb-2 mb-2">
-        <p class="font-semibold">Split By Items</p>
-        <button class="text-font-grey">
-          <img
-            src="/activeIcons/expand_more.svg"
-            class="w-4 h-4 ml-2"
-            hx-get={`/billSplit/splitOptions/${props.transactionDetails[0].id}/${props.group.id}?splitType=Equally`}
-            hx-swap="innerHTML"
-            hx-target="#split-bill-button"
-            hx-trigger="click"
-          />
-        </button>
-      </div>
-
-      <div class="flex flex-col space-y-3">
-        {props.group.members.map((member, index) => (
-          <div class="flex justify-between items-center">
+    <div
+      class="flex w-full flex-col justify-center items-center my-2"
+      id="splitByItemForm"
+    >
+      <div class="flex w-full justify-between">
+        {props.groupWithMembers.members.map((member, index) => (
+          <div class="flex justify-between items-center w-full px-2 mr-2">
             <div class="flex items-center">
               <div
                 class={`flex rounded-full bg-${member.color} h-[2rem] w-[2rem] justify-center border-2 border-primary-black`}
@@ -51,9 +40,9 @@ export const SplitByItems = (props: {
               )}
             </div>
 
-            <div class="flex items-center">
+            <div class="flex items-center mr-1">
               <p
-                class={`ml-4 ${
+                class={`mr-4 ${
                   member.type === "Owner" ? "text-white" : "text-accent-green"
                 }`}
               >
@@ -61,6 +50,12 @@ export const SplitByItems = (props: {
                   ? `$${splitAmount}`
                   : `Owe You $${splitAmount}`}
               </p>
+
+              <img
+                src="/activeIcons/checked_blue_circle.svg"
+                alt="selected icon"
+                class="ml-1"
+              />
             </div>
           </div>
         ))}
