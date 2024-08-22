@@ -74,15 +74,18 @@ export const Reminder = (props: {
     <div class="animate-fade-in mb-[1.25rem]">
       <div class="bg-primary-black rounded-xl shadow-[0_3px_2px_0_rgba(0,0,0,0.25)] mb-1 flex justify-between relative h-[5.6875rem] ">
         <div class="flex w-full">
-          <div class="flex p-3 pl-4 pr-4 mr-4 ml-4 bg-accent-red rounded-xl self-center items-center justify-center ">
-            <div class="flex items-center justify-center w-10 h-10">
-              <img src="/groupIcons/groups.svg" alt="" class="w-10" />
-            </div>
+          <div
+            class={`flex rounded-full bg-${props.groupOwner?.color} h-[4.1875rem] p-4 m-3 justify-center w-[4.1875rem] items-center`}
+          >
+            <span class="flex justify-center self-center text-center text-2xl font-bold">
+              {props.groupOwner?.firstName.split("", 1)}
+              {props.groupOwner?.lastName?.split("", 1)}
+            </span>
           </div>
           <div class="flex flex-col w-full">
             <div class="flex justify-between items-center w-full">
               <div class="flex-row">
-                <p class="text-font-off-white font-normal mt-[0.56rem] w-[17rem]">
+                <p class="text-font-off-white font-normal mt-[0.36rem] w-[16rem]">
                   {message}
                 </p>
                 <span class="text-font-grey font-normal text-xs mt-[0.25rem] align-top">

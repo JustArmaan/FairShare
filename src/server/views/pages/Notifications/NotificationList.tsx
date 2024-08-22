@@ -45,7 +45,7 @@ export const NotificationList = (props: {
                 <div
                   hx-get={`/notification/reminder/${notification.notifications.id}?notificationTypeId=${notification.notifications.notificationTypeId}`}
                   hx-trigger="load"
-                  hx-swap="afterbegin"
+                  hx-swap="beforeend"
                   hx-target="#notification-container"
                 />
               );
@@ -61,7 +61,7 @@ export const NotificationList = (props: {
                 <div
                   hx-get={`/notification/reminder/${notification.notifications.id}?notificationTypeId=${notification.notifications.notificationTypeId}`}
                   hx-trigger="load"
-                  hx-swap="afterbegin"
+                  hx-swap="beforeend"
                   hx-target="#notification-container"
                 />
               );
@@ -80,7 +80,6 @@ export const NotificationList = (props: {
       </div>
 
       <div class="notification-selector-form" />
-      <div class="mb-24"></div>
       <div
         hx-get={`/notification/notificationIcon`}
         hx-swap="outerHTML"
