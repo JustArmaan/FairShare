@@ -7,7 +7,11 @@ import {
   getGroupWithMembers,
   getTransactionsForGroup,
 } from "../../services/group.service";
-import { getAllOwedForGroupTransactionWithTransactionId } from "../../services/owed.service";
+import {
+  getAllGroupTransactionStatesFromGroupId,
+  getAllOwedForGroupTransactionWithTransactionId,
+  getGroupTransactionDetails,
+} from "../../services/owed.service";
 import {
   getAccountsForUser,
   getItemsForUser,
@@ -35,6 +39,15 @@ router.get("/OwedOwingHistory", async (req, res) => {
 
   const transactions = await getTransactionsForGroup(group.id);
 
+  const groupTransactionStates =
+    await getAllGroupTransactionStatesFromGroupId(groupId);
+  const results = await Promise.all(
+    groupTransactionStates.map(
+      async (result) =>
+        (await getGroupTransactionDetails(result.groupTransactionState.id))!
+    )
+  );
+
   const owedPerMember = await Promise.all(
     transactions
       .map(async (transaction) => {
@@ -61,6 +74,7 @@ router.get("/OwedOwingHistory", async (req, res) => {
       transactions={transactions}
       members={group.members}
       currentUser={currentUser}
+      resultPerGroupTransaction={results}
     />
   );
   res.send(html);
@@ -91,6 +105,16 @@ router.get("/:groupId", async (req, res) => {
       .filter((owed) => owed !== null)
   );
 
+  const groupTransactionStates = await getAllGroupTransactionStatesFromGroupId(
+    group.id
+  );
+  const results = await Promise.all(
+    groupTransactionStates.map(
+      async (result) =>
+        (await getGroupTransactionDetails(result.groupTransactionState.id))!
+    )
+  );
+
   const items = await getItemsForUser(req.user!.id);
   const defaultItem = items[0] && items[0].item;
 
@@ -106,6 +130,7 @@ router.get("/:groupId", async (req, res) => {
 
   const html = renderToHtml(
     <ViewGroups
+      resultPerGroupTransaction={results}
       groupId={group.id}
       transactions={transactions}
       members={group.members}

@@ -1,6 +1,9 @@
 import { type UserSchema } from "../../../../interface/types";
 import { type GroupWithTransactions } from "../../../../services/group.service";
-import type { getAllOwedForGroupTransactionWithTransactionId } from "../../../../services/owed.service";
+import type {
+  getAllOwedForGroupTransactionWithTransactionId,
+  getGroupTransactionDetails,
+} from "../../../../services/owed.service";
 import type { ExtractFunctionReturnType } from "../../../../services/user.service";
 
 export function formatDate(dateString: string) {
@@ -36,40 +39,98 @@ export const OwedGroup = (props: {
   groupId: string;
   url?: string;
   owing?: boolean;
+  resultPerGroupTransaction: ExtractFunctionReturnType<
+    typeof getGroupTransactionDetails
+  >[];
 }) => {
   function maxCompanyNameLength(str: string, max: number) {
     return str.length > max ? str.substring(0, max - 3) + "..." : str;
   }
 
-  const owedForThisMember = props.owedPerMember
-    .map(
-      (owedList) =>
-        owedList.find((owed) => owed.userId === props.currentUser.id)!
-    )
-    .filter((owed) => owed && !owed.pending);
+  // need to find out two cases:
+  // owed, so positive number (subtract awaitingConfirmationAmounts!)
+  // owing, so negative number (just the number on the tin)
 
-  const processedData =
-    props.transactions &&
-    props.transactions.length > 0 &&
-    owedForThisMember.length > 0 &&
-    owedForThisMember
-      .map((owedList) => ({
-        ...owedList,
-        transaction: props.transactions?.find(
-          (transaction) => transaction.id === owedList.transactionId
-        )!,
-      }))
-      .filter((result) =>
-        props.owing ? result.amount < 0 : result.amount > 0
+  // filter results
+  const filtered = props.resultPerGroupTransaction.filter(
+    (groupStateResult) => {
+      const ourTransaction = groupStateResult.find(
+        (result) => result.users.id === props.currentUser.id
       );
-  const totalOwing = processedData
-    ? processedData.reduce((acc, result) => acc + result.amount, 0)
-    : 0;
+
+      return props.owing
+        ? ourTransaction!.groupTransactionToUsersToGroups.amount < 0
+        : ourTransaction!.groupTransactionToUsersToGroups.amount > 0;
+    }
+  );
+
+  const processedData = filtered.map((owedList) =>
+    owedList.reduce(
+      (acc, owed) => {
+        if (owed.groupTransactionToUsersToGroups.amount > 0)
+          acc.user = owed.users;
+
+        if (!acc.company) acc.company = owed.transactions.company!;
+
+        if (owed.users.id === props.currentUser.id) {
+          acc.groupTransactionToUsersToGroupsId =
+            owed.groupTransactionToUsersToGroups.id;
+        }
+
+        if (!props.owing) {
+          acc.amount +=
+            owed.users.id === props.currentUser.id
+              ? owed.groupTransactionToUsersToGroups.amount
+              : 0;
+        }
+
+        return acc;
+      },
+      {
+        amount: props.owing
+          ? owedList.find((owed) => owed.users.id === props.currentUser.id)
+              ?.groupTransactionToUsersToGroups.amount
+          : 0,
+        company: owedList[0].transactions.company!,
+        timestamp: owedList[0].transactions.timestamp,
+      } as {
+        company: string;
+        user: UserSchema;
+        amount: number;
+        groupTransactionToUsersToGroupsId: string;
+        timestamp: string;
+      }
+    )
+  );
+
+  const totalOwing = filtered.reduce(
+    // just sums all amounts
+    (acc, result) => {
+      const relevantResults = result.filter(
+        (
+          result // sum our amounts if we owe, sum other amounts if we're owed
+        ) =>
+          props.owing
+            ? result.users.id === props.currentUser.id
+            : result.users.id === props.currentUser.id &&
+              result.groupTransactionToUsersToGroupsStatus.status === "notSent"
+      );
+
+      return (
+        acc +
+        relevantResults.reduce(
+          (acc, result) => acc + result.groupTransactionToUsersToGroups.amount,
+          0
+        )
+      );
+    },
+    0
+  );
 
   return (
     <>
-      {processedData && processedData.length > 0 && (
-        <div class="bg-[#232222] rounded-lg mt-4">
+      {filtered.length > 0 && (
+        <div class="bg-[#232222] rounded-lg mt-4 animate-fade-in">
           <p class="text-font-off-white text-xl font-medium pt-3 text-center">
             {props.owing ? "Owing" : "Owed"}
           </p>
@@ -97,7 +158,7 @@ export const OwedGroup = (props: {
               <div class="w-full bg-primary-black relative mb-3 rounded-md py-[0.75rem] px-[0.69rem] shadow-[0px_2px_2px_0px_rgba(0,0,0,0.25)]">
                 <div class="flex justify-between w-full">
                   <p class="text-font-off-white self-start w-fit font-semibold text-lg">
-                    {maxCompanyNameLength(result.transaction.company ?? "", 20)}
+                    {maxCompanyNameLength(result.company ?? "", 20)}
                   </p>
                   <p class="text-font-off-white self-end w-fit">
                     {result.amount > 0 ? "You're Owed " : "You Owe "}
@@ -113,13 +174,13 @@ export const OwedGroup = (props: {
                   </p>
                 </div>
                 <p class="text-font-off-white self-start text-xs -mt-1.5">
-                  {formatDate(result.transaction.timestamp!)}
+                  {formatDate(result.timestamp!)}
                 </p>
                 <div class="flex justify-between w-full">
                   <p class="text-font-off-white self-start mt-[1.25rem] text-[0.875rem]">
                     Paid by:{" "}
                     <span class="text-font-off-white self-start font-semibold">
-                      {result.transaction.user!.firstName}
+                      {result.user.firstName}
                     </span>
                   </p>
                   <div class="flex flex-row justify-center text-font-off-white mt-[0.5rem]">

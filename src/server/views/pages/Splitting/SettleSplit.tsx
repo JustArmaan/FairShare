@@ -1,8 +1,10 @@
+import type { OwedStatus } from "../../../database/seed";
 import type { UserSchema } from "../../../interface/types";
 import type { Transaction } from "../../../services/transaction.service";
 import { OwedDetails } from "./components/OwedDetails";
 import { SplitController } from "./components/SplitController";
 import { SplitHeader } from "./components/SplitHeader";
+import type { GroupTransactionDetails } from "./SplitDetails";
 
 export const SettleSplit = (props: {
   transaction: Transaction;
@@ -19,7 +21,10 @@ export const SettleSplit = (props: {
   groupId: string;
   owedId: string;
   linkTransferActive?: boolean;
+  results: GroupTransactionDetails;
+  owedStatus: OwedStatus[number];
 }) => {
+  console.log(props.results, "at settlesplit");
   return (
     <div class="text-font-off-white">
       <div class="flex flex-row justify-between items-center mb-[1rem]">
@@ -40,11 +45,14 @@ export const SettleSplit = (props: {
         amountOwed={props.amountOwed}
         pending={props.pending}
         linkedTransactionAccountName={props.linkedTransactionAccountName}
+        results={props.results}
+        owedStatus={props.owedStatus}
       />
       <SplitController
         user={props.transactionOwner}
         transactionOwnerName={props.transactionOwner.firstName}
         amount={props.amountOwed}
+        owedId={props.owedId}
       />
     </div>
   );

@@ -37,6 +37,8 @@ import {
   createGroupTransactionState,
   createOwed,
   getAllOwedForGroupTransaction,
+  getOwedStatusIdFromName,
+  getOwedStatusNameFromId,
 } from "../services/owed.service";
 import {
   getAccountTypeIdByName,
@@ -263,10 +265,13 @@ router.post("/addButton", async (req, res) => {
       pending: false,
       groupTransactionId: groupTransactions[0].id,
     });
+    const owedPerMember = transaction.amount / members.length;
     await Promise.all(
       members.map(async (member) => {
-        const owedPerMember = transaction.amount / members.length;
         return await createOwed({
+          linkedTransactionId: null,
+          groupTransactionToUsersToGroupsStatusId:
+            await getOwedStatusIdFromName("notSent"),
           usersToGroupsId: (await getUsersToGroup(groupId, member.id))!.id,
           groupTransactionStateId: groupTransactionState![0].id,
           amount:

@@ -21,7 +21,7 @@ export async function changeHeader() {
       } else if (url.includes("transactions")) {
         header.innerText = "Transactions";
       } else if (url.includes("notification")) {
-        header.innerText = "Notifications";
+        header.innerText = "Alerts";
       } else if (url.includes("breakdown")) {
         header.innerText = "Breakdown";
       } else {

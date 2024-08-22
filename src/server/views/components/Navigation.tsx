@@ -111,7 +111,7 @@ export const Nav = () => {
               />
             </div>
             <p id="notificationsText" class="mt-1 text-xs">
-              Notifications
+              Alerts
             </p>
           </a>
         </div>

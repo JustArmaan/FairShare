@@ -9,6 +9,7 @@ export const SplitController = (props: {
   };
   transactionOwnerName: string;
   amount: number;
+  owedId: string;
 }) => {
   return (
     <>
@@ -45,7 +46,7 @@ export const SplitController = (props: {
           id="link-transfer-container"
         >
           <button
-            hx-get="/split/linkTransferComponent?open=true"
+            hx-get={`/split/linkTransferComponent?open=true&owedAmount=${props.amount}&owedId=${props.owedId}`}
             hx-swap="outerHTML settle:0ms"
             hx-target="#link-transfer-container"
             class="flex flex-row items-center cursor:pointer hover:opacity-80"
@@ -53,8 +54,17 @@ export const SplitController = (props: {
             <img class="mr-1 h-[18px]" src="/icons/link-transaction.svg" />
             <p class="text-font-grey">Link Transfer</p>
           </button>
-          <button class="bg-accent-blue py-2 w-full rounded-md mt-3 mb-4 hover:-translate-y-0.5 rotate-[0.0001deg] transition-transform">
-            <p class="text-lg">Settle</p>
+          <button
+            hx-post={`/split/settle`}
+            hx-vals={`{
+              "type": "none",
+              "owedId": "${props.owedId}"
+              }`}
+            hx-swap="outerHTML"
+            hx-trigger="click"
+            class="bg-accent-blue py-2 w-full rounded-md mt-3 mb-4 hover:-translate-y-0.5 rotate-[0.0001deg] transition-transform"
+          >
+            <p class="text-lg">Request Confirmation</p>
           </button>
         </div>
       </div>

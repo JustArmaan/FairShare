@@ -9,6 +9,8 @@ export type ItemsWithTransactions = ExtractFunctionReturnType<
 export const LinkTransfer = (props: {
   items: ItemsWithTransactions;
   selectedItemId: string;
+  owedAmount: number;
+  owedId: string;
 }) => {
   const selectedIndex =
     props.selectedItemId !== "default" &&
@@ -26,7 +28,7 @@ export const LinkTransfer = (props: {
                 class={`flex flex-row justify-between items-center hover:opacity-80 cursor-pointer border-b-primary-dark-grey border-b-[2px] px-5 py-3
                 ${selected ? "-mt-px" : ""}
                 `}
-                hx-get={`/split/splitController/${item.item.id}`}
+                hx-get={`/split/splitController/${item.item.id}?owedAmount=${props.owedAmount}&owedId=${props.owedId}`}
                 hx-swap="outerHTML"
                 hx-trigger="click"
                 hx-target="#link-transfer-dropdown"
@@ -46,7 +48,7 @@ export const LinkTransfer = (props: {
           class={`flex flex-row justify-between items-center hover:opacity-80 cursor-pointer border-b-primary-grey px-5 py-3
                 ${props.selectedItemId === "cash" ? "-mt-px" : ""}
                 `}
-          hx-get={`/split/splitController/cash`}
+          hx-get={`/split/splitController/cash?owedAmount=${props.owedAmount}?owedAmount=${props.owedAmount}&owedId=${props.owedId}`}
           hx-swap="outerHTML"
           hx-trigger={props.selectedItemId === "cash" ? "none" : "click"}
           hx-target="#link-transfer-dropdown"
@@ -63,6 +65,8 @@ export const LinkTransfer = (props: {
         <TransactionSelector
           itemWithTransactions={props.items[selectedIndex]}
           selectedTransactionId={null}
+          owedAmount={props.owedAmount}
+          owedId={props.owedId}
         />
       ) : props.selectedItemId === "cash" ? (
         <>
@@ -76,21 +80,28 @@ export const LinkTransfer = (props: {
                 <input
                   id="txt"
                   class="bg-primary-black outline-none [all:unset] w-fit text-center pr-2"
-                  value="0"
-                  type="number"
-                >
-                  0.00
-                </input>
+                  value={Math.abs(props.owedAmount).toFixed(2)}
+                  min={Math.abs(props.owedAmount).toFixed(2)}
+                />
               </p>
             </div>
           </div>
-          <button class="bg-accent-blue hover:-translate-y-0.5 pointer hover:transition-transform rotate-[0.00001deg] py-2 w-full rounded-md mt-8 mb-4">
-            <p class="text-lg">Settle</p>
+          <button
+            hx-post={`/split/settle`}
+            hx-vals={`{
+              "type": "cash",
+              "owedId": "${props.owedId}"
+              }`}
+            hx-swap="outerHTML"
+            hx-trigger="click"
+            class="bg-accent-blue hover:-translate-y-0.5 pointer hover:transition-transform rotate-[0.00001deg] py-2 w-full rounded-md mt-8 mb-4"
+          >
+            <p class="text-lg">Request Confirmation</p>
           </button>
         </>
       ) : (
         <button class="bg-primary-dark-grey text-font-grey py-2 w-full rounded-md mt-8 mb-4 cursor-default">
-          <p class="text-lg">Settle</p>
+          <p class="text-lg">Request Confirmation</p>
         </button>
       )}
     </div>

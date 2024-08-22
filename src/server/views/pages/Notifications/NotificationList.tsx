@@ -41,7 +41,7 @@ export const NotificationList = (props: {
 
       {props.notifications.length > 0 && (
         <div>
-          <p class="text-primary-grey font-medium">Notifications</p>
+          <p class="text-primary-grey font-medium">Alerts</p>
           {props.notifications.map((notification) => {
             return <Reminder notifications={notification} />;
           })}

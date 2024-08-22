@@ -6,7 +6,10 @@ import {
   type UserSchemaWithMemberType,
 } from "../../../../interface/types";
 import type { ExtractFunctionReturnType } from "../../../../services/user.service";
-import type { getAllOwedForGroupTransactionWithTransactionId } from "../../../../services/owed.service";
+import type {
+  getAllOwedForGroupTransactionWithTransactionId,
+  getGroupTransactionDetails,
+} from "../../../../services/owed.service";
 import { OwedOwingHistory } from "./OwedOwingHistory";
 
 interface groupBudget {
@@ -33,6 +36,7 @@ export const ViewGroups = ({
   accountId,
   itemId,
   url,
+  resultPerGroupTransaction,
 }: {
   groupId: string;
   transactions: GroupWithTransactions;
@@ -45,6 +49,9 @@ export const ViewGroups = ({
   accountId: string;
   itemId?: string;
   url: string;
+  resultPerGroupTransaction: ExtractFunctionReturnType<
+    typeof getGroupTransactionDetails
+  >[];
 }) => {
   return (
     <div class="animate-fade-in">
@@ -97,6 +104,7 @@ export const ViewGroups = ({
           transactions={transactions}
           members={members}
           currentUser={currentUser}
+          resultPerGroupTransaction={resultPerGroupTransaction}
         />
         {/* <p class="text-font-off-white text-2xl pt-3
             pb-1">Budget</p> <BudgetChart groupBudget={groupBudget} /> */}

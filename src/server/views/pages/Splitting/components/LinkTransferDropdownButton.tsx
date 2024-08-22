@@ -1,4 +1,8 @@
-export const LinkTransferDropdownButton = (props: { open: boolean }) => {
+export const LinkTransferDropdownButton = (props: {
+  open: boolean;
+  owedAmount: number;
+  owedId: string;
+}) => {
   if (!props.open) {
     return (
       <>
@@ -9,7 +13,7 @@ export const LinkTransferDropdownButton = (props: { open: boolean }) => {
           id="link-transfer-container"
         >
           <button
-            hx-get="/split/linkTransferComponent?open=true"
+            hx-get={`/split/linkTransferComponent?open=true&owedAmount=${props.owedAmount}&owedId=${props.owedId}`}
             hx-swap="outerHTML settle:0ms"
             hx-target="#link-transfer-container"
             class="flex flex-row items-center cursor:pointer hover:opacity-80"
@@ -39,7 +43,7 @@ export const LinkTransferDropdownButton = (props: { open: boolean }) => {
         <div class="flex flex-row justify-between items-center text-lg">
           <p class="ml-2">Link Transfer</p>
           <p
-            hx-get="/split/linkTransferComponent?open=false"
+            hx-get={`/split/linkTransferComponent?open=false&owedAmount=${props.owedAmount}&owedId=${props.owedId}`}
             hx-target="#link-transfer-target"
             hx-swap="outerHTML settle:0ms"
             hx-trigger="click"
@@ -50,7 +54,7 @@ export const LinkTransferDropdownButton = (props: { open: boolean }) => {
         </div>
         <p class="mt-4 mb-2 ml-2">Settled With:</p>
         <div
-          hx-get={"/split/splitController/default"}
+          hx-get={`/split/splitController/default?owedAmount=${props.owedAmount}&owedId=${props.owedId}`}
           hx-swap="outerHTML"
           hx-trigger="load"
         />

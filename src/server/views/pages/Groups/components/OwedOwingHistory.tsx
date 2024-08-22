@@ -6,7 +6,10 @@ import type {
 } from "../../../../interface/types";
 import type { GroupWithTransactions } from "../../../../services/group.service";
 import type { ExtractFunctionReturnType } from "../../../../services/user.service";
-import type { getAllOwedForGroupTransactionWithTransactionId } from "../../../../services/owed.service";
+import type {
+  getAllOwedForGroupTransactionWithTransactionId,
+  getGroupTransactionDetails,
+} from "../../../../services/owed.service";
 
 export const tabs = ["owed", "owing", "history"] as const;
 
@@ -20,6 +23,9 @@ export const OwedOwingHistory = (props: {
   groupId: string;
   url: string;
   selectedTab: (typeof tabs)[number];
+  resultPerGroupTransaction: ExtractFunctionReturnType<
+    typeof getGroupTransactionDetails
+  >[];
 }) => {
   const buttonBaseClasslist =
     "rotate-[0.00001deg] bg-primary-black hover:-translate-y-0.5 w-[6rem] h-[2rem] transition-transform text-font-off-white px-5 rounded-lg shadow-lg hover:bg-blue-600 flex flex-row justify-center font-normal border-font-off-white  mr-[0.90rem]";
@@ -62,6 +68,7 @@ export const OwedOwingHistory = (props: {
           owedPerMember={props.owedPerMember.filter((owed) => owed.length > 0)}
           groupId={props.groupId}
           url={props.url}
+          resultPerGroupTransaction={props.resultPerGroupTransaction}
         />
       )}
     </div>

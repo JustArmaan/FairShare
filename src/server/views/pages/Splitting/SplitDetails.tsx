@@ -1,21 +1,14 @@
+import type { OwedStatus } from "../../../database/seed";
 import type { UserSchema } from "../../../interface/types";
 import type { Transaction } from "../../../services/transaction.service";
-import { maxCompanyNameLength } from "../Groups/components/PendingItem";
-import { formatDate } from "../transactions/components/Transaction";
 import { OwedDetails } from "./components/OwedDetails";
 import { SplitHeader } from "./components/SplitHeader";
+import { getGroupTransactionDetails } from "../../../services/owed.service";
+import type { ExtractFunctionReturnType } from "../../../services/user.service";
 
-// owed and not linked
-// owed and linked
-// owing and not settled
-// owing and sent, not linked (pending)
-// owing and sent, linked (pending)
-// settled with no transaction
-// settled with transaction (linked)
-// settled with cash
-
-// no linked transaction
-// linked transaction
+export type GroupTransactionDetails = ExtractFunctionReturnType<
+  typeof getGroupTransactionDetails
+>;
 
 export const SplitDetails = (props: {
   transaction: Transaction;
@@ -26,6 +19,8 @@ export const SplitDetails = (props: {
   linkedTransactionAccountName?: string;
   groupId: string;
   owedId: string;
+  owedStatus: OwedStatus[number];
+  results: GroupTransactionDetails;
 }) => {
   return (
     <div id="split-details" class="text-font-off-white">
@@ -48,6 +43,8 @@ export const SplitDetails = (props: {
         currentUser={props.currentUser}
         transaction={props.transaction}
         linkedTransactionAccountName={props.linkedTransactionAccountName}
+        owedStatus={props.owedStatus}
+        results={props.results}
       />
       <div class="p-2 pt-3 bg-second-black-background rounded-md mt-4">
         <div class="bg-primary-black p-2 h-32 rounded-md">
@@ -75,7 +72,8 @@ export const SplitDetails = (props: {
               hx-target="#app"
               hx-swap="innerHTML"
               hx-push-url={
-                props.amountOwed < 0 && !props.pending
+                props.amountOwed < 0 &&
+                !(props.owedStatus === "awaitingConfirmation")
                   ? `/split/settle?owedId=${props.owedId}&groupId=${props.groupId}`
                   : props.amountOwed > 0 && props.pending
                     ? "Confirm"
@@ -87,11 +85,13 @@ export const SplitDetails = (props: {
             justify-center font-semibold drop-shadow-xl items-center rotate-[0.000001deg]"
             >
               <p class="text-lg">
-                {props.amountOwed < 0 && !props.pending
+                {props.amountOwed < 0 &&
+                !(props.owedStatus === "awaitingConfirmation")
                   ? "Settle"
-                  : props.amountOwed > 0 && props.pending
+                  : props.amountOwed > 0 &&
+                      props.owedStatus === "awaitingConfirmation"
                     ? "Confirm"
-                    : ""}
+                    : "Remind"}
               </p>
             </button>
           )}

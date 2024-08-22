@@ -336,7 +336,6 @@ router.post("/addMember/:groupId", async (req, res) => {
 
 router.post("/create", async (req, res) => {
   try {
-    console.log("req.body", req.body);
     const { id } = req.user!;
 
     const currentUser = await findUser(id);
@@ -527,7 +526,6 @@ router.get("/addTransaction/:accountId/:groupId", async (req, res) => {
 
     // Get or create cash account for user
     const cashAccount = await getOrCreateCashAccountForUser(req.user!.id);
-    console.log("cashAccount", cashAccount);
     if (!cashAccount) {
       return res.status(500).send("No cash account found");
     }
@@ -535,7 +533,6 @@ router.get("/addTransaction/:accountId/:groupId", async (req, res) => {
     const accountsWithTransactions = [
       await getCashAccountWithTransaction(cashAccount.account_id),
     ];
-    console.log("accountsWithTransactions", accountsWithTransactions);
 
     let selectedAccountId = accountId;
     if (selectedAccountId === "default") {
@@ -569,7 +566,6 @@ router.get("/addTransaction/:accountId/:groupId", async (req, res) => {
 router.post("/edit/:groupId", async (req, res) => {
   try {
     const { groupName, selectedColor, temporaryGroup, selectedIcon } = req.body;
-    console.log("req.body", req.body);
 
     if (selectedColor.includes("primary-dark-grey")) {
       return res.status(400).send("Please select a color.");
@@ -658,7 +654,6 @@ router.post("/edit/:groupId", async (req, res) => {
 
 router.post("/deleteMember/:userID/:groupID", async (req, res) => {
   try {
-    console.log("running delete member");
     const userID = req.params.userID;
     const groupID = req.params.groupID;
 
@@ -811,11 +806,6 @@ router.post(
     }
 
     if (isApproved) {
-      console.log(
-        groupId,
-        owner.userId,
-        `${user?.firstName} has accepted the invite to join the group`
-      );
       await changeMemberTypeInGroup(userId, groupId, "Member");
       await deleteGroupInviteNotificationByNotificationId(notificationId);
       await createGroupNotificationWithWebsocket(

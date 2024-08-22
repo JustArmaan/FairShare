@@ -6,7 +6,6 @@ import { categories } from "./schema/category";
 import { v4 as uuid } from "uuid";
 import { items } from "./schema/items";
 import { accountType } from "./schema/accountType";
-import { groupTransferStatus } from "./schema/groupTransferStatus";
 import { splitType } from "./schema/splitType";
 import { groups } from "./schema/group";
 import { accounts } from "./schema/accounts";
@@ -15,12 +14,17 @@ import { groupInvite } from "./schema/groupInvite";
 import { genericNotification } from "./schema/genericNotification";
 import { groupNotification } from "./schema/groupNotification";
 import { notificationType } from "./schema/notificationType";
+import { groupTransactionToUsersToGroupsStatus } from "./schema/groupTransactionToUsersToGroupStatus";
 
 const db = getDB();
 
 interface InsertedIdResult {
   insertedId: string;
 }
+
+const owedStatus = ["notSent", "awaitingConfirmation", "confirmed"] as const;
+
+export type OwedStatus = typeof owedStatus;
 
 const newCategoriesList = [
   {
@@ -148,17 +152,6 @@ const notificationTypes = [
   { type: "invite" },
 ];
 
-const groupTransferStatusValues = [
-  // keep parity with the interact vopay api status strings
-  { status: "pending" },
-  { status: "requested" },
-  { status: "failed" },
-  { status: "cancelled" },
-  { status: "successful" },
-  { status: "not-initiated" },
-  { status: "complete" },
-] as const;
-
 const splitTypes = [
   { type: "percentage" },
   { type: "amount" },
@@ -177,14 +170,14 @@ console.log("Deleted all records from the users table.");
 (await db.select().from(memberType)).length > 0 &&
   (await db.delete(memberType));
 console.log("Deleted all records from the memberTypes table.");
-(await db.select().from(groupTransferStatus)).length > 0 &&
-  (await db.delete(groupTransferStatus));
 console.log("Deleted all records from the groupTransferStatus table.");
 (await db.select().from(items)).length > 0 && (await db.delete(items));
 console.log("Deleted all items");
 (await db.select().from(splitType)).length > 0 && (await db.delete(splitType));
 (await db.select().from(groups)).length > 0 && (await db.delete(groups));
 (await db.select().from(accounts)).length > 0 && (await db.delete(accounts));
+(await db.select().from(groupTransactionToUsersToGroupsStatus)).length > 0 &&
+  (await db.delete(groupTransactionToUsersToGroupsStatus));
 (await db.select().from(accountType)).length > 0 &&
   (await db.delete(accountType));
 (await db.select().from(notifications)).length > 0 &&
@@ -229,6 +222,14 @@ try {
     }
     console.log(`Inserted categories`);
 
+    for (const status of owedStatus) {
+      const statusId = uuid();
+      await trx.insert(groupTransactionToUsersToGroupsStatus).values({
+        id: statusId,
+        status,
+      });
+    }
+
     for (const type of accountTypes) {
       const typeId = uuid();
       await trx.insert(accountType).values({
@@ -243,13 +244,6 @@ try {
         type: type.type,
       });
       console.log(`Inserted member type: ${type.type} with ID: ${typeId}`);
-    }
-    for (const status of groupTransferStatusValues) {
-      const statusId = uuid();
-      await trx.insert(groupTransferStatus).values({
-        id: statusId,
-        status: status.status,
-      });
     }
     for (const type of notificationTypes) {
       const typeId = uuid();

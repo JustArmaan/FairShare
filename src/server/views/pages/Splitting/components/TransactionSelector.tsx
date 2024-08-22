@@ -5,15 +5,16 @@ import { Transaction } from "../../transactions/components/Transaction";
 export const TransactionSelector = (props: {
   itemWithTransactions: ArrayElement<ItemsWithTransactions>;
   selectedTransactionId: string | null;
+  owedAmount: number;
+  owedId: string;
 }) => {
   return (
     <div id="transaction-picker-container" class="flex flex-col mt-8">
       <p>Choose Transaction:</p>
       {props.itemWithTransactions.transactions
         .filter(
-          (transaction) =>
-            transaction.amount > 0 &&
-            transaction.category.name === "TRANSFER_OUT"
+          (transaction) => transaction.amount > 0
+          // && transaction.category.name === "TRANSFER_OUT"
         )
         .sort((a, b) => {
           const score =
@@ -32,8 +33,8 @@ export const TransactionSelector = (props: {
               class="relative cursor-pointer"
               hx-get={
                 props.selectedTransactionId === transaction.id
-                  ? `/split/transactionSelector?transactionId=default&itemId=${props.itemWithTransactions.item.id}`
-                  : `/split/transactionSelector?transactionId=${transaction.id}&itemId=${props.itemWithTransactions.item.id}`
+                  ? `/split/transactionSelector?transactionId=default&itemId=${props.itemWithTransactions.item.id}&owedAmount=${props.owedAmount}&owedId=${props.owedId}`
+                  : `/split/transactionSelector?transactionId=${transaction.id}&itemId=${props.itemWithTransactions.item.id}&owedAmount=${props.owedAmount}&owedId=${props.owedId}`
               }
               hx-trigger="click"
               hx-target="#transaction-picker-container"
@@ -53,8 +54,16 @@ export const TransactionSelector = (props: {
         })}
       <button
         class={`${props.selectedTransactionId !== null ? "bg-accent-blue hover:-translate-y-0.5 pointer hover:transition-transform rotate-[0.00001deg]" : "bg-primary-dark-grey text-font-grey"} py-2 w-full rounded-md mt-8 mb-4`}
+        hx-post={`/split/settle`}
+        hx-vals={`{
+          "type": "transaction",
+          "owedId": "${props.owedId},
+          "transactionId": "${props.selectedTransactionId}"
+          }`}
+        hx-trigger={props.selectedTransactionId ? "click" : "none"}
+        hx-swap="outerHTML"
       >
-        <p class="text-lg">Settle</p>
+        <p class="text-lg">Request Confirmation</p>
       </button>
     </div>
   );

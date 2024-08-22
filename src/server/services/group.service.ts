@@ -905,7 +905,6 @@ export async function getUserTotalOwedForGroupWithOwingFlags(
       .select()
       .from(groupTransactionToUsersToGroups)
       .where(eq(groupTransactionToUsersToGroups.usersToGroupsId, userGroup.id));
-    console.log(results, "<=== results");
 
     const owesAndOwing = {
       owed: false,

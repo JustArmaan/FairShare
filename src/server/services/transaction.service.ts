@@ -148,10 +148,12 @@ export type cashAccount = ExtractFunctionReturnType<typeof getCashAccount>;
 
 export async function createTransaction(transaction: Omit<Transaction, "id">) {
   try {
+    const id = uuid();
     await db.insert(transactions).values({
       id: uuid(),
       ...transaction,
     });
+    return id;
   } catch (error) {
     console.error(error, "in createTransaction");
   }
