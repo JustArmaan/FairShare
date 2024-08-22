@@ -137,4 +137,50 @@ router.get("/changeSplitOption/:receiptId/:groupId", async (req, res) => {
   res.send(html);
 });
 
+router.get("/checkSplit/:userId", async (req, res) => {
+  const ischecked = req.query.ischecked;
+  console.log(ischecked, "Checking split");
+  let html;
+
+  if (ischecked === "true") {
+    html = renderToHtml(
+      <>
+        <img
+          hx-get={`/billSplit/checkSplit/${req.params.userId}?ischecked=false`}
+          hx-swap="innerHTML"
+          hx-target="#splitOptionsRadioButton"
+          hx-trigger="click"
+          src="/activeIcons/unchecked_circle.svg"
+          alt="selected icon"
+          class="ml-1 cursor-pointer"
+        />
+        <input
+          type="hidden"
+          name={`${ischecked}-${req.params.userId}`}
+          id="selectedIcon"
+        />
+      </>
+    );
+  } else {
+    html = renderToHtml(
+      <>
+        <img
+          hx-get={`/billSplit/checkSplit/${req.params.userId}?ischecked=true`}
+          hx-swap="innerHTML"
+          hx-target="#splitOptionsRadioButton"
+          hx-trigger="click"
+          src="/activeIcons/checked_blue_circle.svg"
+          alt="selected icon"
+          class="ml-1 cursor-pointer"
+        />
+        <input
+          type="hidden"
+          name={`${ischecked}-${req.params.userId}`}
+          id="selectedIcon"
+        />
+      </>
+    );
+  }
+  res.send(html);
+});
 export const billSplitRouter = router;

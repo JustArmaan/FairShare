@@ -64,7 +64,7 @@ export const Nav = () => {
           <li class="flex justify-center items-center">
             <a
               // hx-get="/receipt/addReceipt" //change this to the group id
-              hx-get="/billSplit/overview/8c4dba4a-ba94-4cf5-91be-ea933b0ca19b/30105ae8-7cb6-45a9-ae81-683df62273ca"
+              hx-get="/billSplit/overview/c3048897-268d-4889-a781-b9c947b319c4/4990b4e3-9edb-456b-bae1-082d0159d495"
               hx-target="#app"
               hx-trigger="click"
               hx-swap="innerHTML"
