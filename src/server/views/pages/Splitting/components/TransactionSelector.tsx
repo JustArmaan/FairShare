@@ -53,11 +53,15 @@ export const TransactionSelector = (props: {
           );
         })}
       <button
-        class={`${props.selectedTransactionId !== null ? "bg-accent-blue hover:-translate-y-0.5 pointer hover:transition-transform rotate-[0.00001deg]" : "bg-primary-dark-grey text-font-grey"} py-2 w-full rounded-md mt-8 mb-4`}
+        class={`${
+          props.selectedTransactionId !== null
+            ? "bg-accent-blue hover:-translate-y-0.5 pointer hover:transition-transform rotate-[0.00001deg]"
+            : "bg-primary-dark-grey text-font-grey"
+        } py-2 w-full rounded-md mt-8 mb-4`}
         hx-post={`/split/settle`}
         hx-vals={`{
           "type": "transaction",
-          "owedId": "${props.owedId},
+          "owedId": "${props.owedId}",
           "transactionId": "${props.selectedTransactionId}"
           }`}
         hx-trigger={props.selectedTransactionId ? "click" : "none"}

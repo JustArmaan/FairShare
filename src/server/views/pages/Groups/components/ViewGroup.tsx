@@ -100,7 +100,6 @@ export const ViewGroups = ({
           selectedTab="owed"
           url={url}
           groupId={groupId}
-          owedPerMember={owedPerMember}
           transactions={transactions}
           members={members}
           currentUser={currentUser}

@@ -48,19 +48,6 @@ router.get("/OwedOwingHistory", async (req, res) => {
     )
   );
 
-  const owedPerMember = await Promise.all(
-    transactions
-      .map(async (transaction) => {
-        return (await getAllOwedForGroupTransactionWithTransactionId(
-          group.id,
-          transaction.id
-        )) as ExtractFunctionReturnType<
-          typeof getAllOwedForGroupTransactionWithTransactionId
-        >;
-      })
-      .filter((owed) => owed !== null)
-  );
-
   if (!tabs.some((validTab) => tab === validTab)) {
     return res.status(400).send("Invalid Tab");
   }
@@ -70,7 +57,6 @@ router.get("/OwedOwingHistory", async (req, res) => {
       selectedTab={tab as (typeof tabs)[number]}
       url={`/groups/view/${group.id}`}
       groupId={groupId}
-      owedPerMember={owedPerMember}
       transactions={transactions}
       members={group.members}
       currentUser={currentUser}

@@ -1,3 +1,4 @@
+import type { OwedStatus } from "../../../../database/seed";
 import { type UserSchema } from "../../../../interface/types";
 import { type GroupWithTransactions } from "../../../../services/group.service";
 import type {
@@ -33,9 +34,6 @@ export const OwedGroup = (props: {
   memberDetails: UserSchema[];
   currentUser: UserSchema;
   transactions?: GroupWithTransactions;
-  owedPerMember: ExtractFunctionReturnType<
-    typeof getAllOwedForGroupTransactionWithTransactionId
-  >[];
   groupId: string;
   url?: string;
   owing?: boolean;
@@ -59,7 +57,9 @@ export const OwedGroup = (props: {
       );
 
       return props.owing
-        ? ourTransaction!.groupTransactionToUsersToGroups.amount < 0
+        ? ourTransaction!.groupTransactionToUsersToGroups.amount < 0 &&
+            ourTransaction!.groupTransactionToUsersToGroupsStatus.status ===
+              "notSent"
         : ourTransaction!.groupTransactionToUsersToGroups.amount > 0;
     }
   );
@@ -180,7 +180,9 @@ export const OwedGroup = (props: {
                   <p class="text-font-off-white self-start mt-[1.25rem] text-[0.875rem]">
                     Paid by:{" "}
                     <span class="text-font-off-white self-start font-semibold">
-                      {result.user.firstName}
+                      {result.user.id === props.currentUser.id
+                        ? "You"
+                        : result.user.firstName}
                     </span>
                   </p>
                   <div class="flex flex-row justify-center text-font-off-white mt-[0.5rem]">
@@ -193,10 +195,13 @@ export const OwedGroup = (props: {
                     >
                       <p>View</p>
                     </button>
-
                     <button
                       hx-swap="innerHTML"
-                      hx-get={""} // should be a quick settle/send notification reminder
+                      {...(props.owing
+                        ? {
+                            "hx-get": `/split/settle?owedId=${result.groupTransactionToUsersToGroupsId}&groupId=${props.groupId}`,
+                          }
+                        : { "hx-post": "/notifications/remind" })}
                       hx-target="#app"
                       hx-push-url={``} // see above comment
                       class="w-[5.4rem] flex items-center justify-center hover:-translate-y-0.5 rotate-[0.0001deg] transition-transform font-normal bg-accent-blue rounded-[1.25rem] text-font-off-white text-base ml-3"

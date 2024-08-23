@@ -24,7 +24,6 @@ export const SettleSplit = (props: {
   results: GroupTransactionDetails;
   owedStatus: OwedStatus[number];
 }) => {
-  console.log(props.results, "at settlesplit");
   return (
     <div class="text-font-off-white">
       <div class="flex flex-row justify-between items-center mb-[1rem]">

@@ -2,9 +2,12 @@ import express from "express";
 import { renderToHtml } from "jsxte";
 import { SplitDetails } from "../views/pages/Splitting/SplitDetails";
 import {
+  getAllOwedForGroupTransaction,
   getGroupTransactionDetails,
   getGroupTransactionStateIdFromOwedId,
+  getOwed,
   getOwedStatusNameFromId,
+  updateOwedAmount,
   updateOwedStatus,
 } from "../services/owed.service";
 import { SettleSplit } from "../views/pages/Splitting/SettleSplit";
@@ -18,7 +21,17 @@ import { TransactionSelector } from "../views/pages/Splitting/components/Transac
 import { LinkTransferDropdownButton } from "../views/pages/Splitting/components/LinkTransferDropdownButton";
 import { getOrCreateCashAccountForUser } from "../utils/getOrCreateCashAccount";
 import { getCategoryIdByName } from "../services/category.service";
-import { getGroupByOwedId } from "../services/group.service";
+import {
+  getGroupByOwedId,
+  getGroupIdFromOwed,
+  updateOwedForGroupTransaction,
+} from "../services/group.service";
+import type { OwedStatus } from "../database/seed";
+import {
+  getAccount,
+  getAccountIdByTransactionId,
+  getAccountWithItem,
+} from "../services/account.service";
 
 const router = express.Router();
 
@@ -56,11 +69,16 @@ router.get("/view", async (req, res) => {
             0
           )) * -1;
 
-  const userOwedStatusId =
-    details!.groupTransactionToUsersToGroups
-      .groupTransactionToUsersToGroupsStatusId;
+  const userOwedStatus = details!.groupTransactionToUsersToGroupsStatus.status;
 
-  const userOwedStatus = await getOwedStatusNameFromId(userOwedStatusId);
+  let linkedAccountName: string | undefined;
+  if (userTransaction?.groupTransactionToUsersToGroups.linkedTransactionId) {
+    const accountId = await getAccountIdByTransactionId(
+      userTransaction.groupTransactionToUsersToGroups.linkedTransactionId
+    );
+    const account = await getAccount(accountId);
+    linkedAccountName = account!.name;
+  }
 
   const html = renderToHtml(
     <SplitDetails
@@ -68,11 +86,11 @@ router.get("/view", async (req, res) => {
       transactionOwner={transactionOwner}
       currentUser={user}
       amountOwed={amountOwed}
-      linkedTransactionAccountName="Scotiabank Visa ***4" // hard coded
+      linkedTransactionAccountName={linkedAccountName}
       pending={false} // hard coded
       groupId={groupId}
       owedId={owedId}
-      owedStatus={userOwedStatus}
+      owedStatus={userOwedStatus as OwedStatus[number]}
       results={results}
     />
   );
@@ -120,6 +138,15 @@ router.get("/settle", async (req, res) => {
     details!.groupTransactionToUsersToGroups
       .groupTransactionToUsersToGroupsStatusId;
 
+  let linkedAccountName: string | undefined;
+  if (userTransaction?.groupTransactionToUsersToGroups.linkedTransactionId) {
+    const accountId = await getAccountIdByTransactionId(
+      userTransaction.groupTransactionToUsersToGroups.linkedTransactionId
+    );
+    const account = await getAccount(accountId);
+    linkedAccountName = account!.name;
+  }
+
   const userOwedStatus = await getOwedStatusNameFromId(userOwedStatusId);
 
   const html = renderToHtml(
@@ -128,12 +155,8 @@ router.get("/settle", async (req, res) => {
       transactionOwner={transactionOwner}
       currentUser={user}
       amountOwed={amountOwed}
-      linkedTransactionAccountName={
-        userTransaction?.groupTransactionToUsersToGroups.linkedTransactionId
-          ? userTransaction?.groupTransactionToUsersToGroups.linkedTransactionId
-          : undefined
-      }
-      pending={false} // hard coded
+      linkedTransactionAccountName={linkedAccountName}
+      // pending={false} // hard coded
       groupId={groupId}
       owedId={owedId}
       results={results}
@@ -196,6 +219,7 @@ router.get("/linkTransferComponent", async (req, res) => {
 // settleType is one of: cash, transaction, none
 router.post("/settle", async (req, res) => {
   const { type, owedId } = req.body;
+  console.log(req.body, "body")
   const user = req.user!;
   let linkedTransactionId: string | undefined;
   if (type === "cash") {
@@ -227,6 +251,7 @@ router.post("/settle", async (req, res) => {
     linkedTransactionId = transactionId;
   }
 
+  console.log(owedId, linkedTransactionId);
   await updateOwedStatus(owedId, "awaitingConfirmation", linkedTransactionId);
 
   const groupId = (await getGroupByOwedId(owedId))!.id;
@@ -241,6 +266,58 @@ router.post("/settle", async (req, res) => {
     />
   );
   res.send(html);
+});
+
+router.post("/confirm", async (req, res) => {
+  const { owedId } = req.body as {
+    [key: string]: string;
+  };
+
+  const groupTransactionStateId = (await getGroupTransactionStateIdFromOwedId(
+    owedId
+  ))!.groupTransactionState.id;
+  // confirm that the user is authorized
+  const results = await getGroupTransactionDetails(groupTransactionStateId);
+
+  const transactionOwner = results!.find(
+    (result) => result.groupTransactionToUsersToGroups.amount > 0
+  );
+
+  if (req.user!.id !== transactionOwner!.users.id) {
+    return res.status(404).send();
+  }
+
+  const owed = await getOwed(owedId);
+  const state = await getOwedStatusNameFromId(
+    owed!.groupTransactionToUsersToGroupsStatusId
+  );
+  if (state !== "awaitingConfirmation") {
+    return res.status(400);
+  }
+
+  const settledAmount = owed!.amount;
+
+  await updateOwedAmount(
+    transactionOwner!.groupTransactionToUsersToGroups.id,
+    transactionOwner!.groupTransactionToUsersToGroups.amount + settledAmount
+  );
+  await updateOwedAmount(owedId, 0);
+  await updateOwedStatus(owedId, "confirmed");
+
+  const groupId = await getGroupIdFromOwed(owedId);
+
+  const redirect = `/groups/view/${groupId}`;
+
+  const html = renderToHtml(
+    <div
+      hx-get={redirect}
+      hx-push-url={redirect}
+      hx-target="#app"
+      hx-swap="innerHTML"
+      hx-trigger="load"
+    ></div>
+  );
+  return res.send(html);
 });
 
 export const splitRouter = router;

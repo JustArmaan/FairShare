@@ -35,15 +35,17 @@ export const OwedDetails = (props: {
         Paid by:{" "}
         {props.transactionOwner.id === props.currentUser.id
           ? `You ($${props.transaction.amount.toFixed(2)})`
-          : `${props.transactionOwner.firstName} ($${props.transaction.amount.toFixed(2)})`}
+          : `${
+              props.transactionOwner.firstName
+            } ($${props.transaction.amount.toFixed(2)})`}
       </p>
       {props.linkedTransactionAccountName && props.amountOwed >= 0 ? (
         <p class="">
           {props.amountOwed < 0 && props.pending
             ? "Transferred"
             : props.amountOwed === 0
-              ? "Settled"
-              : ""}{" "}
+            ? "Settled"
+            : ""}{" "}
           with {props.linkedTransactionAccountName}
         </p>
       ) : props.amountOwed < 0 &&
@@ -81,7 +83,14 @@ export const OwedDetails = (props: {
                 <div class="flex flex-row items-center">
                   <img
                     class="h-[18px] mr-2"
-                    src={`/icons/balance-scale-${result.groupTransactionToUsersToGroupsStatus.status === "awaitingConfirmation" ? "blue" : props.amountOwed === 0 ? "grey" : "green"}.svg`}
+                    src={`/icons/balance-scale-${
+                      result.groupTransactionToUsersToGroupsStatus.status ===
+                      "awaitingConfirmation"
+                        ? "blue"
+                        : props.amountOwed === 0
+                        ? "grey"
+                        : "green"
+                    }.svg`}
                   />
                   <p
                     class={
@@ -89,16 +98,16 @@ export const OwedDetails = (props: {
                       "awaitingConfirmation"
                         ? "text-accent-blue"
                         : result.groupTransactionToUsersToGroups.amount === 0
-                          ? "text-font-grey"
-                          : "text-positive-number"
+                        ? "text-font-grey"
+                        : "text-positive-number"
                     }
                   >
                     {result.groupTransactionToUsersToGroupsStatus.status ===
                     "awaitingConfirmation"
                       ? `${result.users.firstName} Transferred`
                       : result.groupTransactionToUsersToGroups.amount === 0
-                        ? "Bill Settled"
-                        : "You're Owed:"}{" "}
+                      ? "Bill Settled"
+                      : "You're Owed:"}{" "}
                     <span class="font-semibold">
                       ${Math.abs(amountOwedSubtractingTransfers).toFixed(2)}
                     </span>
@@ -116,7 +125,14 @@ export const OwedDetails = (props: {
               <div class="flex flex-row items-center">
                 <img
                   class="h-[18px] mr-2"
-                  src={`/icons/balance-scale-${result.groupTransactionToUsersToGroupsStatus.status === "awaitingConfirmation" ? "blue" : props.amountOwed === 0 ? "grey" : "green"}.svg`}
+                  src={`/icons/balance-scale-${
+                    result.groupTransactionToUsersToGroupsStatus.status ===
+                    "awaitingConfirmation"
+                      ? "blue"
+                      : props.amountOwed === 0
+                      ? "grey"
+                      : "green"
+                  }.svg`}
                 />
                 <p
                   class={
@@ -124,16 +140,16 @@ export const OwedDetails = (props: {
                     "awaitingConfirmation"
                       ? "text-accent-blue"
                       : result.groupTransactionToUsersToGroups.amount === 0
-                        ? "text-font-grey"
-                        : "text-positive-number"
+                      ? "text-font-grey"
+                      : "text-positive-number"
                   }
                 >
                   {result.groupTransactionToUsersToGroupsStatus.status ===
                   "awaitingConfirmation"
                     ? `${result.users.firstName} Transferred`
                     : result.groupTransactionToUsersToGroups.amount === 0
-                      ? "Bill Settled"
-                      : "You're Owed:"}{" "}
+                    ? "Bill Settled"
+                    : "You're Owed:"}{" "}
                   <span class="font-semibold">
                     $
                     {Math.abs(
@@ -154,8 +170,8 @@ export const OwedDetails = (props: {
               "awaitingConfirmation"
                 ? "blue"
                 : props.amountOwed === 0
-                  ? "grey"
-                  : "red"
+                ? "grey"
+                : "red"
             }.svg`}
           />
           <p
@@ -164,15 +180,15 @@ export const OwedDetails = (props: {
               props.amountOwed < 0
                 ? "text-accent-blue"
                 : props.amountOwed === 0
-                  ? "text-font-grey"
-                  : "text-negative-number"
+                ? "text-font-grey"
+                : "text-negative-number"
             }
           >
             {props.owedStatus === "awaitingConfirmation" && props.amountOwed < 0
               ? "You've Transferred"
               : props.amountOwed === 0
-                ? "Bill Settled"
-                : "You Owe:"}{" "}
+              ? "Bill Settled"
+              : "You Owe:"}{" "}
             <span class="font-semibold">
               ${Math.abs(props.amountOwed).toFixed(2)}
             </span>

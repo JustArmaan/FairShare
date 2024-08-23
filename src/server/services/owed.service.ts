@@ -402,6 +402,14 @@ export async function getGroupTransactionStateIdFromOwedId(owedId: string) {
           groupTransactionState.id
         )
       )
+
+      .innerJoin(
+        groupTransactionToUsersToGroupsStatus,
+        eq(
+          groupTransactionToUsersToGroupsStatus.id,
+          groupTransactionToUsersToGroups.groupTransactionToUsersToGroupsStatusId
+        )
+      )
       .where(eq(groupTransactionToUsersToGroups.id, owedId));
     return results[0];
   } catch (e) {
@@ -467,4 +475,11 @@ export async function getAllGroupTransactionStatesFromGroupId(groupId: string) {
       eq(transactionsToGroups.id, groupTransactionState.groupTransactionId)
     )
     .where(eq(groups.id, groupId));
+}
+
+export async function updateOwedAmount(owedId: string, amount: number) {
+  await db
+    .update(groupTransactionToUsersToGroups)
+    .set({ amount })
+    .where(eq(groupTransactionToUsersToGroups.id, owedId));
 }

@@ -269,7 +269,7 @@ router.post("/addButton", async (req, res) => {
     await Promise.all(
       members.map(async (member) => {
         return await createOwed({
-          linkedTransactionId: null,
+          linkedTransactionId: member.id === req.user!.id ? transactionId : null,
           groupTransactionToUsersToGroupsStatusId:
             await getOwedStatusIdFromName("notSent"),
           usersToGroupsId: (await getUsersToGroup(groupId, member.id))!.id,

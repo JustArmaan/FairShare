@@ -33,6 +33,7 @@ function calculateTotalOwedAll(
   >[],
   members: UserSchema[]
 ) {
+  console.log(owedPerMember, "permember")
   const combinedOwed = owedPerMember.reduce(
     (total, owedPerMember) => {
       return [...total, ...owedPerMember];
@@ -79,7 +80,11 @@ export const Members = (props: {
         }
         return (
           <div
-            class={`flex flex-row justify-between w-full pl-[0.94rem] py-[0.5rem] ${1 !== totalOwed.length && index !== totalOwed.length - 1 ? "mb-[1rem]" : ""}`}
+            class={`flex flex-row justify-between w-full pl-[0.94rem] py-[0.5rem] ${
+              1 !== totalOwed.length && index !== totalOwed.length - 1
+                ? "mb-[1rem]"
+                : ""
+            }`}
           >
             <div
               class={`flex flex-row rounded-full bg-${member.color} h-[2rem] w-[2rem] mr-[0.87rem] justify-center items-center`}
@@ -112,24 +117,32 @@ export const Members = (props: {
             <p class="flex flex-auto w-fit text-sm self-center justify-end h-[1rem]">
               {
                 <p
-                  class={`flex w-fit text-sm font-medium self-center justify-end h-fit ${member.amount === 0 ? "text-font-grey" : "text-font-off-white"}`}
+                  class={`flex w-fit text-sm font-medium self-center justify-end h-fit 
+                          min-[360px]:mr-[2.81rem] mr-[0.94rem]
+                  ${
+                    member.amount === 0
+                      ? "text-font-grey"
+                      : "text-font-off-white"
+                  }`}
                 >
                   {member.id !== props.currentUser.id &&
                     (member.amount === 0
                       ? "Settled"
                       : member.amount > 0
-                        ? "You're Owed:"
-                        : "You Owe:")}
-                  <span
-                    class={`flex text-sm font-medium justify-end min-[360px]:mr-[2.81rem] mr-[0.94rem] ml-[0.25rem] ${
-                      member.amount > 0
-                        ? "text-positive-number"
-                        : "text-negative-number"
-                    }`}
-                  >
-                    {member.id !== props.currentUser.id &&
-                      "$" + Math.abs(member.amount).toFixed(2)}
-                  </span>
+                      ? "You're Owed:"
+                      : "You Owe:")}
+                  {Math.abs(member.amount) !== 0 && (
+                    <span
+                      class={`flex text-sm font-medium justify-end  ml-[0.25rem] ${
+                        member.amount > 0
+                          ? "text-positive-number"
+                          : "text-negative-number"
+                      }`}
+                    >
+                      {member.id !== props.currentUser.id &&
+                        "$" + Math.abs(member.amount).toFixed(2)}
+                    </span>
+                  )}
                 </p>
               }
             </p>

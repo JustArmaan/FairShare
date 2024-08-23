@@ -22,6 +22,7 @@ export const SplitDetails = (props: {
   owedStatus: OwedStatus[number];
   results: GroupTransactionDetails;
 }) => {
+  console.log(props.amountOwed, props.owedStatus);
   return (
     <div id="split-details" class="text-font-off-white">
       <div class="flex flex-row justify-between items-center mb-[1rem]">
@@ -58,15 +59,22 @@ export const SplitDetails = (props: {
         </div>
       </div>
       <div class="fixed bottom-32 w-full left-0 flex flex-row justify-center">
-        {!(props.amountOwed >= 0 && !props.pending) &&
-          !(props.amountOwed < 0 && props.pending) && (
+        {!(
+          props.amountOwed >= 0 && props.owedStatus !== "awaitingConfirmation"
+        ) &&
+          !(
+            props.amountOwed < 0 && props.owedStatus === "awaitingConfirmation"
+          ) &&
+          !(
+            props.amountOwed > 0 && props.owedStatus === "awaitingConfirmation"
+          ) && (
             <button
               hx-get={
                 props.amountOwed < 0 && !props.pending
                   ? `/split/settle?owedId=${props.owedId}&groupId=${props.groupId}`
                   : props.amountOwed > 0 && props.pending
-                    ? "Confirm"
-                    : ""
+                  ? "Confirm"
+                  : ""
               }
               hx-trigger="click"
               hx-target="#app"
@@ -76,8 +84,8 @@ export const SplitDetails = (props: {
                 !(props.owedStatus === "awaitingConfirmation")
                   ? `/split/settle?owedId=${props.owedId}&groupId=${props.groupId}`
                   : props.amountOwed > 0 && props.pending
-                    ? "Confirm"
-                    : ""
+                  ? "Confirm"
+                  : ""
               }
               class="hover:-translate-y-0.5
             transition-transform bg-accent-blue text-font-off-white px-16
@@ -88,10 +96,7 @@ export const SplitDetails = (props: {
                 {props.amountOwed < 0 &&
                 !(props.owedStatus === "awaitingConfirmation")
                   ? "Settle"
-                  : props.amountOwed > 0 &&
-                      props.owedStatus === "awaitingConfirmation"
-                    ? "Confirm"
-                    : "Remind"}
+                  : "Remind"}
               </p>
             </button>
           )}

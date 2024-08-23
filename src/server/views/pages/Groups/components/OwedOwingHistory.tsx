@@ -6,10 +6,7 @@ import type {
 } from "../../../../interface/types";
 import type { GroupWithTransactions } from "../../../../services/group.service";
 import type { ExtractFunctionReturnType } from "../../../../services/user.service";
-import type {
-  getAllOwedForGroupTransactionWithTransactionId,
-  getGroupTransactionDetails,
-} from "../../../../services/owed.service";
+import type { getGroupTransactionDetails } from "../../../../services/owed.service";
 
 export const tabs = ["owed", "owing", "history"] as const;
 
@@ -17,9 +14,6 @@ export const OwedOwingHistory = (props: {
   members: UserSchemaWithMemberType[];
   currentUser: UserSchema;
   transactions: GroupWithTransactions;
-  owedPerMember: ExtractFunctionReturnType<
-    typeof getAllOwedForGroupTransactionWithTransactionId
-  >[];
   groupId: string;
   url: string;
   selectedTab: (typeof tabs)[number];
@@ -37,7 +31,11 @@ export const OwedOwingHistory = (props: {
       <div class="flex flex-row mt-[1.90rem]">
         {tabs.map((tab) => (
           <button
-            class={`${buttonBaseClasslist} ${props.selectedTab === tab ? buttonSelectedClasslist : buttonUnselectedClasslist}`}
+            class={`${buttonBaseClasslist} ${
+              props.selectedTab === tab
+                ? buttonSelectedClasslist
+                : buttonUnselectedClasslist
+            }`}
             hx-get={`/groups/view/OwedOwingHistory?groupId=${props.groupId}&tab=${tab}`}
             hx-trigger={props.selectedTab !== tab ? "click" : "none"}
             hx-swap="outerHTML"
@@ -56,8 +54,8 @@ export const OwedOwingHistory = (props: {
         memberDetails={props.members}
         currentUser={props.currentUser}
         transactions={props.transactions}
-        owedPerMember={props.owedPerMember}
         groupId={props.groupId}
+        resultPerGroupTransaction={props.resultPerGroupTransaction}
       />
       {props.selectedTab !== "history" && (
         <OwedGroup
@@ -65,7 +63,6 @@ export const OwedOwingHistory = (props: {
           memberDetails={props.members}
           currentUser={props.currentUser}
           transactions={props.transactions}
-          owedPerMember={props.owedPerMember.filter((owed) => owed.length > 0)}
           groupId={props.groupId}
           url={props.url}
           resultPerGroupTransaction={props.resultPerGroupTransaction}
