@@ -140,6 +140,7 @@ router.get("/changeSplitOption/:receiptId/:groupId", async (req, res) => {
 router.get("/checkSplit/:userId", async (req, res) => {
   const ischecked = req.query.ischecked;
   console.log(ischecked, "Checking split");
+  console.log(req.params.userId, "Checking split");
   let html;
 
   if (ischecked === "true") {

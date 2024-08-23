@@ -5,6 +5,7 @@ export const SplitByAmount = (props: {
   group: GroupWithMembers;
   transactionDetails: Receipt;
 }) => {
+  const totalOwed = parseFloat(props.transactionDetails[0].total.toFixed(2));
   return (
     <div class="bg-primary-black text-font-off-white w-full rounded-lg p-4">
       <div class="flex justify-center items-center border-b border-font-grey pb-2 mb-2">
@@ -28,7 +29,7 @@ export const SplitByAmount = (props: {
               <div
                 class={`flex rounded-full bg-${member.color} h-[2rem] w-[2rem] justify-center border-2 border-primary-black`}
               >
-                <span class="flex justify-center self-center text-center text-xs font-semibold">
+                <span class="flex justify-center self-center text-center text-xs font-semibold text-font-black">
                   {member.firstName[0]}
                   {member.lastName ? member.lastName[0] : ""}
                 </span>
@@ -41,7 +42,7 @@ export const SplitByAmount = (props: {
                 <p class="text-font-grey text-xs">{member.type}</p>{" "}
               </div>
               {member.type === "Owner" && (
-                <span class="bg-accent-purple text-white text-xs rounded-full px-2 py-0.5 ml-2">
+                <span class="bg-accent-purple text-white text-xs rounded-[0.25rem] px-2 py-0.5 ml-2 mb-4">
                   You
                 </span>
               )}
@@ -53,10 +54,10 @@ export const SplitByAmount = (props: {
                 <input
                   type="number"
                   min="0"
-                  max="100"
-                  step="1"
+                  max={totalOwed}
+                  step="0.01"
                   class="bg-primary-black border border-font-grey text-font-grey w-16 text-right p-1 mr-2 rounded-md"
-                  placeholder="0"
+                  placeholder="0.00"
                 />
                 <div id="splitOptionsRadioButton">
                   <img
