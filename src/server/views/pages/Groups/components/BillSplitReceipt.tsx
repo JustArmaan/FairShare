@@ -9,6 +9,7 @@ export const BillSplitReceipt = (props: {
   transactionsDetails: Receipt;
   receiptItems: ReceiptLineItems[];
   groupWithMembers?: GroupWithMembers;
+  splitType: string;
   isSplit?: boolean;
 }) => {
   return (
@@ -100,6 +101,7 @@ export const BillSplitReceipt = (props: {
           class="text-primary-black"
         />
       </svg>
+      <input type="hidden" name="splitType" value={props.splitType} />
     </div>
   );
 };

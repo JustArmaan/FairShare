@@ -70,7 +70,6 @@ export const Nav = () => {
               hx-swap="innerHTML"
               // hx-push-url="/receipt/addReceipt"
               hx-push-url="/billSplit/overview/9f970baa-47e9-4457-827e-ac96e355a4bb/8e7124d5-4ebd-4b4f-b9c1-4c4eb3ccae11"
-              onclick="console.log('HTMX click event');"
               class="flex flex-col items-center text-font-off-white dark:text-white"
             >
               <img

@@ -49,12 +49,13 @@ export const SplitByAmount = (props: {
             </div>
 
             <div class="flex items-center">
-              <div class="flex items-center">
+              <div class="flex items-center" id="splitByAmount">
                 <p class="text-font-grey mr-1">$</p>
                 <input
                   type="number"
                   min="0"
                   max={totalOwed}
+                  name={`splitAmount-${member.id}`}
                   step="0.01"
                   class="bg-primary-black border border-font-grey text-font-grey w-16 text-right p-1 mr-2 rounded-md"
                   placeholder="0.00"

@@ -47,12 +47,13 @@ export const SplitByPercentage = (props: {
               )}
             </div>
 
-            <div class="flex items-center">
+            <div class="flex items-center" id="splitByPercent">
               <input
                 type="number"
                 min="0"
                 max="100"
                 step="1"
+                name={`splitPercentage-${member.id}`}
                 class="bg-primary-black border border-font-grey text-font-grey w-16 text-right p-1 mr-2 rounded-md"
                 placeholder="0"
               />

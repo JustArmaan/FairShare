@@ -12,6 +12,7 @@ export const BillSplitPage = (props: {
   receiptItems: ReceiptLineItems;
   group: GroupWithMembers;
   currentUser: UserSchema;
+  splitType: string;
 }) => {
   return (
     <>
@@ -29,6 +30,7 @@ export const BillSplitPage = (props: {
           class="hover:-translate-y-0.5 transition-transform hover:opacity-80 h-6"
         />
       </a>
+
       <GroupOverview
         group={props.group}
         transactionsDetails={props.transactionsDetails}
@@ -47,13 +49,19 @@ export const BillSplitPage = (props: {
           Split Bill
         </button>
       </div>
-      <h2 class="text-font-off-white text-xl font-semibold mb-[0.75rem]">
-        Receipt Details:
-      </h2>
-      <BillSplitReceipt
-        transactionsDetails={props.transactionsDetails}
-        receiptItems={[props.receiptItems]}
-      />
+      <form>
+        <div id="saveSplitButton" />
+
+        <h2 class="text-font-off-white text-xl font-semibold mb-[0.75rem]">
+          Receipt Details:
+        </h2>
+
+        <BillSplitReceipt
+          transactionsDetails={props.transactionsDetails}
+          receiptItems={[props.receiptItems]}
+          splitType={props.splitType}
+        />
+      </form>
     </>
   );
 };

@@ -4,7 +4,6 @@ export const SplitTypeSelector = (props: {
   selectedType: string;
   receiptLineItem: ReceiptLineItems;
 }) => {
-  console.log(props, "props");
   return (
     <div
       class="flex space-x-2 bg-light-grey opacity-30 rounded-full w-fit"
@@ -49,7 +48,7 @@ export const SplitTypeSelector = (props: {
       >
         %
       </button>
-      <input type="hidden" name="selectedInput" value={props.selectedType} />
+      <input type="hidden" name="splitType" value={props.selectedType} />
     </div>
   );
 };
