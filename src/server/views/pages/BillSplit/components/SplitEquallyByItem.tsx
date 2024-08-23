@@ -15,9 +15,9 @@ export const SplitEquallyByItem = (props: {
       class="flex w-full flex-col justify-center items-center my-2"
       id="splitByItemForm"
     >
-      <div class="flex w-full justify-between">
+      <div class="flex flex-col w-full justify-between">
         {props.groupWithMembers.members.map((member, index) => (
-          <div class="flex justify-between items-center w-full px-2 mr-2">
+          <div class="flex justify-between items-center w-full px-2 mr-2 mb-2">
             <div class="flex items-center">
               <div
                 class={`flex rounded-full bg-${member.color} h-[2rem] w-[2rem] justify-center border-2 border-primary-black`}
@@ -56,6 +56,7 @@ export const SplitEquallyByItem = (props: {
                 alt="selected icon"
                 class="ml-1"
               />
+              <input type="hidden" name={`checked-${member.id}`} />
             </div>
           </div>
         ))}

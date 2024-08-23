@@ -1,4 +1,3 @@
-import { Reminder } from "./components/Reminder";
 import {
   type InviteNotification,
   type CombinedNotification,

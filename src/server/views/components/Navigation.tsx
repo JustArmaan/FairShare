@@ -64,12 +64,12 @@ export const Nav = () => {
           <li class="flex justify-center items-center">
             <a
               // hx-get="/receipt/addReceipt"
-              hx-get="/billSplit/overview/8af0dfca-f089-439d-8587-c42574eccdf6/e49f7193-4dbe-453b-b271-81a58414fe3e"
+              hx-get="/billSplit/overview/9f970baa-47e9-4457-827e-ac96e355a4bb/8e7124d5-4ebd-4b4f-b9c1-4c4eb3ccae11"
               hx-target="#app"
               hx-trigger="click"
               hx-swap="innerHTML"
               // hx-push-url="/receipt/addReceipt"
-              hx-push-url="/billSplit/overview/8af0dfca-f089-439d-8587-c42574eccdf6/e49f7193-4dbe-453b-b271-81a58414fe3e"
+              hx-push-url="/billSplit/overview/9f970baa-47e9-4457-827e-ac96e355a4bb/8e7124d5-4ebd-4b4f-b9c1-4c4eb3ccae11"
               onclick="console.log('HTMX click event');"
               class="flex flex-col items-center text-font-off-white dark:text-white"
             >

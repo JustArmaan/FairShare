@@ -1,4 +1,10 @@
-export const SplitTypeSelector = (props: { selectedType: string }) => {
+import type { ReceiptLineItems } from "../../../../services/receipt.service";
+
+export const SplitTypeSelector = (props: {
+  selectedType: string;
+  receiptLineItem: ReceiptLineItems;
+}) => {
+  console.log(props, "props");
   return (
     <div
       class="flex space-x-2 bg-light-grey opacity-30 rounded-full w-fit"
@@ -10,7 +16,7 @@ export const SplitTypeSelector = (props: { selectedType: string }) => {
             ? "bg-primary-black text-font-off-white"
             : "text-font-grey"
         } py-1 px-4 rounded-full`}
-        hx-get="/billSplit/splitSelector/Equally"
+        hx-get={`/billSplit/splitSelector/Equally/${props.receiptLineItem[0].id}`}
         hx-swap="outerHTML"
         hx-target="#splitTypeSelector"
         hx-trigger="click"
@@ -23,7 +29,7 @@ export const SplitTypeSelector = (props: { selectedType: string }) => {
             ? "bg-primary-black text-font-off-white"
             : "text-font-grey"
         } py-1 px-4 rounded-full`}
-        hx-get="/billSplit/splitSelector/Amount"
+        hx-get={`/billSplit/splitSelector/Amount/${props.receiptLineItem[0].id}`}
         hx-swap="outerHTML"
         hx-target="#splitTypeSelector"
         hx-trigger="click"
@@ -36,7 +42,7 @@ export const SplitTypeSelector = (props: { selectedType: string }) => {
             ? "bg-primary-black text-font-off-white"
             : "text-font-grey"
         } py-1 px-4 rounded-full`}
-        hx-get="/billSplit/splitSelector/Percentage"
+        hx-get={`/billSplit/splitSelector/Percentage/${props.receiptLineItem[0].id}`}
         hx-swap="outerHTML"
         hx-target="#splitTypeSelector"
         hx-trigger="click"

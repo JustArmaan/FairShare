@@ -166,11 +166,7 @@ router.get("/splitForm/:receiptId", async (req, res) => {
   const receiptId = req.params.receiptId;
   const splitType = req.query.splitType;
 
-  console.log("Split type:", splitType, receiptId);
-
   const receiptDetails = await getReceiptDetailsFromReceiptItemId(receiptId);
-
-  console.log("Receipt details:", receiptDetails);
 
   if (!receiptDetails) {
     return res.status(404).send("Receipt details not found");
@@ -237,12 +233,56 @@ router.get("/receipt/:receiptId/:groupId", async (req, res) => {
   res.send(html);
 });
 
-router.get("/splitSelector/:splitType", async (req, res) => {
+router.get("/splitSelector/:splitType/:receiptId", async (req, res) => {
   const splitType = req.params.splitType;
+  const receiptId = req.params.receiptId;
 
-  const html = renderToHtml(<SplitTypeSelector selectedType={splitType} />);
+  console.log("Split type:", splitType, "receiptId:", receiptId);
 
-  res.send(html);
+  const transactionDetails = await getReceiptDetailsFromReceiptItemId(
+    receiptId
+  );
+
+  if (!transactionDetails) {
+    return res.status(404).send("Transaction details not found");
+  }
+
+  const html = renderToHtml(
+    <SplitTypeSelector
+      selectedType={splitType}
+      receiptLineItem={[transactionDetails?.receiptsToItems]}
+    />
+  );
+
+  const groupWithMembers = await getGroupWithMembers(
+    transactionDetails?.transactionReceipt.groupId
+  );
+
+  if (!groupWithMembers) {
+    return res.status(404).send("Group not found");
+  }
+
+  const currentUser = await findUser(req.user!.id);
+
+  if (!currentUser) {
+    return res.status(404).send("User not found");
+  }
+
+  const oobHtml = renderToHtml(
+    <SplitByItemsForm
+      groupWithMembers={groupWithMembers}
+      receiptItems={[transactionDetails?.receiptsToItems]}
+      splitType={splitType}
+      currentUser={currentUser}
+    />
+  );
+
+  const content = `
+    ${html}
+    <div id="splitForm-${receiptId}" hx-swap-oob="true">${oobHtml}</div>
+  `;
+
+  res.send(content);
 });
 
 export const billSplitRouter = router;
