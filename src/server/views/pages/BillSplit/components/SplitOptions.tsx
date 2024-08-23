@@ -19,7 +19,7 @@ export const SplitOptions = (props: {
       <div class="flex items-center border-b border-font-grey pb-2 mb-2">
         <p
           id="splitType"
-          class="font-semibold text-accent-blue flex-grow text-center"
+          class="font-semibold text-accent-blue flex-grow text-center pl-6"
         >
           Split {props.splitType}
         </p>

@@ -95,7 +95,7 @@ export const BillSplitReceipt = (props: {
         preserveAspectRatio="none"
       >
         <polygon
-          fill="primary-black"
+          fill="rgb(24 22 22 / var(--tw-bg-opacity))"
           points="0,28 20,0 40,28 60,0 80,28 100,0 120,28"
           class="text-primary-black"
         />

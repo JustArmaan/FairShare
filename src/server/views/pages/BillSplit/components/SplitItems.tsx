@@ -11,7 +11,10 @@ export const SplitByItems = (props: {
   const splitAmount = (totalOwed / props.group.members.length).toFixed(2);
 
   return (
-    <div class="bg-primary-black text-font-off-white w-full rounded-lg p-4" id="split-by-items">
+    <div
+      class="bg-primary-black text-font-off-white w-full rounded-lg p-4"
+      id="split-by-items"
+    >
       <div class="flex justify-center items-center border-b border-font-grey pb-2 mb-2">
         <p class="font-semibold">Split By Items</p>
         <button class="text-font-grey">
@@ -33,7 +36,7 @@ export const SplitByItems = (props: {
               <div
                 class={`flex rounded-full bg-${member.color} h-[2rem] w-[2rem] justify-center border-2 border-primary-black`}
               >
-                <span class="flex justify-center self-center text-center text-xs font-semibold">
+                <span class="flex justify-center self-center text-center text-xs font-semibold text-font-black">
                   {member.firstName[0]}
                   {member.lastName ? member.lastName[0] : ""}
                 </span>
@@ -45,21 +48,22 @@ export const SplitByItems = (props: {
                 <p class="text-font-grey text-xs">{member.type}</p>
               </div>{" "}
               {props.currentUser.id === member.id && (
-                <span class="bg-accent-purple text-white text-xs rounded-full px-2 py-0.5 ml-2">
+                <span class="bg-accent-purple text-white text-xs rounded-[0.25rem] px-2 py-0.5 ml-2 mb-4">
                   You
                 </span>
               )}
             </div>
 
             <div class="flex items-center">
-              <p
-                class={`ml-4 ${
-                  member.type === "Owner" ? "text-white" : "text-accent-green"
-                }`}
-              >
-                {member.type === "Owner"
-                  ? `$${splitAmount}`
-                  : `Owe You $${splitAmount}`}
+              <p class="ml-4">
+                {member.type === "Owner" ? (
+                  <span class="text-font-grey">${splitAmount}</span>
+                ) : (
+                  <>
+                    <span class="text-font-off-white">Owe You </span>
+                    <span class="text-accent-green">${splitAmount}</span>
+                  </>
+                )}
               </p>
             </div>
           </div>

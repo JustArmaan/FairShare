@@ -7,12 +7,12 @@ export const SplitByPercentage = (props: {
 }) => {
   return (
     <div class="bg-primary-black text-font-off-white w-full rounded-lg p-4">
-      <div class="flex justify-between items-center border-b border-font-grey pb-2 mb-2">
+      <div class="flex justify-center items-center border-b border-font-grey pb-2 mb-2">
         <p class="font-semibold">Split By Percentage</p>
         <button class="text-font-grey">
           <img
             src="/activeIcons/expand_more.svg"
-            class="w-4 h-4"
+            class="w-4 h-4 ml-2"
             hx-get={`/billSplit/splitOptions/${props.transactionDetails[0].id}/${props.group.id}?splitType=Percentage`}
             hx-swap="innerHTML"
             hx-target="#split-bill-button"
@@ -40,6 +40,11 @@ export const SplitByPercentage = (props: {
                 </p>
                 <p class="text-font-grey text-xs">{member.type}</p>
               </div>
+              {member.type === "Owner" && (
+                <span class="bg-accent-purple text-white text-xs rounded-full px-2 py-0.5 ml-2">
+                  You
+                </span>
+              )}
             </div>
 
             <div class="flex items-center">
@@ -53,37 +58,23 @@ export const SplitByPercentage = (props: {
               />
               <p class="text-font-grey">%</p>
 
-              {member.type === "Owner" ? (
-                <svg
-                  class="w-4 h-4 text-accent-blue ml-2"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M5 13l4 4L19 7"
-                  />
-                </svg>
-              ) : (
-                <svg
-                  class="w-4 h-4 text-font-grey ml-2"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M5 13l4 4L19 7"
-                  />
-                </svg>
-              )}
+              <div id="splitOptionsRadioButton">
+                <img
+                  hx-get={`/billSplit/checkSplit/${member.id}?ischecked=true`}
+                  hx-swap="innerHTML"
+                  hx-target="#splitOptionsRadioButton"
+                  hx-trigger="click"
+                  src="/activeIcons/checked_blue_circle.svg"
+                  alt="selected icon"
+                  class="ml-1 cursor-pointer"
+                />
+
+                <input
+                  type="hidden"
+                  name={`${true}-${member.id}`}
+                  id="selectedIcon"
+                />
+              </div>
             </div>
           </div>
         ))}

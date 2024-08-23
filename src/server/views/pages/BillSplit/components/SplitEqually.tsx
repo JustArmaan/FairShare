@@ -33,7 +33,7 @@ export const SplitEqually = (props: {
               <div
                 class={`flex rounded-full bg-${member.color} h-[2rem] w-[2rem] justify-center border-2 border-primary-black`}
               >
-                <span class="flex justify-center self-center text-center text-xs font-semibold">
+                <span class="flex justify-center self-center text-center text-xs font-semibold text-font-black">
                   {member.firstName[0]}
                   {member.lastName ? member.lastName[0] : ""}
                 </span>
@@ -45,28 +45,41 @@ export const SplitEqually = (props: {
                 <p class="text-font-grey text-xs">{member.type}</p>
               </div>{" "}
               {props.currentUser.id === member.id && (
-                <span class="bg-accent-purple text-white text-xs rounded-full px-2 py-0.5 ml-2">
+                <span class="bg-accent-purple text-white text-xs rounded-[0.25rem] px-2 py-0.5 ml-2 mb-4">
                   You
                 </span>
               )}
             </div>
 
             <div class="flex items-center">
-              <p
-                class={`ml-4 ${
-                  member.type === "Owner" ? "text-white" : "text-accent-green"
-                }`}
-              >
-                {member.type === "Owner"
-                  ? `$${splitAmount}`
-                  : `Owe You $${splitAmount}`}
+              <p class="ml-4">
+                {member.type === "Owner" ? (
+                  <span class="text-font-grey">${splitAmount}</span>
+                ) : (
+                  <>
+                    <span class="text-font-off-white">Owe You </span>
+                    <span class="text-accent-green">${splitAmount}</span>
+                  </>
+                )}
               </p>
 
-              <img
-                src="/activeIcons/checked_blue_circle.svg"
-                alt="selected icon"
-                class="ml-1"
-              />
+              <div id="splitOptionsRadioButton">
+                <img
+                  hx-get={`/billSplit/checkSplit/${member.id}?ischecked=true`}
+                  hx-swap="innerHTML"
+                  hx-target="#splitOptionsRadioButton"
+                  hx-trigger="click"
+                  src="/activeIcons/checked_blue_circle.svg"
+                  alt="selected icon"
+                  class="ml-1 cursor-pointer"
+                />
+
+                <input
+                  type="hidden"
+                  name={`${true}-${member.id}`}
+                  id="selectedIcon"
+                />
+              </div>
             </div>
           </div>
         ))}
