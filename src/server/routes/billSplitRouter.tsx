@@ -115,7 +115,11 @@ router.get("/changeSplitOption/:receiptId/:groupId", async (req, res) => {
     );
   } else if (splitType === "Amount") {
     html = renderToHtml(
-      <SplitByAmount group={groupWithMemebers} transactionDetails={receipt} />
+      <SplitByAmount
+        group={groupWithMemebers}
+        transactionDetails={receipt}
+        currentUser={currentUser}
+      />
     );
   } else if (splitType === "Percentage") {
     html = renderToHtml(
@@ -149,7 +153,7 @@ router.get("/checkSplit/:userId", async (req, res) => {
         <img
           hx-get={`/billSplit/checkSplit/${req.params.userId}?ischecked=false`}
           hx-swap="innerHTML"
-          hx-target="#splitOptionsRadioButton"
+          hx-target={`#splitOptionsRadioButton${req.params.userId}`}
           hx-trigger="click"
           src="/activeIcons/unchecked_circle.svg"
           alt="selected icon"
@@ -168,7 +172,7 @@ router.get("/checkSplit/:userId", async (req, res) => {
         <img
           hx-get={`/billSplit/checkSplit/${req.params.userId}?ischecked=true`}
           hx-swap="innerHTML"
-          hx-target="#splitOptionsRadioButton"
+          hx-target={`#splitOptionsRadioButton${req.params.userId}`}
           hx-trigger="click"
           src="/activeIcons/checked_blue_circle.svg"
           alt="selected icon"
@@ -183,5 +187,23 @@ router.get("/checkSplit/:userId", async (req, res) => {
     );
   }
   res.send(html);
+});
+router.post("/amount", async (req, res) => {
+  const memberId = req.body.memberId;
+  const totalAmount = parseFloat(req.body.totalOwed);
+  const splitAmount = parseFloat(req.body.splitAmount);
+
+  console.log(req.body);
+
+  if (totalAmount === 0) {
+    return res.status(400).send("Amount cannot be zero");
+  } else {
+    const updatedAmount = totalAmount - splitAmount;
+    if (updatedAmount < 0) {
+      return res.status(400).send(`Amount cannot be more than ${totalAmount}`);
+    }
+    res.send(updatedAmount.toFixed(2));
+    console.log(updatedAmount, "Updated Amount");
+  }
 });
 export const billSplitRouter = router;
