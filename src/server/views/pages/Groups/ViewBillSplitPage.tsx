@@ -3,6 +3,8 @@ import type { GroupWithMembers } from "../../../services/group.service";
 import { BillSplitReceipt } from "./components/BillSplitReceipt";
 import Members from "./components/Members";
 import LinkTransactionDetails from "./components/LinkTransactionDetails";
+import type { getGroupTransactionDetails } from "../../../services/owed.service";
+import type { ExtractFunctionReturnType } from "../../../services/user.service";
 
 type owedPerMember = {
   totalOwed: number;
@@ -15,6 +17,9 @@ export const ViewBillSplitPage = (props: {
   groupWithMembers: GroupWithMembers;
   currentUser: UserSchema;
   owedPerMember: owedPerMember[];
+  resultPerGroupTransaction: ExtractFunctionReturnType<
+    typeof getGroupTransactionDetails
+  >[];
 }) => {
   const memberDetailsWithOwed = props.groupWithMembers.members.map((member) => {
     const owedMember = props.owedPerMember.find(
@@ -81,6 +86,7 @@ export const ViewBillSplitPage = (props: {
             memberDetails={memberDetailsWithOwed}
             currentUser={props.currentUser}
             owedPerMember={[owedPerMemberMapped]}
+            resultPerGroupTransaction={props.resultPerGroupTransaction}
           />
         </div>
         <BillSplitReceipt

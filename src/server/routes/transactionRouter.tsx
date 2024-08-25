@@ -36,7 +36,9 @@ import {
 import {
   createGroupTransactionState,
   createOwed,
+  getAllGroupTransactionStatesFromGroupId,
   getAllOwedForGroupTransaction,
+  getGroupTransactionDetails,
   getOwedStatusIdFromName,
   getOwedStatusNameFromId,
 } from "../services/owed.service";
@@ -269,7 +271,8 @@ router.post("/addButton", async (req, res) => {
     await Promise.all(
       members.map(async (member) => {
         return await createOwed({
-          linkedTransactionId: member.id === req.user!.id ? transactionId : null,
+          linkedTransactionId:
+            member.id === req.user!.id ? transactionId : null,
           groupTransactionToUsersToGroupsStatusId:
             await getOwedStatusIdFromName("notSent"),
           usersToGroupsId: (await getUsersToGroup(groupId, member.id))!.id,
@@ -498,6 +501,16 @@ router.get("/viewBillSplit/:transactionId/:groupId", async (req, res) => {
     };
   });
 
+  const groupTransactionStates = await getAllGroupTransactionStatesFromGroupId(
+    req.params.groupId
+  );
+  const results = await Promise.all(
+    groupTransactionStates.map(
+      async (result) =>
+        (await getGroupTransactionDetails(result.groupTransactionState.id))!
+    )
+  );
+
   const html = renderToHtml(
     <ViewBillSplitPage
       currentUser={currentUser}
@@ -505,6 +518,7 @@ router.get("/viewBillSplit/:transactionId/:groupId", async (req, res) => {
       transactionDetails={transactionDetails}
       receiptItems={itemizedTransaction}
       owedPerMember={owedPerMember} // Pass the new array to the component
+      resultPerGroupTransaction={results}
     />
   );
   res.send(html);
