@@ -60,6 +60,56 @@ export function setupSocketListener() {
         });
       }
     });
+
+    function refreshGroupList() {
+      const groupPage = document.querySelector("#ws-group-list");
+      if (!groupPage) return;
+      htmx.ajax("GET", `/groups/page`, {
+        target: "#app",
+        swap: "innerHTML",
+      });
+    }
+
+    // group UI update events
+    socket.on("joinedGroup", refreshGroupList);
+
+    // refresh member list and owed/owing/history components in group view page
+    socket.on("updateGroup", ({ groupId }) => {
+      refreshGroupList();
+
+      const groupViewPage = document.querySelector("#ws-group-view");
+      if (!groupViewPage || !(groupViewPage instanceof HTMLDivElement)) return;
+
+      htmx.ajax("GET", `/groups/members/${groupId}`, {
+        target: "#ws-group-members",
+        swap: "outerHTML",
+      });
+
+      const owedOwingHistoryDiv = document.querySelector("#owed-owing-history");
+      if (!(owedOwingHistoryDiv instanceof HTMLDivElement)) return;
+      const selectedTab = owedOwingHistoryDiv.dataset.selectedTab;
+
+      htmx.ajax(
+        "GET",
+        `/groups/view/OwedOwingHistory?groupId=${groupId}&tab=${selectedTab}`,
+        {
+          target: "#owed-owing-history",
+          swap: "innerHTML",
+        }
+      );
+    });
+
+    socket.on("requestConfirmation", ({ owedId, groupId }) => {
+      refreshGroupList();
+
+      const splitViewDiv = document.querySelector("#split-details");
+      if (!splitViewDiv || !(splitViewDiv instanceof HTMLDivElement)) return;
+
+      htmx.ajax("GET", `/split/view?groupId=${groupId}&owedId=${owedId}`, {
+        target: "#app",
+        swap: "innerHTML",
+      });
+    });
   });
 }
 

@@ -54,7 +54,7 @@ export const ViewGroups = ({
   >[];
 }) => {
   return (
-    <div class="animate-fade-in">
+    <div class="animate-fade-in" id="ws-group-view">
       <div class="flex justify-between">
         <a
           hx-get="/groups/page"
@@ -145,7 +145,11 @@ export const ViewGroups = ({
           hx-trigger="click"
           hx-target="#app"
           hx-swap="innerHTML"
-          hx-push-url={`/groups/addTransaction/${accountId}/${groupId}`}
+          hx-push-url={
+            itemId
+              ? `/groups/addTransaction/${accountId}/${groupId}/${itemId}`
+              : `/groups/addTransaction/${accountId}/${groupId}`
+          }
           class="hover:-translate-y-0.5
             transition-transform bg-accent-blue text-font-off-white px-8
             py-4 rounded-lg hover:bg-blue-600 flex flex-row

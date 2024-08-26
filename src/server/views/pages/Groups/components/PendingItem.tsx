@@ -90,7 +90,7 @@ export const PendingItems = (props: {
   return (
     <>
       {owedToCurrentUserTransactions.length > 0 && (
-        <div class="bg-[#232222] rounded-lg">
+        <div class="bg-[#232222] rounded-lg pb-3">
           <p class="text-font-off-white text-xl font-medium pt-3 text-center">
             Pending Transfers
           </p>

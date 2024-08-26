@@ -44,8 +44,8 @@ export const OwedDetails = (props: {
           {props.amountOwed < 0 && props.pending
             ? "Transferred"
             : props.amountOwed === 0
-            ? "Settled"
-            : ""}{" "}
+              ? "Settled"
+              : ""}{" "}
           with {props.linkedTransactionAccountName}
         </p>
       ) : props.amountOwed < 0 &&
@@ -88,8 +88,8 @@ export const OwedDetails = (props: {
                       "awaitingConfirmation"
                         ? "blue"
                         : props.amountOwed === 0
-                        ? "grey"
-                        : "green"
+                          ? "grey"
+                          : "green"
                     }.svg`}
                   />
                   <p
@@ -98,19 +98,21 @@ export const OwedDetails = (props: {
                       "awaitingConfirmation"
                         ? "text-accent-blue"
                         : result.groupTransactionToUsersToGroups.amount === 0
-                        ? "text-font-grey"
-                        : "text-positive-number"
+                          ? "text-font-grey"
+                          : "text-positive-number"
                     }
                   >
                     {result.groupTransactionToUsersToGroupsStatus.status ===
                     "awaitingConfirmation"
                       ? `${result.users.firstName} Transferred`
                       : result.groupTransactionToUsersToGroups.amount === 0
-                      ? "Bill Settled"
-                      : "You're Owed:"}{" "}
-                    <span class="font-semibold">
-                      ${Math.abs(amountOwedSubtractingTransfers).toFixed(2)}
-                    </span>
+                        ? "Bill Settled"
+                        : "You're Owed:"}{" "}
+                    {result.groupTransactionToUsersToGroups.amount !== 0 && (
+                      <span class="font-semibold">
+                        ${Math.abs(amountOwedSubtractingTransfers).toFixed(2)}
+                      </span>
+                    )}
                   </p>
                 </div>
               ))}
@@ -130,8 +132,8 @@ export const OwedDetails = (props: {
                     "awaitingConfirmation"
                       ? "blue"
                       : props.amountOwed === 0
-                      ? "grey"
-                      : "green"
+                        ? "grey"
+                        : "green"
                   }.svg`}
                 />
                 <p
@@ -140,22 +142,24 @@ export const OwedDetails = (props: {
                     "awaitingConfirmation"
                       ? "text-accent-blue"
                       : result.groupTransactionToUsersToGroups.amount === 0
-                      ? "text-font-grey"
-                      : "text-positive-number"
+                        ? "text-font-grey"
+                        : "text-positive-number"
                   }
                 >
                   {result.groupTransactionToUsersToGroupsStatus.status ===
                   "awaitingConfirmation"
                     ? `${result.users.firstName} Transferred`
                     : result.groupTransactionToUsersToGroups.amount === 0
-                    ? "Bill Settled"
-                    : "You're Owed:"}{" "}
-                  <span class="font-semibold">
-                    $
-                    {Math.abs(
-                      result.groupTransactionToUsersToGroups.amount
-                    ).toFixed(2)}
-                  </span>
+                      ? "Bill Settled"
+                      : "You're Owed:"}{" "}
+                  {result.groupTransactionToUsersToGroups.amount !== 0 && (
+                    <span class="font-semibold">
+                      $
+                      {Math.abs(
+                        result.groupTransactionToUsersToGroups.amount
+                      ).toFixed(2)}
+                    </span>
+                  )}
                 </p>
               </div>
             ))}
@@ -170,8 +174,8 @@ export const OwedDetails = (props: {
               "awaitingConfirmation"
                 ? "blue"
                 : props.amountOwed === 0
-                ? "grey"
-                : "red"
+                  ? "grey"
+                  : "red"
             }.svg`}
           />
           <p
@@ -180,18 +184,20 @@ export const OwedDetails = (props: {
               props.amountOwed < 0
                 ? "text-accent-blue"
                 : props.amountOwed === 0
-                ? "text-font-grey"
-                : "text-negative-number"
+                  ? "text-font-grey"
+                  : "text-negative-number"
             }
           >
             {props.owedStatus === "awaitingConfirmation" && props.amountOwed < 0
               ? "You've Transferred"
               : props.amountOwed === 0
-              ? "Bill Settled"
-              : "You Owe:"}{" "}
-            <span class="font-semibold">
-              ${Math.abs(props.amountOwed).toFixed(2)}
-            </span>
+                ? "Bill Settled"
+                : "You Owe:"}{" "}
+            {props.amountOwed !== 0 && (
+              <span class="font-semibold">
+                ${Math.abs(props.amountOwed).toFixed(2)}
+              </span>
+            )}
           </p>{" "}
         </div>
       )}

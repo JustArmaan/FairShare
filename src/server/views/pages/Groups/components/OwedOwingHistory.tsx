@@ -27,7 +27,7 @@ export const OwedOwingHistory = (props: {
   const buttonUnselectedClasslist = "bg-primary-black";
 
   return (
-    <div id="owed-owing-history">
+    <div id="owed-owing-history" data-selected-tab={props.selectedTab}>
       <div class="flex flex-row mt-[1.90rem]">
         {tabs.map((tab) => (
           <button

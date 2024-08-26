@@ -48,13 +48,8 @@ document.body.addEventListener("htmx:afterSwap", (event) => {
   initializeGroupForm();
 
   if (!(event.target instanceof HTMLElement)) return;
-  const excludeListId = new Set([
-    "institutionSelector",
-    "owed-owing-history",
-    "transaction-picker-container",
-    "link-transfer-dropdown",
-  ]);
-  if (excludeListId.has(event.target.id)) return;
+  const includeListId = new Set(["#app"]);
+  if (!includeListId.has(event.target.id)) return;
   window.scrollTo({ top: 0 });
 
   // Re-attach event listeners for icons

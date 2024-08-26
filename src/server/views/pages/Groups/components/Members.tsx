@@ -67,9 +67,11 @@ export const Members = (props: {
     memberObject as { member: UserSchemaWithMemberType; owed: number }[]
   );
 
-
   return (
-    <div class="flex-col bg-primary-black w-full rounded-sm py-[0.88rem]">
+    <div
+      class="flex-col bg-primary-black w-full rounded-sm py-[0.88rem]"
+      id="ws-group-members"
+    >
       {owedRelativeToCurrentUser.map(({ member, owed }, index) => {
         owed *= -1;
         return (

@@ -85,7 +85,6 @@ export const ViewBillSplitPage = (props: {
           <Members
             memberDetails={memberDetailsWithOwed}
             currentUser={props.currentUser}
-            owedPerMember={[owedPerMemberMapped]}
             resultPerGroupTransaction={props.resultPerGroupTransaction}
           />
         </div>

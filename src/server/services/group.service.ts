@@ -19,6 +19,7 @@ import { filterUniqueTransactions } from "../utils/filter";
 import { plaidAccount } from "../database/schema/plaidAccount";
 import { splitEqualTransactions } from "../utils/equalSplit";
 import { cashAccount } from "../database/schema/cashAccount";
+import { io } from "../main";
 
 const db = getDB();
 
@@ -510,6 +511,7 @@ export const addMember = async (
       })
       .returning();
 
+    io.to(userId).emit("joinedGroup");
     return newMember[0];
   } catch (error) {
     console.error("Failed to add member:", error);
@@ -619,20 +621,44 @@ export async function deleteTransactionFromGroup(
   transactionId: string,
   groupId: string
 ) {
-  try {
-    await db
-      .delete(transactionsToGroups)
-      .where(
-        and(
-          eq(transactionsToGroups.transactionId, transactionId),
-          eq(transactionsToGroups.groupsId, groupId)
-        )
-      );
-    return true;
-  } catch (error) {
-    console.error(error, "Failed to delete transaction");
-    return false;
-  }
+  const results = await db
+    .select({ userId: usersToGroups.userId })
+    .from(transactionsToGroups)
+    .innerJoin(
+      groupTransactionState,
+      eq(transactionsToGroups.id, groupTransactionState.groupTransactionId)
+    )
+    .innerJoin(
+      groupTransactionToUsersToGroups,
+      eq(
+        groupTransactionState.id,
+        groupTransactionToUsersToGroups.groupTransactionStateId
+      )
+    )
+    .innerJoin(
+      usersToGroups,
+      eq(groupTransactionToUsersToGroups.usersToGroupsId, usersToGroups.id)
+    )
+    .where(
+      and(
+        eq(transactionsToGroups.transactionId, transactionId),
+        eq(transactionsToGroups.groupsId, groupId)
+      )
+    );
+  await db
+    .delete(transactionsToGroups)
+    .where(
+      and(
+        eq(transactionsToGroups.transactionId, transactionId),
+        eq(transactionsToGroups.groupsId, groupId)
+      )
+    );
+
+  results.forEach(({ userId }) => {
+    io.to(userId).emit("updateGroup", { groupId });
+  });
+
+  return true;
 }
 
 export async function getGroupTransactionWithSplitType(

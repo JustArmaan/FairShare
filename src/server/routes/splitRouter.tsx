@@ -2,11 +2,11 @@ import express from "express";
 import { renderToHtml } from "jsxte";
 import { SplitDetails } from "../views/pages/Splitting/SplitDetails";
 import {
-  getAllOwedForGroupTransaction,
   getGroupTransactionDetails,
   getGroupTransactionStateIdFromOwedId,
   getOwed,
   getOwedStatusNameFromId,
+  getTransactionOwnerFromOwedId,
   updateOwedAmount,
   updateOwedStatus,
 } from "../services/owed.service";
@@ -24,13 +24,11 @@ import { getCategoryIdByName } from "../services/category.service";
 import {
   getGroupByOwedId,
   getGroupIdFromOwed,
-  updateOwedForGroupTransaction,
 } from "../services/group.service";
 import type { OwedStatus } from "../database/seed";
 import {
   getAccount,
   getAccountIdByTransactionId,
-  getAccountWithItem,
 } from "../services/account.service";
 
 const router = express.Router();
@@ -46,9 +44,10 @@ router.get("/view", async (req, res) => {
 
   if (!results) throw new Error("no results");
 
-  const transactionOwner = results.find(
-    (transaction) => transaction.groupTransactionToUsersToGroups.amount > 0
-  )!.users;
+  const transactionOwner =
+    results.find(
+      (transaction) => transaction.groupTransactionToUsersToGroups.amount > 0
+    )?.users ?? (await getTransactionOwnerFromOwedId(owedId));
 
   const userTransaction = results.find(
     (transaction) => transaction.users.id === user.id
@@ -219,7 +218,6 @@ router.get("/linkTransferComponent", async (req, res) => {
 // settleType is one of: cash, transaction, none
 router.post("/settle", async (req, res) => {
   const { type, owedId } = req.body;
-  console.log(req.body, "body")
   const user = req.user!;
   let linkedTransactionId: string | undefined;
   if (type === "cash") {
@@ -251,7 +249,6 @@ router.post("/settle", async (req, res) => {
     linkedTransactionId = transactionId;
   }
 
-  console.log(owedId, linkedTransactionId);
   await updateOwedStatus(owedId, "awaitingConfirmation", linkedTransactionId);
 
   const groupId = (await getGroupByOwedId(owedId))!.id;
