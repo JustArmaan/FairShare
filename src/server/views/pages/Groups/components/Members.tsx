@@ -50,7 +50,7 @@ export const Members = (props: {
 
         filtered.forEach((result) => {
           const amountOwed = result.groupTransactionToUsersToGroups.amount;
-          (acc.find((entry) => entry.member.id === result.users.id)!).owed +=
+          acc.find((entry) => entry.member.id === result.users.id)!.owed +=
             amountOwed;
         });
       } else {
@@ -67,7 +67,6 @@ export const Members = (props: {
     memberObject as { member: UserSchemaWithMemberType; owed: number }[]
   );
 
-  console.log(owedRelativeToCurrentUser);
 
   return (
     <div class="flex-col bg-primary-black w-full rounded-sm py-[0.88rem]">
