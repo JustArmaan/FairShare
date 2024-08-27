@@ -63,12 +63,12 @@ export const SplitEqually = (props: {
                 )}
               </p>
 
-              <div id="splitOptionsRadioButton">
+              <div id={`splitOptionsRadioButton${member.id}`}>
                 <img
                   hx-get={`/billSplit/checkSplit/${member.id}?ischecked=true`}
                   hx-swap="innerHTML"
-                  hx-target="#splitOptionsRadioButton"
                   hx-trigger="click"
+                  hx-target={`#splitOptionsRadioButton${member.id}`}
                   src="/activeIcons/checked_blue_circle.svg"
                   alt="selected icon"
                   class="ml-1 cursor-pointer"

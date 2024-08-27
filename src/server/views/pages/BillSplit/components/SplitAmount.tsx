@@ -1,9 +1,11 @@
+import type { UserSchema } from "../../../../interface/types";
 import type { GroupWithMembers } from "../../../../services/group.service";
 import type { Receipt } from "../../../../services/receipt.service";
 
 export const SplitByAmount = (props: {
   group: GroupWithMembers;
   transactionDetails: Receipt;
+  currentUser: UserSchema;
 }) => {
   const totalOwed = parseFloat(props.transactionDetails[0].total.toFixed(2));
   return (
@@ -41,7 +43,7 @@ export const SplitByAmount = (props: {
                 </p>
                 <p class="text-font-grey text-xs">{member.type}</p>{" "}
               </div>
-              {member.type === "Owner" && (
+              {props.currentUser.id === member.id && (
                 <span class="bg-accent-purple text-white text-xs rounded-[0.25rem] px-2 py-0.5 ml-2 mb-4">
                   You
                 </span>
@@ -52,20 +54,25 @@ export const SplitByAmount = (props: {
               <div class="flex items-center" id="splitByAmount">
                 <p class="text-font-grey mr-1">$</p>
                 <input
+                  hx-post={`/billSplit/amount`}
+                  hx-trigger="input changed delay:500ms, search"
+                  hx-target={`#splitAmount-${member.id}`}
+                  hx-vals={`{"totalOwed": "${totalOwed}", "memberId": "${member.id}"}`}
                   type="number"
                   min="0"
                   max={totalOwed}
-                  name={`splitAmount-${member.id}`}
-                  step="0.01"
-                  class="bg-primary-black border border-font-grey text-font-grey w-16 text-right p-1 mr-2 rounded-md"
+                  step="0.10"
+                  class="bg-primary-black border border-font-grey text-font-grey w-16 text-right p-1 mr-2 rounded-md split-amount"
                   placeholder="0.00"
+                  name="splitAmount"
+                  id={`splitAmount-${member.id}`}
                 />
-                <div id="splitOptionsRadioButton">
+                <div id={`splitOptionsRadioButton${member.id}`}>
                   <img
                     hx-get={`/billSplit/checkSplit/${member.id}?ischecked=true`}
                     hx-swap="innerHTML"
-                    hx-target="#splitOptionsRadioButton"
                     hx-trigger="click"
+                    hx-target={`#splitOptionsRadioButton${member.id}`}
                     src="/activeIcons/checked_blue_circle.svg"
                     alt="selected icon"
                     class="ml-1 cursor-pointer"
