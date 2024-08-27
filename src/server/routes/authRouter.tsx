@@ -210,7 +210,7 @@ export async function getUser(req: Request, res: Response, next: NextFunction) {
   // }
 
   // const fakeUser = {
-  //   id: "kp_86e760e3d6494f47946e7f7b327dd294",
+  //   id: "kp_2094a928179447078aa5f5f27df766bc",
   //   firstName: "Byron",
   //   lastName: "Dray",
   //   email: "byrondray8@gmail.com",
