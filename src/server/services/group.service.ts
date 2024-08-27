@@ -208,6 +208,26 @@ export async function getGroupWithMembers(groupId: string) {
   }
 }
 
+export async function getGroupOwnerWithGroupId(groupId: string) {
+  try {
+    const result = await db
+      .select({
+        firstName: users.firstName,
+        lastName: users.lastName,
+        color: users.color,
+      })
+      .from(usersToGroups)
+      .innerJoin(users, eq(usersToGroups.userId, users.id))
+      .innerJoin(memberType, eq(usersToGroups.memberTypeId, memberType.id))
+      .where(
+        and(eq(usersToGroups.groupId, groupId), eq(memberType.type, "Owner"))
+      );
+    return result[0];
+  } catch (error) {
+    console.error(error);
+  }
+}
+
 export type GroupWithMembers = NonNullable<
   Awaited<ReturnType<typeof getGroupWithMembers>>
 >;

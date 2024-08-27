@@ -1,4 +1,5 @@
 import heic2any from "heic2any";
+import htmx from "htmx.org";
 
 function addEventListenerWithFlag(
   element: HTMLElement,
@@ -14,6 +15,7 @@ function addEventListenerWithFlag(
 
 function handleReceivedImage(base64Image: string): void {
   const imagePreviewAddPage = document.getElementById("imagePreviewAddPage");
+  const scanReceiptHelper = document.getElementById("scanReceiptHelper");
 
   if (imagePreviewAddPage) {
     const imgContainer = document.createElement("div");
@@ -40,6 +42,10 @@ function handleReceivedImage(base64Image: string): void {
 
     addRetakeAndAddMoreButtons();
     updateChooseFromLibraryButton();
+
+    if (scanReceiptHelper) {
+      scanReceiptHelper.style.display = "none";
+    }
   } else {
     console.log("handleReceivedImage: imagePreviewAddPage element not found");
   }
@@ -134,40 +140,52 @@ async function sendImagesSeparately() {
     const serializedImagesInput = document.getElementById(
       "serializedImages"
     ) as HTMLInputElement;
-    const imageUrls = JSON.parse(serializedImagesInput.value);
+    const imageUrls = JSON.parse(serializedImagesInput!.value);
+    const loadingSpinner = document.getElementById("loadingSpinner");
+    const errorContainer = document.getElementById("errorContainer");
+
+    loadingSpinner?.classList.remove("hidden");
 
     for (const imageUrl of imageUrls) {
       const response = await fetch(imageUrl);
       const blob = await response.blob();
       const responseResult = await sendImageStream(blob);
 
-      if (responseResult.status === 403) {
+      if (!responseResult.ok) {
         const errorText = await responseResult.text();
-        const errorContainer = document.getElementById("errorContainer");
-
         if (errorContainer) {
-          errorContainer.textContent = errorText;
+          errorContainer.innerText = errorText;
           errorContainer.classList.remove("hidden");
           setTimeout(() => {
             errorContainer.classList.add("hidden");
           }, 8000);
         }
         break;
-      } else if (responseResult.status === 413) {
-        const errorContainer = document.getElementById("errorContainer");
-
-        if (errorContainer) {
-          errorContainer.textContent =
-            "Image size was too large for the server to process. Please try again";
-          errorContainer.classList.remove("hidden");
-          setTimeout(() => {
-            errorContainer.classList.add("hidden");
-          }, 8000);
-        }
       }
+
+      const data = await responseResult.json();
+
+      htmx.ajax("POST", "/receipt/confirmReceipt", {
+        swap: "innerHTML",
+        target: "#app",
+        values: data,
+      });
     }
+
+    loadingSpinner?.classList.add("hidden");
   } catch (e) {
     console.error("Error sending images separately:", e);
+    const errorContainer = document.getElementById("errorContainer");
+    if (errorContainer) {
+      errorContainer.innerText =
+        "An error occurred while processing the images.";
+      errorContainer.classList.remove("hidden");
+      setTimeout(() => {
+        errorContainer.classList.add("hidden");
+      }, 8000);
+    }
+    const loadingSpinner = document.getElementById("loadingSpinner");
+    loadingSpinner?.classList.add("hidden");
   }
 }
 
@@ -267,13 +285,19 @@ function updateUIAfterDeletion() {
     const imgElements = imagePreviewAddPage.querySelectorAll("img");
 
     if (imgElements.length === 0) {
+      const scanReceiptHelper = document.getElementById("scanReceiptHelper");
       imagePreviewAddPage.classList.add("hidden");
 
       const dynamicButtonsContainer = document.querySelector(
         ".dynamic-button-container"
       );
+
       if (dynamicButtonsContainer) {
         dynamicButtonsContainer.remove();
+      }
+
+      if (scanReceiptHelper) {
+        scanReceiptHelper.style.display = "block";
       }
 
       const nextButton = document.getElementById("nextButton");
@@ -449,4 +473,25 @@ export function initializeChooseFromLibraryButton() {
       "chooseFromLibraryClick"
     );
   }
+}
+
+function removeItem(index: string) {
+  const itemRow = document.querySelector(`[data-index='${index}']`);
+  if (itemRow) {
+    itemRow.remove();
+  }
+}
+
+export function attachDeleteEventListeners() {
+  const deleteButtons = document.querySelectorAll(".delete-item");
+
+  deleteButtons.forEach((button) => {
+    const index = button.closest("[data-index]")?.getAttribute("data-index");
+    if (!index) {
+      return;
+    }
+    button.addEventListener("click", () => {
+      removeItem(index);
+    });
+  });
 }

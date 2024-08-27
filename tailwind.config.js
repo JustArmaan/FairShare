@@ -60,6 +60,8 @@ export default {
       "accent-teal": "#42DCD3",
       "pure-white": "#FFFFFF",
       "font-grey": "#8D8D93",
+      "font-grey-background-black": "#8D8D93",
+      "light-grey": "#686868",
       "card-black": "#1C1C1E",
       "positive-number": "#37BA3C",
       "negative-number": "#DD4242",

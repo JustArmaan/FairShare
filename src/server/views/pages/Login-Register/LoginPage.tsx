@@ -4,7 +4,7 @@ export const LoginPage = () => {
       <a
         hx-get="/onboard"
         hx-trigger="click"
-        hx-target="#app"
+        hx-target="body"
         hx-swap="innerHTML"
         hx-push-url="/onboard"
         class="text-font-off-white text-4xl cursor-pointer my-2 flex items-center"
@@ -21,18 +21,18 @@ export const LoginPage = () => {
       />
       <h1 class="text-3xl mb-4">Welcome back!</h1>
       <form class="space-y-4">
-        <div>
+        {/* <div>
           <label
-            for="username"
+            for="email"
             class="block text-sm font-medium text-font-off-white"
           >
-            Username
+            Email
           </label>
           <input
-            id="username"
-            name="username"
+            id="email"
+            name="email"
             type="text"
-            placeholder="Enter Username"
+            placeholder="Enter Email"
             required
             class="mt-1 block w-full px-3 py-2 bg-primary-black text-white rounded-md border border-primary-black focus:outline-none focus:ring-2 focus:ring-accent-blue focus:border-accent-blue"
           />
@@ -57,14 +57,16 @@ export const LoginPage = () => {
           <a href="#" class="text-sm text-font-grey hover:underline">
             Forgot Password?
           </a>
-        </div>
-        <div class="px-[3.38rem] mt-6">
-          <button
-            type="submit"
-            class="w-full py-2 bg-accent-blue text-white rounded-lg transition mt-8"
-          >
-            Login
-          </button>
+        </div> */}
+        <div class="px-[3.38rem] mt-2">
+          <a href="/auth/email">
+            <button
+              type="submit"
+              class="w-full py-2 bg-accent-blue text-white rounded-lg transition mt-8"
+            >
+              Login
+            </button>
+          </a>
         </div>
         <div class="flex items-center justify-center my-4">
           <hr class="w-2/5 border-font-grey" />
@@ -72,22 +74,24 @@ export const LoginPage = () => {
           <hr class="w-2/5 border-font-grey" />
         </div>
         <div class="px-[3.38rem]">
-          <button
-            type="button"
-            id="login-with-apple"
-            hx-get="/auth/apple"
-            class="w-full py-2 bg-accent-blue text-white rounded-lg  transition flex items-center justify-center "
-          >
-            Login with Apple
-          </button>
-          <button
-            type="button"
-            id="login-with-google"
-            hx-get="/auth/google"
-            class="w-full py-2 bg-accent-blue text-white rounded-lg  transition flex items-center justify-center mt-3 "
-          >
-            Login with Google
-          </button>
+          <a href="/auth/apple">
+            <button
+              type="button"
+              id="loginWithApple"
+              class="w-full py-2 bg-accent-blue text-white rounded-lg  transition flex items-center justify-center "
+            >
+              Login with Apple
+            </button>
+          </a>
+          <a href="/auth/google">
+            <button
+              type="button"
+              id="loginWithGoogle"
+              class="w-full py-2 bg-accent-blue text-white rounded-lg  transition flex items-center justify-center mt-3 "
+            >
+              Login with Google
+            </button>
+          </a>
         </div>
       </form>
     </div>

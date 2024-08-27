@@ -1,37 +1,23 @@
+import { ScanReceiptHelper } from "./components/ScanReceiptHelper";
+
 const AddReceiptPage = () => {
   return (
     <div class="camera-capture-container text-left">
-      <div class="flex justify-start w-fit items-center mt-2 mb-1">
-        <a
-          hx-get={"/home/page/default"}
-          hx-trigger="click"
-          hx-target="#app"
-          hx-swap="innerHTML"
-          hx-push-url={"/home/page/default"}
-          class="text-font-off-white text-4xl cursor-pointer"
-        >
-          <img
-            src="/icons/arrow_back_ios.svg"
-            alt="back arrow icon"
-            class="hover:-translate-y-0.5 transition-transform hover:opacity-80 h-6"
-          />
-        </a>
-      </div>
       <div
         id="errorContainer"
         class="text-accent-red bg-opacity-10 border border-accent-red p-4 rounded shadow hidden text-center my-4"
       ></div>
-      <div class="px-[3.69rem]">
+      <div>
         <div class="flex items-center w-full">
-          <h1 class="text-font-off-white text-xl mr-2 mb-[1rem] leading-tight">
-            Take photo of Receipt
-          </h1>
-          <img
-            src="/activeIcons/info.svg"
-            alt="info icon"
-            class="h-6 mb-[1rem]"
-          />
+          <ScanReceiptHelper />
         </div>
+        <div
+          id="loadingSpinner"
+          class="hidden fixed top-1/3 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50"
+        >
+          <div class="animate-spin rounded-full h-12 w-12 border-t-4 border-accent-blue"></div>
+        </div>
+
         <div id="imagePreviewAddPage" class="mt-1 mb-[2.94rem] hidden"></div>
         <input
           type="hidden"

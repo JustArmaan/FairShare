@@ -15,6 +15,7 @@ import { renderToHtml } from "jsxte";
 import { LoginPage } from "../views/pages/Login-Register/LoginPage";
 import { RegisterPage } from "../views/pages/Login-Register/RegisterPage";
 import { EnterInfoRegisterPage } from "../views/pages/Login-Register/EnterInfoRegisterPage";
+import crypto from "crypto";
 
 const colors = [
   "accent-blue",
@@ -111,6 +112,7 @@ router.get("/logout", async (req, res) => {
 });
 
 router.get("/callback", async (req, res) => {
+  console.log("Callback hit");
   const url = new URL(`${req.protocol}://${req.get("host")}${req.url}`);
   await kindeClient.handleRedirectToApp(sessionManager(req, res), url);
   return res.redirect("/");
@@ -141,6 +143,65 @@ router.post("/registerContinue", async (req, res) => {
   res.send(html);
 });
 
+router.get("/apple", async (req, res) => {
+  console.log("Attempting Apple login");
+
+  const sessionManagement = sessionManager(req, res);
+
+  try {
+    const appleLoginUrl = await kindeClient.login(sessionManagement, {
+      authUrlParams: {
+        connection_id: env.kindeAppleConnectionId,
+      },
+    });
+
+    console.log("Redirecting to Apple login URL:", appleLoginUrl.toString());
+    res.redirect(appleLoginUrl.toString());
+  } catch (error) {
+    console.error("Failed to initiate Apple login:", error);
+    res.status(500).send("Failed to initiate login with Apple.");
+  }
+});
+
+router.get("/google", async (req, res) => {
+  const sessionManagement = sessionManager(req, res);
+
+  try {
+    const googleLoginUri = await kindeClient.login(sessionManagement, {
+      authUrlParams: {
+        connection_id: env.kindeGoogleConnectionId,
+      },
+    });
+
+    console.log("Redirecting to Apple login URL:", googleLoginUri.toString());
+    res.redirect(googleLoginUri.toString());
+  } catch (error) {
+    console.error("Failed to initiate Apple login:", error);
+    res.status(500).send("Failed to initiate login with Apple.");
+  }
+});
+
+router.get("/email", async (req, res) => {
+  console.log("Attempting Apple login");
+
+  const sessionManagement = sessionManager(req, res);
+
+  try {
+    const appleLoginUrl = await kindeClient.login(sessionManagement, {
+      authUrlParams: {
+        connection_id: env.kindeEmailConnectionId,
+        login_hint: "email",
+      },
+    });
+
+    console.log("Redirecting to Apple login URL:", appleLoginUrl.toString());
+    res.redirect(appleLoginUrl.toString());
+  } catch (error) {
+    console.error("Failed to initiate Apple login:", error);
+    res.status(500).send("Failed to initiate login with Apple.");
+  }
+});
+
 export async function getUser(req: Request, res: Response, next: NextFunction) {
   // in playwright, when you first setup tests, run createUser({test info})
   // if (req.cookies.testing === "true") {
@@ -149,7 +210,7 @@ export async function getUser(req: Request, res: Response, next: NextFunction) {
   // }
 
   // const fakeUser = {
-  //   id: "kp_ae3fe5538e824f54b990b4f7876c22f8",
+  //   id: "kp_2094a928179447078aa5f5f27df766bc",
   //   firstName: "Byron",
   //   lastName: "Dray",
   //   email: "byrondray8@gmail.com",
@@ -183,16 +244,18 @@ export async function getUser(req: Request, res: Response, next: NextFunction) {
       const profile = await kindeClient.getUserProfile(
         sessionManager(req, res)
       );
+
       if (!profile) {
         const logoutUrl = await kindeClient.logout(sessionManager(req, res));
         return res.redirect(logoutUrl.toString());
       }
+
       const user = await findUser(profile.id);
       // const user = {
-      //   id: "kp_ae3fe5538e824f54b990b4f7876c22f8",
+      //   id: "kp_b20575f122824fe5b0099f12948a4912",
       //   firstName: "Byron",
       //   lastName: "Dray",
-      //   email: "byrondray8@gmail.com",
+      //   email: "byrondray2@gmail.com",
       //   color: "category-color-0",
       //   createdAt: new Date().toISOString(),
       // };

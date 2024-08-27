@@ -16,16 +16,28 @@ export const Login = () => {
             </p>
           </div>
           <div class="flex flex-col text-font-off-white font-semibold text-lg mt-10">
-            <a href="/auth/login">
-              <button class="hover:-translate-y-0.5 transition-all bg-accent-blue rounded-3xl w-56 py-[0.5rem]  ">
-                Log In
-              </button>
-            </a>
-            <a href="/auth/register">
-              <button class="hover:-translate-y-0.5 transition-all bg-accent-blue rounded-3xl w-56 py-[0.5rem] mt-4">
-                Register
-              </button>
-            </a>
+            {/* <a href="/auth/login"> */}
+            <button
+              class="hover:-translate-y-0.5 transition-all bg-accent-blue rounded-3xl w-56 py-[0.5rem]"
+              hx-get="/auth/loginPage"
+              hx-swap="innerHTML"
+              hx-target="body"
+              hx-trigger="click"
+            >
+              Log In
+            </button>
+            {/* </a> */}
+            {/* <a href="/auth/register"> */}
+            <button
+              class="hover:-translate-y-0.5 transition-all bg-accent-blue rounded-3xl w-56 py-[0.5rem] mt-4"
+              hx-get="/auth/registerPage"
+              hx-swap="innerHTML"
+              hx-target="body"
+              hx-trigger="click"
+            >
+              Register
+            </button>
+            {/* </a> */}
           </div>
         </div>
       </div>

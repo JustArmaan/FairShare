@@ -1,8 +1,13 @@
-import { Reminder } from "./components/Reminder";
 import {
   type InviteNotification,
   type CombinedNotification,
 } from "../../../services/notification.service";
+import type { getGroupOwnerWithGroupId } from "../../../services/group.service";
+import type { ExtractFunctionReturnType } from "../../../services/user.service";
+
+export type GroupOwner = ExtractFunctionReturnType<
+  typeof getGroupOwnerWithGroupId
+>;
 
 export const NotificationList = (props: {
   inviteNotifications: InviteNotification[];
@@ -30,35 +35,50 @@ export const NotificationList = (props: {
         </div>
       </div>
 
-      {props.inviteNotifications.length > 0 && (
-        <div>
-          <p class="text-primary-grey font-medium">Group Invites</p>
-          {props.inviteNotifications.map((notification) => {
-            return <Reminder notifications={notification} />;
-          })}
-        </div>
-      )}
-
-      {props.notifications.length > 0 && (
-        <div>
-          <p class="text-primary-grey font-medium">Alerts</p>
-          {props.notifications.map((notification) => {
-            return <Reminder notifications={notification} />;
-          })}
-        </div>
-      )}
-
-      {props.inviteNotifications.length === 0 &&
-        props.notifications.length === 0 && (
+      <div id="notification-container">
+        {props.inviteNotifications.length > 0 && (
           <div>
-            <p class="text-font-off-white font-semibold text-3xl">
-              No Notifications
-            </p>
+            <p class="text-primary-grey font-medium">Group Invites</p>
+            {props.inviteNotifications.reverse().map((notification) => {
+              return (
+                <div
+                  hx-get={`/notification/reminder/${notification.notifications.id}?notificationTypeId=${notification.notifications.notificationTypeId}`}
+                  hx-trigger="load"
+                  hx-swap="beforeend"
+                  hx-target="#notification-container"
+                />
+              );
+            })}
           </div>
         )}
 
+        {props.notifications.length > 0 && (
+          <div>
+            <p class="text-primary-grey font-medium">Notifications</p>
+            {props.notifications.reverse().map((notification) => {
+              return (
+                <div
+                  hx-get={`/notification/reminder/${notification.notifications.id}?notificationTypeId=${notification.notifications.notificationTypeId}`}
+                  hx-trigger="load"
+                  hx-swap="beforeend"
+                  hx-target="#notification-container"
+                />
+              );
+            })}
+          </div>
+        )}
+
+        {props.inviteNotifications.length === 0 &&
+          props.notifications.length === 0 && (
+            <div>
+              <p class="text-font-off-white font-semibold text-3xl">
+                No Notifications
+              </p>
+            </div>
+          )}
+      </div>
+
       <div class="notification-selector-form" />
-      <div class="mb-24"></div>
       <div
         hx-get={`/notification/notificationIcon`}
         hx-swap="outerHTML"

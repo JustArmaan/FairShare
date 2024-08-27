@@ -11,8 +11,6 @@ import { changeHeader } from "./header/header";
 import {
   handleIconClick,
   handleColorClick,
-  initializeSelectedColor,
-  initializeSelectedIcon,
   openAndCloseSelectIcon,
   clearInviteInput,
   initializeGroupForm,
@@ -23,13 +21,12 @@ import {
   initializeChooseFromLibraryButton,
   onMessage,
   addTakePictureButton,
+  attachDeleteEventListeners,
 } from "./receiptScanning/receiptScanning";
 
 // !!!
 // @ts-ignore
 window.onMessage = onMessage;
-
-// console.log("running");
 
 main();
 splitTransfer();
@@ -37,6 +34,7 @@ setupSocketListener();
 handleNavigation();
 
 document.body.addEventListener("htmx:afterSwap", (event) => {
+  attachDeleteEventListeners();
   highlightNavigationIcons();
   progressBar();
   attachFormListeners();

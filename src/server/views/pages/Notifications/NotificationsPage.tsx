@@ -9,6 +9,7 @@ export const NotificationPage = (props: {
         hx-trigger="load"
         hx-swap="outerHTML"
       ></div>
+      <p class="text-base text-accent-blue text-center">All up to date!</p>
     </div>
   );
 };

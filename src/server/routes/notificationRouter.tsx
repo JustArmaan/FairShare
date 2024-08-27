@@ -8,10 +8,21 @@ import NotificationPicker from "../views/pages/Notifications/components/Notifica
 import { getSortedNotifications } from "../utils/getNotifications.ts";
 import {
   deleteAllNotifications,
+  getGenericNotificationById,
+  getGenericNotificationByNotificationId,
+  getGroupInviteByNotificationId,
   getGroupInviteNotificaitonById,
+  getGroupNotificationById,
+  getGroupNotificationByNotificationId,
+  getNotificationTypeById,
+  getNotificationTypeByType,
   getUnreadNotifications,
   markAllNotificationsAsRead,
+  markNotificationAsRead,
+  type CombinedNotification,
 } from "../services/notification.service.ts";
+import { getGroupOwnerWithGroupId } from "../services/group.service.ts";
+import Reminder from "../views/pages/Notifications/components/Reminder.tsx";
 
 const router = express.Router();
 
@@ -50,7 +61,6 @@ router.get("/notificationList/:userId", async (req, res) => {
     if (!notifications || !inviteNotifications) {
       return res.status(404).send("Problem with notification");
     }
-
     const html = renderToHtml(
       <NotificationList
         inviteNotifications={inviteNotifications}
@@ -58,8 +68,6 @@ router.get("/notificationList/:userId", async (req, res) => {
         selectedSort={sort}
       />
     );
-
-    await markAllNotificationsAsRead(userId);
 
     res.send(html);
   } catch (err) {
@@ -121,6 +129,55 @@ router.get("/notificationPicker", async (req, res) => {
       selectedSort={sort ?? "Most Recent"}
     />
   );
+
+  res.send(html);
+});
+
+router.get("/reminder/:notificationId", async (req, res) => {
+  const notifcationTypeId = req.query.notificationTypeId as string;
+  const notificationId = req.params.notificationId;
+
+  console.log(
+    "notificationId",
+    notificationId,
+    "notifcationTypeId",
+    notifcationTypeId
+  );
+
+  const notificationType = await getNotificationTypeById(notifcationTypeId);
+
+  if (!notificationType) {
+    return res.status(404).send("No notification type found");
+  }
+
+  let notifications;
+
+  if (notificationType.type === "invite") {
+    notifications = await getGroupInviteByNotificationId(notificationId);
+  } else if (notificationType.type === "generic") {
+    notifications = await getGenericNotificationByNotificationId(
+      notificationId
+    );
+  } else if (notificationType.type === "group") {
+    notifications = await getGroupNotificationByNotificationId(notificationId);
+  }
+
+  if (!notifications) {
+    return res.status(404).send("No notifications found");
+  }
+  console.log(notificationType, notificationId, "notificationType");
+
+  const groupOwner = await getGroupOwnerWithGroupId(notifications.groups.id);
+
+  if (!groupOwner) {
+    res.status(404).send("No group owner found");
+  }
+
+  const html = renderToHtml(
+    <Reminder notifications={notifications} groupOwner={groupOwner} />
+  );
+
+  await markNotificationAsRead(notificationId);
 
   res.send(html);
 });

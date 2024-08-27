@@ -141,7 +141,7 @@ export const EditGroupPage = ({
         </label>
         <div
           id="select-group-icon-container"
-          class="py-2 px-3  w-full h-fit flex justify-between bg-primary-black rounded-md mt-1"
+          class="py-2 px-3  w-full h-fit flex justify-between bg-primary-black rounded-md mt-1 cursor-pointer"
         >
           <p class="text-primary-grey font-normal">Select Group Icon</p>
           <img

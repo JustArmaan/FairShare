@@ -317,4 +317,4 @@ router.post("/confirm", async (req, res) => {
   return res.send(html);
 });
 
-export const splitRouter = router;
+export const groupSplitRouter = router;

@@ -11,6 +11,8 @@ export const notifications = sqliteTable("notifications", {
   userId: text("user_id")
     .references(() => users.id)
     .notNull(),
-  timestamp: text("timestamp").default(sql`(current_timestamp)`).notNull(),
+  timestamp: text("timestamp")
+    .default(sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`)
+    .notNull(),
   readStatus: integer("read_status", { mode: "boolean" }).default(sql`0`),
 });
