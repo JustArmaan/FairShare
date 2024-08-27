@@ -344,11 +344,6 @@ router.get("/checkSplit/:userId", async (req, res) => {
           alt="selected icon"
           class="ml-1 cursor-pointer"
         />
-        <input
-          type="hidden"
-          name={`${ischecked}-${req.params.userId}`}
-          id="selectedIcon"
-        />
       </>
     );
   }
