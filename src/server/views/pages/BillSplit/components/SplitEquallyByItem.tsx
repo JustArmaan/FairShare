@@ -60,10 +60,15 @@ export const SplitEquallyByItem = (props: {
               <img
                 src="/activeIcons/checked_blue_circle.svg"
                 alt="selected icon"
-                class="ml-1"
+                class="ml-1 split-options-radio"
               />
 
-              <input type="hidden" name={`true-${member.id}`} />
+              <input
+                type="hidden"
+                name={`true-${member.id}`}
+                value={member.id}
+                class="split-options-radio"
+              />
             </div>
           </div>
         ))}

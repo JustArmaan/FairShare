@@ -4,6 +4,12 @@ import { receiptLineItem } from "../database/schema/receiptLineItem";
 import { eq } from "drizzle-orm";
 import type { ExtractFunctionReturnType } from "./user.service";
 import type { ArrayElement } from "../interface/types";
+import { groupTransactionToUsersToGroupsStatus } from "../database/schema/groupTransactionToUsersToGroupStatus";
+import { v4 as uuidv4 } from "uuid";
+import { groupTransactionState } from "../database/schema/groupTransactionState";
+import { splitType } from "../database/schema/splitType";
+import { getUsersToGroup } from "./group.service";
+import { groupTransactionToUsersToGroups } from "../database/schema/groupTransactionToUsersToGroups";
 
 const db = getDB();
 
@@ -74,4 +80,120 @@ export async function getReceiptDetailsFromReceiptItemId(
   }
 
   return results[0];
+}
+
+export async function splitReceiptEquallyBetweenMembers(
+  userIds: string[],
+  receipId: string
+) {
+  const receipt = await getReceipt(receipId);
+  if (receipt.length === 0) {
+    console.log("Error getting receipt");
+    return undefined;
+  }
+
+  userIds.map(async (userId) => {
+    const splitTypeResult = await db
+      .select()
+      .from(splitType)
+      .where(eq(splitType.type, "equal"));
+
+    if (splitTypeResult.length === 0) {
+      console.log("Error getting split type");
+      return undefined;
+    }
+
+    const userToGroup = await getUsersToGroup(receipt[0].groupId, userId);
+
+    if (userToGroup === undefined) {
+      console.log("Error getting user to group");
+      return undefined;
+    }
+
+    const groupTransactionStateResult = await db
+      .insert(groupTransactionState)
+      .values({
+        id: uuidv4(),
+        pending: true,
+        splitTypeId: splitTypeResult[0].id,
+      })
+      .returning();
+
+    const groupTransactionToUserToGroupStatus = await db
+      .insert(groupTransactionToUsersToGroupsStatus)
+      .values({ id: uuidv4(), status: "notSent" })
+      .returning();
+
+    if (groupTransactionStateResult.length === 0) {
+      console.log("Error creating group transaction state");
+      return undefined;
+    }
+
+    await db.insert(groupTransactionToUsersToGroups).values({
+      id: uuidv4(),
+      amount: receipt[0].total / userIds.length,
+      groupTransactionStateId: groupTransactionStateResult[0].id,
+      usersToGroupsId: userToGroup!.id,
+      groupTransactionToUsersToGroupsStatusId:
+        groupTransactionToUserToGroupStatus[0].id,
+    });
+  });
+}
+
+export async function splitReceiptByAmount(
+  userAmounts: { userId: string; amount: number }[],
+  receiptId: string
+) {
+  const receipt = await getReceipt(receiptId);
+  if (receipt.length === 0) {
+    console.log("Error getting receipt");
+    return undefined;
+  }
+
+  for (const { userId, amount } of userAmounts) {
+    const splitTypeResult = await db
+      .select()
+      .from(splitType)
+      .where(eq(splitType.type, "amount"));
+
+    if (splitTypeResult.length === 0) {
+      console.log("Error getting split type");
+      return undefined;
+    }
+
+    const userToGroup = await getUsersToGroup(receipt[0].groupId, userId);
+
+    if (userToGroup === undefined) {
+      console.log("Error getting user to group");
+      return undefined;
+    }
+
+    const groupTransactionStateResult = await db
+      .insert(groupTransactionState)
+      .values({
+        id: uuidv4(),
+        pending: true,
+        splitTypeId: splitTypeResult[0].id,
+      })
+      .returning();
+
+    const groupTransactionToUserToGroupStatus = await db
+      .insert(groupTransactionToUsersToGroupsStatus)
+      .values({ id: uuidv4(), status: "notSent" })
+      .returning();
+
+    if (groupTransactionStateResult.length === 0) {
+      console.log("Error creating group transaction state");
+      return undefined;
+    }
+
+    await db.insert(groupTransactionToUsersToGroups).values({
+      id: uuidv4(),
+      amount: amount,
+      groupTransactionStateId: groupTransactionStateResult[0].id,
+      usersToGroupsId: userToGroup!.id,
+      groupTransactionToUsersToGroupsStatusId:
+        groupTransactionToUserToGroupStatus[0].id,
+    });
+  }
 }

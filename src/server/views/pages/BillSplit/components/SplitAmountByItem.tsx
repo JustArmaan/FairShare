@@ -68,6 +68,7 @@ export const SplitAmountByItem = (props: {
                   type="hidden"
                   name={`${true}-${member.id}`}
                   id="selectedIcon"
+                  class="split-options-radio"
                 />
               </div>
             </div>
