@@ -3,7 +3,6 @@ import { type GroupMembersTransactions } from "../../../services/group.service";
 export const GroupTransactionsListPage = (props: {
   group: GroupMembersTransactions;
 }) => {
-  console.log(props.group);
   return (
     <div
       class="animate-fade-in"

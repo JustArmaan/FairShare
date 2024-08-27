@@ -4,6 +4,7 @@ import {
   type CombinedNotification,
 } from "../../../../services/notification.service";
 import type { ExtractFunctionReturnType } from "../../../../services/user.service";
+import { ProfileIcon } from "../../../components/ProfileIcon";
 
 export type GroupOwner = ExtractFunctionReturnType<
   typeof getGroupOwnerWithGroupId
@@ -36,7 +37,6 @@ export const Reminder = (props: {
   groupOwner?: GroupOwner;
 }) => {
   const timeAgo = (timestamp: string) => {
-    console.log(timestamp, "timestamp");
     const now = Date.now();
     const date = new Date(timestamp);
     const diff = Math.floor((now - date.getTime()) / 1000);
@@ -58,80 +58,74 @@ export const Reminder = (props: {
 
   const { notifications } = props;
 
-  let message = "";
+  let message: string | JSX.Element = "";
 
   if (isInviteNotification(notifications)) {
-    message = `Invite from to join "${notifications.groups.name}"`;
+    message = (
+      <>
+        Invite to join{" "}
+        <span class="font-semibold">"{notifications.groups.name}"</span>
+      </>
+    );
   } else if (isGenericNotification(notifications)) {
     message = notifications.genericNotification.message || "No message.";
   } else if (isGroupNotification(notifications)) {
     message = notifications.groupNotification.message || "No message.";
   }
 
-  console.log(notifications, "notifications");
-
   return (
     <div class="animate-fade-in mb-[1.25rem]">
-      <div class="bg-primary-black rounded-xl shadow-[0_3px_2px_0_rgba(0,0,0,0.25)] mb-1 flex justify-between relative h-[5.6875rem] ">
-        <div class="flex w-full">
-          <div
-            class={`flex rounded-full bg-${props.groupOwner?.color} h-[4.1875rem] p-4 m-3 justify-center w-[4.1875rem] items-center`}
-          >
-            <span class="flex justify-center self-center text-center text-2xl font-bold">
-              {props.groupOwner?.firstName.split("", 1)}
-              {props.groupOwner?.lastName?.split("", 1)}
-            </span>
-          </div>
-          <div class="flex flex-col w-full">
-            <div class="flex justify-between items-center w-full">
-              <div class="flex-row">
-                <p class="text-font-off-white font-normal mt-[0.36rem] w-[16rem]">
-                  {message}
-                </p>
-                <span class="text-font-grey font-normal text-xs mt-[0.25rem] align-top">
-                  Sent from {props.groupOwner?.firstName}
-                </span>
-              </div>
+      <div class="bg-primary-black rounded-xl shadow-[0_3px_2px_0_rgba(0,0,0,0.25)] mb-1 flex justify-between relative pb-0.5 px-3">
+        <div class="h-20 w-20 flex-col items-center justify-center flex mr-[1rem] mt-[0.25rem]">
+          <ProfileIcon user={props.groupOwner!} class="h-14 w-14" />
+        </div>
+        <div class="flex flex-col w-full">
+          <div class="flex justify-between items-center w-full">
+            <div class="flex flex-col mt-[0.75rem]">
+              <p class="text-font-off-white">{message}</p>
+              <span class="text-font-grey font-normal text-xs align-top -mt-[0.15rem]">
+                Sent by {props.groupOwner?.firstName}
+              </span>
+            </div>
+            {!isInviteNotification(notifications) && (
               <span class="text-xs text-font-grey m-2.5 items-end right-0 top-0 absolute">
                 {timeAgo(notifications.notifications.timestamp)}
               </span>
-            </div>
-            <div class="flex justify-end">
-              {isInviteNotification(notifications) && (
-                <div class="flex">
-                  <form>
-                    <input
-                      type="hidden"
-                      name="notificationId"
-                      value={notifications.notifications.id}
-                    />
-                    <input
-                      type="hidden"
-                      name="userToGroupId"
-                      value={notifications.groupInvite.userGroupId}
-                    />
-                    <button
-                      class="bg-accent-blue text-font-off-white rounded-md hover:-translate-y-0.5 cursor-pointer transition-all w-[6.875rem] h-[1.875rem]  mr-4 mb-[0.60rem]"
-                      hx-post={`/groups/member/accept/userToGroupId=${notifications.groupInvite.userGroupId}/notificationId=${notifications.notifications.id}`}
-                      hx-target="#app"
-                      hx-swap="innerHTML"
-                      hx-trigger="click"
-                    >
-                      Confirm
-                    </button>
-                    <button
-                      class="border-accent-blue border-[1px] text-font-off-white rounded-md hover:-translate-y-0.5 cursor-pointer transition-all w-[6.875rem] h-[1.875rem] mr-[2.69rem] mb-[0.60rem]"
-                      hx-post={`/groups/member/decline/groupId=$userToGroupId=${notifications.groupInvite.userGroupId}/notificationId=${notifications.notifications.id}`}
-                      hx-target="#app"
-                      hx-swap="innerHTML"
-                      hx-trigger="click"
-                    >
-                      Delete
-                    </button>
-                  </form>
-                </div>
-              )}
-            </div>
+            )}
+          </div>
+          <div class="mt-2">
+            {isInviteNotification(notifications) && (
+              <form class="w-full flex flex-row justify-start">
+                <input
+                  type="hidden"
+                  name="notificationId"
+                  value={notifications.notifications.id}
+                />
+                <input
+                  type="hidden"
+                  name="userToGroupId"
+                  value={notifications.groupInvite.userGroupId}
+                />
+                <button
+                  class="flex items-center mr-4 justify-center py-2 bg-accent-blue text-font-off-white rounded-md hover:-translate-y-0.5 cursor-pointer transition-all w-[6.875rem] h-[1.875rem] mb-[0.60rem]"
+                  hx-post={`/groups/member/accept/userToGroupId=${notifications.groupInvite.userGroupId}/notificationId=${notifications.notifications.id}`}
+                  hx-target="#app"
+                  hx-swap="innerHTML"
+                  hx-trigger="click"
+                >
+                  <span class="font-semibold">Confirm</span>
+                </button>
+                <button
+                  class="py-2 flex items-center justify-center border-accent-blue border-[1px] text-font-off-white rounded-md hover:-translate-y-0.5 cursor-pointer transition-all w-[6.875rem] h-[1.875rem]  mb-[0.60rem]"
+                  hx-post={`/groups/member/decline/groupId=$userToGroupId=${notifications.groupInvite.userGroupId}/notificationId=${notifications.notifications.id}`}
+                  hx-target="#app"
+                  hx-swap="innerHTML"
+                  hx-trigger="click"
+                >
+                  <span class="font-semibold">Delete</span>
+                </button>
+              </form>
+            )}
           </div>
         </div>
         {notifications.notifications.readStatus === false && (

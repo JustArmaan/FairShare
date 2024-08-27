@@ -256,6 +256,9 @@ router.post("/addButton", async (req, res) => {
   // add/remove the transaction to group relationship
 
   const { members } = (await getGroupWithMembers(groupId))!;
+  const membersNoInvited = members.filter(
+    (member) => member.type !== "Invited"
+  );
   if (checked === "false") {
     const groupTransactions = await addTransactionsToGroup(
       transaction.id,
@@ -267,9 +270,9 @@ router.post("/addButton", async (req, res) => {
       pending: false,
       groupTransactionId: groupTransactions[0].id,
     });
-    const owedPerMember = transaction.amount / members.length;
+    const owedPerMember = transaction.amount / membersNoInvited.length;
     await Promise.all(
-      members.map(async (member) => {
+      membersNoInvited.map(async (member) => {
         return await createOwed({
           linkedTransactionId:
             member.id === req.user!.id ? transactionId : null,
@@ -279,7 +282,7 @@ router.post("/addButton", async (req, res) => {
           groupTransactionStateId: groupTransactionState![0].id,
           amount:
             member.id === req.user!.id
-              ? owedPerMember * (members.length - 1)
+              ? owedPerMember * (membersNoInvited.length - 1)
               : -1 * owedPerMember,
         });
       })

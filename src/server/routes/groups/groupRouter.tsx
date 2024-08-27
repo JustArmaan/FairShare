@@ -73,8 +73,8 @@ import { checkUserExistsInGroup } from "../../utils/userExistsInGroup.ts";
 import GroupMembers from "../../views/pages/Groups/components/GroupMembers.tsx";
 import { groupViewSubRouter } from "./groupView.tsx";
 import { getOrCreateCashAccountForUser } from "../../utils/getOrCreateCashAccount.ts";
-import { io } from "../../main.tsx";
 import Members from "../../views/pages/Groups/components/Members.tsx";
+import { memberType } from "../../database/schema/memberType.ts";
 
 const router = express.Router();
 
@@ -132,8 +132,15 @@ const createIcons = [
 router.get("/page", async (req, res) => {
   try {
     const groups = await getGroupsAndAllMembersForUser(req.user!.id);
+    const groupsNoInvited = groups.map((group) => {
+      group.members = group.members.filter(
+        (member) => member.type !== "Invited"
+      );
+      return group;
+    });
+
     const groupsWithOwed = await Promise.all(
-      groups.map(async (group) => {
+      groupsNoInvited.map(async (group) => {
         let owed = await getUserTotalOwedForGroupWithOwingFlags(
           req.user!.id,
           group.id
