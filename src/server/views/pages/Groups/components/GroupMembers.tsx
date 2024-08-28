@@ -66,9 +66,9 @@ export const GroupMembers = ({
                       class="hover:-translate-y-0.5 transition-transform hover:opacity-80 w-[1.25rem]"
                     />
                   </a>
-                ) :( 
-                  <div class="mr-[0.94rem] h-[1.425rem] w-[1.25rem]"></div>)
-}
+                ) : (
+                  <div class="mr-[0.94rem] h-[1.425rem] w-[1.25rem]"></div>
+                )}
               </p>
             </p>
           </div>

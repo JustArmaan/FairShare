@@ -85,7 +85,6 @@ export async function createOwed(owed: Omit<Owed, "id">) {
       .where(eq(usersToGroups.id, owed.usersToGroupsId))
   )[0];
 
-  console.log("emitting to:", userId)
   io.to(userId).emit("updateGroup", { groupId });
 }
 
