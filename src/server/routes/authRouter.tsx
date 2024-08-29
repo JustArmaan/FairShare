@@ -173,32 +173,32 @@ router.get("/google", async (req, res) => {
       },
     });
 
-    console.log("Redirecting to Apple login URL:", googleLoginUri.toString());
+    console.log("Redirecting to Google login URL:", googleLoginUri.toString());
     res.redirect(googleLoginUri.toString());
   } catch (error) {
     console.error("Failed to initiate Apple login:", error);
-    res.status(500).send("Failed to initiate login with Apple.");
+    res.status(500).send("Failed to initiate login with Google.");
   }
 });
 
 router.get("/email", async (req, res) => {
-  console.log("Attempting Apple login");
+  console.log("Attempting Email login");
 
   const sessionManagement = sessionManager(req, res);
 
   try {
-    const appleLoginUrl = await kindeClient.login(sessionManagement, {
+    const emailLoginUrl = await kindeClient.login(sessionManagement, {
       authUrlParams: {
         connection_id: env.kindeEmailConnectionId,
         login_hint: "email",
       },
     });
 
-    console.log("Redirecting to Apple login URL:", appleLoginUrl.toString());
-    res.redirect(appleLoginUrl.toString());
+    console.log("Redirecting to Email login URL:", emailLoginUrl.toString());
+    res.redirect(emailLoginUrl.toString());
   } catch (error) {
-    console.error("Failed to initiate Apple login:", error);
-    res.status(500).send("Failed to initiate login with Apple.");
+    console.error("Failed to initiate Email login:", error);
+    res.status(500).send("Failed to initiate login with Email.");
   }
 });
 

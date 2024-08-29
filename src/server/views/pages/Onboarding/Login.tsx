@@ -30,7 +30,7 @@ export const Login = () => {
             {/* <a href="/auth/register"> */}
             <button
               class="hover:-translate-y-0.5 transition-all bg-accent-blue rounded-3xl w-56 py-[0.5rem] mt-4"
-              hx-get="/auth/registerPage"
+              hx-get="/onboard/welcome"
               hx-swap="innerHTML"
               hx-target="body"
               hx-trigger="click"

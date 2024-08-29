@@ -90,6 +90,7 @@ export default {
     },
     fontFamily: {
       sans: ["Work Sans", "sans-serif"],
+      kanit: ['Kanit', 'sans-serif'],
     },
   },
   safelist: [
