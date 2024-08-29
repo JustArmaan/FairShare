@@ -10,6 +10,7 @@ import { groupTransactionState } from "../database/schema/groupTransactionState"
 import { splitType } from "../database/schema/splitType";
 import { getUsersToGroup } from "./group.service";
 import { groupTransactionToUsersToGroups } from "../database/schema/groupTransactionToUsersToGroups";
+import { receiptLineItemToGroupTransaction } from "../database/schema/receiptLineItemToGroupTransaction";
 
 const db = getDB();
 
@@ -38,6 +39,15 @@ export async function getReceiptLineItems(receiptId: string) {
     .select()
     .from(receiptLineItem)
     .where(eq(receiptLineItem.transactionReceiptId, receiptId));
+
+  return results;
+}
+
+export async function getReceiptLineItem(id: string) {
+  const results = await db
+    .select()
+    .from(receiptLineItem)
+    .where(eq(receiptLineItem.id, id));
 
   return results;
 }
@@ -187,13 +197,35 @@ export async function splitReceiptByAmount(
       return undefined;
     }
 
-    await db.insert(groupTransactionToUsersToGroups).values({
-      id: uuidv4(),
-      amount: amount,
-      groupTransactionStateId: groupTransactionStateResult[0].id,
-      usersToGroupsId: userToGroup!.id,
-      groupTransactionToUsersToGroupsStatusId:
-        groupTransactionToUserToGroupStatus[0].id,
-    });
+    const groupTransactionToUsersToGroupsResult = await db
+      .insert(groupTransactionToUsersToGroups)
+      .values({
+        id: uuidv4(),
+        amount: amount,
+        groupTransactionStateId: groupTransactionStateResult[0].id,
+        usersToGroupsId: userToGroup!.id,
+        groupTransactionToUsersToGroupsStatusId:
+          groupTransactionToUserToGroupStatus[0].id,
+      })
+      .returning();
+    return groupTransactionToUsersToGroupsResult;
   }
+}
+
+export async function createSplitReceiptLineItem(
+  receiptLineItemId: string,
+  groupTransactionToUsersToGroupsId: string,
+  amount: number
+) {
+  const result = await db
+    .insert(receiptLineItemToGroupTransaction)
+    .values({
+      id: uuidv4(),
+      receiptLineItemId,
+      groupTransactionId: groupTransactionToUsersToGroupsId,
+      amount,
+    })
+    .returning();
+
+  return result[0];
 }

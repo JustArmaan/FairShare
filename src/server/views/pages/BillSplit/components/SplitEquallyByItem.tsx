@@ -57,18 +57,26 @@ export const SplitEquallyByItem = (props: {
                   : `Owe You $${splitAmount}`}
               </p>
 
-              <img
-                src="/activeIcons/checked_blue_circle.svg"
-                alt="selected icon"
-                class="ml-1 split-options-radio"
-              />
+              <div
+                id={`splitOptionsRadioButton${member.id}-${props.receiptItem.id}`}
+              >
+                <img
+                  hx-get={`/billSplit/checkSplit/${member.id}?ischecked=true&receiptItemId=${props.receiptItem.id}`}
+                  hx-swap="innerHTML"
+                  hx-trigger="click"
+                  hx-target={`#splitOptionsRadioButton${member.id}-${props.receiptItem.id}`}
+                  src="/activeIcons/checked_blue_circle.svg"
+                  alt="selected icon"
+                  class="ml-1 cursor-pointer"
+                />
 
-              <input
-                type="hidden"
-                name={`true-${member.id}`}
-                value={member.id}
-                class="split-options-radio"
-              />
+                <input
+                  type="hidden"
+                  name={`${true}-${member.id}`}
+                  id="selectedIcon"
+                  class="split-options-radio"
+                />
+              </div>
             </div>
           </div>
         ))}
