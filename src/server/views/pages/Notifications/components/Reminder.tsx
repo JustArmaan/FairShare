@@ -43,17 +43,19 @@ export const Reminder = (props: {
 
     if (diff < 60) return `${diff} seconds ago`;
     const minutes = Math.floor(diff / 60);
-    if (minutes < 60) return `${minutes} minutes ago`;
+    if (minutes < 60)
+      return `${minutes} ${minutes === 1 ? "minute" : "minutes"} ago`;
     const hours = Math.floor(minutes / 60);
-    if (hours < 24) return `${hours} hours ago`;
+    if (hours < 24) return `${hours} ${hours === 1 ? "hour" : "hours"} ago`;
     const days = Math.floor(hours / 24);
-    if (days < 7) return `${days} days ago`;
+    if (days < 7) return `${days} ${days === 1 ? "day" : "days"} ago`;
     const weeks = Math.floor(days / 7);
-    if (weeks < 4) return `${weeks} weeks ago`;
+    if (weeks < 4) return `${weeks} ${weeks === 1 ? "week" : "weeks"} ago`;
     const months = Math.floor(days / 30);
-    if (months < 12) return `${months} months ago`;
+    if (months < 12)
+      return `${months} ${months === 1 ? "month" : "months"} ago`;
     const years = Math.floor(days / 365);
-    return `${years} years ago`;
+    return `${years} ${years === 1 ? "year" : "years"} ago`;
   };
 
   const { notifications } = props;
@@ -75,15 +77,15 @@ export const Reminder = (props: {
 
   return (
     <div class="animate-fade-in mb-[1.25rem]">
-      <div class="bg-primary-black rounded-xl shadow-[0_3px_2px_0_rgba(0,0,0,0.25)] mb-1 flex justify-between relative pb-0.5 px-3">
-        <div class="h-20 w-20 flex-col items-center justify-center flex mr-[1rem] mt-[0.25rem]">
+      <div class="bg-primary-black rounded-xl shadow-[0_3px_2px_0_rgba(0,0,0,0.25)] mb-1 flex justify-between relative pb-0.5 px-3 items-center">
+        <div class="h-20 w-20 flex-col items-center justify-center flex mr-[1rem]">
           <ProfileIcon user={props.groupOwner!} class="h-14 w-14" />
         </div>
-        <div class="flex flex-col w-full">
-          <div class="flex justify-between items-center w-full">
-            <div class="flex flex-col mt-[0.75rem]">
+        <div class="flex flex-col w-full justify-center">
+          <div class="flex justify-between items-center w-full mt-2">
+            <div class="flex flex-col mr-[4.5rem] leading-5">
               <p class="text-font-off-white">{message}</p>
-              <span class="text-font-grey font-normal text-xs align-top -mt-[0.15rem]">
+              <span class="text-font-grey font-normal text-xs align-top mt-[0.25rem]">
                 Sent by {props.groupOwner?.firstName}
               </span>
             </div>

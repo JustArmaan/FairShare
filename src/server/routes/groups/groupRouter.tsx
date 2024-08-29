@@ -74,7 +74,6 @@ import GroupMembers from "../../views/pages/Groups/components/GroupMembers.tsx";
 import { groupViewSubRouter } from "./groupView.tsx";
 import { getOrCreateCashAccountForUser } from "../../utils/getOrCreateCashAccount.ts";
 import Members from "../../views/pages/Groups/components/Members.tsx";
-import { memberType } from "../../database/schema/memberType.ts";
 
 const router = express.Router();
 
@@ -819,6 +818,17 @@ router.post(
         owner.userId,
         `${user?.firstName} has accepted the invite to join the group`
       );
+
+      const html = renderToHtml(
+        <div
+          hx-get={`/groups/view/${groupId}`}
+          hx-trigger="load"
+          hx-target="#app"
+          hx-swap="innerHTML"
+          hx-push-url={`/groups/view/${groupId}`}
+        />
+      );
+      return res.send(html);
     } else {
       await deleteMemberByGroup(userId, groupId);
       await deleteGroupInviteNotificationByNotificationId(notificationId);
@@ -828,18 +838,17 @@ router.post(
         owner.userId,
         `${user?.firstName} has declined the invite to join the group`
       );
-    }
 
-    const html = renderToHtml(
-      <div
-        hx-get={`/groups/view/${groupId}`}
-        hx-trigger="load"
-        hx-target="#app"
-        hx-swap="innerHTML"
-        hx-push-url={`/groups/page/${groupId}`}
-      />
-    );
-    res.send(html);
+      const html = renderToHtml(
+        <div
+          hx-get="/notification/page"
+          hx-target="#app"
+          hx-trigger="load"
+          hx-swap="innerHTML"
+        />
+      );
+      return res.send(html);
+    }
   }
 );
 

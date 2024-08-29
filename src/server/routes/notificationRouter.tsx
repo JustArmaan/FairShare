@@ -41,34 +41,29 @@ router.get("/page", async (req, res) => {
   }
 });
 
-router.get("/notificationList/:userId", async (req, res) => {
-  try {
-    const sort = (req.query.sort as string) || "Most Recent";
-    const userId = req.user!.id;
-    if (!userId) {
-      return res.status(404).send("No userId");
-    }
-
-    const notifications = await getSortedNotifications(userId, sort);
-
-    const inviteNotifications = await getGroupInviteNotificaitonById(userId);
-
-    if (!notifications || !inviteNotifications) {
-      return res.status(404).send("Problem with notification");
-    }
-    const html = renderToHtml(
-      <NotificationList
-        inviteNotifications={inviteNotifications}
-        notifications={notifications}
-        selectedSort={sort}
-      />
-    );
-
-    res.send(html);
-  } catch (err) {
-    console.error(err);
-    res.status(500).send("Error fetching notifications");
+router.get("/notificationList", async (req, res) => {
+  const sort = (req.query.sort as string) || "Most Recent";
+  const userId = req.user!.id;
+  if (!userId) {
+    return res.status(404).send("No userId");
   }
+
+  const notifications = await getSortedNotifications(userId, sort);
+
+  const inviteNotifications = await getGroupInviteNotificaitonById(userId);
+
+  if (!notifications || !inviteNotifications) {
+    return res.status(404).send("Problem with notification");
+  }
+  const html = renderToHtml(
+    <NotificationList
+      inviteNotifications={inviteNotifications}
+      notifications={notifications}
+      selectedSort={sort}
+    />
+  );
+
+  res.send(html);
 });
 
 router.get("/notificationIcon", async (req, res) => {

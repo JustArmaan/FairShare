@@ -974,44 +974,43 @@ export async function changeMemberTypeInGroup(
   groupId: string,
   type: string
 ) {
-  try {
-    const memberType = await getMemberType(type);
+  const memberType = await getMemberType(type);
 
-    if (!memberType) {
-      return null;
+  if (!memberType) {
+    return null;
+  }
+
+  const userGroup = (await getUserGroupId(userId, groupId))!;
+
+  if (type === "Member") {
+    const group = (await getGroupWithMembers(groupId))!;
+    group.members.forEach((member) => {
+      io.to(member.id).emit("updateGroup", { groupId });
+    });
+  }
+
+  const newMember = await db
+    .update(usersToGroups)
+    .set({ memberTypeId: memberType.id })
+    .where(eq(usersToGroups.id, userGroup.id))
+    .returning();
+
+  if (newMember) {
+    const equalSplitGroupTransactionsWithAllOwed =
+      await getGroupWithEqualSplitTypeTransactionsAndMembers(groupId);
+
+    const groupWithMembers = await getGroupWithAcceptedMembers(groupId);
+    if (equalSplitGroupTransactionsWithAllOwed && groupWithMembers) {
+      const equalSplitGroupTransactions = filterUniqueTransactions(
+        equalSplitGroupTransactionsWithAllOwed
+      );
+
+      await splitEqualTransactions(
+        equalSplitGroupTransactions,
+        groupId,
+        groupWithMembers
+      );
     }
-
-    const userGroup = await getUserGroupId(userId, groupId);
-
-    if (!userGroup) {
-      return null;
-    }
-
-    const newMember = await db
-      .update(usersToGroups)
-      .set({ memberTypeId: memberType.id })
-      .where(eq(usersToGroups.id, userGroup.id))
-      .returning();
-
-    if (newMember) {
-      const equalSplitGroupTransactionsWithAllOwed =
-        await getGroupWithEqualSplitTypeTransactionsAndMembers(groupId);
-
-      const groupWithMembers = await getGroupWithAcceptedMembers(groupId);
-      if (equalSplitGroupTransactionsWithAllOwed && groupWithMembers) {
-        const equalSplitGroupTransactions = filterUniqueTransactions(
-          equalSplitGroupTransactionsWithAllOwed
-        );
-
-        await splitEqualTransactions(
-          equalSplitGroupTransactions,
-          groupId,
-          groupWithMembers
-        );
-      }
-    }
-  } catch (error) {
-    console.error(error);
   }
 }
 

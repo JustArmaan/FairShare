@@ -20,7 +20,7 @@ export const NotificationPicker = (props: {
                 <>
                   <div
                     class="w-full flex justify-between p-4 hover:opacity-80 cursor-pointer"
-                    hx-get={`/notification/notificationList/${props.currentUserId}?sort=${item}`}
+                    hx-get={`/notification/notificationList?sort=${item}`}
                     hx-swap="innerHTML"
                     hx-target="#notification-list"
                   >
