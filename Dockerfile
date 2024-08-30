@@ -6,6 +6,8 @@ ENV USER root
 # Copy the flake.nix file to the container
 COPY flake.nix /root/flake.nix
 
+ENV NIX_CONFIG="access-tokens = github.com=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"
+
 # Install Git as it's required for Nix flakes
 RUN nix-env -iA nixpkgs.git
 
