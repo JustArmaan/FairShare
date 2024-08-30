@@ -43,11 +43,11 @@ export const Initial2 = () => {
             </p>
 
             <div class="flex space-x-1 mt-[4rem]">
-              <span class="bg-font-off-white w-2 h-2 rounded-full opacity-50"></span>
-              <span class="bg-font-off-white w-2 h-2 rounded-full opacity-50"></span>
-              <span class="bg-font-off-white w-2 h-2 rounded-full "></span>
-              <span class="bg-font-off-white w-2 h-2 rounded-full opacity-50"></span>
-              <span class="bg-font-off-white w-2 h-2 rounded-full opacity-50"></span>
+              <span class="bg-font-off-white w-2 h-[0.625rem] rounded-full opacity-50"></span>
+              <span class="bg-font-off-white w-2 h-[0.625rem] rounded-full opacity-50"></span>
+              <span class="bg-font-off-white w-4 h-[0.625rem] rounded-full"></span>
+              <span class="bg-font-off-white w-2 h-[0.625rem] rounded-full opacity-50"></span>
+              <span class="bg-font-off-white w-2 h-[0.625rem] rounded-full opacity-50"></span>
             </div>
             <div class="flex flex-col text-font-off-white font-normal text-lg mt-2 text-center w-56">
               <button
