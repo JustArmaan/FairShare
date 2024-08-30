@@ -10,7 +10,7 @@ export const SaveSplit = (props: { transactionsDetails: Receipt }) => {
         hx-trigger="click"
         hx-target="#app"
         hx-swap="innerHTML"
-        hx-include="[name='splitType'], #splitOptionsRadioButton input, #splitByAmount input, #splitByPercent input"
+        hx-include="[name='splitType'], .split-options-radio, #splitByAmount input, #splitByPercent input"
         class="rounded-md w-[13.4rem] h-10 bg-accent-blue justify-center text-font-off-white text-sm mb-4"
       >
         Save Split
