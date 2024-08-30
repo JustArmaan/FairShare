@@ -4,17 +4,18 @@ import { transactions } from "../database/schema/transaction";
 import { eq, desc, like, and, or, gte, lt, inArray, count } from "drizzle-orm";
 import { v4 as uuid } from "uuid";
 import type { ExtractFunctionReturnType } from "./user.service";
+import type { TransactionSchema } from "../interface/types";
 import { accounts } from "../database/schema/accounts";
 import { items } from "../database/schema/items";
 import { plaidAccount } from "../database/schema/plaidAccount";
 import { cashAccount } from "../database/schema/cashAccount";
 import { users } from "../database/schema/users";
+import { getItem } from "./plaid.service";
 
 const db = getDB();
 
 export async function getTransactionsForUser(
   accountId: string,
-
   limit: number = 9999
 ) {
   try {
@@ -147,10 +148,12 @@ export type cashAccount = ExtractFunctionReturnType<typeof getCashAccount>;
 
 export async function createTransaction(transaction: Omit<Transaction, "id">) {
   try {
+    const id = uuid();
     await db.insert(transactions).values({
       id: uuid(),
       ...transaction,
     });
+    return id;
   } catch (error) {
     console.error(error, "in createTransaction");
   }
@@ -295,14 +298,17 @@ export async function getAccountForUserWithMostTransactions(userId: string) {
       .innerJoin(items, eq(items.id, plaidAccount.itemId))
       .where(eq(items.userId, userId));
 
-    const grouped = allUserTransactions.reduce((acc, transaction) => {
-      const accountId = transaction.transactions.accountId;
-      if (!acc[accountId]) {
-        acc[accountId] = 0;
-      }
-      acc[accountId]++;
-      return acc;
-    }, {} as Record<string, number>);
+    const grouped = allUserTransactions.reduce(
+      (acc, transaction) => {
+        const accountId = transaction.transactions.accountId;
+        if (!acc[accountId]) {
+          acc[accountId] = 0;
+        }
+        acc[accountId]++;
+        return acc;
+      },
+      {} as Record<string, number>
+    );
     const accountIds = Object.keys(grouped);
     const maxTransactions = Math.max(...Object.values(grouped));
     const accountId = accountIds.find(
@@ -313,5 +319,74 @@ export async function getAccountForUserWithMostTransactions(userId: string) {
   } catch (error) {
     console.error(error), "in getAccountForUserWithMostTransactions";
     return null;
+  }
+}
+
+type ItemSchema = ExtractFunctionReturnType<typeof getItem>;
+// i cba typing this out
+function reduceItemResultsIntoDictionary(
+  aggregate: { item: ItemSchema; transactions: TransactionSchema[] }[],
+  currentValue: any
+) {
+  const itemIndex = aggregate.findIndex(
+    (entry: any) => entry.item.id === currentValue.items.id
+  );
+
+  const newTransaction = {
+    ...currentValue.transactions,
+    category: currentValue.categories,
+  };
+
+  if (itemIndex === -1) {
+    aggregate.push({
+      item: { ...currentValue.items },
+      transactions: [newTransaction],
+    });
+  } else {
+    aggregate[itemIndex].transactions.push(newTransaction);
+  }
+  return aggregate;
+}
+
+export async function getItemsWithAllTransactions(userId: string) {
+  try {
+    const results = await db
+      .select({ items, transactions, categories })
+      .from(items)
+      .innerJoin(plaidAccount, eq(plaidAccount.itemId, items.id))
+      .innerJoin(accounts, eq(accounts.id, plaidAccount.accountsId))
+      .innerJoin(transactions, eq(transactions.accountId, accounts.id))
+      .innerJoin(categories, eq(transactions.categoryId, categories.id))
+      .where(eq(items.userId, userId));
+
+    return results.reduce(
+      reduceItemResultsIntoDictionary,
+      [] as { item: ItemSchema; transactions: TransactionSchema[] }[]
+    );
+  } catch (e) {
+    console.trace();
+    console.error(e);
+  }
+}
+
+export async function getItemWithAllTransactions(itemId: string) {
+  try {
+    const results = await db
+      .select({ items, transactions, categories })
+      .from(items)
+      .innerJoin(plaidAccount, eq(plaidAccount.itemId, items.id))
+      .innerJoin(accounts, eq(accounts.id, plaidAccount.accountsId))
+      .innerJoin(transactions, eq(transactions.accountId, accounts.id))
+      .innerJoin(categories, eq(transactions.categoryId, categories.id))
+      .where(eq(items.id, itemId));
+
+    type ItemSchema = ExtractFunctionReturnType<typeof getItem>;
+    return results.reduce(
+      reduceItemResultsIntoDictionary,
+      [] as { item: ItemSchema; transactions: TransactionSchema[] }[]
+    )[0];
+  } catch (e) {
+    console.trace();
+    console.error(e);
   }
 }

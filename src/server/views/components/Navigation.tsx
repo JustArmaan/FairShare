@@ -64,17 +64,18 @@ export const Nav = () => {
           <li class="flex justify-center items-center">
             <a
               hx-get="/receipt/addReceipt"
+              // hx-get="/billSplit/overview/dc3da8f3-03ca-4285-bcd4-19a9b4e96b5a/4538e277-7a4e-4812-82da-601d4827bd28"
               hx-target="#app"
               hx-trigger="click"
               hx-swap="innerHTML"
               hx-push-url="/receipt/addReceipt"
-              onclick="console.log('HTMX click event');"
+              // hx-push-url="/billSplit/overview/dc3da8f3-03ca-4285-bcd4-19a9b4e96b5a/4538e277-7a4e-4812-82da-601d4827bd28"
               class="flex flex-col items-center text-font-off-white dark:text-white"
             >
               <img
-                src="/images/moreButton.svg"
-                alt="plus icon"
-                class="p-2.5 mt-0.5"
+                src="/activeIcons/navCamera.svg"
+                alt="camera icon"
+                class="p-2.5 items-center"
               ></img>
             </a>
           </li>
@@ -111,7 +112,7 @@ export const Nav = () => {
               />
             </div>
             <p id="notificationsText" class="mt-1 text-xs">
-              Notifications
+              Alerts
             </p>
           </a>
         </div>

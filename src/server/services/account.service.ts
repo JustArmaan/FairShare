@@ -6,6 +6,7 @@ import { items } from "../database/schema/items";
 import { users } from "../database/schema/users";
 import { plaidAccount } from "../database/schema/plaidAccount";
 import { cashAccount } from "../database/schema/cashAccount";
+import { transactions } from "../database/schema/transaction";
 
 const db = getDB();
 
@@ -171,4 +172,14 @@ export async function getUserInfoFromAccount(accountId: string) {
     console.error(error, "Can not get account information");
     return null;
   }
+}
+
+export async function getAccountIdByTransactionId(transactionId: string) {
+  const result = await db
+    .select({ accountId: accounts.id })
+    .from(transactions)
+    .innerJoin(accounts, eq(accounts.id, transactions.accountId))
+    .where(eq(transactions.id, transactionId));
+
+  return result[0].accountId;
 }

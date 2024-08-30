@@ -11,8 +11,6 @@ import { changeHeader } from "./header/header";
 import {
   handleIconClick,
   handleColorClick,
-  initializeSelectedColor,
-  initializeSelectedIcon,
   openAndCloseSelectIcon,
   clearInviteInput,
   initializeGroupForm,
@@ -23,13 +21,14 @@ import {
   initializeChooseFromLibraryButton,
   onMessage,
   addTakePictureButton,
+  attachDeleteEventListeners,
 } from "./receiptScanning/receiptScanning";
 
 // !!!
 // @ts-ignore
 window.onMessage = onMessage;
 
-// console.log("running");
+// debug:
 
 main();
 splitTransfer();
@@ -37,6 +36,7 @@ setupSocketListener();
 handleNavigation();
 
 document.body.addEventListener("htmx:afterSwap", (event) => {
+  attachDeleteEventListeners();
   highlightNavigationIcons();
   progressBar();
   attachFormListeners();
@@ -48,8 +48,8 @@ document.body.addEventListener("htmx:afterSwap", (event) => {
   initializeGroupForm();
 
   if (!(event.target instanceof HTMLElement)) return;
-  const excludeListId = new Set(["institutionSelector"]);
-  if (excludeListId.has(event.target.id)) return;
+  const includeListId = new Set(["#app"]);
+  if (!includeListId.has(event.target.id)) return;
   window.scrollTo({ top: 0 });
 
   // Re-attach event listeners for icons
@@ -116,6 +116,19 @@ document.addEventListener("htmx:afterSwap", () => {
   const navBar = document.querySelector("nav")?.querySelector("ul");
   if (window.android && navBar instanceof HTMLElement) {
     navBar.style.setProperty("padding-bottom", "0px");
+  }
+
+  const hide = document.getElementById("hide");
+  const txt = document.getElementById("txt");
+  resize();
+  txt?.addEventListener("input", resize);
+
+  function resize() {
+    if (hide && txt) {
+      //@ts-ignore
+      hide.textContent = txt?.value;
+      txt.style.width = hide?.offsetWidth + 10 + "px";
+    }
   }
 });
 

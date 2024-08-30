@@ -57,7 +57,7 @@ export const EditGroupPage = ({
   icons: { icon: string; name: string }[];
 }) => {
   return (
-    <div class="animate-fade-in">
+    <div class="animate-fade-in" id="ws-group-edit">
       <div
         class="flex justify-between items-center mb-1 mt-[28px] text-font-off-white"
         id="create-back-button"
@@ -141,7 +141,7 @@ export const EditGroupPage = ({
         </label>
         <div
           id="select-group-icon-container"
-          class="py-2 px-3  w-full h-fit flex justify-between bg-primary-black rounded-md mt-1"
+          class="py-2 px-3  w-full h-fit flex justify-between bg-primary-black rounded-md mt-1 cursor-pointer"
         >
           <p class="text-primary-grey font-normal">Select Group Icon</p>
           <img

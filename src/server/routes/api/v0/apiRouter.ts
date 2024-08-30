@@ -89,6 +89,7 @@ router.get("/has-accounts", async (req, res) => {
 });
 
 router.post("/sync", async (req, res) => {
+  console.log("sync request received!", req);
   const { item_id } = req.body as { [key: string]: string };
   if (
     req.body.webhook_code === "SYNC_UPDATES_AVAILABLE" ||

@@ -6,7 +6,6 @@ import {
   getGroupTransactions,
   getGroupWithMembersAndTransactions,
   getGroupsAndAllMembersForUser,
-  getTransactionsForGroup,
   type GroupMembersTransactions,
   getUsersToGroup,
   updateUsersToGroup,
@@ -30,22 +29,20 @@ import {
   EditGroupPage,
   colors,
 } from "../../views/pages/Groups/components/EditGroup.tsx";
-import { ViewGroups } from "../../views/pages/Groups/components/ViewGroup.tsx";
 import { AddTransaction } from "../../views/pages/Groups/components/AddTransaction.tsx";
 import {
   getAccountWithTransactions,
   getAccountsForUser,
   getCashAccountWithTransaction,
   getItem,
-  getItemsForUser,
   type AccountSchema,
 } from "../../services/plaid.service.ts";
 import type { ExtractFunctionReturnType } from "../../services/user.service.ts";
 import { GroupTransactionsListPage } from "../../views/pages/Groups/TransactionsListGroupsPage.tsx";
 import {
   getAllOwedForGroupTransactionWithMemberInfo,
-  getAllOwedForGroupTransactionWithTransactionId,
   getGroupIdAndTransactionIdForOwed,
+  getResultsPerGroupTransaction,
 } from "../../services/owed.service.ts";
 import { TransactionList } from "../../views/pages/transactions/components/TransactionList.tsx";
 import { AccountPickerForm } from "../../views/pages/transactions/components/AccountPickerForm.tsx";
@@ -76,46 +73,9 @@ import { checkUserExistsInGroup } from "../../utils/userExistsInGroup.ts";
 import GroupMembers from "../../views/pages/Groups/components/GroupMembers.tsx";
 import { groupViewSubRouter } from "./groupView.tsx";
 import { getOrCreateCashAccountForUser } from "../../utils/getOrCreateCashAccount.ts";
+import Members from "../../views/pages/Groups/components/Members.tsx";
 
 const router = express.Router();
-
-const icons = [
-  {
-    id: "2707335e-ad80-458a-a1e6-fb25300e5621",
-    name: "Heart",
-    icon: "/groupIcons/heart.svg",
-  },
-  {
-    id: "2707335e-ad80-458a-a1e6-fb25300e5622",
-    name: "Star",
-    icon: "/groupIcons/star.svg",
-  },
-  {
-    id: "2707335e-ad80-458a-a1e6-fb25300e5623",
-    name: "Drink",
-    icon: "/groupIcons/drink.svg",
-  },
-  {
-    id: "2707335e-ad80-458a-a1e6-fb25300e5624",
-    name: "Diamond",
-    icon: "/groupIcons/diamond.svg",
-  },
-  {
-    id: "2707335e-ad80-458a-a1e6-fb25300e5625",
-    name: "Food",
-    icon: "/groupIcons/food.svg",
-  },
-  {
-    id: "2707335e-ad80-458a-a1e6-fb25300e5626",
-    name: "Crown",
-    icon: "/groupIcons/crown.svg",
-  },
-  {
-    id: "2707335e-ad80-458a-a1e6-fb25300e5627",
-    name: "Gift",
-    icon: "/groupIcons/gift.svg",
-  },
-];
 
 const createIcons = [
   {
@@ -171,8 +131,15 @@ const createIcons = [
 router.get("/page", async (req, res) => {
   try {
     const groups = await getGroupsAndAllMembersForUser(req.user!.id);
+    const groupsNoInvited = groups.map((group) => {
+      group.members = group.members.filter(
+        (member) => member.type !== "Invited"
+      );
+      return group;
+    });
+
     const groupsWithOwed = await Promise.all(
-      groups.map(async (group) => {
+      groupsNoInvited.map(async (group) => {
         let owed = await getUserTotalOwedForGroupWithOwingFlags(
           req.user!.id,
           group.id
@@ -376,82 +343,77 @@ router.post("/addMember/:groupId", async (req, res) => {
 });
 
 router.post("/create", async (req, res) => {
-  try {
-    console.log("req.body", req.body);
-    const { id } = req.user!;
+  const { id } = req.user!;
 
-    const currentUser = await findUser(id);
+  const currentUser = await findUser(id);
 
-    if (!currentUser) {
-      return res.status(500).send("Failed to get user");
-    }
-
-    const { groupName, selectedIcon, temporaryGroup, selectedColor } = req.body;
-
-    if (selectedColor.includes("primary-dark-grey")) {
-      return res.status(400).send("Please select a color.");
-    }
-
-    if (
-      !groupName ||
-      groupName === "" ||
-      !selectedIcon ||
-      selectedIcon === "" ||
-      !selectedColor ||
-      selectedColor === ""
-    ) {
-      return res.status(400).send("Please fill out all fields.");
-    }
-
-    let isTemp = temporaryGroup === "on";
-
-    if (!temporaryGroup || temporaryGroup === "") {
-      isTemp = false;
-    }
-
-    if (!selectedIcon) {
-      return res.status(400).send("Category not found.");
-    }
-
-    const group = await createGroup(
-      groupName,
-      selectedColor,
-      selectedIcon,
-      isTemp.toString()
-    );
-
-    if (!group) {
-      return res.status(500).send("Failed to create group.");
-    }
-
-    await addMember(group.id, currentUser.id, "Owner");
-
-    const allGroupsForCurrentUser = await getGroupsAndAllMembersForUser(
-      currentUser.id
-    );
-
-    if (!allGroupsForCurrentUser) {
-      return res.status(500).send("Failed to get groups for user.");
-    }
-
-    const groupsWithOwed = await Promise.all(
-      allGroupsForCurrentUser.map(async (group) => {
-        let owed = await getUserTotalOwedForGroupWithOwingFlags(
-          req.user!.id,
-          group.id
-        );
-        if (owed === null) {
-          owed = { owedAmount: 0, flags: { owed: false, owing: false } };
-        }
-        return { ...group, ...owed };
-      })
-    );
-    const html = renderToHtml(<GroupPage groups={groupsWithOwed} />);
-    return res.status(200).send(html);
-  } catch (error) {
-    console.error(error);
-    return res.status(500).send("An error occurred while creating the group.");
+  if (!currentUser) {
+    return res.status(500).send("Failed to get user");
   }
+
+  const { groupName, selectedIcon, temporaryGroup, selectedColor } = req.body;
+
+  if (selectedColor.includes("primary-dark-grey")) {
+    return res.status(400).send("Please select a color.");
+  }
+
+  if (
+    !groupName ||
+    groupName === "" ||
+    !selectedIcon ||
+    selectedIcon === "" ||
+    !selectedColor ||
+    selectedColor === ""
+  ) {
+    return res.status(400).send("Please fill out all fields.");
+  }
+
+  let isTemp = temporaryGroup === "on";
+
+  if (!temporaryGroup || temporaryGroup === "") {
+    isTemp = false;
+  }
+
+  if (!selectedIcon) {
+    return res.status(400).send("Category not found.");
+  }
+
+  const group = await createGroup(
+    groupName,
+    selectedColor,
+    selectedIcon,
+    isTemp.toString()
+  );
+
+  if (!group) {
+    return res.status(500).send("Failed to create group.");
+  }
+
+  await addMember(group.id, currentUser.id, "Owner");
+
+  const allGroupsForCurrentUser = await getGroupsAndAllMembersForUser(
+    currentUser.id
+  );
+
+  if (!allGroupsForCurrentUser) {
+    return res.status(500).send("Failed to get groups for user.");
+  }
+
+  const groupsWithOwed = await Promise.all(
+    allGroupsForCurrentUser.map(async (group) => {
+      let owed = await getUserTotalOwedForGroupWithOwingFlags(
+        req.user!.id,
+        group.id
+      );
+      if (owed === null) {
+        owed = { owedAmount: 0, flags: { owed: false, owing: false } };
+      }
+      return { ...group, ...owed };
+    })
+  );
+
+  const html = renderToHtml(<GroupPage groups={groupsWithOwed} />);
+  return res.status(200).send(html);
 });
 
 router.get("/edit", async (req, res) => {
@@ -568,7 +530,6 @@ router.get("/addTransaction/:accountId/:groupId", async (req, res) => {
 
     // Get or create cash account for user
     const cashAccount = await getOrCreateCashAccountForUser(req.user!.id);
-    console.log("cashAccount", cashAccount);
     if (!cashAccount) {
       return res.status(500).send("No cash account found");
     }
@@ -576,7 +537,6 @@ router.get("/addTransaction/:accountId/:groupId", async (req, res) => {
     const accountsWithTransactions = [
       await getCashAccountWithTransaction(cashAccount.account_id),
     ];
-    console.log("accountsWithTransactions", accountsWithTransactions);
 
     let selectedAccountId = accountId;
     if (selectedAccountId === "default") {
@@ -610,7 +570,6 @@ router.get("/addTransaction/:accountId/:groupId", async (req, res) => {
 router.post("/edit/:groupId", async (req, res) => {
   try {
     const { groupName, selectedColor, temporaryGroup, selectedIcon } = req.body;
-    console.log("req.body", req.body);
 
     if (selectedColor.includes("primary-dark-grey")) {
       return res.status(400).send("Please select a color.");
@@ -699,7 +658,6 @@ router.post("/edit/:groupId", async (req, res) => {
 
 router.post("/deleteMember/:userID/:groupID", async (req, res) => {
   try {
-    console.log("running delete member");
     const userID = req.params.userID;
     const groupID = req.params.groupID;
 
@@ -734,9 +692,8 @@ router.post("/deleteMember/:userID/:groupID", async (req, res) => {
 
 router.get("/transactions/:groupId", async (req, res) => {
   const groupId = req.params.groupId;
-  const groupWithTransactions = await getGroupWithMembersAndTransactions(
-    groupId
-  );
+  const groupWithTransactions =
+    await getGroupWithMembersAndTransactions(groupId);
   const html = renderToHtml(
     <GroupTransactionsListPage
       group={groupWithTransactions as GroupMembersTransactions}
@@ -853,11 +810,6 @@ router.post(
     }
 
     if (isApproved) {
-      console.log(
-        groupId,
-        owner.userId,
-        `${user?.firstName} has accepted the invite to join the group`
-      );
       await changeMemberTypeInGroup(userId, groupId, "Member");
       await deleteGroupInviteNotificationByNotificationId(notificationId);
       await createGroupNotificationWithWebsocket(
@@ -866,6 +818,17 @@ router.post(
         owner.userId,
         `${user?.firstName} has accepted the invite to join the group`
       );
+
+      const html = renderToHtml(
+        <div
+          hx-get={`/groups/view/${groupId}`}
+          hx-trigger="load"
+          hx-target="#app"
+          hx-swap="innerHTML"
+          hx-push-url={`/groups/view/${groupId}`}
+        />
+      );
+      return res.send(html);
     } else {
       await deleteMemberByGroup(userId, groupId);
       await deleteGroupInviteNotificationByNotificationId(notificationId);
@@ -875,18 +838,17 @@ router.post(
         owner.userId,
         `${user?.firstName} has declined the invite to join the group`
       );
-    }
 
-    const html = renderToHtml(
-      <div
-        hx-get={`/groups/view/${groupId}`}
-        hx-trigger="load"
-        hx-target="#app"
-        hx-swap="innerHTML"
-        hx-push-url={`/groups/page/${groupId}`}
-      />
-    );
-    res.send(html);
+      const html = renderToHtml(
+        <div
+          hx-get="/notification/page"
+          hx-target="#app"
+          hx-trigger="load"
+          hx-swap="innerHTML"
+        />
+      );
+      return res.send(html);
+    }
   }
 );
 
@@ -1013,7 +975,7 @@ router.get("/invite/:inviteTokenId", async (req, res) => {
 
 router.get("/groupMembers/:groupId", async (req, res) => {
   const groupWithMembers = await getGroupWithMembers(req.params.groupId);
-  const currentUser = await findUser(req.user!.id);
+  const currentUser = req.user;
 
   if (!groupWithMembers) {
     return res.status(404).send("Group not found");
@@ -1048,14 +1010,6 @@ router.get("/updateIcon", async (req, res) => {
     selectedColor = "primary-dark-grey";
   }
 
-  console.log(
-    "icon",
-    selectedIcon,
-    "color",
-    selectedColor,
-    "temporary",
-    temporary
-  );
   const borderClass =
     temporary === "true"
       ? `border-[3px] border-dashed border-${selectedColor}`
@@ -1073,6 +1027,21 @@ router.get("/updateIcon", async (req, res) => {
   `);
 
   res.send(html);
+});
+
+router.get("/members/:groupId", async (req, res) => {
+  const results = await getResultsPerGroupTransaction(req.params.groupId);
+  const { members } = (await getGroupWithMembers(req.params.groupId))!;
+
+  const html = renderToHtml(
+    <Members
+      memberDetails={members}
+      currentUser={req.user!}
+      resultPerGroupTransaction={results}
+    />
+  );
+
+  return res.send(html);
 });
 
 router.use("/view", groupViewSubRouter);

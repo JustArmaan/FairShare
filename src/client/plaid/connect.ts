@@ -1,5 +1,6 @@
 import { apiVersion } from "../main";
 import htmx from "htmx.org";
+// import { plaidRequest } from "../../server/integrations/plaid/link";
 
 export function attachButton(event: Event) {
   if (event.currentTarget instanceof HTMLButtonElement) {

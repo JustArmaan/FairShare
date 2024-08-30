@@ -2,9 +2,7 @@ import express, { type Express } from "express";
 import cookieParser from "cookie-parser";
 import type { UserSchema } from "../interface/types";
 import { getUser } from "../routes/authRouter";
-import { setupVopayTransactionWebhook } from "../integrations/vopay/transfer";
 import { checkHTMX } from "../utils/checkHTMX";
-import { remapSvgs } from "./svgHandler.middleware";
 
 declare module "express-serve-static-core" {
   interface Request {
@@ -24,6 +22,4 @@ export const configureApp = async (app: Express) => {
   });
 
   app.use(checkHTMX);
-
-  await setupVopayTransactionWebhook();
 };

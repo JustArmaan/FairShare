@@ -2,85 +2,89 @@ import {
   type UserSchema,
   type UserSchemaWithMemberType,
 } from "../../../../interface/types";
-import type { getAllOwedForGroupTransaction } from "../../../../services/owed.service";
+import type {
+  getAllOwedForGroupTransaction,
+  getGroupTransactionDetails,
+} from "../../../../services/owed.service";
 import type { ExtractFunctionReturnType } from "../../../../services/user.service";
-import type { ArrayElement } from "../../transactions/components/Transaction";
-import type { Member } from "./ViewGroup";
-
-function calculateTotalOwed(
-  accumulator: { userId: string; amount: number }[],
-  currentOwed: ArrayElement<
-    ExtractFunctionReturnType<typeof getAllOwedForGroupTransaction>
-  >
-) {
-  const accIndex = accumulator.findIndex(
-    (item) => currentOwed.userId === item.userId
-  );
-  if (accIndex === -1) {
-    accumulator.push({
-      userId: currentOwed.userId,
-      amount: currentOwed.amount,
-    });
-  } else {
-    accumulator[accIndex].amount += currentOwed.amount;
-  }
-  return accumulator;
-}
-
-function calculateTotalOwedAll(
-  owedPerMember: ExtractFunctionReturnType<
-    typeof getAllOwedForGroupTransaction
-  >[],
-  members: UserSchema[]
-) {
-  const combinedOwed = owedPerMember.reduce(
-    (total, owedPerMember) => {
-      return [...total, ...owedPerMember];
-    },
-    [] as { userId: string; amount: number }[]
-  );
-  const noOwedMembers = members.filter(
-    (member) => !combinedOwed.some((owed) => owed.userId === member.id)
-  );
-  return [
-    ...combinedOwed
-      .reduce(calculateTotalOwed, [] as { userId: string; amount: number }[])
-      .map((totalOwed) => {
-        const member = members.find((member) => member.id === totalOwed.userId);
-
-        return {
-          ...member,
-          amount: totalOwed.amount,
-        };
-      }),
-    ...noOwedMembers.map((member) => ({
-      ...member,
-      amount: 0,
-    })),
-  ];
-}
 
 export const Members = (props: {
   memberDetails: UserSchemaWithMemberType[];
   currentUser: UserSchema;
-  owedPerMember: ExtractFunctionReturnType<
-    typeof getAllOwedForGroupTransaction
+  resultPerGroupTransaction: ExtractFunctionReturnType<
+    typeof getGroupTransactionDetails
   >[];
 }) => {
-  console.log(props.memberDetails);
+  /*
   const totalOwed = calculateTotalOwedAll(
     props.owedPerMember,
     props.memberDetails
+  );*/
+
+  // need to figure out how much is owed relative to us
+  // figure out if we're owing or owed for a transaction and add it to the sum
+
+  // map into relative to current user, then reduce over member list
+
+  const memberObject = props.memberDetails
+    .filter((member) => member.type !== "Invited")
+    .map((member) => ({
+      member,
+      owed: 0,
+    }));
+
+  const owedRelativeToCurrentUser = props.resultPerGroupTransaction.reduce(
+    (acc, resultPerGroupTransaction) => {
+      const ourTransaction = resultPerGroupTransaction.find(
+        (result) => result.users.id === props.currentUser.id
+      );
+
+      if (
+        !ourTransaction ||
+        ourTransaction.groupTransactionToUsersToGroups.amount === 0
+      ) {
+        return acc;
+      }
+
+      if (ourTransaction!.groupTransactionToUsersToGroups.amount > 0) {
+        const filtered = resultPerGroupTransaction.filter(
+          (result) => result.users.id !== props.currentUser.id
+        );
+
+        filtered.forEach((result) => {
+          const amountOwed = result.groupTransactionToUsersToGroups.amount;
+          acc.find((entry) => entry.member.id === result.users.id)!.owed +=
+            amountOwed;
+        });
+      } else {
+        const transactionOwner = resultPerGroupTransaction.find(
+          (result) => result.groupTransactionToUsersToGroups.amount > 0
+        )!;
+        acc.find(
+          (entry) => entry.member.id === transactionOwner.users.id
+        )!.owed -= ourTransaction.groupTransactionToUsersToGroups.amount;
+      }
+
+      return acc;
+    },
+    memberObject as { member: UserSchemaWithMemberType; owed: number }[]
   );
+
   return (
-    <div class="flex-col bg-primary-black w-full rounded-sm py-[0.88rem]">
-      {totalOwed.map((member, index) => {
-        if (member.id !== props.currentUser.id) {
-          member.amount = member.amount * -1;
-        }
+    <div
+      class="flex-col bg-primary-black w-full rounded-sm py-[0.88rem]"
+      id="ws-group-members"
+    >
+      {owedRelativeToCurrentUser.map(({ member, owed }, index) => {
+        owed *= -1;
         return (
           <div
-            class={`flex flex-row justify-between w-full pl-[0.94rem] py-[0.5rem] ${1 !== totalOwed.length && index !== totalOwed.length - 1 ? "mb-[1rem]" : ""}`}
+            class={`flex flex-row justify-between w-full pl-[0.94rem] py-[0.5rem] ${
+              1 !== owedRelativeToCurrentUser.length &&
+              index !== owedRelativeToCurrentUser.length - 1
+                ? "mb-[1rem]"
+                : ""
+            }`}
           >
             <div
               class={`flex flex-row rounded-full bg-${member.color} h-[2rem] w-[2rem] mr-[0.87rem] justify-center items-center`}
@@ -113,24 +117,28 @@ export const Members = (props: {
             <p class="flex flex-auto w-fit text-sm self-center justify-end h-[1rem]">
               {
                 <p
-                  class={`flex w-fit text-sm font-medium self-center justify-end h-fit ${member.amount === 0 ? "text-font-grey" : "text-font-off-white"}`}
+                  class={`flex w-fit text-sm font-medium self-center justify-end h-fit 
+                          min-[360px]:mr-[2.81rem] mr-[0.94rem]
+                  ${owed === 0 ? "text-font-grey" : "text-font-off-white"}`}
                 >
                   {member.id !== props.currentUser.id &&
-                    (member.amount === 0
+                    (owed === 0
                       ? "Settled"
-                      : member.amount > 0
+                      : owed > 0
                         ? "You're Owed:"
                         : "You Owe:")}
-                  <span
-                    class={`flex text-sm font-medium justify-end min-[360px]:mr-[2.81rem] mr-[0.94rem] ml-[0.25rem] ${
-                      member.amount > 0
-                        ? "text-positive-number"
-                        : "text-negative-number"
-                    }`}
-                  >
-                    {member.id !== props.currentUser.id &&
-                      "$" + Math.abs(member.amount).toFixed(2)}
-                  </span>
+                  {Math.abs(owed) !== 0 && (
+                    <span
+                      class={`flex text-sm font-medium justify-end  ml-[0.25rem] ${
+                        owed > 0
+                          ? "text-positive-number"
+                          : "text-negative-number"
+                      }`}
+                    >
+                      {member.id !== props.currentUser.id &&
+                        "$" + Math.abs(owed).toFixed(2)}
+                    </span>
+                  )}
                 </p>
               }
             </p>

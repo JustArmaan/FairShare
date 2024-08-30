@@ -4,7 +4,6 @@ import type { getTransaction } from "../../../services/transaction.service";
 import type { ExtractFunctionReturnType } from "../../../services/user.service";
 import { ProfileIcon } from "../../components/ProfileIcon";
 import { formatDate } from "../transactions/components/Transaction";
-import { AccountSelector } from "./components/AccountSelector";
 
 export const Details = (props: {
   owed: ExtractFunctionReturnType<

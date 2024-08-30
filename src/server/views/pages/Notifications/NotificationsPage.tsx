@@ -3,9 +3,9 @@ export const NotificationPage = (props: {
   selectedSorted: string;
 }) => {
   return (
-    <div class="animate-fade-in" hx-push-url="/notification/page">
+    <div class="animate-fade-in" id="ws-notification-page">
       <div
-        hx-get={`/notification/notificationList/${props.userId}?sort=${props.selectedSorted}`}
+        hx-get={`/notification/notificationList?sort=${props.selectedSorted}`}
         hx-trigger="load"
         hx-swap="outerHTML"
       ></div>

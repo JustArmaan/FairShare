@@ -3,6 +3,7 @@ import {
   type UserSchema,
   type UserSchemaWithMemberType,
 } from "../../../../interface/types";
+import { ProfileIcon } from "../../../components/ProfileIcon";
 
 export const GroupMembers = ({
   memberDetails,
@@ -15,18 +16,21 @@ export const GroupMembers = ({
 }) => {
   const owner = memberDetails.find((member) => member.type === "Owner");
   return (
-    <div class="flex-col bg-primary-black w-full rounded-sm m-1">
+    <div class="flex-col bg-primary-black w-full rounded-sm m-1 p-2">
       {memberDetails.map((member) => {
         return (
           <div class="flex flex-row w-full">
-            <div
+            <div class="flex items-center justify-center w-fit p-2">
+              <ProfileIcon user={member} class="w-8 h-8" textSize="text-md" />
+            </div>
+            {/*<div
               class={`flex flex-row rounded-full bg-${member.color} h-[2rem] w-[2rem] m-[0.88rem] justify-center items-center`}
             >
               <span class="flex justify-center self-center text-center text-sm font-semibold mt-[0.4rem]">
                 {member.firstName?.split("", 1) ?? ""}
                 {member.lastName?.split("", 1) ?? ""}
               </span>
-            </div>
+            </div>*/}
             <div class="flex flex-col text-center self-center justify-center ml-4 place-items-start">
               <div class="flex flex-row">
                 <p class="text-font-off-white text-[0.875rem] font-medium">
@@ -45,15 +49,10 @@ export const GroupMembers = ({
               </p>
             </div>
             <p class="flex-auto w-fit text-sm self-center mr-[2.81rem] justify-end ">
-              <p class="flex text-font-grey w-fit text-sm font-medium self-center justify-end">
-                <span class="mr-[0.75rem]">
-                  {
-                    //@ts-ignore
-                    member.type === "Owner" ? "Owner" : "Member"
-                  }
-                </span>
+              <p class="flex text-font-grey w-fit text-sm font-medium self-center justify-end items-center">
+                <span class="mr-[0.75rem]">{member.type}</span>
                 {owner && owner.id === member.id ? (
-                  <div class="mr-[0.94rem] h-[1.425rem] w-[2.06rem]"></div>
+                  <div class="mr-[0.94rem] h-[1.425rem] w-[1.25rem]"></div>
                 ) : owner && owner.id === currentUser.id ? (
                   <a
                     hx-post={`/groups/deleteMember/${member.id}/${groupId}`}
@@ -64,11 +63,11 @@ export const GroupMembers = ({
                     <img
                       src="/icons/doNotDisturb.svg"
                       alt="delete icon"
-                      class="hover:-translate-y-0.5 transition-transform hover:opacity-80 h-6"
+                      class="hover:-translate-y-0.5 transition-transform hover:opacity-80 w-[1.25rem]"
                     />
                   </a>
                 ) : (
-                  <div class="mr-[0.94rem] h-[1.425rem] w-[2.06rem]"></div>
+                  <div class="mr-[0.94rem] h-[1.425rem] w-[1.25rem]"></div>
                 )}
               </p>
             </p>
