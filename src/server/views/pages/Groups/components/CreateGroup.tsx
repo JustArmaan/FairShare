@@ -18,6 +18,9 @@ export const CreateGroup = ({
   selectedIcon?: string;
   selectedColor?: string;
 }) => {
+  console.log(selectedColor, selectedIcon);
+  const iconPath = selectedIcon ?? icons[0].icon;
+  const groupColor = selectedColor ?? colors[0].name;
   return (
     <div id="create-group-page" class="animate-fade-in">
       <div
@@ -41,12 +44,28 @@ export const CreateGroup = ({
       </div>
       <div class="flex flex-col mt-[0.75rem]">
         <form>
-          <div id="icon-group-container" class="flex">
-            <div id="icon-preview" class="hidden mt-2 mr-3"></div>
-            <div
-              id="group-name-container"
-              class="flex flex-col flex-grow w-full"
-            >
+          <div class="flex items-center space-x-4">
+            <div id="icon-preview" class="flex items-center">
+              <div
+                id="icon-container"
+                class="h-[3.875rem] aspect-square flex items-center justify-center"
+              >
+                <div
+                  class={`${`bg-${groupColor} rounded-sm`}  h-[3.875rem] aspect-square flex items-center justify-center`}
+                  id="icon-content"
+                >
+                  <div class={"text-card-black"}>
+                    <img
+                      custom-color
+                      class="w-[1.87rem] h-[1.87rem]"
+                      src={iconPath}
+                      alt=""
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="flex flex-col flex-grow">
               <label class="text-font-off-white font-bold">Group Name</label>
               <input
                 class="px-4 py-2 justify-center items-center text-font-off-white bg-primary-black rounded-md mt-2 w-full"
@@ -62,7 +81,7 @@ export const CreateGroup = ({
           </label>
           <div
             id="select-group-icon-container"
-            class="py-2 px-3  w-full h-fit flex justify-between bg-primary-black rounded-md mt-1"
+            class="py-2 px-3  w-full h-fit flex justify-between bg-primary-black rounded-md mt-1 hidden"
           >
             <p class="text-primary-grey font-normal">Select Group Icon</p>
             <img
@@ -72,7 +91,7 @@ export const CreateGroup = ({
           </div>
           <div
             id="select-group-icon-container-open"
-            class="w-full h-fit bg-primary-black rounded-md mt-1 flex flex-col items-center animate-fade-in min-h-[50px] hidden"
+            class="w-full h-fit bg-primary-black rounded-md mt-1 flex flex-col items-center animate-fade-in min-h-[50px] "
           >
             <div
               id="select-group-icon-header"
@@ -88,14 +107,24 @@ export const CreateGroup = ({
             <SelectIcon
               icons={icons}
               colors={colors}
-              selectedIcon={selectedIcon}
-              selectedColor={selectedColor}
+              selectedIcon={selectedIcon ?? icons[0].icon}
+              selectedColor={selectedColor ?? colors[0].name}
             />
           </div>
 
           <hr class="border-t border-primary-dark-grey w-full my-[1.5rem]"></hr>
-          <input type="hidden" name="selectedIcon" id="selectedIcon" />
-          <input type="hidden" name="selectedColor" id="selectedColor" />
+          <input
+            type="hidden"
+            name="selectedIcon"
+            id="selectedIcon"
+            value={iconPath}
+          />
+          <input
+            type="hidden"
+            name="selectedColor"
+            id="selectedColor"
+            value={groupColor}
+          />
 
           <div
             id="errorContainer"
