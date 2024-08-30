@@ -10,15 +10,9 @@ import {
   getItemsForUser,
 } from "../../../services/plaid.service";
 import { syncTransactionsForUser } from "../../../integrations/plaid/sync";
-import { findUser, getUserByItemId } from "../../../services/user.service";
+import { getUserByItemId } from "../../../services/user.service";
 import crypto from "crypto";
-import { env } from "../../../../../env";
-import {
-  completeTransfer,
-  createTransferForReceiver,
-} from "../../../integrations/vopay/transfer";
-import { getGroupTransferByTransactionId } from "../../../services/plaid.transfer.service";
-import { getGroup, getGroupByOwedId } from "../../../services/group.service";
+import { getGroup } from "../../../services/group.service";
 
 const router = Router();
 

@@ -25,7 +25,9 @@
                     python312Packages.protobuf
                     python312Packages.numpy
                     python312Packages.pybind11
+                    python312Packages.pip
                     libstdcxx5
+                    cargo
                 ];
 
                 shellHook = ''

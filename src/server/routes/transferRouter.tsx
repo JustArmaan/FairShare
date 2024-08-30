@@ -23,7 +23,6 @@ import {
 } from "../services/user.service";
 import { ViewGroups } from "../views/pages/Groups/components/ViewGroup";
 import { getAccountsForUser } from "../services/plaid.service";
-import { createTransferForSender } from "../integrations/vopay/transfer";
 
 const router = express.Router();
 

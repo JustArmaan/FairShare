@@ -15,8 +15,4 @@ RUN nix flake init --experimental-features 'nix-command flakes'
 
 COPY . .
 
-# Run nix develop to set up the development environment
-# RUN nix develop /root --experimental-features 'nix-command flakes' --command bash -c "echo 'Development environment ready'"
-
-
 CMD [ "nix", "develop", "/root", "--experimental-features", "nix-command flakes", "--command", "bash", "-c", "bash scripts/start.sh"]
