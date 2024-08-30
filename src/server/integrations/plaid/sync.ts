@@ -35,7 +35,6 @@ const syncStore = new Set<string>();
 const syncQueue = new Set<string>();
 
 export async function syncTransactionsForUser(userId: string, origin?: string) {
-  console.log("sync requested for user", userId);
   const entry: SyncEntry = { timestamp: new Date(Date.now()).toLocaleString() };
   if (syncStore.has(userId)) {
     entry.syncStore = { ...syncStore };
