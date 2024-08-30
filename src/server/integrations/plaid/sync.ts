@@ -31,66 +31,52 @@ type ItemEntry = {
 
 type SyncEntry = StoreEntry | ItemEntry;
 
-type SyncLog = {
-  userId: string;
-  syncs: SyncEntry[];
-}[];
-
-await fs.writeFile("./sync.json", JSON.stringify([]), "utf8");
-
-async function writeToLog(userId: string, entry: SyncEntry) {
-  try {
-    const contents = await fs.readFile("./sync.json", "utf8");
-    const log = JSON.parse(contents) as SyncLog;
-    const value = log.find((user) => user.userId === userId);
-
-    if (!value) {
-      log.push({ userId, syncs: [entry] });
-    } else {
-      value.syncs.push(entry);
-    }
-    await fs.writeFile("./sync.json", JSON.stringify(log), {
-      encoding: "utf8",
-    });
-    console.log("Sync entry for userId: ", userId, " added!");
-  } catch (e) {
-    // @ts-ignore
-    if (e?.code === "ENOENT") {
-      console.log("enoent, creating log");
-      await fs.writeFile("./sync.json", JSON.stringify([]), {
-        encoding: "utf8",
-      });
-    }
-  }
-}
-
 const syncStore = new Set<string>();
 const syncQueue = new Set<string>();
 
 export async function syncTransactionsForUser(userId: string, origin?: string) {
+  console.log("sync requested for user", userId);
   const entry: SyncEntry = { timestamp: new Date(Date.now()).toLocaleString() };
   if (syncStore.has(userId)) {
     entry.syncStore = { ...syncStore };
-    writeToLog(userId, entry);
     syncQueue.add(userId);
     return;
   }
+
+  // Lock the userId
   syncStore.add(userId);
 
-  const items = await getItemsForUser(userId);
-  const itemEntry: ItemEntry = { items: [], origin };
-  await Promise.all(
-    items.map(
-      async (item) => await syncTransaction({ ...item, userId }, itemEntry)
-    )
-  );
-  console.log(itemEntry);
-  writeToLog(userId, itemEntry);
+  try {
+    const items = await getItemsForUser(userId);
+    const itemEntry: ItemEntry = { items: [], origin };
 
-  syncStore.delete(userId);
-  if (syncQueue.has(userId)) {
-    syncQueue.delete(userId);
-    await syncTransactionsForUser(userId);
+    await Promise.all(
+      items.map(async (item) => {
+        /*
+        setInterval(async () => {
+          console.log("trigger updates!");
+          const res = await plaidRequest("/sandbox/item/fire_webhook", {
+            webhook_code: "SYNC_UPDATES_AVAILABLE",
+            access_token: item.item.plaidAccessToken,
+          });
+          console.log(res);
+        }, 1000);
+        */
+        return await syncTransaction({ ...item, userId }, itemEntry);
+      })
+    );
+  } catch (error) {
+    console.error(`Error syncing transactions for user ${userId}:`, error);
+    // Optionally, you might want to requeue the userId here or handle the error.
+  } finally {
+    // Unlock the userId
+    syncStore.delete(userId);
+
+    // Process queue without recursion
+    if (syncQueue.has(userId)) {
+      syncQueue.delete(userId);
+      await syncTransactionsForUser(userId);
+    }
   }
 }
 

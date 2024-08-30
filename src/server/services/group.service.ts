@@ -530,7 +530,7 @@ export const addMember = async (
       })
       .returning();
 
-    io.to(userId).emit("joinedGroup");
+    // io.to(userId).emit("joinedGroup");
     return newMember[0];
   } catch (error) {
     console.error("Failed to add member:", error);
