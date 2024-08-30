@@ -15,7 +15,10 @@ export const SplitPercentByItem = (props: {
         value={`percent-${props.receiptItem.id}`}
       />
       {props.groupWithMembers.members.map((member, index) => (
-        <div class="flex justify-between items-center mb-2 px-2">
+        <div
+          class="flex justify-between items-center mb-2 px-2"
+          id={`member-${member.id}-${props.receiptItem.id}`}
+        >
           <div class="flex items-center">
             <div
               class={`flex rounded-full bg-${member.color} h-[2rem] w-[2rem] justify-center border-2 border-primary-black`}
@@ -56,9 +59,9 @@ export const SplitPercentByItem = (props: {
               id={`splitOptionsRadioButton${member.id}-${props.receiptItem.id}`}
             >
               <img
-                hx-get={`/billSplit/checkSplit/${member.id}?ischecked=true&receiptItemId=${props.receiptItem.id}`}
+                hx-get={`/billSplit/checkSplit/${member.id}/${props.receiptItem.transactionReceiptId}?ischecked=true&receiptItemId=${props.receiptItem.id}`}
                 hx-swap="innerHTML"
-                hx-target={`#splitOptionsRadioButton${member.id}-${props.receiptItem.id}`}
+                hx-target={`#member-${member.id}-${props.receiptItem.id}`}
                 hx-trigger="click"
                 src="/activeIcons/checked_blue_circle.svg"
                 alt="selected icon"
