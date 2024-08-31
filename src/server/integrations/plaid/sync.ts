@@ -102,7 +102,7 @@ async function updateAccounts(
           id: account.account_id,
           accountTypeId: accountTypeId.id,
           balance: (account.type === "credit"
-            ? balance - (account.balances.limit ? account.balances.limit : 0)
+            ? Math.abs(balance - (account.balances.limit ? account.balances.limit : 0))
             : balance
           ).toString(),
           itemId: itemId,
