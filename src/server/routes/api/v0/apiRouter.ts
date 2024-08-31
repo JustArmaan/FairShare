@@ -102,7 +102,7 @@ router.post("/sync", async (req, res) => {
 });
 
 router.get("/sync", async (req, res) => {
-  console.log("syncing!")
+  console.log("syncing!");
   if (!req.user) {
     return res.json({
       error: "Not logged in.",

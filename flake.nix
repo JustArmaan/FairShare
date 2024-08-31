@@ -17,6 +17,7 @@
                     turso-cli
                     sqlite
                     sqld
+                    flyctl
                     # python3Full
                     # cmake
                     # rustc
