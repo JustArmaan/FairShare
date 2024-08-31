@@ -202,7 +202,6 @@ router.get("/email", async (req, res) => {
 });
 
 export async function getUser(req: Request, res: Response, next: NextFunction) {
-  console.log(req.url);
   // in playwright, when you first setup tests, run createUser({test info})
   // if (req.cookies.testing === "true") {
   //   req.user = getUser(testUserId);
@@ -225,7 +224,6 @@ export async function getUser(req: Request, res: Response, next: NextFunction) {
     !req.get("host")?.includes("localhost") &&
     !req.get("host")?.includes("idsp")
   ) {
-    console.log("redirect...");
     return res.redirect("https://myfairshare.ca");
   }
 
@@ -235,11 +233,8 @@ export async function getUser(req: Request, res: Response, next: NextFunction) {
       !req.url.includes("api")) ||
     req.url.endsWith("/sync")
   ) {
-    console.log("skip auth!");
     return next();
   }
-
-  console.log("testing for auth...");
 
   try {
     const isAuthenticated = await kindeClient.isAuthenticated(
