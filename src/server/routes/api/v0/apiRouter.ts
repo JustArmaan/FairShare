@@ -102,6 +102,7 @@ router.post("/sync", async (req, res) => {
 });
 
 router.get("/sync", async (req, res) => {
+  console.log("syncing!")
   if (!req.user) {
     return res.json({
       error: "Not logged in.",
@@ -110,7 +111,7 @@ router.get("/sync", async (req, res) => {
   }
 
   await syncTransactionsForUser(req.user.id);
-  console.log("synced in get")
+  console.log("synced in get");
   return res.status(200).send();
 });
 

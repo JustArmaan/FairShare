@@ -231,7 +231,7 @@ export async function getUser(req: Request, res: Response, next: NextFunction) {
     (!req.headers["accept"]?.includes("text/html") &&
       !(req.headers["hx-request"] === "true") &&
       !req.url.includes("api")) ||
-    req.url.endsWith("/sync") && req.method === "POST"
+    (req.url.endsWith("/sync") && req.method === "POST")
   ) {
     return next();
   }
