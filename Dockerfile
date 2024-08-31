@@ -1,20 +1,21 @@
-FROM nixos/nix
+FROM oven/bun
 
-# Set environment variables for non-interactive nix commands
-ENV USER root
+# Set the working directory
+WORKDIR /usr/src/app
 
-# Copy the flake.nix file to the container
-COPY flake.nix /root/flake.nix
+# Copy package files
+COPY package*.json bun.lockb ./
 
-ENV NIX_CONFIG="access-tokens = github.com=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"
+RUN bun install "express@>=5.0.0-beta.1" --save
+RUN bun i 
 
-# Install Git as it's required for Nix flakes
-RUN nix-env -iA nixpkgs.git
+# RUN bun x tailwindcss -i src/server/views/tailwind.css -o public/output.css
 
-
-# Initialize the Nix flake environment
-RUN nix flake init --experimental-features 'nix-command flakes'
-
+# Copy all other project files
 COPY . .
 
-CMD [ "nix", "develop", "/root", "--experimental-features", "nix-command flakes", "--command", "bash", "-c", "bash scripts/start.sh"]
+# Set environment to production
+ENV NODE_ENV production
+
+# Set default command to start the app
+CMD [ "bun", "tailwind-build", "&&", "bun", "run", "build", "&&", "bun", "start" ]
