@@ -96,11 +96,15 @@ async function updateAccounts(
           accountTypeId: accountTypeId.id,
           currencyCodeId: null,
         });
+        const balance = (account.balances.available ||
+          account.balances.current)!;
         await addPlaidAccount({
           id: account.account_id,
           accountTypeId: accountTypeId.id,
-          balance: (account.balances.available ||
-            account.balances.current)!.toString(),
+          balance: (account.type === "credit"
+            ? balance - (account.balances.limit ? account.balances.limit : 0)
+            : balance
+          ).toString(),
           itemId: itemId,
           currencyCodeId: null,
           accountsId: account.account_id,

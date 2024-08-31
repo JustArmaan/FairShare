@@ -83,7 +83,7 @@ export const AccountOverview = ({
         )}
         <div class="w-full h-[1px] bg-font-grey rounded mb-2 opacity-50"></div>
         <div class="transactions flex flex-col">
-          {account.transactions.slice(0, 2).map((transaction) => (
+          {account.transactions.reverse().slice(0, 2).map((transaction) => (
             <Transaction
               transaction={transaction}
               tailwindColorClass={transaction.category.color}
