@@ -83,14 +83,16 @@ router.get("/has-accounts", async (req, res) => {
 });
 
 router.post("/sync", async (req, res) => {
-  console.log("sync request received!", req);
   const { item_id } = req.body as { [key: string]: string };
   if (
     req.body.webhook_code === "SYNC_UPDATES_AVAILABLE" ||
     req.body.webhook_code === "DEFAULT_UPDATE" ||
     req.body.webhook_code === "NEW_ACCOUNTS_AVAILABLE"
   ) {
-    if (!item_id) return res.status(400).send();
+    if (!item_id) {
+      console.log("400, no item");
+      return res.status(400).send();
+    }
     const { id } = (await getUserByItemId(item_id))!;
     await syncTransactionsForUser(id, "/sync");
 
@@ -108,6 +110,7 @@ router.get("/sync", async (req, res) => {
   }
 
   await syncTransactionsForUser(req.user.id);
+  console.log("synced in get")
   return res.status(200).send();
 });
 

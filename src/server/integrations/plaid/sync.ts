@@ -17,7 +17,6 @@ import {
 } from "../../services/plaid.service";
 import { plaidRequest } from "./link";
 import { io } from "../../main";
-import fs from "fs/promises";
 
 type StoreEntry = { timestamp: string; syncStore?: Set<string> };
 type ItemEntry = {
