@@ -67,13 +67,13 @@ const newCategoriesList = [
     name: "FOOD_AND_DRINK",
     displayName: "Food and Drink",
     icon: "/icons/local_dining.svg",
-    color: "bg-accent-red",
+    color: "bg-category-color-6",
   },
   {
     name: "GENERAL_MERCHANDISE",
     displayName: "General Merchandise",
     icon: "/icons/shopping-bag.svg",
-    color: "bg-accent-purple",
+    color: "bg-category-color-7",
   },
   {
     name: "HOME_IMPROVEMENT",
@@ -85,7 +85,7 @@ const newCategoriesList = [
     name: "RENT_AND_UTILITIES",
     displayName: "Rent and Utilities",
     icon: "/icons/electricity.svg",
-    color: "bg-accent-red",
+    color: "bg-category-color-9",
   },
   {
     name: "TRAVEL",
@@ -103,13 +103,13 @@ const newCategoriesList = [
     name: "GOVERNMENT_AND_NON_PROFIT",
     displayName: "Government and Non Profit",
     icon: "/icons/government.svg",
-    color: "bg-accent-green",
+    color: "bg-category-color-12",
   },
   {
     name: "GENERAL_SERVICES",
     displayName: "General Services",
     icon: "/icons/services.svg",
-    color: "bg-accent-yellow",
+    color: "bg-category-color-13",
   },
   {
     name: "PERSONAL_CARE",
@@ -264,4 +264,3 @@ try {
 } catch (error) {
   console.error("Seeding transaction failed:", error);
 }
-

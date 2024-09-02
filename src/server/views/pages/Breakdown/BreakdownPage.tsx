@@ -143,6 +143,7 @@ export const BreakdownPage = ({
   uniqueYearMonth?: string[];
 }) => {
   const categories = mapTransactionsToCategories(transactions);
+  categories.sort((a, b) => b.cost - a.cost);
   const pathStyles = generatePathStyles(categories);
   const months = [
     "January",

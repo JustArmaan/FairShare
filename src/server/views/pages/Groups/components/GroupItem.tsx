@@ -1,5 +1,6 @@
 import type { Groups } from "../GroupPage";
 import type { ArrayElement } from "../../transactions/components/Transaction";
+import { maxCompanyNameLength } from "./PendingItem";
 
 export const GroupItem = (props: {
   group: ArrayElement<Groups>;
@@ -43,7 +44,7 @@ export const GroupItem = (props: {
           <div class="flex flex-col ml-4 h-full ">
             <div class="flex items-center h-[1.75rem]">
               <p class="font-semibold text-font-off-white leading-6 text-lg truncate h-full flex items-center">
-                {props.group.name}
+                {maxCompanyNameLength(props.group.name, 20)}
                 {props.group.temporary === "true" && (
                   <span class="text-font-grey"> (TEMP)</span>
                 )}

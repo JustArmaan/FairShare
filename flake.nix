@@ -8,33 +8,82 @@
     outputs = { self, nixpkgs, flake-utils }:
         flake-utils.lib.eachDefaultSystem ( system:
         let
-            pkgs = nixpkgs.legacyPackages.${ system };
-        in {
-            devShell = with pkgs; pkgs.mkShell rec {
+            pkgs = import nixpkgs { inherit system; };
+            nodejs = pkgs.nodejs-18_x;
+        in with pkgs; rec {
+            devShell = mkShell { 
                 buildInputs = [
                     bun
                     nodejs_20
                     turso-cli
                     sqlite
                     sqld
-                    python3Full
-                    cmake
-                    rustc
-                    pkg-config
-                    openssl
-                    python312Packages.protobuf
-                    python312Packages.numpy
-                    python312Packages.pybind11
-                    libstdcxx5
-                ];
+                    flyctl
+                    python311
+                    node2nix
+                ] ++ (with python311Packages; [
+                    protobuf
+                    numpy
+                    pybind11
+                    pillow
+                    torch
+                    transformers
+                    flask
+                    flask-cors
+                    gunicorn
+                ]);
+            };
 
-                shellHook = ''
-                  export LD_LIBRARY_PATH="${pkgs.lib.makeLibraryPath buildInputs}:$LD_LIBRARY_PATH"
-                  export LD_LIBRARY_PATH="${pkgs.stdenv.cc.cc.lib.outPath}/lib:$LD_LIBRARY_PATH" 
-                  export Protobuf_LIBRARIES="${pkgs.lib.getLib pkgs.python312Packages.protobuf}"
-                  export RUSTFLAGS="-A invalid_reference_casting"
+            packages.bunApp = stdenv.mkDerivation {
+              pname = "bun-app";
+              version = "1.0.0";
+              src = ./.;
+
+              buildInputs = [ nodejs bun ];
+
+
+              buildPhase = ''
+              '';
+
+              installPhase = ''
+                mkdir -p $out
+                cp -r . $out/
+              '';
+
+              postInstall = ''
+                cd $out
+                echo "Building tailwind... "
+                bun i
+                bun tailwind-build 
+                bun run build
+              '';
+            };
+
+            packages.pythonApp = stdenv.mkDerivation {
+                pname = "python-app";
+                version = "1.0.0";
+                src = ./.;
+
+                buildInputs = [ python311 ] ++ (with python311Packages; [
+                  protobuf
+                  numpy
+                  pybind11
+                  pillow
+                  torch
+                  transformers
+                  flask
+                  flask-cors
+                  gunicorn
+                ]) ++ (nodePackages.sources);
+
+                installPhase = ''
+                  mkdir -p $out
+                  cp -r . $out/
                 '';
             };
-        }
+
+
+          defaultPackage = packages.bunApp;
+      }
     );
 }

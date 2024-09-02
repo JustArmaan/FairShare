@@ -26,24 +26,27 @@ export const Members = (props: {
 
   // map into relative to current user, then reduce over member list
 
-  const memberObject = props.memberDetails.map((member) => ({
-    member,
-    owed: 0,
-  }));
+  const memberObject = props.memberDetails
+    .filter((member) => member.type !== "Invited")
+    .map((member) => ({
+      member,
+      owed: 0,
+    }));
 
   const owedRelativeToCurrentUser = props.resultPerGroupTransaction.reduce(
     (acc, resultPerGroupTransaction) => {
       const ourTransaction = resultPerGroupTransaction.find(
         (result) => result.users.id === props.currentUser.id
-      )!;
+      );
 
-      if (ourTransaction.groupTransactionToUsersToGroups.amount === 0)
+      if (
+        !ourTransaction ||
+        ourTransaction.groupTransactionToUsersToGroups.amount === 0
+      ) {
         return acc;
+      }
 
-      if (ourTransaction.groupTransactionToUsersToGroups.amount > 0) {
-        // loop through all other members
-        // find the amounts they owe us and add to acc
-
+      if (ourTransaction!.groupTransactionToUsersToGroups.amount > 0) {
         const filtered = resultPerGroupTransaction.filter(
           (result) => result.users.id !== props.currentUser.id
         );

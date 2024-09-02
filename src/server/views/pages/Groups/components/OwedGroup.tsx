@@ -1,10 +1,6 @@
-import type { OwedStatus } from "../../../../database/seed";
 import { type UserSchema } from "../../../../interface/types";
 import { type GroupWithTransactions } from "../../../../services/group.service";
-import type {
-  getAllOwedForGroupTransactionWithTransactionId,
-  getGroupTransactionDetails,
-} from "../../../../services/owed.service";
+import type { getGroupTransactionDetails } from "../../../../services/owed.service";
 import type { ExtractFunctionReturnType } from "../../../../services/user.service";
 
 export function formatDate(dateString: string) {
@@ -52,9 +48,12 @@ export const OwedGroup = (props: {
   // filter results
   const filtered = props.resultPerGroupTransaction.filter(
     (groupStateResult) => {
+
       const ourTransaction = groupStateResult.find(
         (result) => result.users.id === props.currentUser.id
       );
+
+      if (!ourTransaction) return false;
 
       return props.owing
         ? ourTransaction!.groupTransactionToUsersToGroups.amount < 0 &&

@@ -8,18 +8,13 @@ import NotificationPicker from "../views/pages/Notifications/components/Notifica
 import { getSortedNotifications } from "../utils/getNotifications.ts";
 import {
   deleteAllNotifications,
-  getGenericNotificationById,
   getGenericNotificationByNotificationId,
   getGroupInviteByNotificationId,
   getGroupInviteNotificaitonById,
-  getGroupNotificationById,
   getGroupNotificationByNotificationId,
   getNotificationTypeById,
-  getNotificationTypeByType,
   getUnreadNotifications,
-  markAllNotificationsAsRead,
   markNotificationAsRead,
-  type CombinedNotification,
 } from "../services/notification.service.ts";
 import { getGroupOwnerWithGroupId } from "../services/group.service.ts";
 import Reminder from "../views/pages/Notifications/components/Reminder.tsx";
@@ -46,34 +41,29 @@ router.get("/page", async (req, res) => {
   }
 });
 
-router.get("/notificationList/:userId", async (req, res) => {
-  try {
-    const sort = (req.query.sort as string) || "Most Recent";
-    const userId = req.user!.id;
-    if (!userId) {
-      return res.status(404).send("No userId");
-    }
-
-    const notifications = await getSortedNotifications(userId, sort);
-
-    const inviteNotifications = await getGroupInviteNotificaitonById(userId);
-
-    if (!notifications || !inviteNotifications) {
-      return res.status(404).send("Problem with notification");
-    }
-    const html = renderToHtml(
-      <NotificationList
-        inviteNotifications={inviteNotifications}
-        notifications={notifications}
-        selectedSort={sort}
-      />
-    );
-
-    res.send(html);
-  } catch (err) {
-    console.error(err);
-    res.status(500).send("Error fetching notifications");
+router.get("/notificationList", async (req, res) => {
+  const sort = (req.query.sort as string) || "Most Recent";
+  const userId = req.user!.id;
+  if (!userId) {
+    return res.status(404).send("No userId");
   }
+
+  const notifications = await getSortedNotifications(userId, sort);
+
+  const inviteNotifications = await getGroupInviteNotificaitonById(userId);
+
+  if (!notifications || !inviteNotifications) {
+    return res.status(404).send("Problem with notification");
+  }
+  const html = renderToHtml(
+    <NotificationList
+      inviteNotifications={inviteNotifications}
+      notifications={notifications}
+      selectedSort={sort}
+    />
+  );
+
+  res.send(html);
 });
 
 router.get("/notificationIcon", async (req, res) => {
@@ -137,13 +127,6 @@ router.get("/reminder/:notificationId", async (req, res) => {
   const notifcationTypeId = req.query.notificationTypeId as string;
   const notificationId = req.params.notificationId;
 
-  console.log(
-    "notificationId",
-    notificationId,
-    "notifcationTypeId",
-    notifcationTypeId
-  );
-
   const notificationType = await getNotificationTypeById(notifcationTypeId);
 
   if (!notificationType) {
@@ -155,9 +138,8 @@ router.get("/reminder/:notificationId", async (req, res) => {
   if (notificationType.type === "invite") {
     notifications = await getGroupInviteByNotificationId(notificationId);
   } else if (notificationType.type === "generic") {
-    notifications = await getGenericNotificationByNotificationId(
-      notificationId
-    );
+    notifications =
+      await getGenericNotificationByNotificationId(notificationId);
   } else if (notificationType.type === "group") {
     notifications = await getGroupNotificationByNotificationId(notificationId);
   }
@@ -165,7 +147,6 @@ router.get("/reminder/:notificationId", async (req, res) => {
   if (!notifications) {
     return res.status(404).send("No notifications found");
   }
-  console.log(notificationType, notificationId, "notificationType");
 
   const groupOwner = await getGroupOwnerWithGroupId(notifications.groups.id);
 

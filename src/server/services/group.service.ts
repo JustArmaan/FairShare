@@ -3,7 +3,7 @@ import { groups } from "../database/schema/group";
 import { categories } from "../database/schema/category";
 import { usersToGroups } from "../database/schema/usersToGroups";
 import { memberType } from "../database/schema/memberType";
-import { eq, and } from "drizzle-orm";
+import { eq, and, not } from "drizzle-orm";
 import { v4 as uuidv4 } from "uuid";
 import { users } from "../database/schema/users";
 import type { UserSchemaWithMemberType } from "../interface/types";
@@ -391,26 +391,25 @@ export type GroupWithTransactions = NonNullable<
 >;
 
 export const getGroupsAndAllMembersForUser = async (userId: string) => {
-  try {
-    const userGroups = await db
-      .select({ groupId: usersToGroups.groupId })
-      .from(usersToGroups)
-      .where(eq(usersToGroups.userId, userId))
-      .all();
+  const userGroups = await db
+    .select({ groupId: usersToGroups.groupId, memberType })
+    .from(usersToGroups)
+    .innerJoin(memberType, eq(usersToGroups.memberTypeId, memberType.id))
+    .where(
+      and(eq(usersToGroups.userId, userId), not(eq(memberType.type, "Invited")))
+    );
 
-    if (userGroups.length === 0) {
-      console.log("No groups found for this user.");
-      return [];
-    }
+  console.log(userGroups);
 
-    const groupIds = userGroups.map((group) => group.groupId);
-    return (await Promise.all(groupIds.map(getGroupWithMembers))).filter(
-      (result) => result !== null
-    ) as ExtractFunctionReturnType<typeof getGroupWithMembers>[];
-  } catch (error) {
-    console.error("Error fetching groups and members for user:", error);
+  if (userGroups.length === 0) {
+    console.log("No groups found for this user.");
     return [];
   }
+
+  const groupIds = userGroups.map((group) => group.groupId);
+  return (await Promise.all(groupIds.map(getGroupWithMembers))).filter(
+    (result) => result !== null
+  ) as ExtractFunctionReturnType<typeof getGroupWithMembers>[];
 };
 
 export type GroupSchema = NonNullable<Awaited<ReturnType<typeof getGroup>>>;
@@ -531,7 +530,7 @@ export const addMember = async (
       })
       .returning();
 
-    io.to(userId).emit("joinedGroup");
+    // io.to(userId).emit("joinedGroup");
     return newMember[0];
   } catch (error) {
     console.error("Failed to add member:", error);
@@ -975,44 +974,43 @@ export async function changeMemberTypeInGroup(
   groupId: string,
   type: string
 ) {
-  try {
-    const memberType = await getMemberType(type);
+  const memberType = await getMemberType(type);
 
-    if (!memberType) {
-      return null;
+  if (!memberType) {
+    return null;
+  }
+
+  const userGroup = (await getUserGroupId(userId, groupId))!;
+
+  if (type === "Member") {
+    const group = (await getGroupWithMembers(groupId))!;
+    group.members.forEach((member) => {
+      io.to(member.id).emit("updateGroup", { groupId });
+    });
+  }
+
+  const newMember = await db
+    .update(usersToGroups)
+    .set({ memberTypeId: memberType.id })
+    .where(eq(usersToGroups.id, userGroup.id))
+    .returning();
+
+  if (newMember) {
+    const equalSplitGroupTransactionsWithAllOwed =
+      await getGroupWithEqualSplitTypeTransactionsAndMembers(groupId);
+
+    const groupWithMembers = await getGroupWithAcceptedMembers(groupId);
+    if (equalSplitGroupTransactionsWithAllOwed && groupWithMembers) {
+      const equalSplitGroupTransactions = filterUniqueTransactions(
+        equalSplitGroupTransactionsWithAllOwed
+      );
+
+      await splitEqualTransactions(
+        equalSplitGroupTransactions,
+        groupId,
+        groupWithMembers
+      );
     }
-
-    const userGroup = await getUserGroupId(userId, groupId);
-
-    if (!userGroup) {
-      return null;
-    }
-
-    const newMember = await db
-      .update(usersToGroups)
-      .set({ memberTypeId: memberType.id })
-      .where(eq(usersToGroups.id, userGroup.id))
-      .returning();
-
-    if (newMember) {
-      const equalSplitGroupTransactionsWithAllOwed =
-        await getGroupWithEqualSplitTypeTransactionsAndMembers(groupId);
-
-      const groupWithMembers = await getGroupWithAcceptedMembers(groupId);
-      if (equalSplitGroupTransactionsWithAllOwed && groupWithMembers) {
-        const equalSplitGroupTransactions = filterUniqueTransactions(
-          equalSplitGroupTransactionsWithAllOwed
-        );
-
-        await splitEqualTransactions(
-          equalSplitGroupTransactions,
-          groupId,
-          groupWithMembers
-        );
-      }
-    }
-  } catch (error) {
-    console.error(error);
   }
 }
 

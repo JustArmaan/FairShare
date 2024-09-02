@@ -57,7 +57,7 @@ export const EditGroupPage = ({
   icons: { icon: string; name: string }[];
 }) => {
   return (
-    <div class="animate-fade-in">
+    <div class="animate-fade-in" id="ws-group-edit">
       <div
         class="flex justify-between items-center mb-1 mt-[28px] text-font-off-white"
         id="create-back-button"

@@ -6,10 +6,7 @@ import { usersToGroups } from "../database/schema/usersToGroups";
 import type { ExtractFunctionReturnType } from "./user.service";
 import { v4 as uuid } from "uuid";
 import { users } from "../database/schema/users";
-import {
-  groupTransactionState,
-  groupTransactionState,
-} from "../database/schema/groupTransactionState";
+import { groupTransactionState } from "../database/schema/groupTransactionState";
 import { splitType } from "../database/schema/splitType";
 import { transactions } from "../database/schema/transaction";
 import { groupTransactionToUsersToGroupsStatus } from "../database/schema/groupTransactionToUsersToGroupStatus";

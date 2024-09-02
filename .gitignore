@@ -1,6 +1,11 @@
 # Based on https://raw.githubusercontent.com/github/gitignore/main/Node.gitignore
 #
 
+result/
+result
+
+vite.config.ts.timestamp*
+
 sync.json
 
 # direnv

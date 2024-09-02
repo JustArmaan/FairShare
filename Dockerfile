@@ -1,22 +1,29 @@
-FROM nixos/nix
-
-# Set environment variables for non-interactive nix commands
-ENV USER root
-
-# Copy the flake.nix file to the container
-COPY flake.nix /root/flake.nix
-
-# Install Git as it's required for Nix flakes
-RUN nix-env -iA nixpkgs.git
+FROM nixos/nix AS builder
 
 
-# Initialize the Nix flake environment
-RUN nix flake init --experimental-features 'nix-command flakes'
+COPY . /tmp/build
+WORKDIR /tmp/build
 
-COPY . .
+RUN nix \
+    --extra-experimental-features "nix-command flakes" \
+    --option filter-syscalls false \
+    build
 
-# Run nix develop to set up the development environment
-# RUN nix develop /root --experimental-features 'nix-command flakes' --command bash -c "echo 'Development environment ready'"
+# Copy the Nix store closure into a directory. The Nix store closure is the
+# entire set of Nix store values that we need for our build.
+RUN mkdir /tmp/nix-store-closure
+RUN cp -R $(nix-store -qR result/) /tmp/nix-store-closure
 
+# Final image is based on scratch. We copy a bunch of Nix dependencies
+# but they're fully self-contained so we don't need Nix anymore.
+FROM scratch
 
-CMD [ "nix", "develop", "/root", "--experimental-features", "nix-command flakes", "--command", "bash", "-c", "bash scripts/start.sh"]
+WORKDIR /app
+
+# Copy /nix/store
+COPY --from=builder /tmp/nix-store-closure /nix/store
+COPY --from=builder /tmp/build/result /app
+
+RUN chmod +x /app/src/scripts/start.sh
+
+CMD ["./app/src/scripts/start.sh"]

@@ -15,23 +15,25 @@ export const NotificationList = (props: {
   selectedSort: string;
 }) => {
   return (
-    <div id="notification-list">
+    <div id="notification-list" data-selected-sort={props.selectedSort}>
       <div class="flex justify-between mb-[1.38rem]">
         <div class="flex flex-col">
           <div class="hidden rotate-90"></div>
-          <div
-            hx-get={`/notification/notificationPicker?sort=${props.selectedSort}`}
-            hx-target=".notification-selector-form"
-            hx-swap="innerHTML"
-            class="flex justify-start w-fit items-center hover:-translate-y-0.5 transition-transform cursor-pointer"
-          >
-            <p class="text-font-off-white mr-3 text-xl">Sort By</p>
-            <img
-              class="h-3"
-              src="/images/right-triangle.svg"
-              alt="triangle icon"
-            />
-          </div>
+          {props.inviteNotifications.length > 0 && (
+            <div
+              hx-get={`/notification/notificationPicker?sort=${props.selectedSort}`}
+              hx-target=".notification-selector-form"
+              hx-swap="innerHTML"
+              class="flex justify-start w-fit items-center hover:-translate-y-0.5 transition-transform cursor-pointer"
+            >
+              <p class="text-font-off-white mr-3 text-xl">Sort By</p>
+              <img
+                class="h-3"
+                src="/images/right-triangle.svg"
+                alt="triangle icon"
+              />
+            </div>
+          )}
         </div>
       </div>
 

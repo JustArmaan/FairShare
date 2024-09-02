@@ -50,7 +50,10 @@ export const PendingItems = (props: {
         (result) => result.users.id === props.currentUser.id
       )!;
 
-      if (ourTransaction.groupTransactionToUsersToGroups.amount === 0) {
+      if (
+        !ourTransaction ||
+        ourTransaction.groupTransactionToUsersToGroups.amount === 0
+      ) {
         return acc;
       }
       if (ourTransaction.groupTransactionToUsersToGroups.amount > 0) {

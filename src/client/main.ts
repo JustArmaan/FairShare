@@ -28,6 +28,8 @@ import {
 // @ts-ignore
 window.onMessage = onMessage;
 
+// debug:
+
 main();
 splitTransfer();
 setupSocketListener();

@@ -228,9 +228,10 @@ export async function getUser(req: Request, res: Response, next: NextFunction) {
   }
 
   if (
-    !req.headers["accept"]?.includes("text/html") &&
-    !(req.headers["hx-request"] === "true") &&
-    !req.url.includes("api")
+    (!req.headers["accept"]?.includes("text/html") &&
+      !(req.headers["hx-request"] === "true") &&
+      !req.url.includes("api")) ||
+    (req.url.endsWith("/sync") && req.method === "POST")
   ) {
     return next();
   }
