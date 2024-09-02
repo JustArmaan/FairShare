@@ -1,7 +1,0 @@
--f https://download.pytorch.org/whl/torch_stable.html
-torch==1.9.1+cpu
-torchvision==0.10.1+cpu
-pillow
-flask
-numpy
-flask_cors
