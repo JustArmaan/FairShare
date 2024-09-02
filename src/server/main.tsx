@@ -24,7 +24,7 @@ import { remapSvgs } from "./middleware/svgHandler.middleware";
 import { receiptRouter } from "./routes/receiptRouter";
 import { groupSplitRouter } from "./routes/groupSplitRouter";
 import { billSplitRouter } from "./routes/billSplitRouter";
-
+import { onboardRouter } from "./routes/onboardRouter";
 const app = express();
 const server = http.createServer(app);
 
@@ -46,6 +46,7 @@ app.use("/split", groupSplitRouter);
 app.use("/mobile", plaidMobileLinkRouter);
 app.use("/billSplit", billSplitRouter);
 app.use("/error", errorRouter);
+app.use("/onboard", onboardRouter);
 
 app.use("", (req, res, next) => {
   // req.url === "/test" && console.log(req.headers, req.url);

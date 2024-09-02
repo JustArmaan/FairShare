@@ -1,28 +1,28 @@
 export const EnterInfoRegisterPage = (props: { email: string }) => {
   return (
-    <div class="animate-fade-in p-6 max-w-md mx-auto text-font-off-white rounded-lg shadow-lg">
+    <div class="animate-fade-in p-6 max-w-md mx-auto text-font-off-white rounded-lg">
       <a
         hx-get="/onboard"
         hx-trigger="click"
-        hx-target="#app"
+        hx-target="body"
         hx-swap="innerHTML"
         hx-push-url="/onboard"
-        class="text-font-off-white text-4xl cursor-pointer my-2 flex items-center"
+        class="absolute top-6 left-6 text-font-off-white text-4xl cursor-pointer flex"
       >
         <img
-          src="/icons/arrow_back_ios.svg"
+          src="/icons/arrow_back.svg"
           alt="back arrow icon"
           class="hover:-translate-y-0.5 transition-transform hover:opacity-80 h-6"
         />
       </a>
       <img
         src="./images/Logo.svg"
-        class="w-1/3 block max-w-32 mx-auto mb-8 mt-2"
+        class="w-1/3 block max-w-32 mx-auto mb-8 mt-[7rem]"
       />
       <h1 class="text-3xl mb-4">Let's finish up!</h1>
       <form
         class="space-y-4"
-        hx-post="/registerComplete"
+        hx-post="/auth/register"
         hx-trigger="submit"
         hx-target="#app"
         hx-swap="innerHTML"
