@@ -39,7 +39,7 @@ export const UncheckedMember = (props: {
         <div id={`splitOptionsRadioButton${member.id}`}>
           <img
             hx-get={`/billSplit/checkSplit/${member.id}/${props.receiptId}?ischecked=false`}
-            hx-swap="innerHTML"
+            hx-swap="outerHTML"
             hx-trigger="click"
             hx-target={`#member-${member.id}`}
             src="/activeIcons/unchecked_circle.svg"

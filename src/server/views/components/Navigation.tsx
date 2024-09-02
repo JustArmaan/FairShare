@@ -63,13 +63,13 @@ export const Nav = () => {
         <div class="rounded-full bg-accent-blue size-12">
           <li class="flex justify-center items-center">
             <a
-              hx-get="/receipt/addReceipt"
-              // hx-get="/billSplit/overview/4ebfe22b-da2e-49db-88a0-0ebabb50bd4d/154e84ac-2bc6-40e0-992b-0552c57cf916"
+              // hx-get="/receipt/addReceipt"
+              hx-get="/billSplit/overview/3a78ba36-951e-45de-9ba2-68951e81b316/48099e5a-08a6-40c8-9a45-0902381dacf2"
               hx-target="#app"
               hx-trigger="click"
               hx-swap="innerHTML"
-              hx-push-url="/receipt/addReceipt"
-              // hx-push-url="/billSplit/overview/4ebfe22b-da2e-49db-88a0-0ebabb50bd4d/154e84ac-2bc6-40e0-992b-0552c57cf916"
+              // hx-push-url="/receipt/addReceipt"
+              hx-push-url="/billSplit/overview/3a78ba36-951e-45de-9ba2-68951e81b316/48099e5a-08a6-40c8-9a45-0902381dacf2"
               class="flex flex-col items-center text-font-off-white dark:text-white"
             >
               <img
