@@ -1,4 +1,3 @@
-import { on } from "events";
 import { type TransactionSchema } from "../../../../interface/types";
 
 export function formatDate(timestamp: string) {
@@ -62,8 +61,10 @@ export const Transaction = ({
           {transaction.timestamp && formatDate(transaction.timestamp)}
         </div>
       )}
-      <div class={`${tailwindColorClass} rounded-2xl mt-2`}>
-        <div class="hover:-translate-y-0.5 cursor-pointer transition-all mt-4 bg-primary-black p-2 rounded-xl shadow-md mb-1 flex items-center justify-between relative">
+      <div
+        class={`${tailwindColorClass} rounded-2xl mt-2 w-[calc(100%_-_2px)]`}
+      >
+        <div class="w-[calc(100%_+_2px)] right-px hover:-translate-y-0.5 cursor-pointer transition-transform mt-2 bg-primary-black p-2 rounded-xl shadow-md mb-1 flex items-center justify-between relative rotate-[0.00001deg]">
           <div class="flex items-center">
             <div class={`p-3 pl-4 pr-4 mr-4 ${tailwindColorClass} rounded-xl`}>
               <div class="flex items-center justify-center w-10 h-10">
@@ -80,6 +81,13 @@ export const Transaction = ({
               <p class="text-gray-400 text-sm text-font-off-white w-fit">
                 {transaction.timestamp && formatDate(transaction.timestamp)}
               </p>
+              {/* @ts-ignore */}
+              {groupId && transaction.user?.firstName && (
+                <p class="text-font-off-white font-semibold w-fit text-left">
+                  {/* @ts-ignore */}
+                  {transaction.user.firstName}
+                </p>
+              )}
             </div>
           </div>
           <div
@@ -91,7 +99,7 @@ export const Transaction = ({
               Math.abs(transaction.amount).toFixed(2)}
           </div>
           {route === "AddTransaction" && (
-            <div class="right-0 bg-font-off-white rounded-full p-2 cursor-pointer hover:-translate-y-0.5 transition-transform hover:opacity-80">
+            <div class="right-0 bg-font-off-white rounded-full p-2 cursor-pointer hover:-translate-y-0.5 transition-transform hover:opacity-80 rotate-[0.00001deg]">
               <img
                 src={`/icons/${checked ? "check.svg" : "addTransaction.svg"}`}
                 alt="Plus Icon"

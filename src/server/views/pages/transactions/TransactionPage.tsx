@@ -64,7 +64,7 @@ export const TransactionsPage = (props: {
         hx-get={`/transactions/accountPicker/${props.itemId}/${props.selectedAccountId}`}
         hx-target=".account-selector-form"
         hx-swap="innerHTML"
-        class="mb-2 flex justify-start w-fit items-center hover:-translate-y-0.5 transition-transform cursor-pointer"
+        class="mb-2 flex justify-start w-fit items-center hover:-translate-y-0.5 transition-transform cursor-pointer rotate-[0.00001deg]"
       >
         <p class="text-font-off-white mr-3 text-xl">Change Account</p>
         <img class="h-3" src="/images/right-triangle.svg" alt="triangle icon" />

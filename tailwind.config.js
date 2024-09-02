@@ -34,23 +34,23 @@ export default {
       },
     },
     colors: {
-      "category-color-0": "#ff4d4d", //red/guava pink
-      "category-color-1": "#ff8b4d", //orange
-      "category-color-2": "#ffcb4d", //yellow/
-      "category-color-3": "#bcc902", //lime
-      "category-color-4": "#b6ff4d", //lime green
-      "category-color-5": "#36b50e", //green
-      "category-color-6": "#4dff61", //light green
-      "category-color-7": "#4dffa1", //teal
-      "category-color-8": "#4dffdf", //cyan
-      "category-color-9": "#26ccd7", //light blue(4ddfff)
-      "category-color-10": "#0052ba", //blue-saphire blue(4da1ff)
-      "category-color-11": "#4d61ff", //indigo
-      "category-color-12": "#774dff", //violet
-      "category-color-13": "#b64dff", //purple
-      "category-color-14": "#f54dff", //pink
-      "category-color-15": "#ff4dca", //hot-pink
-      "category-color-16": "#ff4d8b", //coral
+      "category-color-0": "#9079FF",
+      "category-color-1": "#0DC896",
+      "category-color-2": "#FF7969",
+      "category-color-3": "#F4C56A",
+      "category-color-4": "#ADBAF2",
+      "category-color-5": "#71C060",
+      "category-color-6": "#FC5878",
+      "category-color-7": "#EEDC7C",
+      "category-color-8": "#26CCD7",
+      "category-color-9": "#9E4696",
+      "category-color-10": "#008B8B",
+      "category-color-11": "#D83434",
+      "category-color-12": "#F09C4B",
+      "category-color-13": "#0052BA",
+      "category-color-14": "#EFAFF0",
+      "category-color-15": "#066839",
+      "category-color-16": "#BE4D4B",
       "primary-grey": "#E7E7E7",
       "accent-blue": "#4CAEF8",
       "accent-purple": "#9079FF",
@@ -87,6 +87,7 @@ export default {
       "pink-blush": "#efaff0",
       "forest-green": "#066839",
       redwood: "#be4d4b",
+      "field-grey": "#dadada",
     },
     fontFamily: {
       sans: ["Work Sans", "sans-serif"],

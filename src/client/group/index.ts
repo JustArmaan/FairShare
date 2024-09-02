@@ -11,7 +11,7 @@ export function main() {
     }
 
     if (memberContainer && !memberContainer.dataset.listenersAttached) {
-      memberContainer.addEventListener("click", function (event) {
+      memberContainer.addEventListener("click", function(event) {
         const deleteIcon = event.target.closest(".delete-icon");
         if (deleteIcon) {
           handleDeleteMember(event, deleteIcon);
@@ -56,7 +56,7 @@ export function main() {
 
     colorButtons.forEach((button) => {
       if (!button.dataset.listenerAttached) {
-        button.addEventListener("click", function () {
+        button.addEventListener("click", function() {
           colorButtons.forEach((btn) =>
             btn.classList.remove("ring-2", "ring-offset-2", "ring-accent-blue")
           );
@@ -144,7 +144,7 @@ export function main() {
     return existingEmails.includes(emailToCheck);
   }
 
-  document.body.addEventListener("htmx:responseError", function (evt) {
+  document.body.addEventListener("htmx:responseError", function(evt) {
     const xhr = (evt as CustomEvent).detail.xhr;
     const status = xhr.status;
     console.log("Response Error Status:", status); // Add this

@@ -53,11 +53,11 @@ export const SplitAmountByItem = (props: {
                 class="bg-primary-black border border-font-grey text-font-grey w-16 text-right p-1 mr-2 rounded-md"
                 placeholder="0.00"
               />
-              <div id="splitOptionsRadioButton">
+              <div id={`splitOptionsRadioButton${member.id}-${receiptItem.id}`}>
                 <img
-                  hx-get={`/billSplit/checkSplit/${member.id}?ischecked=true`}
+                  hx-get={`/billSplit/checkSplit/${member.id}?ischecked=true&receiptItemId=${receiptItem.id}`}
                   hx-swap="innerHTML"
-                  hx-target="#splitOptionsRadioButton"
+                  hx-target={`#splitOptionsRadioButton${member.id}-${receiptItem.id}`}
                   hx-trigger="click"
                   src="/activeIcons/checked_blue_circle.svg"
                   alt="selected icon"
@@ -68,6 +68,7 @@ export const SplitAmountByItem = (props: {
                   type="hidden"
                   name={`${true}-${member.id}`}
                   id="selectedIcon"
+                  class="split-options-radio"
                 />
               </div>
             </div>

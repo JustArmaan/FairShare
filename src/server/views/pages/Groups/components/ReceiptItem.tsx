@@ -12,7 +12,7 @@ export const ReceiptItem = (props: {
       {props.receiptItem.map((item, index) => (
         <div
           class="flex items-center w-full text-font-off-white mb-2"
-          id={`receiptItem-${props.receiptItem[0].id}`}
+          id={`receiptItem-${item.id}`}
         >
           <p class="w-1/2">{item.productName}</p>
           <div class="flex items-center w-1/6">
@@ -57,9 +57,9 @@ export const ReceiptItem = (props: {
           {props.isSplit && (
             <p
               class="w-1/6 text-right text-accent-blue"
-              hx-get={`/billSplit/splitForm/${props.receiptItem[0].id}?splitType=Equally`}
-              hx-target={`#receiptItem-${props.receiptItem[0].id}`}
-              hx-swap={`receiptItem-${props.receiptItem[0].id}`}
+              hx-get={`/billSplit/splitForm/${item.id}?splitType=Equally`}
+              hx-target={`#receiptItem-${item.id}`}
+              hx-swap="outerHTML"
               hx-trigger="click"
             >
               Split

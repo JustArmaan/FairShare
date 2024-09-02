@@ -36,7 +36,7 @@ export const NotificationIcon = ({
           />
         </div>
         <p id="notificationsText" class="mt-1 text-xs">
-          Notifications
+          Alerts
         </p>
       </a>
     </li>

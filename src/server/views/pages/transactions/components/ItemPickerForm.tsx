@@ -1,4 +1,3 @@
-import type { Account } from "../../../../services/account.service";
 import type { Item } from "../../../../services/plaid.service";
 
 export const ItemPickerForm = (props: {
@@ -24,7 +23,11 @@ export const ItemPickerForm = (props: {
                   }
                   hx-swap="innerHTML"
                   hx-target="#app"
-                  hx-push-url={`/transactions/page/${item.id}`}
+                  hx-push-url={
+                    props.groupId
+                      ? `/groups/addTransaction/default/${props.groupId}/${item.id}`
+                      : `/home/page/${item.id}`
+                  }
                 >
                   <label>{item.institutionName}</label>
                   <input

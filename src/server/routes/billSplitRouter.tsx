@@ -2,9 +2,12 @@ import express from "express";
 import { renderToHtml } from "jsxte";
 import { BillSplitPage } from "../views/pages/BillSplit/BillSplitPage";
 import {
+  createSplitReceiptLineItem,
   getReceipt,
   getReceiptDetailsFromReceiptItemId,
   getReceiptLineItems,
+  splitReceiptByAmount,
+  splitReceiptEquallyBetweenMembers,
 } from "../services/receipt.service";
 import { getGroupWithMembers } from "../services/group.service";
 import { SplitOptions } from "../views/pages/BillSplit/components/SplitOptions";
@@ -126,7 +129,11 @@ router.get("/changeSplitOption/:receiptId/:groupId", async (req, res) => {
     );
   } else if (splitType === "Amount") {
     splitOptionsHtml = renderToHtml(
-      <SplitByAmount group={groupWithMembers} transactionDetails={receipt} />
+      <SplitByAmount
+        group={groupWithMembers}
+        transactionDetails={receipt}
+        currentUser={currentUser}
+      />
     );
   } else if (splitType === "Percentage") {
     splitOptionsHtml = renderToHtml(
@@ -177,11 +184,7 @@ router.get("/splitForm/:receiptId", async (req, res) => {
   const receiptId = req.params.receiptId;
   const splitType = req.query.splitType;
 
-  console.log(receiptId, "Receipt ID");
-
   const receiptDetails = await getReceiptDetailsFromReceiptItemId(receiptId);
-
-  console.log(receiptDetails, "Receipt details");
 
   if (!receiptDetails) {
     return res.status(404).send("Receipt details not found");
@@ -200,8 +203,6 @@ router.get("/splitForm/:receiptId", async (req, res) => {
   if (!currentUser) {
     return res.status(404).send("User not found");
   }
-
-  // console.log(receiptDetails, "Receipt details");
 
   const html = renderToHtml(
     <>
@@ -257,13 +258,9 @@ router.get("/splitSelector/:splitType/:receiptId", async (req, res) => {
   const splitType = req.params.splitType;
   const receiptId = req.params.receiptId;
 
-  console.log(receiptId, "Receipt ID");
-
   const transactionDetails = await getReceiptDetailsFromReceiptItemId(
     receiptId
   );
-
-  console.log(transactionDetails, "Transaction details");
 
   if (!transactionDetails) {
     return res.status(404).send("Transaction details not found");
@@ -311,24 +308,34 @@ router.get("/splitSelector/:splitType/:receiptId", async (req, res) => {
 
 router.get("/checkSplit/:userId", async (req, res) => {
   const ischecked = req.query.ischecked;
+  const receiptItemId = req.query.receiptItemId;
   let html;
+  let targetId;
+  let hxGetUrl;
+
+  if (receiptItemId) {
+    targetId = `#splitOptionsRadioButton${req.params.userId}-${receiptItemId}`;
+    hxGetUrl = `/billSplit/checkSplit/${req.params.userId}?ischecked=${
+      ischecked === "true" ? "false" : "true"
+    }&receiptItemId=${receiptItemId}`;
+  } else {
+    targetId = `#splitOptionsRadioButton${req.params.userId}`;
+    hxGetUrl = `/billSplit/checkSplit/${req.params.userId}?ischecked=${
+      ischecked === "true" ? "false" : "true"
+    }`;
+  }
 
   if (ischecked === "true") {
     html = renderToHtml(
       <>
         <img
-          hx-get={`/billSplit/checkSplit/${req.params.userId}?ischecked=false`}
+          hx-get={hxGetUrl}
           hx-swap="innerHTML"
-          hx-target="#splitOptionsRadioButton"
+          hx-target={targetId}
           hx-trigger="click"
           src="/activeIcons/unchecked_circle.svg"
           alt="selected icon"
-          class="ml-1 cursor-pointer"
-        />
-        <input
-          type="hidden"
-          name={`${ischecked}-${req.params.userId}`}
-          id="selectedIcon"
+          class="ml-1 cursor-pointer split-options-radio"
         />
       </>
     );
@@ -336,9 +343,9 @@ router.get("/checkSplit/:userId", async (req, res) => {
     html = renderToHtml(
       <>
         <img
-          hx-get={`/billSplit/checkSplit/${req.params.userId}?ischecked=true`}
+          hx-get={hxGetUrl}
           hx-swap="innerHTML"
-          hx-target="#splitOptionsRadioButton"
+          hx-target={targetId}
           hx-trigger="click"
           src="/activeIcons/checked_blue_circle.svg"
           alt="selected icon"
@@ -347,16 +354,18 @@ router.get("/checkSplit/:userId", async (req, res) => {
         <input
           type="hidden"
           name={`${ischecked}-${req.params.userId}`}
+          value={req.params.userId}
           id="selectedIcon"
+          class="split-options-radio"
         />
       </>
     );
   }
+
   res.send(html);
 });
 
 router.post("/saveSplit/:receiptId", async (req, res) => {
-  console.log(req.body, "Saving split");
   const receiptId = req.params.receiptId;
   const receipt = await getReceipt(receiptId);
 
@@ -364,10 +373,11 @@ router.post("/saveSplit/:receiptId", async (req, res) => {
     return res.status(404).send("Receipt not found");
   }
 
-  const { splitType } = req.body;
-  console.log(splitType, "Split type");
+  console.log(req.body, "Request body first");
 
-  if (splitType === "Equally" && splitType.length === 1) {
+  const { splitType } = req.body;
+
+  if (splitType === "Equally") {
     const checkedMembers: string[] = [];
 
     for (let key in req.body) {
@@ -376,25 +386,63 @@ router.post("/saveSplit/:receiptId", async (req, res) => {
         checkedMembers.push(userId);
       }
     }
+    if (checkedMembers.length === 0) {
+      return res.status(400).send("Select at least one member");
+    }
+    await splitReceiptEquallyBetweenMembers(checkedMembers, receiptId);
   }
 
   if (splitType === "Amount") {
     const userAmounts: { userId: string; amount: number }[] = [];
+    let totalEnteredAmount = 0;
+    console.log("This is running");
 
-    for (let key in req.body) {
-      if (key.startsWith("splitAmount-")) {
-        const userId = key.replace("splitAmount-", "");
-        const amount = parseFloat(req.body[key]);
+    if (Array.isArray(req.body.splitAmount)) {
+      const amounts = req.body.splitAmount;
+      const checkedMembers = Object.keys(req.body)
+        .filter((key) => key.startsWith("true-"))
+        .map((key) => key.replace("true-", ""));
 
+      checkedMembers.forEach((userId, index) => {
+        const amount = parseFloat(amounts[index]);
         if (!isNaN(amount) && amount > 0) {
           userAmounts.push({ userId, amount });
+          totalEnteredAmount += amount;
+        }
+      });
+    } else {
+      for (let key in req.body) {
+        if (key.startsWith("splitAmount-")) {
+          const userId = key.replace("splitAmount-", "");
+          const amount = parseFloat(req.body[key]);
+
+          if (!isNaN(amount) && amount > 0) {
+            userAmounts.push({ userId, amount });
+            totalEnteredAmount += amount;
+          }
         }
       }
     }
+
+    if (userAmounts.length === 0) {
+      return res
+        .status(400)
+        .send("Enter a valid amount for at least one member");
+    }
+
+    const receiptTotal = receipt[0].total;
+    if (totalEnteredAmount > receiptTotal) {
+      return res
+        .status(400)
+        .send("The total amount allocated exceeds the receipt total");
+    }
+
+    await splitReceiptByAmount(userAmounts, receiptId);
   }
 
   if (splitType === "Percentage") {
     const userPercentages: { userId: string; percentage: number }[] = [];
+    let totalPercentage = 0;
 
     for (let key in req.body) {
       if (key.startsWith("splitPercentage-")) {
@@ -403,15 +451,29 @@ router.post("/saveSplit/:receiptId", async (req, res) => {
 
         if (!isNaN(percentage) && percentage > 0) {
           userPercentages.push({ userId, percentage });
+          totalPercentage += percentage;
         }
       }
     }
+
+    if (totalPercentage > 100) {
+      return res.status(400).send("Total percentage exceeds 100%");
+    }
+
+    const totalAmount = parseFloat(receipt[0].total.toFixed(2));
+    const userAmounts = userPercentages.map(({ userId, percentage }) => ({
+      userId,
+      amount: (percentage / 100) * totalAmount,
+    }));
+
+    await splitReceiptByAmount(userAmounts, receiptId);
   }
 
-  if (splitType === "Items") {
+  if (splitType.includes("Items")) {
     const itemSplitType = req.body.itemSplitType;
+    const receiptLineItemId = itemSplitType.split("-")[1];
 
-    if (itemSplitType === "Equally") {
+    if (itemSplitType.startsWith("equal")) {
       const checkedMembers: string[] = [];
 
       for (let key in req.body) {
@@ -420,10 +482,33 @@ router.post("/saveSplit/:receiptId", async (req, res) => {
           checkedMembers.push(userId);
         }
       }
+
+      if (checkedMembers.length === 0) {
+        return res.status(400).send("Select at least one member");
+      }
+
+      const amountPerMember = receipt[0].total / checkedMembers.length;
+
+      for (const userId of checkedMembers) {
+        const groupTransactionToUsersToGroupsId = await splitReceiptByAmount(
+          [{ userId: userId, amount: amountPerMember }],
+          receiptId
+        );
+
+        if (!groupTransactionToUsersToGroupsId) {
+          return res.status(500).send("Error splitting receipt");
+        }
+
+        await createSplitReceiptLineItem(
+          receiptLineItemId,
+          groupTransactionToUsersToGroupsId[0].id,
+          amountPerMember
+        );
+      }
     }
 
-    if (itemSplitType === "Amount") {
-      const userAmounts: { userId: string; amount: number }[] = [];
+    if (itemSplitType.startsWith("amount")) {
+      const userAmountsMap: { [userId: string]: number } = {};
 
       for (let key in req.body) {
         if (key.startsWith("splitAmount-")) {
@@ -431,14 +516,41 @@ router.post("/saveSplit/:receiptId", async (req, res) => {
           const amount = parseFloat(req.body[key]);
 
           if (!isNaN(amount) && amount > 0) {
-            userAmounts.push({ userId, amount });
+            if (userAmountsMap[userId]) {
+              userAmountsMap[userId] += amount;
+            } else {
+              userAmountsMap[userId] = amount;
+            }
           }
         }
       }
+
+      const userAmounts = Object.entries(userAmountsMap).map(
+        ([userId, amount]) => ({ userId, amount })
+      );
+
+      await splitReceiptByAmount(userAmounts, receiptId);
+
+      for (const { userId, amount } of userAmounts) {
+        const groupTransactionToUsersToGroupsId = await splitReceiptByAmount(
+          [{ userId: userId, amount: amount }],
+          receiptId
+        );
+
+        if (!groupTransactionToUsersToGroupsId) {
+          return res.status(500).send("Error splitting receipt");
+        }
+
+        await createSplitReceiptLineItem(
+          receiptLineItemId,
+          groupTransactionToUsersToGroupsId[0].id,
+          amount
+        );
+      }
     }
 
-    if (itemSplitType === "Percentage") {
-      const userPercentages: { userId: string; percentage: number }[] = [];
+    if (itemSplitType.startsWith("percentage")) {
+      const userPercentagesMap: { [userId: string]: number } = {};
 
       for (let key in req.body) {
         if (key.startsWith("splitPercentage-")) {
@@ -446,9 +558,38 @@ router.post("/saveSplit/:receiptId", async (req, res) => {
           const percentage = parseFloat(req.body[key]);
 
           if (!isNaN(percentage) && percentage > 0) {
-            userPercentages.push({ userId, percentage });
+            if (userPercentagesMap[userId]) {
+              userPercentagesMap[userId] += percentage;
+            } else {
+              userPercentagesMap[userId] = percentage;
+            }
           }
         }
+      }
+
+      const totalAmount = parseFloat(receipt[0].total.toFixed(2));
+      const userAmounts: { userId: string; amount: number }[] = [];
+
+      for (const [userId, percentage] of Object.entries(userPercentagesMap)) {
+        const amount = (percentage / 100) * totalAmount;
+        userAmounts.push({ userId, amount });
+      }
+
+      const groupTransactionToUserToGroupsResult = await splitReceiptByAmount(
+        userAmounts,
+        receiptId
+      );
+
+      if (!groupTransactionToUserToGroupsResult) {
+        return res.status(500).send("Error splitting receipt");
+      }
+
+      for (const { userId, amount } of userAmounts) {
+        await createSplitReceiptLineItem(
+          receiptLineItemId,
+          groupTransactionToUserToGroupsResult[0].id,
+          amount
+        );
       }
     }
   }
@@ -456,4 +597,22 @@ router.post("/saveSplit/:receiptId", async (req, res) => {
   res.sendStatus(200);
 });
 
+router.post("/amount", async (req, res) => {
+  const memberId = req.body.memberId;
+  const totalAmount = parseFloat(req.body.totalOwed);
+  const splitAmount = parseFloat(req.body.splitAmount);
+
+  console.log(req.body);
+
+  if (totalAmount === 0) {
+    return res.status(400).send("Amount cannot be zero");
+  } else {
+    const updatedAmount = totalAmount - splitAmount;
+    if (updatedAmount < 0) {
+      return res.status(400).send(`Amount cannot be more than ${totalAmount}`);
+    }
+    res.send(updatedAmount.toFixed(2));
+    console.log(updatedAmount, "Updated Amount");
+  }
+});
 export const billSplitRouter = router;

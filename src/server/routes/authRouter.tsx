@@ -15,7 +15,6 @@ import { renderToHtml } from "jsxte";
 import { LoginPage } from "../views/pages/Login-Register/LoginPage";
 import { RegisterPage } from "../views/pages/Login-Register/RegisterPage";
 import { EnterInfoRegisterPage } from "../views/pages/Login-Register/EnterInfoRegisterPage";
-import crypto from "crypto";
 
 const colors = [
   "accent-blue",
@@ -229,9 +228,10 @@ export async function getUser(req: Request, res: Response, next: NextFunction) {
   }
 
   if (
-    !req.headers["accept"]?.includes("text/html") &&
-    !(req.headers["hx-request"] === "true") &&
-    !req.url.includes("api")
+    (!req.headers["accept"]?.includes("text/html") &&
+      !(req.headers["hx-request"] === "true") &&
+      !req.url.includes("api")) ||
+    (req.url.endsWith("/sync") && req.method === "POST")
   ) {
     return next();
   }

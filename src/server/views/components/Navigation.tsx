@@ -64,12 +64,12 @@ export const Nav = () => {
           <li class="flex justify-center items-center">
             <a
               hx-get="/receipt/addReceipt"
-              // hx-get="/billSplit/overview/ddb13cb1-b1fa-4827-87e3-f395b520cd04/2cdfe702-e49b-4f4f-9a8b-c7517203dfb4"
+              // hx-get="/billSplit/overview/dc3da8f3-03ca-4285-bcd4-19a9b4e96b5a/4538e277-7a4e-4812-82da-601d4827bd28"
               hx-target="#app"
               hx-trigger="click"
               hx-swap="innerHTML"
               hx-push-url="/receipt/addReceipt"
-              // hx-push-url="/billSplit/overview/ddb13cb1-b1fa-4827-87e3-f395b520cd04/2cdfe702-e49b-4f4f-9a8b-c7517203dfb4"
+              // hx-push-url="/billSplit/overview/dc3da8f3-03ca-4285-bcd4-19a9b4e96b5a/4538e277-7a4e-4812-82da-601d4827bd28"
               class="flex flex-col items-center text-font-off-white dark:text-white"
             >
               <img
@@ -112,7 +112,7 @@ export const Nav = () => {
               />
             </div>
             <p id="notificationsText" class="mt-1 text-xs">
-              Notifications
+              Alerts
             </p>
           </a>
         </div>

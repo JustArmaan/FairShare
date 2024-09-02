@@ -14,7 +14,7 @@ export const SplitByItemsForm = (props: {
 }) => {
   return (
     <div
-      class="bg-primary-faded-black w-full pb-2 pt-1 flex flex-col justify-center"
+      class="bg-primary-faded-black w-full pb-2 pt-1 flex flex-col justify-center mb-2"
       id={`splitForm-${props.receiptItems[0].id}`}
     >
       <div class="flex  px-2 items-center">

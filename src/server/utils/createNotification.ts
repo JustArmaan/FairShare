@@ -11,29 +11,25 @@ export async function createGroupInviteWithWebsocket(
   notificationRecipientId: string,
   notificationEmit: string
 ) {
-  try {
-    const userToGroup = await getUsersToGroup(groupId, notificationRecipientId);
+  const userToGroup = await getUsersToGroup(groupId, notificationRecipientId);
 
-    if (!userToGroup) {
-      console.error("Failed to get userToGroup");
-      throw new Error("Failed to get userToGroup");
-    }
-
-    const newNotif = await createGroupInviteNotification(
-      userToGroup.id,
-      notificationRecipientId
-    );
-    if (!newNotif) {
-      console.error("Failed to create notification");
-    }
-    io.to(notificationRecipientId).emit(
-      notificationEmit,
-      JSON.stringify({ notification: newNotif })
-    );
-  } catch (error) {
-    console.error("Error handling group invitation:", error);
-    throw new Error("Error handling group invitation");
+  if (!userToGroup) {
+    console.error("Failed to get userToGroup");
+    throw new Error("Failed to get userToGroup");
   }
+
+  const newNotif = await createGroupInviteNotification(
+    userToGroup.id,
+    notificationRecipientId
+  );
+  if (!newNotif) {
+    console.error("Failed to create notification");
+  }
+  console.log(notificationEmit);
+  io.to(notificationRecipientId).emit(
+    notificationEmit,
+    JSON.stringify({ notification: newNotif })
+  );
 }
 
 export async function createGroupNotificationWithWebsocket(
@@ -60,10 +56,9 @@ export async function createGroupNotificationWithWebsocket(
       console.error("Failed to create notification");
     }
 
-    io.to(notificationRecipientId).emit(
-      notificationEmit,
-      JSON.stringify({ notification: newNotif })
-    );
+    io.to(notificationRecipientId).emit(notificationEmit, {
+      notification: newNotif,
+    });
   } catch (e) {
     console.error("Error handling group notification:", e);
     throw new Error("Error handling group notification");
