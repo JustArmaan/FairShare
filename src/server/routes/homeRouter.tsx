@@ -34,7 +34,14 @@ router.get("/page/:itemId", async (req, res, next) => {
       res.send(html);
       return;
     } else {
-      const html = renderToHtml(<ConnectAccount />);
+      const html = renderToHtml(
+        <div
+          hx-get="/onboard/welcome"
+          hx-trigger="load"
+          hx-target="body"
+          hx-swap="innerHTML"
+        />
+      );
       res.send(html);
       return;
     }
@@ -145,7 +152,5 @@ router.get("/accountOverview/cashAccount/:cashAccountId", async (req, res) => {
   const html = renderToHtml(<AccountOverview account={account} />);
   res.send(html);
 });
-
-
 
 export const homeRouter = router;

@@ -18,7 +18,7 @@ export const Initial1 = () => {
           </a>
           <div class="absolute p-4 top-4 right-3 z-30 cursor-pointer">
             <a
-              hx-get="/auth/registerPage"
+              hx-get="/onboard/connect"
               hx-swap="innerHTML"
               hx-target="body"
               hx-trigger="click"
@@ -33,7 +33,7 @@ export const Initial1 = () => {
                 Scan & Save Your Receipts
               </p>
             </div>
-            <img src="./icons/scanLogo.svg" class="w-2/3 block max-w-[17rem]" />
+            <img src="/icons/scanLogo.svg" class="w-2/3 block max-w-[17rem]" />
             <p class="text-font-off-white font-medium text-[1rem] w-[18rem] text-center mt-3">
               Easily add receipts by taking a picture, uploading an image, or
               inputting manually.
