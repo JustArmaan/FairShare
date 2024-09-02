@@ -2,6 +2,7 @@ import {
   addAccount,
   addPlaidAccount,
   getAccount,
+  updatePlaidAccount,
 } from "../../services/account.service";
 import { getAccountTypeIdByName } from "../../services/accountType.service";
 import { getCategoryIdByName } from "../../services/category.service";
@@ -34,7 +35,6 @@ const syncStore = new Set<string>();
 const syncQueue = new Set<string>();
 
 export async function syncTransactionsForUser(userId: string, origin?: string) {
-  console.log("start sync!", userId);
   const entry: SyncEntry = { timestamp: new Date(Date.now()).toLocaleString() };
   if (syncStore.has(userId)) {
     entry.syncStore = { ...syncStore };
@@ -51,16 +51,6 @@ export async function syncTransactionsForUser(userId: string, origin?: string) {
 
     await Promise.all(
       items.map(async (item) => {
-        /*
-        setInterval(async () => {
-          console.log("trigger updates!");
-          const res = await plaidRequest("/sandbox/item/fire_webhook", {
-            webhook_code: "SYNC_UPDATES_AVAILABLE",
-            access_token: item.item.plaidAccessToken,
-          });
-          console.log(res);
-        }, 1000);
-        */
         console.log("sync transaction", item.item.institutionName);
         return await syncTransaction({ ...item, userId }, itemEntry);
       })
@@ -89,6 +79,9 @@ async function updateAccounts(
       const accountTypeId = await getAccountTypeIdByName(account.type);
       if (!accountTypeId) return;
       const acc = await getAccount(account.account_id);
+
+      const balance = (account.balances.available || account.balances.current)!;
+
       if (!acc) {
         await addAccount({
           id: account.account_id,
@@ -96,18 +89,28 @@ async function updateAccounts(
           accountTypeId: accountTypeId.id,
           currencyCodeId: null,
         });
-        const balance = (account.balances.available ||
-          account.balances.current)!;
         await addPlaidAccount({
           id: account.account_id,
           accountTypeId: accountTypeId.id,
           balance: (account.type === "credit"
-            ? Math.abs(balance - (account.balances.limit ? account.balances.limit : 0))
+            ? Math.abs(
+              balance - (account.balances.limit ? account.balances.limit : 0)
+            )
             : balance
           ).toString(),
           itemId: itemId,
           currencyCodeId: null,
           accountsId: account.account_id,
+        });
+      } else {
+        // update acc balance
+        updatePlaidAccount(account.account_id, {
+          balance: (account.type === "credit"
+            ? Math.abs(
+              balance - (account.balances.limit ? account.balances.limit : 0)
+            )
+            : balance
+          ).toString(),
         });
       }
     })
