@@ -1,6 +1,6 @@
-import type { GroupWithMembers } from "../../../../services/group.service";
 import type {
   Receipt,
+  ReceiptItemWithOwedAmount,
   ReceiptLineItems,
 } from "../../../../services/receipt.service";
 import { ReceiptItem } from "./ReceiptItem";
@@ -8,14 +8,17 @@ import { ReceiptItem } from "./ReceiptItem";
 export const BillSplitReceipt = (props: {
   transactionsDetails: Receipt;
   receiptItems: ReceiptLineItems[];
-  groupWithMembers?: GroupWithMembers;
+  groupWithMembers?: ReceiptItemWithOwedAmount;
   splitType: string;
   isSplit?: boolean;
+  isOob?: boolean;
 }) => {
   return (
     <div
       class="w-full bg-primary-black pt-[2.63rem] pb-[7.9rem] px-4 text-font-off-white flex flex-col rounded-md relative"
       id="billSplitReceipt"
+      data-split-type={props.splitType}
+      hx-swap-oob={props.isOob ? "outerHTML" : undefined}
     >
       <div class="flex flex-col items-center justify-center">
         <h1 class="text-lg mb-[0.63rem]">
@@ -50,6 +53,7 @@ export const BillSplitReceipt = (props: {
           <ReceiptItem
             receiptItem={receiptItem}
             isSplit={props.isSplit === true}
+            groupWithMembers={props.groupWithMembers || undefined}
           />
         );
       })}

@@ -42,16 +42,10 @@ export const UncheckedMember = (props: {
             hx-swap="outerHTML"
             hx-trigger="click"
             hx-target={`#member-${member.id}`}
+            hx-vals={`js:{ splitType: document.querySelector("#billSplitReceipt").dataset.splitType, checkedMemberCount: document.querySelectorAll("input[name^='true-']").length, checkedMemberIds: Array.from(document.querySelectorAll("input[name^='true-']:checked")).map(input => input.name.replace("true-", "")).join(",") }`}
             src="/activeIcons/unchecked_circle.svg"
             alt="selected icon"
             class="ml-1 cursor-pointer"
-          />
-
-          <input
-            type="hidden"
-            name={`${true}-${member.id}`}
-            id="selectedIcon"
-            class="split-options-radio"
           />
         </div>
       </div>

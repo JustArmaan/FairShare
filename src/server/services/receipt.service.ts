@@ -8,9 +8,11 @@ import { groupTransactionToUsersToGroupsStatus } from "../database/schema/groupT
 import { v4 as uuidv4 } from "uuid";
 import { groupTransactionState } from "../database/schema/groupTransactionState";
 import { splitType } from "../database/schema/splitType";
-import { getUsersToGroup } from "./group.service";
+import { getGroup, getUsersToGroup } from "./group.service";
 import { groupTransactionToUsersToGroups } from "../database/schema/groupTransactionToUsersToGroups";
 import { receiptLineItemToGroupTransaction } from "../database/schema/receiptLineItemToGroupTransaction";
+import { usersToGroups } from "../database/schema/usersToGroups";
+import { users } from "../database/schema/users";
 
 const db = getDB();
 
@@ -21,6 +23,27 @@ export async function getReceipt(id: string) {
     .where(eq(transactionReceipt.id, id));
 
   return results;
+}
+
+export async function getReceiptWithLineItems(receiptId: string) {
+  const result = await db
+    .select()
+    .from(transactionReceipt)
+    .where(eq(transactionReceipt.id, receiptId));
+
+  console.log(result, "result");
+
+  const receiptLineItems = await db
+    .select()
+    .from(receiptLineItem)
+    .where(eq(receiptLineItem.transactionReceiptId, receiptId));
+
+  console.log(receiptLineItems, "receiptLineItems");
+
+  return {
+    ...result,
+    receiptLineItems,
+  };
 }
 
 export type Receipt = ExtractFunctionReturnType<typeof getReceipt>;
@@ -229,3 +252,52 @@ export async function createSplitReceiptLineItem(
 
   return result[0];
 }
+
+export async function getReceiptWithOwedMembers(receipId: string) {
+  const receipt = await getReceiptWithLineItems(receipId);
+
+  let receiptLineItemsWithOwedAmountIds = [];
+
+  for (const receiptLineItem of receipt.receiptLineItems) {
+    const receiptLineItemToGroupTransactionResult = await db
+      .select({
+        amount: receiptLineItemToGroupTransaction.amount,
+        user: users,
+        receiptId: transactionReceipt.id,
+        receiptLineId: receiptLineItemToGroupTransaction.receiptLineItemId,
+      })
+      .from(receiptLineItemToGroupTransaction)
+      .innerJoin(
+        transactionReceipt,
+        eq(transactionReceipt.id, receiptLineItem.transactionReceiptId)
+      )
+      .innerJoin(
+        groupTransactionToUsersToGroups,
+        eq(
+          groupTransactionToUsersToGroups.id,
+          receiptLineItemToGroupTransaction.groupTransactionId
+        )
+      )
+      .innerJoin(
+        usersToGroups,
+        eq(usersToGroups.id, groupTransactionToUsersToGroups.usersToGroupsId)
+      )
+      .innerJoin(users, eq(users.id, usersToGroups.userId))
+      .where(
+        eq(
+          receiptLineItemToGroupTransaction.receiptLineItemId,
+          receiptLineItem.id
+        )
+      );
+
+    receiptLineItemsWithOwedAmountIds.push(
+      receiptLineItemToGroupTransactionResult
+    );
+  }
+
+  return receiptLineItemsWithOwedAmountIds[0];
+}
+
+export type ReceiptItemWithOwedAmount = ExtractFunctionReturnType<
+  typeof getReceiptWithOwedMembers
+>;
