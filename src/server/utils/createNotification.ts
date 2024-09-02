@@ -9,7 +9,8 @@ import { getUsersToGroup } from "../services/group.service";
 export async function createGroupInviteWithWebsocket(
   groupId: string,
   notificationRecipientId: string,
-  notificationEmit: string
+  notificationEmit: string,
+  senderId: string
 ) {
   const userToGroup = await getUsersToGroup(groupId, notificationRecipientId);
 
@@ -20,7 +21,8 @@ export async function createGroupInviteWithWebsocket(
 
   const newNotif = await createGroupInviteNotification(
     userToGroup.id,
-    notificationRecipientId
+    notificationRecipientId,
+    senderId
   );
   if (!newNotif) {
     console.error("Failed to create notification");
@@ -36,58 +38,44 @@ export async function createGroupNotificationWithWebsocket(
   groupId: string,
   notificationEmit: string,
   notificationRecipientId: string,
+  notificationSenderId: string,
   message: string
 ) {
-  try {
-    const userToGroup = await getUsersToGroup(groupId, notificationRecipientId);
+  const userToGroup = await getUsersToGroup(groupId, notificationRecipientId);
 
-    if (!userToGroup) {
-      console.error("Failed to get userToGroup");
-      throw new Error("Failed to get userToGroup");
-    }
+  const newNotif = await createGroupNotification(
+    userToGroup.id,
+    message,
+    notificationRecipientId,
+    notificationSenderId
+  );
 
-    const newNotif = await createGroupNotification(
-      userToGroup.id,
-      message,
-      notificationRecipientId
-    );
-
-    if (!newNotif) {
-      console.error("Failed to create notification");
-    }
-
-    io.to(notificationRecipientId).emit(notificationEmit, {
-      notification: newNotif,
-    });
-  } catch (e) {
-    console.error("Error handling group notification:", e);
-    throw new Error("Error handling group notification");
-  }
+  io.to(notificationRecipientId).emit(notificationEmit, {
+    notification: newNotif,
+  });
 }
 
 export async function createGenericNotificationWithWebsocket(
   notificationRecipientId: string,
   notificationEmit: string,
   message: string,
-  icon: string
+  icon: string,
+  color: string,
+  senderId: string
 ) {
-  try {
-    const newNotif = await createGenericNotification(
-      icon,
-      message,
-      notificationRecipientId
-    );
+  const newNotif = await createGenericNotification(
+    icon,
+    message,
+    notificationRecipientId,
+    color,
+    senderId
+  );
 
-    if (!newNotif) {
-      console.error("Failed to create notification");
-    }
-
-    io.to(notificationRecipientId).emit(
-      notificationEmit,
-      JSON.stringify({ notification: newNotif })
-    );
-  } catch (e) {
-    console.error("Error handling generic notification:", e);
-    throw new Error("Error handling generic notification");
+  if (!newNotif) {
+    console.error("Failed to create notification");
   }
+
+  io.to(notificationRecipientId).emit(notificationEmit, {
+    notification: newNotif,
+  });
 }

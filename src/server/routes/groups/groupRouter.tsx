@@ -319,7 +319,8 @@ router.post("/addMember/:groupId", async (req, res) => {
     await createGroupInviteWithWebsocket(
       req.params.groupId,
       member.id,
-      "groupInvite"
+      "groupInvite",
+      req.user!.id
     );
 
     const group = await getGroupWithMembers(req.params.groupId);
@@ -816,7 +817,8 @@ router.post(
         groupId,
         "groupInvite",
         owner.userId,
-        `${user?.firstName} has accepted the invite to join the group`
+        user!.id,
+        `${user!.firstName} has accepted the invite to join the group`
       );
 
       const html = renderToHtml(
@@ -836,6 +838,7 @@ router.post(
         groupId,
         "groupInvite",
         owner.userId,
+        user!.id,
         `${user?.firstName} has declined the invite to join the group`
       );
 

@@ -80,21 +80,13 @@ export async function getTransactionsToGroup(
 }
 
 export async function getUsersToGroup(groupId: string, userId: string) {
-  try {
-    const results = await db
-      .select()
-      .from(usersToGroups)
-      .where(
-        and(
-          eq(usersToGroups.groupId, groupId),
-          eq(usersToGroups.userId, userId)
-        )
-      );
-    return results[0];
-  } catch (error) {
-    console.error(error);
-    return null;
-  }
+  const results = await db
+    .select()
+    .from(usersToGroups)
+    .where(
+      and(eq(usersToGroups.groupId, groupId), eq(usersToGroups.userId, userId))
+    );
+  return results[0];
 }
 
 export async function updateUsersToGroup(
@@ -1050,4 +1042,20 @@ export async function getUserToGroupFromUserToGroupId(userToGroupId: string) {
     console.error(error);
     return null;
   }
+}
+
+export async function getGroupTransactionStateFromOwedId(owedId: string) {
+  const result = await db
+    .select({ id: groupTransactionState.id })
+    .from(groupTransactionToUsersToGroups)
+    .innerJoin(
+      groupTransactionState,
+      eq(
+        groupTransactionState.id,
+        groupTransactionToUsersToGroups.groupTransactionStateId
+      )
+    )
+    .where(eq(groupTransactionToUsersToGroups.id, owedId));
+
+  return result[0];
 }

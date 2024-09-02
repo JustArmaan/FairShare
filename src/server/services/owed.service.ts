@@ -17,6 +17,12 @@ import { accounts } from "../database/schema/accounts";
 import { cashAccount } from "../database/schema/cashAccount";
 import { plaidAccount } from "../database/schema/plaidAccount";
 import { items } from "../database/schema/items";
+import {
+  createGenericNotificationWithWebsocket,
+  createGroupNotificationWithWebsocket,
+} from "../utils/createNotification";
+import { get } from "https";
+import type { UserSchema } from "../interface/types";
 
 type Owed = ExtractFunctionReturnType<typeof getOwed>;
 
@@ -61,20 +67,22 @@ export async function createGroupTransactionState(
 }
 
 export async function createOwed(owed: Omit<Owed, "id">) {
+  const id = uuid();
   const newState = await db
     .select()
     .from(groupTransactionToUsersToGroupsStatus)
     .where(eq(groupTransactionToUsersToGroupsStatus.status, "notSent"));
   await db.insert(groupTransactionToUsersToGroups).values({
     ...owed,
-    id: uuid(),
+    id,
     groupTransactionToUsersToGroupsStatusId: newState[0].id,
   });
 
-  const { userId } = (
+  const { userId, firstName } = (
     await db
-      .select({ userId: usersToGroups.userId })
+      .select({ userId: usersToGroups.userId, firstName: users.firstName })
       .from(usersToGroups)
+      .innerJoin(users, eq(users.id, usersToGroups.userId))
       .where(eq(usersToGroups.id, owed.usersToGroupsId))
   )[0];
 
@@ -86,6 +94,15 @@ export async function createOwed(owed: Omit<Owed, "id">) {
   )[0];
 
   io.to(userId).emit("updateGroup", { groupId });
+  if (owed.amount < 0) {
+    await createGroupNotificationWithWebsocket(
+      groupId,
+      "addOwed",
+      userId,
+      (await getTransactionOwnerFromOwedId(id)).id,
+      `${firstName} has split a transaction with you for $${Math.abs(owed.amount).toFixed(2)}`
+    );
+  }
 }
 
 export async function getOwed(id: string) {
@@ -438,7 +455,8 @@ export async function getGroupTransactionStateIdFromOwedId(owedId: string) {
 export async function updateOwedStatus(
   owedId: string,
   newStatus: OwedStatus[number],
-  linkedTransactionId?: string
+  linkedTransactionId?: string,
+  sender?: UserSchema
 ) {
   const states = await db.select().from(groupTransactionToUsersToGroupsStatus);
 
@@ -466,7 +484,12 @@ export async function updateOwedStatus(
     .where(eq(groupTransactionToUsersToGroups.id, owedId));
 
   const userIds = await db
-    .select({ userId: usersToGroups.userId, groupId: usersToGroups.groupId })
+    .select({
+      userId: usersToGroups.userId,
+      groupId: usersToGroups.groupId,
+      amount: groupTransactionToUsersToGroups.amount,
+      name: users.firstName,
+    })
     .from(groupTransactionState)
     .innerJoin(
       groupTransactionToUsersToGroups,
@@ -479,6 +502,7 @@ export async function updateOwedStatus(
       usersToGroups,
       eq(usersToGroups.id, groupTransactionToUsersToGroups.usersToGroupsId)
     )
+    .innerJoin(users, eq(usersToGroups.userId, users.id))
     .where(
       eq(
         groupTransactionState.id,
@@ -486,12 +510,39 @@ export async function updateOwedStatus(
       )
     );
 
-  userIds.forEach(({ userId, groupId }) => {
+  const group = (
+    await db
+      .select({ icon: groups.icon, color: groups.color })
+      .from(groups)
+      .where(eq(groups.id, userIds[0].groupId))
+  )[0];
+
+  userIds.forEach(async ({ userId, groupId, amount, name }) => {
     io.to(userId).emit("requestConfirmation", {
       owedId,
       groupId,
     });
     io.to(userId).emit("updateGroup", { groupId });
+
+    if (amount > 0 && newStatus === "awaitingConfirmation") {
+      await createGenericNotificationWithWebsocket(
+        userId,
+        "refreshNotifications",
+        `${sender?.firstName} has sent you a transfer!`,
+        group.icon,
+        group.color,
+        sender!.id
+      );
+    } else if (amount < 0 && newStatus === "confirmed") {
+      await createGenericNotificationWithWebsocket(
+        userId,
+        "refreshNotifications",
+        `${sender?.firstName} has confirmed your transfer.`,
+        group.icon,
+        group.color,
+        sender!.id
+      );
+    }
   });
 }
 
@@ -578,7 +629,7 @@ export async function getTransactionOwnerFromOwedId(owedId: string) {
       users,
       or(eq(items.userId, users.id), eq(cashAccount.userId, users.id))
     )
-    // .where(eq(groupTransactionToUsersToGroups.id, owedId))
+    .where(eq(groupTransactionToUsersToGroups.id, owedId))
     .limit(1);
 
   console.log(results);

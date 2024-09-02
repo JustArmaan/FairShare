@@ -11,6 +11,9 @@ export const notifications = sqliteTable("notifications", {
   userId: text("user_id")
     .references(() => users.id)
     .notNull(),
+  notificationSenderId: text("notification_sender_id")
+    .references(() => users.id)
+    .notNull(),
   timestamp: text("timestamp")
     .default(sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`)
     .notNull(),
