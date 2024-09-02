@@ -8,6 +8,7 @@ vite.config.ts.timestamp*
 
 sync.json
 
+>>>>>>> dev
 # direnv
 
 .envrc
