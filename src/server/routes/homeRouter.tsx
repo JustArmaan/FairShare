@@ -13,7 +13,6 @@ import { AccountOverview } from "../views/pages/transactions/components/AccountO
 import { ConnectAccount } from "../views/pages/transactions/components/ConnectAccount";
 import { ItemPickerForm } from "../views/pages/transactions/components/ItemPickerForm";
 import { getCurrentMonthTransactions } from "../utils/currentMonthTransactions";
-import { LoginPage } from "../views/pages/Login-Register/LoginPage";
 const router = express.Router();
 
 router.get("/page/:itemId", async (req, res, next) => {
@@ -49,8 +48,6 @@ router.get("/page/:itemId", async (req, res, next) => {
 
   const cashAccount = await getCashAccountForUser(userId);
   const accounts = await getAccountsForUser(userId, req.params.itemId);
-
-  // await syncTransactionsForUser(userId); // no need to do this anymore ?
 
   const accountsWithTransactions = await Promise.all(
     accounts!.map(async (account) => {

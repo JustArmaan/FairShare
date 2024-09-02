@@ -11,35 +11,29 @@ import { transactions } from "../database/schema/transaction";
 const db = getDB();
 
 export async function addAccount(account: AccountDetails) {
-  try {
-    const result = await db.insert(accounts).values(account).returning();
-    return result[0];
-  } catch (error) {
-    console.error(error, "in addAccount");
-  }
+  const result = await db.insert(accounts).values(account).returning();
+  return result[0];
 }
 
 export async function getItemFromAccountId(id: string) {
-  try {
-    const result = await db
-      .select({ item: items })
-      .from(accounts)
-      .innerJoin(plaidAccount, eq(accounts.id, plaidAccount.accountsId))
-      .innerJoin(items, eq(plaidAccount.itemId, items.id))
-      .where(eq(accounts.id, id));
-    return result[0];
-  } catch (e) {
-    console.log(e, "in getItemIdFromAccount");
-    return null;
-  }
+  const result = await db
+    .select({ item: items })
+    .from(accounts)
+    .innerJoin(plaidAccount, eq(accounts.id, plaidAccount.accountsId))
+    .innerJoin(items, eq(plaidAccount.itemId, items.id))
+    .where(eq(accounts.id, id));
+  return result[0];
 }
 
 export async function addPlaidAccount(account: PlaidAccount) {
-  try {
-    await db.insert(plaidAccount).values(account);
-  } catch (error) {
-    console.error(error, "in addAccount");
-  }
+  await db.insert(plaidAccount).values(account);
+}
+
+export async function updatePlaidAccount(
+  id: string,
+  account: Omit<Partial<PlaidAccount>, "id">
+) {
+  await db.update(plaidAccount).set(account).where(eq(accounts.id, id));
 }
 
 export type Account = ExtractFunctionReturnType<typeof getAccount>;
