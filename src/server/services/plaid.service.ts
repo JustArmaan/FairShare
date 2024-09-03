@@ -47,6 +47,7 @@ export async function getItem(id: string) {
     .from(items)
     .innerJoin(plaidAccount, eq(items.id, plaidAccount.itemId))
     .where(eq(items.id, id));
+  if (result.length === 0) return null;
   return result[0].items;
 }
 
