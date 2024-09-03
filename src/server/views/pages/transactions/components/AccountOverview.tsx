@@ -24,7 +24,7 @@ export const AccountOverview = ({
   const pathStyles = generatePathStyles(categories);
 
   const currentDate = new Date();
-  const currentMonthNumber = currentDate.getMonth() + (lastMonth ? 0 : 1);
+  const currentMonthNumber = currentDate.getMonth() + (lastMonth ? 1 : 0);
   currentDate.setMonth(currentMonthNumber);
   const currentMonth = currentDate.toLocaleString("default", { month: "long" });
 
