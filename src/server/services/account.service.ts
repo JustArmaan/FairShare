@@ -33,7 +33,7 @@ export async function updatePlaidAccount(
   id: string,
   account: Omit<Partial<PlaidAccount>, "id">
 ) {
-  await db.update(plaidAccount).set(account).where(eq(accounts.id, id));
+  await db.update(plaidAccount).set(account).where(eq(plaidAccount.id, id));
 }
 
 export type Account = ExtractFunctionReturnType<typeof getAccount>;

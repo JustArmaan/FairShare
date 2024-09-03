@@ -18,6 +18,7 @@ import {
 } from "../../services/plaid.service";
 import { plaidRequest } from "./link";
 import { io } from "../../main";
+import { v4 } from "uuid";
 
 type StoreEntry = { timestamp: string; syncStore?: Set<string> };
 type ItemEntry = {
@@ -55,6 +56,7 @@ export async function syncTransactionsForUser(userId: string, origin?: string) {
         return await syncTransaction({ ...item, userId }, itemEntry);
       })
     );
+    console.log("all transactions synced");
   } catch (error) {
     console.error(`Error syncing transactions for user ${userId}:`, error);
     // Optionally, you might want to requeue the userId here or handle the error.
@@ -90,7 +92,7 @@ async function updateAccounts(
           currencyCodeId: null,
         });
         await addPlaidAccount({
-          id: account.account_id,
+          id: v4(),
           accountTypeId: accountTypeId.id,
           balance: (account.type === "credit"
             ? Math.abs(

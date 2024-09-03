@@ -100,7 +100,7 @@ router.post("/sync", async (req, res) => {
       : [];
     const connected = accounts && accounts.length > 0;
     if (!connected) {
-      console.log("not conncted! returning...")
+      console.log("not conncted! returning...");
       return res.status(200).send();
     }
     await syncTransactionsForUser(id, "/sync");
