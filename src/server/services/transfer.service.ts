@@ -1,8 +1,8 @@
-import { getDB } from '../database/client';
-import { transactionsToGroups } from '../database/schema/transactionsToGroups';
-import { eq, and } from 'drizzle-orm';
-import { groupTransactionState } from '../database/schema/groupTransactionState';
-import { splitType } from '../database/schema/splitType';
+import { getDB } from "../database/client";
+import { transactionsToGroups } from "../database/schema/transactionsToGroups";
+import { eq, and } from "drizzle-orm";
+import { groupTransactionState } from "../database/schema/groupTransactionState";
+import { splitType } from "../database/schema/splitType";
 
 const db = getDB();
 

@@ -10,6 +10,7 @@ import { plaidAccount } from "../database/schema/plaidAccount";
 import { cashAccount } from "../database/schema/cashAccount";
 import { users } from "../database/schema/users";
 import { getItem } from "./plaid.service";
+import { getDB } from "../database/client";
 
 const db = getDB();
 
