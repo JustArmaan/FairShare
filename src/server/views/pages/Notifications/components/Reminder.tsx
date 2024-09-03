@@ -88,16 +88,16 @@ export const Reminder = (props: {
 
   return (
     <div class="animate-fade-in mb-[1.25rem]">
-      <div class="bg-primary-black rounded-xl shadow-[0_3px_2px_0_rgba(0,0,0,0.25)] mb-1 flex justify-between relative pb-0.5 px-3 items-center">
+      <div class="bg-primary-black rounded-xl shadow-[0_3px_2px_0_rgba(0,0,0,0.25)] mb-1 flex justify-between relative px-3 items-center pb-1 py-4 ">
         <div class="h-20 w-20 flex-col items-center justify-center flex mr-[1rem]">
           <ProfileIcon
             user={sender ? sender : props.groupOwner!}
-            class="h-14 w-14"
+            class="h-[4rem] w-[4rem]"
           />
         </div>
         <div class="flex flex-col w-full justify-center">
           <div class="flex justify-between items-center w-full mt-2">
-            <div class="flex flex-col mr-[5.8rem] leading-5 ">
+            <div class="flex flex-col mr-[1rem] leading-5 ">
               <p class="text-font-off-white">{message}</p>
               <span class="text-font-grey font-normal text-xs align-top mt-[0.25rem]">
                 Sent by {sender ? sender.firstName : props.groupOwner!}

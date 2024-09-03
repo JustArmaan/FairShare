@@ -1,29 +1,21 @@
-FROM nixos/nix AS builder
+FROM oven/bun
 
+# Set the working directory
+WORKDIR /usr/src/app
 
-COPY . /tmp/build
-WORKDIR /tmp/build
+# Copy package files
+COPY package*.json bun.lockb ./
 
-RUN nix \
-    --extra-experimental-features "nix-command flakes" \
-    --option filter-syscalls false \
-    build
+RUN bun install "express@>=5.0.0-beta.1" --save
+RUN bun i 
 
-# Copy the Nix store closure into a directory. The Nix store closure is the
-# entire set of Nix store values that we need for our build.
-RUN mkdir /tmp/nix-store-closure
-RUN cp -R $(nix-store -qR result/) /tmp/nix-store-closure
+# RUN bun x tailwindcss -i src/server/views/tailwind.css -o public/output.css
 
-# Final image is based on scratch. We copy a bunch of Nix dependencies
-# but they're fully self-contained so we don't need Nix anymore.
-FROM scratch
+# Copy all other project files
+COPY . .
 
-WORKDIR /app
+# Set environment to production
+ENV NODE_ENV production
 
-# Copy /nix/store
-COPY --from=builder /tmp/nix-store-closure /nix/store
-COPY --from=builder /tmp/build/result /app
-
-RUN chmod +x /app/src/scripts/start.sh
-
-CMD ["./app/src/scripts/start.sh"]
+# Set default command to start the app
+CMD [ "bun", "tailwind-build", "&&", "bun", "run", "build", "&&", "bun", "start" ]
