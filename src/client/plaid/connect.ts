@@ -157,24 +157,25 @@ async function runLinkSetup() {
       });
       if (response.status === 200) {
         // console.log("Token pushed succesfully");
-        // const response = await fetch(`/api/v${apiVersion}/sync`);
-        // if (response.status === 200) {
-        const pollInterval = setInterval(async () => {
-          const connected = await hasAccounts();
-          if (mobile) {
-            htmx.ajax("GET", "/mobile/link", {
-              target: "#app",
-              swap: "outerHTML",
-            });
-            clearInterval(pollInterval);
-            return;
-          }
-          if (connected) window.location.reload();
-        }, 500);
-        // }
+        const response = await fetch(`/api/v${apiVersion}/sync`);
+        if (response.status === 200) {
+          const pollInterval = setInterval(async () => {
+            const connected = await hasAccounts();
+            if (mobile) {
+              htmx.ajax("GET", "/mobile/link", {
+                target: "#app",
+                swap: "outerHTML",
+              });
+              clearInterval(pollInterval);
+              return;
+            }
+            if (connected) window.location.reload();
+          }, 500);
+        }
       }
     }
   } catch (error) {
     console.log(error);
+    console.trace("error!");
   }
 }
