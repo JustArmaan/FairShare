@@ -56,16 +56,11 @@ export const getUserByEmailOnly = async (email: string) => {
 };
 
 export const getUserByItemId = async (itemId: string) => {
-  try {
-    const results = await db
-      .select({ user: users })
-      .from(users)
-      .innerJoin(items, eq(items.userId, users.id))
-      .where(eq(items.id, itemId));
+  const results = await db
+    .select({ user: users })
+    .from(users)
+    .innerJoin(items, eq(items.userId, users.id))
+    .where(eq(items.id, itemId));
 
-    return results[0].user;
-  } catch (err) {
-    console.error(err, 'at getUserByItemId');
-    return null;
-  }
+  return results[0].user;
 };

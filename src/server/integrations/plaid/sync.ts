@@ -141,73 +141,78 @@ async function syncTransaction(
   { item }: { item: Item; userId: string },
   entry?: ItemEntry
 ) {
-  console.log(entry, "entry exists?");
-  const count = 500;
-  let cursor: string | undefined = item.nextCursor
-    ? item.nextCursor
-    : undefined;
-  const originalCursor = cursor;
+  try {
+    // console.log(entry, "entry exists?");
+    const count = 500;
+    let cursor: string | undefined = item.nextCursor
+      ? item.nextCursor
+      : undefined;
+    const originalCursor = cursor;
 
-  let toAdd: AddedPlaidTransaction[] = [];
-  let toModify: ModifiedPlaidTransaction[] = [];
-  let toRemove: { transaction_id: string }[] = [];
-  while (true) {
-    const response = (await plaidRequest("/transactions/sync", {
-      access_token: item.plaidAccessToken,
-      cursor,
-      count,
-    })) as SyncResponse;
+    let toAdd: AddedPlaidTransaction[] = [];
+    let toModify: ModifiedPlaidTransaction[] = [];
+    let toRemove: { transaction_id: string }[] = [];
+    while (true) {
+      const response = (await plaidRequest("/transactions/sync", {
+        access_token: item.plaidAccessToken,
+        cursor,
+        count,
+      })) as SyncResponse;
 
-    if (
-      response.error_code === "TRANSACTIONS_SYNC_MUTATION_DURING_PAGINATION"
-    ) {
-      cursor = originalCursor;
-      toAdd = [];
-      toModify = [];
-      toRemove = [];
-      continue;
+      if (
+        response.error_code === "TRANSACTIONS_SYNC_MUTATION_DURING_PAGINATION"
+      ) {
+        cursor = originalCursor;
+        toAdd = [];
+        toModify = [];
+        toRemove = [];
+        continue;
+      }
+
+      const { accounts } = response;
+      if (accounts) await updateAccounts(accounts, item.id);
+
+      if (entry && !entry.items.find((item) => item.id)) {
+        console.log("pushing item into entry!");
+        entry.items.push({
+          id: item.id,
+          timestamp: new Date(Date.now()).toLocaleString(),
+          responses: [{ reqCursor: cursor, response }],
+        });
+      } else if (entry) {
+        console.log("creating new item in entry!");
+        entry.items
+          .find((item) => item.id)!
+          .responses.push({ reqCursor: cursor, response });
+      }
+
+      const { added, modified, removed, next_cursor, has_more } = response;
+      !added && console.log(response, "sync response where added is undefined");
+      added && added.forEach((added) => toAdd.push(added));
+      modified && modified.forEach((modified) => toModify.push(modified));
+      removed && removed.forEach((removed) => toRemove.push(removed));
+      cursor = next_cursor;
+      if (!has_more && next_cursor) {
+        break;
+      }
     }
 
-    const { accounts } = response;
-    if (accounts) await updateAccounts(accounts, item.id);
+    toAdd.length > 0 && (await addTransactions(toAdd));
+    toModify.length > 0 && (await Promise.all(toModify.map(modifyTransaction)));
+    toRemove.length > 0 &&
+      (await deleteTransactions(
+        toRemove.map((removed) => removed.transaction_id)
+      ));
 
-    if (entry && !entry.items.find((item) => item.id)) {
-      console.log("pushing item into entry!");
-      entry.items.push({
-        id: item.id,
-        timestamp: new Date(Date.now()).toLocaleString(),
-        responses: [{ reqCursor: cursor, response }],
-      });
-    } else if (entry) {
-      console.log("creating new item in entry!");
-      entry.items
-        .find((item) => item.id)!
-        .responses.push({ reqCursor: cursor, response });
-    }
+    await updateItem(item.id, {
+      nextCursor: cursor,
+    });
 
-    const { added, modified, removed, next_cursor, has_more } = response;
-    !added && console.log(response, "sync response where added is undefined");
-    added && added.forEach((added) => toAdd.push(added));
-    modified && modified.forEach((modified) => toModify.push(modified));
-    removed && removed.forEach((removed) => toRemove.push(removed));
-    cursor = next_cursor;
-    if (!has_more && next_cursor) {
-      break;
-    }
+    handleTransactionWebsocketEvents(toAdd, toModify, toRemove, item.userId);
+  } catch (e) {
+    console.error(e);
+    console.trace();
   }
-
-  toAdd.length > 0 && (await addTransactions(toAdd));
-  toModify.length > 0 && (await Promise.all(toModify.map(modifyTransaction)));
-  toRemove.length > 0 &&
-    (await deleteTransactions(
-      toRemove.map((removed) => removed.transaction_id)
-    ));
-
-  await updateItem(item.id, {
-    nextCursor: cursor,
-  });
-
-  handleTransactionWebsocketEvents(toAdd, toModify, toRemove, item.userId);
 }
 
 type TransactionEvent = { transactionIds: string[]; accountId: string };
