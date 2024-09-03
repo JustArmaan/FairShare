@@ -43,71 +43,51 @@ export type AccountDetails = ExtractFunctionReturnType<
 >;
 
 export async function getPlaidAccount(accountId: string) {
-  try {
-    const results = await db
-      .select()
-      .from(plaidAccount)
-      .where(eq(plaidAccount.accountsId, accountId));
-    return results[0];
-  } catch (err) {
-    console.error(err, "in getPlaidAccountId");
-    return null;
-  }
+  const results = await db
+    .select()
+    .from(plaidAccount)
+    .where(eq(plaidAccount.accountsId, accountId));
+  return results[0];
 }
 
 async function getAccountDetails(id: string) {
-  try {
-    const results = await db.select().from(accounts).where(eq(accounts.id, id));
-    return results[0];
-  } catch (error) {
-    console.error(error, "in getAccount");
-    return null;
-  }
+  const results = await db.select().from(accounts).where(eq(accounts.id, id));
+  return results[0];
 }
 
 export async function getAccount(accountId: string) {
-  try {
-    const results = await db
-      .select()
-      .from(accounts)
-      .innerJoin(plaidAccount, eq(accounts.id, plaidAccount.accountsId))
-      .where(eq(accounts.id, accountId));
-    const mappedResults = results.map((result) => {
-      return {
-        id: result.accounts.id,
-        name: result.accounts.name,
-        accountTypeId: result.plaidAccount.accountTypeId,
-        balance: result.plaidAccount.balance,
-        currencyCodeId: result.plaidAccount.currencyCodeId,
-        itemId: result.plaidAccount.itemId,
-      };
-    });
+  const results = await db
+    .select()
+    .from(accounts)
+    .innerJoin(plaidAccount, eq(accounts.id, plaidAccount.accountsId))
+    .where(eq(accounts.id, accountId));
+  const mappedResults = results.map((result) => {
+    return {
+      id: result.accounts.id,
+      name: result.accounts.name,
+      accountTypeId: result.plaidAccount.accountTypeId,
+      balance: result.plaidAccount.balance,
+      currencyCodeId: result.plaidAccount.currencyCodeId,
+      itemId: result.plaidAccount.itemId,
+    };
+  });
 
-    return mappedResults[0];
-  } catch (error) {
-    console.error(error, "in getAccount");
-    return null;
-  }
+  return mappedResults[0];
 }
 
 export async function getCashAccount(accountId: string) {
-  try {
-    const results = await db
-      .select()
-      .from(accounts)
-      .innerJoin(cashAccount, eq(accounts.id, cashAccount.account_id))
-      .where(eq(accounts.id, accountId));
-    const mappedResults = results.map((result) => {
-      return {
-        id: result.accounts.id,
-        name: result.accounts.name,
-      };
-    });
-    return mappedResults[0];
-  } catch (error) {
-    console.error(error, "in getCashAccount");
-    return null;
-  }
+  const results = await db
+    .select()
+    .from(accounts)
+    .innerJoin(cashAccount, eq(accounts.id, cashAccount.account_id))
+    .where(eq(accounts.id, accountId));
+  const mappedResults = results.map((result) => {
+    return {
+      id: result.accounts.id,
+      name: result.accounts.name,
+    };
+  });
+  return mappedResults[0];
 }
 
 export type AccountWithItem = ExtractFunctionReturnType<
@@ -115,57 +95,42 @@ export type AccountWithItem = ExtractFunctionReturnType<
 >;
 
 export async function getAccountWithItem(accountId: string) {
-  try {
-    const results = await db
-      .select({ account: accounts, item: items, plaidAccount: plaidAccount })
-      .from(accounts)
-      .innerJoin(plaidAccount, eq(accounts.id, plaidAccount.accountsId))
-      .innerJoin(items, eq(plaidAccount.itemId, items.id))
-      .where(eq(accounts.id, accountId));
-    return results.map((account) => ({
-      ...account.account,
-      item: account.item,
-      plaidAccount: account.plaidAccount,
-    }))[0];
-  } catch (e) {
-    console.log(e, "in getAccountWithItem");
-    return null;
-  }
+  const results = await db
+    .select({ account: accounts, item: items, plaidAccount: plaidAccount })
+    .from(accounts)
+    .innerJoin(plaidAccount, eq(accounts.id, plaidAccount.accountsId))
+    .innerJoin(items, eq(plaidAccount.itemId, items.id))
+    .where(eq(accounts.id, accountId));
+  return results.map((account) => ({
+    ...account.account,
+    item: account.item,
+    plaidAccount: account.plaidAccount,
+  }))[0];
 }
 
 export async function getAccountsWithItemsForUser(userId: string) {
-  try {
-    const results = await db
-      .select({ account: accounts, item: items, plaidAccount: plaidAccount })
-      .from(accounts)
-      .innerJoin(plaidAccount, eq(accounts.id, plaidAccount.accountsId))
-      .innerJoin(items, eq(plaidAccount.itemId, items.id))
-      .where(eq(items.userId, userId));
+  const results = await db
+    .select({ account: accounts, item: items, plaidAccount: plaidAccount })
+    .from(accounts)
+    .innerJoin(plaidAccount, eq(accounts.id, plaidAccount.accountsId))
+    .innerJoin(items, eq(plaidAccount.itemId, items.id))
+    .where(eq(items.userId, userId));
 
-    return results.map((account) => ({
-      ...account.account,
-      item: account.item,
-      plaidAccount: account.plaidAccount,
-    }));
-  } catch (e) {
-    console.log(e, "in getAccountsWithItemsForUser");
-    return [];
-  }
+  return results.map((account) => ({
+    ...account.account,
+    item: account.item,
+    plaidAccount: account.plaidAccount,
+  }));
 }
 export async function getUserInfoFromAccount(accountId: string) {
-  try {
-    const results = await db
-      .select({ account: accounts, user: users })
-      .from(accounts)
-      .innerJoin(plaidAccount, eq(accounts.id, plaidAccount.accountsId))
-      .innerJoin(items, eq(plaidAccount.itemId, items.id))
-      .innerJoin(users, eq(users.id, items.userId))
-      .where(eq(accounts.id, accountId));
-    return results[0];
-  } catch (error) {
-    console.error(error, "Can not get account information");
-    return null;
-  }
+  const results = await db
+    .select({ account: accounts, user: users })
+    .from(accounts)
+    .innerJoin(plaidAccount, eq(accounts.id, plaidAccount.accountsId))
+    .innerJoin(items, eq(plaidAccount.itemId, items.id))
+    .innerJoin(users, eq(users.id, items.userId))
+    .where(eq(accounts.id, accountId));
+  return results[0];
 }
 
 export async function getAccountIdByTransactionId(transactionId: string) {
