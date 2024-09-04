@@ -16,8 +16,22 @@ import {
   getUnreadNotifications,
   markNotificationAsRead,
 } from "../services/notification.service.ts";
-import { getGroupOwnerWithGroupId } from "../services/group.service.ts";
+import {
+  getGroupOwnerWithGroupId,
+  getGroupTransactionStateFromOwedId,
+} from "../services/group.service.ts";
 import Reminder from "../views/pages/Notifications/components/Reminder.tsx";
+import {
+  createGenericNotificationWithWebsocket,
+  createGroupNotificationWithWebsocket,
+} from "../utils/createNotification.ts";
+import {
+  getAllGroupTransactionStatesFromGroupId,
+  getAllOwedForGroupTransaction,
+  getAllOwedForGroupTransactionWithMemberInfo,
+  getGroupTransactionDetails,
+  getTransactionOwnerFromOwedId,
+} from "../services/owed.service.ts";
 
 const router = express.Router();
 
@@ -124,10 +138,10 @@ router.get("/notificationPicker", async (req, res) => {
 });
 
 router.get("/reminder/:notificationId", async (req, res) => {
-  const notifcationTypeId = req.query.notificationTypeId as string;
+  const notificationTypeId = req.query.notificationTypeId as string;
   const notificationId = req.params.notificationId;
 
-  const notificationType = await getNotificationTypeById(notifcationTypeId);
+  const notificationType = await getNotificationTypeById(notificationTypeId);
 
   if (!notificationType) {
     return res.status(404).send("No notification type found");
@@ -161,6 +175,32 @@ router.get("/reminder/:notificationId", async (req, res) => {
   await markNotificationAsRead(notificationId);
 
   res.send(html);
+});
+
+router.get("/remind", async (req, res) => {
+  const user = req.user!;
+  const { owedId } = req.query as { [key: string]: string };
+
+  const groupTransactionState =
+    await getGroupTransactionStateFromOwedId(owedId);
+
+  const results = (await getGroupTransactionDetails(groupTransactionState.id))!;
+
+  results.forEach(async (result) => {
+    if (result.groupTransactionToUsersToGroupsStatus.status !== "notSent")
+      return;
+    if (result.users.id === user.id) return;
+    await createGenericNotificationWithWebsocket(
+      result.users.id,
+      "refreshNotifications",
+      `${user.firstName} is waiting for you to send them a transfer.`,
+      "",
+      "",
+      user.id
+    );
+  });
+
+  return res.status(200).send("");
 });
 
 export const notificationRouter = router;

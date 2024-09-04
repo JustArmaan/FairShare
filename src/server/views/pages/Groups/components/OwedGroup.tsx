@@ -48,7 +48,6 @@ export const OwedGroup = (props: {
   // filter results
   const filtered = props.resultPerGroupTransaction.filter(
     (groupStateResult) => {
-
       const ourTransaction = groupStateResult.find(
         (result) => result.users.id === props.currentUser.id
       );
@@ -195,14 +194,16 @@ export const OwedGroup = (props: {
                       <p>View</p>
                     </button>
                     <button
-                      hx-swap="innerHTML"
+                      hx-swap={props.owing ? "innerHTML" : "none"}
                       {...(props.owing
                         ? {
                             "hx-get": `/split/settle?owedId=${result.groupTransactionToUsersToGroupsId}&groupId=${props.groupId}`,
                           }
-                        : { "hx-post": "/notifications/remind" })}
+                        : {
+                            "hx-get": `/notification/remind?owedId=${result.groupTransactionToUsersToGroupsId}`,
+                          })}
                       hx-target="#app"
-                      hx-push-url={``} // see above comment
+                      hx-push-url={``}
                       class="w-[5.4rem] flex items-center justify-center hover:-translate-y-0.5 rotate-[0.0001deg] transition-transform font-normal bg-accent-blue rounded-[1.25rem] text-font-off-white text-base ml-3"
                     >
                       <p class="h-fit">{props.owing ? "Settle" : "Remind"}</p>

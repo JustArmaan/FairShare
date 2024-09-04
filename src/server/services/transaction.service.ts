@@ -1,4 +1,3 @@
-import { getDB } from "../database/client";
 import { categories } from "../database/schema/category";
 import { transactions } from "../database/schema/transaction";
 import { eq, desc, like, and, or, gte, lt, inArray, count } from "drizzle-orm";
@@ -11,6 +10,7 @@ import { plaidAccount } from "../database/schema/plaidAccount";
 import { cashAccount } from "../database/schema/cashAccount";
 import { users } from "../database/schema/users";
 import { getItem } from "./plaid.service";
+import { getDB } from "../database/client";
 
 const db = getDB();
 
@@ -18,27 +18,22 @@ export async function getTransactionsForUser(
   accountId: string,
   limit: number = 9999
 ) {
-  try {
-    const result = await db
-      .select()
-      .from(transactions)
-      .orderBy(desc(transactions.timestamp))
-      .innerJoin(categories, eq(transactions.categoryId, categories.id))
-      .where(eq(transactions.accountId, accountId))
-      .limit(limit);
+  const result = await db
+    .select()
+    .from(transactions)
+    .orderBy(desc(transactions.timestamp))
+    .innerJoin(categories, eq(transactions.categoryId, categories.id))
+    .where(eq(transactions.accountId, accountId))
+    .limit(limit);
 
-    const joined = result.map((result) => {
-      return {
-        ...result.transactions,
-        category: { ...result.categories },
-      };
-    });
+  const joined = result.map((result) => {
+    return {
+      ...result.transactions,
+      category: { ...result.categories },
+    };
+  });
 
-    return joined;
-  } catch (error) {
-    console.error(error);
-    return [];
-  }
+  return joined;
 }
 
 export function getCurrentMonthYear(): { year: string; month: string } {
@@ -80,123 +75,83 @@ export type Transaction = ExtractFunctionReturnType<
 >;
 
 export async function createTransactions(newTransactions: Transaction[]) {
-  try {
-    await db.insert(transactions).values(newTransactions);
-  } catch (error) {
-    console.error(error);
-  }
+  await db.insert(transactions).values(newTransactions);
 }
 export async function getCashAccount(accountId: string) {
-  try {
-    const result = await db
-      .select()
-      .from(cashAccount)
-      .where(eq(cashAccount.id, accountId));
-    return result[0];
-  } catch (error) {
-    console.error(error);
-    return null;
-  }
+  const result = await db
+    .select()
+    .from(cashAccount)
+    .where(eq(cashAccount.id, accountId));
+  return result[0];
 }
 
 export async function getCashAccountForUser(userId: string) {
-  try {
-    const result = await db
-      .select({ cashAccount: cashAccount })
-      .from(cashAccount)
-      .innerJoin(users, eq(users.id, cashAccount.userId))
-      .where(eq(cashAccount.userId, userId));
-    console.log(result), "result in getCashAccountForUser";
-    if (result.length === 0) return null;
-    return result[0].cashAccount;
-  } catch (error) {
-    console.error(error, "in getCashAccountForUser");
-    return null;
-  }
+  const result = await db
+    .select({ cashAccount: cashAccount })
+    .from(cashAccount)
+    .innerJoin(users, eq(users.id, cashAccount.userId))
+    .where(eq(cashAccount.userId, userId));
+  console.log(result), "result in getCashAccountForUser";
+  if (result.length === 0) return null;
+  return result[0].cashAccount;
 }
 
 export type CashAccount = ExtractFunctionReturnType<typeof getCashAccount>;
 
 export async function getCashAccountWithTransactions(userId: string) {
-  try {
-    const result = await db
-      .select()
-      .from(cashAccount)
-      .innerJoin(users, eq(users.id, cashAccount.userId))
-      .innerJoin(transactions, eq(transactions.accountId, cashAccount.id))
-      .where(eq(cashAccount.userId, userId));
-    return result;
-  } catch (error) {
-    console.error(error, "in getCashAccountWithTransactions");
-    return null;
-  }
+  const result = await db
+    .select()
+    .from(cashAccount)
+    .innerJoin(users, eq(users.id, cashAccount.userId))
+    .innerJoin(transactions, eq(transactions.accountId, cashAccount.id))
+    .where(eq(cashAccount.userId, userId));
+  return result;
 }
 
 export async function createCashAccount(account: Omit<cashAccount, "id">) {
-  try {
-    await db.insert(cashAccount).values({
-      id: uuid(),
-      userId: account.userId,
-      account_id: account.account_id,
-    });
-  } catch (error) {
-    console.error(error);
-  }
+  await db.insert(cashAccount).values({
+    id: uuid(),
+    userId: account.userId,
+    account_id: account.account_id,
+  });
 }
 
 export type cashAccount = ExtractFunctionReturnType<typeof getCashAccount>;
 
 export async function createTransaction(transaction: Omit<Transaction, "id">) {
-  try {
-    const id = uuid();
-    await db.insert(transactions).values({
-      id: uuid(),
-      ...transaction,
-    });
-    return id;
-  } catch (error) {
-    console.error(error, "in createTransaction");
-  }
+  const id = uuid();
+  await db.insert(transactions).values({
+    id: uuid(),
+    ...transaction,
+  });
+  return id;
 }
 
 export async function updateTransaction(
   id: string,
   transaction: Partial<Omit<Transaction, "id">>
 ) {
-  try {
-    const newTransaction = await db
-      .update(transactions)
-      .set({
-        ...transaction,
-      })
-      .where(eq(transactions.id, id));
-    return newTransaction;
-  } catch (error) {
-    console.error(error);
-  }
+  const newTransaction = await db
+    .update(transactions)
+    .set({
+      ...transaction,
+    })
+    .where(eq(transactions.id, id));
+  return newTransaction;
 }
 
 export async function getTransactionLocation(transactionId: string) {
-  try {
-    const transaction = await getTransaction(transactionId);
-    return {
-      latitude: transaction.latitude,
-      longitude: transaction.longitude,
-    };
-  } catch (error) {
-    console.error(error);
-    return null;
-  }
+  const transaction = await getTransaction(transactionId);
+  return {
+    latitude: transaction.latitude,
+    longitude: transaction.longitude,
+  };
 }
 
 export async function deleteTransactions(transactionIds: string[]) {
-  try {
-    const newTransaction = await db
-      .delete(transactions)
-      .where(inArray(transactions.id, transactionIds));
-  } catch (error) {
-    console.error(error);
-  }
+  const newTransaction = await db
+    .delete(transactions)
+    .where(inArray(transactions.id, transactionIds));
 }
 
 export async function searchTransactions(
@@ -204,37 +159,32 @@ export async function searchTransactions(
   query: string,
   limit: number = 9999
 ) {
-  try {
-    const result = await db
-      .select()
-      .from(transactions)
-      .innerJoin(accounts, eq(accounts.id, transactions.accountId))
-      .innerJoin(categories, eq(categories.id, transactions.categoryId))
-      .where(
-        and(
-          eq(transactions.accountId, accountId),
-          or(
-            like(transactions.company, `%${query}%`),
-            like(categories.name, `%${query}%`),
-            like(transactions.address, `%${query}%`)
-          )
+  const result = await db
+    .select()
+    .from(transactions)
+    .innerJoin(accounts, eq(accounts.id, transactions.accountId))
+    .innerJoin(categories, eq(categories.id, transactions.categoryId))
+    .where(
+      and(
+        eq(transactions.accountId, accountId),
+        or(
+          like(transactions.company, `%${query}%`),
+          like(categories.name, `%${query}%`),
+          like(transactions.address, `%${query}%`)
         )
       )
-      .limit(limit)
-      .all();
+    )
+    .limit(limit)
+    .all();
 
-    const joined = result.map((result) => {
-      return {
-        ...result.transactions,
-        category: { ...result.categories },
-      };
-    });
+  const joined = result.map((result) => {
+    return {
+      ...result.transactions,
+      category: { ...result.categories },
+    };
+  });
 
-    return joined;
-  } catch (error) {
-    console.error(error);
-    return [];
-  }
+  return joined;
 }
 
 export function getNextMonthYear(currentYear: string, currentMonth: string) {
@@ -255,71 +205,61 @@ export async function getTransactionsByMonth(
   year: string,
   month: string
 ) {
-  try {
-    const paddedMonth = month.padStart(2, "0");
-    const startDate = `${year}-${paddedMonth}-01`;
-    const { nextYear, nextMonth } = getNextMonthYear(year, paddedMonth);
-    const endDate = `${nextYear}-${nextMonth}-01`;
+  const paddedMonth = month.padStart(2, "0");
+  const startDate = `${year}-${paddedMonth}-01`;
+  const { nextYear, nextMonth } = getNextMonthYear(year, paddedMonth);
+  const endDate = `${nextYear}-${nextMonth}-01`;
 
-    const result = await db
-      .select()
-      .from(transactions)
-      .innerJoin(categories, eq(categories.id, transactions.categoryId))
-      .where(
-        and(
-          eq(transactions.accountId, accountId),
-          gte(transactions.timestamp, startDate),
-          lt(transactions.timestamp, endDate)
-        )
+  const result = await db
+    .select()
+    .from(transactions)
+    .innerJoin(categories, eq(categories.id, transactions.categoryId))
+    .where(
+      and(
+        eq(transactions.accountId, accountId),
+        gte(transactions.timestamp, startDate),
+        lt(transactions.timestamp, endDate)
       )
-      .all();
+    )
+    .all();
 
-    const joined = result.map((result) => {
-      return {
-        ...result.transactions,
-        category: { ...result.categories },
-      };
-    });
+  const joined = result.map((result) => {
+    return {
+      ...result.transactions,
+      category: { ...result.categories },
+    };
+  });
 
-    return joined;
-  } catch (error) {
-    console.error("Error retrieving transactions:", error);
-    return [];
-  }
+  return joined;
 }
 
 export async function getAccountForUserWithMostTransactions(userId: string) {
-  try {
-    const allUserTransactions = await db
-      .select()
-      .from(transactions)
-      .innerJoin(accounts, eq(accounts.id, transactions.accountId))
-      .innerJoin(plaidAccount, eq(accounts.id, plaidAccount.accountsId))
-      .innerJoin(items, eq(items.id, plaidAccount.itemId))
-      .where(eq(items.userId, userId));
+  const allUserTransactions = await db
+    .select()
+    .from(transactions)
+    .innerJoin(accounts, eq(accounts.id, transactions.accountId))
+    .innerJoin(plaidAccount, eq(accounts.id, plaidAccount.accountsId))
+    .innerJoin(items, eq(items.id, plaidAccount.itemId))
+    .where(eq(items.userId, userId));
 
-    const grouped = allUserTransactions.reduce(
-      (acc, transaction) => {
-        const accountId = transaction.transactions.accountId;
-        if (!acc[accountId]) {
-          acc[accountId] = 0;
-        }
-        acc[accountId]++;
-        return acc;
-      },
-      {} as Record<string, number>
-    );
-    const accountIds = Object.keys(grouped);
-    const maxTransactions = Math.max(...Object.values(grouped));
-    const accountId = accountIds.find(
-      (accountId) => grouped[accountId] === maxTransactions
-    );
+  const grouped = allUserTransactions.reduce(
+    (acc, transaction) => {
+      const accountId = transaction.transactions.accountId;
+      if (!acc[accountId]) {
+        acc[accountId] = 0;
+      }
+      acc[accountId]++;
+      return acc;
+    },
+    {} as Record<string, number>
+  );
+  const accountIds = Object.keys(grouped);
+  const maxTransactions = Math.max(...Object.values(grouped));
+  const accountId = accountIds.find(
+    (accountId) => grouped[accountId] === maxTransactions
+  );
 
-    return accountId;
-  } catch (error) {
-    console.error(error), "in getAccountForUserWithMostTransactions";
-    return null;
-  }
+  return accountId;
 }
 
 type ItemSchema = ExtractFunctionReturnType<typeof getItem>;
@@ -349,44 +289,34 @@ function reduceItemResultsIntoDictionary(
 }
 
 export async function getItemsWithAllTransactions(userId: string) {
-  try {
-    const results = await db
-      .select({ items, transactions, categories })
-      .from(items)
-      .innerJoin(plaidAccount, eq(plaidAccount.itemId, items.id))
-      .innerJoin(accounts, eq(accounts.id, plaidAccount.accountsId))
-      .innerJoin(transactions, eq(transactions.accountId, accounts.id))
-      .innerJoin(categories, eq(transactions.categoryId, categories.id))
-      .where(eq(items.userId, userId));
+  const results = await db
+    .select({ items, transactions, categories })
+    .from(items)
+    .innerJoin(plaidAccount, eq(plaidAccount.itemId, items.id))
+    .innerJoin(accounts, eq(accounts.id, plaidAccount.accountsId))
+    .innerJoin(transactions, eq(transactions.accountId, accounts.id))
+    .innerJoin(categories, eq(transactions.categoryId, categories.id))
+    .where(eq(items.userId, userId));
 
-    return results.reduce(
-      reduceItemResultsIntoDictionary,
-      [] as { item: ItemSchema; transactions: TransactionSchema[] }[]
-    );
-  } catch (e) {
-    console.trace();
-    console.error(e);
-  }
+  return results.reduce(
+    reduceItemResultsIntoDictionary,
+    [] as { item: ItemSchema; transactions: TransactionSchema[] }[]
+  );
 }
 
 export async function getItemWithAllTransactions(itemId: string) {
-  try {
-    const results = await db
-      .select({ items, transactions, categories })
-      .from(items)
-      .innerJoin(plaidAccount, eq(plaidAccount.itemId, items.id))
-      .innerJoin(accounts, eq(accounts.id, plaidAccount.accountsId))
-      .innerJoin(transactions, eq(transactions.accountId, accounts.id))
-      .innerJoin(categories, eq(transactions.categoryId, categories.id))
-      .where(eq(items.id, itemId));
+  const results = await db
+    .select({ items, transactions, categories })
+    .from(items)
+    .innerJoin(plaidAccount, eq(plaidAccount.itemId, items.id))
+    .innerJoin(accounts, eq(accounts.id, plaidAccount.accountsId))
+    .innerJoin(transactions, eq(transactions.accountId, accounts.id))
+    .innerJoin(categories, eq(transactions.categoryId, categories.id))
+    .where(eq(items.id, itemId));
 
-    type ItemSchema = ExtractFunctionReturnType<typeof getItem>;
-    return results.reduce(
-      reduceItemResultsIntoDictionary,
-      [] as { item: ItemSchema; transactions: TransactionSchema[] }[]
-    )[0];
-  } catch (e) {
-    console.trace();
-    console.error(e);
-  }
+  type ItemSchema = ExtractFunctionReturnType<typeof getItem>;
+  return results.reduce(
+    reduceItemResultsIntoDictionary,
+    [] as { item: ItemSchema; transactions: TransactionSchema[] }[]
+  )[0];
 }

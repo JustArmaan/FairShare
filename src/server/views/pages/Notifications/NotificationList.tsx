@@ -39,34 +39,28 @@ export const NotificationList = (props: {
 
       <div id="notification-container">
         {props.inviteNotifications.length > 0 && (
-          <div>
-            <p class="text-primary-grey font-medium">Group Invites</p>
-            {props.inviteNotifications.reverse().map((notification) => {
-              return (
-                <div
-                  hx-get={`/notification/reminder/${notification.notifications.id}?notificationTypeId=${notification.notifications.notificationTypeId}`}
-                  hx-trigger="load"
-                  hx-swap="beforeend"
-                  hx-target="#notification-container"
-                />
-              );
-            })}
+          <div class="animate-fade-in">
+            <p class="text-primary-grey font-medium mb-1">Group Invites</p>
+            {props.inviteNotifications.map((notification) => (
+              <div
+                hx-get={`/notification/reminder/${notification.notifications.id}?notificationTypeId=${notification.notifications.notificationTypeId}`}
+                hx-trigger="load"
+                hx-swap="outerHTML"
+              />
+            ))}
           </div>
         )}
 
         {props.notifications.length > 0 && (
-          <div>
-            <p class="text-primary-grey font-medium">Notifications</p>
-            {props.notifications.reverse().map((notification) => {
-              return (
-                <div
-                  hx-get={`/notification/reminder/${notification.notifications.id}?notificationTypeId=${notification.notifications.notificationTypeId}`}
-                  hx-trigger="load"
-                  hx-swap="beforeend"
-                  hx-target="#notification-container"
-                />
-              );
-            })}
+          <div class="animate-fade-in">
+            <p class="text-primary-grey font-medium mb-1">Notifications</p>
+            {props.notifications.map((notification) => (
+              <div
+                hx-get={`/notification/reminder/${notification.notifications.id}?notificationTypeId=${notification.notifications.notificationTypeId}`}
+                hx-trigger="load"
+                hx-swap="outerHTML"
+              />
+            ))}
           </div>
         )}
 

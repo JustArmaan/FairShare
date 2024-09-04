@@ -249,7 +249,12 @@ router.post("/settle", async (req, res) => {
     linkedTransactionId = transactionId;
   }
 
-  await updateOwedStatus(owedId, "awaitingConfirmation", linkedTransactionId);
+  await updateOwedStatus(
+    owedId,
+    "awaitingConfirmation",
+    linkedTransactionId,
+    req.user
+  );
 
   const groupId = (await getGroupByOwedId(owedId))!.id;
 
@@ -299,7 +304,7 @@ router.post("/confirm", async (req, res) => {
     transactionOwner!.groupTransactionToUsersToGroups.amount + settledAmount
   );
   await updateOwedAmount(owedId, 0);
-  await updateOwedStatus(owedId, "confirmed");
+  await updateOwedStatus(owedId, "confirmed", undefined, req.user);
 
   const groupId = await getGroupIdFromOwed(owedId);
 

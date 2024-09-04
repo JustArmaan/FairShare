@@ -49,7 +49,7 @@ app.use("/error", errorRouter);
 app.use("/onboard", onboardRouter);
 
 app.use("", (req, res, next) => {
-  // req.url === "/test" && console.log(req.headers, req.url);
+  console.log(req.url);
   const hxRequest = req.headers["hx-request"] === "true";
   if (hxRequest) {
     console.log("hxRequest", req.url);

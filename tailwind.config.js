@@ -34,22 +34,22 @@ export default {
       },
     },
     colors: {
-      "category-color-0": "#9079FF",
-      "category-color-1": "#0DC896",
-      "category-color-2": "#FF7969",
-      "category-color-3": "#F4C56A",
-      "category-color-4": "#ADBAF2",
-      "category-color-5": "#71C060",
-      "category-color-6": "#FC5878",
-      "category-color-7": "#EEDC7C",
-      "category-color-8": "#26CCD7",
-      "category-color-9": "#9E4696",
-      "category-color-10": "#008B8B",
+      "category-color-0": "#9079FF", // food and drink
+      "category-color-1": "#0DC896", // Other
+      "category-color-2": "#FF7969", // General Merchandise
+      "category-color-3": "#F4C56A", // ...
+      "category-color-4": "#008B8B",
+      "category-color-5": "#FC5878",
+      "category-color-6": "#71C060",
+      "category-color-7": "#FC5878",
+      "category-color-8": "#EEDC7C",
+      "category-color-9": "#0052BA",
+      "category-color-10": "#26CCD7",
       "category-color-11": "#D83434",
-      "category-color-12": "#F09C4B",
-      "category-color-13": "#0052BA",
+      "category-color-12": "#066839",
+      "category-color-13": "#26CCD7",
       "category-color-14": "#EFAFF0",
-      "category-color-15": "#066839",
+      "category-color-15": "#F09C4B",
       "category-color-16": "#BE4D4B",
       "primary-grey": "#E7E7E7",
       "accent-blue": "#4CAEF8",
@@ -91,7 +91,7 @@ export default {
     },
     fontFamily: {
       sans: ["Work Sans", "sans-serif"],
-      kanit: ['Kanit', 'sans-serif'],
+      kanit: ["Kanit", "sans-serif"],
     },
   },
   safelist: [
@@ -113,7 +113,6 @@ export default {
     "bg-category-color-14",
     "bg-category-color-15",
     "bg-category-color-16",
-    "bg-category-color-17",
     "text-accent-blue",
     "text-accent-red",
     "text-accent-green",

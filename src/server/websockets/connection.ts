@@ -19,15 +19,10 @@ export function setupSocketConnectionListener(io: Server) {
   io.on("connection", async (socket) => {
     if (!socket.handshake.headers.cookie) return;
 
-    try {
-      const userId = await computeUserIdFromHeaders(
-        socket.handshake.headers.cookie
-      );
+    const userId = await computeUserIdFromHeaders(
+      socket.handshake.headers.cookie
+    );
 
-      socket.join(userId);
-    } catch (e) {
-      // console.log('Error while connecting a socket, user is not authenticated');
-      // console.error(e);
-    }
+    socket.join(userId);
   });
 }

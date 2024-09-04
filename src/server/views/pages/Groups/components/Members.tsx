@@ -2,9 +2,9 @@ import {
   type UserSchema,
   type UserSchemaWithMemberType,
 } from "../../../../interface/types";
-import type {
-  getAllOwedForGroupTransaction,
-  getGroupTransactionDetails,
+import {
+  getTransactionOwnerFromOwedId,
+  type getGroupTransactionDetails,
 } from "../../../../services/owed.service";
 import type { ExtractFunctionReturnType } from "../../../../services/user.service";
 
@@ -57,11 +57,17 @@ export const Members = (props: {
             amountOwed;
         });
       } else {
-        const transactionOwner = resultPerGroupTransaction.find(
-          (result) => result.groupTransactionToUsersToGroups.amount > 0
-        )!;
+        const transactionOwner =
+          resultPerGroupTransaction.find(
+            (transaction) =>
+              transaction.groupTransactionToUsersToGroups.amount > 0
+          )?.users ??
+          getTransactionOwnerFromOwedId(
+            resultPerGroupTransaction[0].groupTransactionToUsersToGroups.id
+          );
+
         acc.find(
-          (entry) => entry.member.id === transactionOwner.users.id
+          async (entry) => entry.member.id === (await transactionOwner).id
         )!.owed -= ourTransaction.groupTransactionToUsersToGroups.amount;
       }
 

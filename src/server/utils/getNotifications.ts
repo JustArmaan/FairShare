@@ -2,7 +2,6 @@ import {
   getGenericNotificationById,
   getGroupNotificationById,
   getGroupInviteNotificaitonById,
-  getUnreadNotifications,
 } from "../services/notification.service";
 
 export async function getMostRecentNotifications(userId: string) {
@@ -12,13 +11,15 @@ export async function getMostRecentNotifications(userId: string) {
   if (!genericNotification || !groupNotification) {
     throw new Error("Failed to get notifications");
   }
+
   const allNotifications = [...genericNotification, ...groupNotification];
 
-  allNotifications.sort(
-    (a, b) =>
-      new Date(a.notifications.timestamp).getTime() -
-      new Date(b.notifications.timestamp).getTime()
-  );
+  allNotifications.sort((a, b) => {
+    return (
+      new Date(b.notifications.timestamp).getTime() -
+      new Date(a.notifications.timestamp).getTime()
+    );
+  });
 
   return allNotifications;
 }
