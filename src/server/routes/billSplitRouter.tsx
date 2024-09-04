@@ -240,8 +240,6 @@ router.get("/receipt/:receiptId/:groupId", async (req, res) => {
 
   const owedData = await getReceiptWithOwedMembers(receiptId);
 
-  console.log(owedData, "owedData");
-
   const html = renderToHtml(
     <BillSplitReceipt
       transactionsDetails={receipt}
