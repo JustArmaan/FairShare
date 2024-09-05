@@ -230,12 +230,14 @@ export async function getUser(req: Request, res: Response, next: NextFunction) {
     req.url.endsWith(".svg") ||
     req.url.endsWith(".jpg") ||
     req.url.endsWith(".jpeg") ||
-    req.url.endsWith(".png") 
+    req.url.endsWith(".png")
   ) {
     return next();
   }
 
   try {
+    console.log("checking for auth");
+    console.log(req.cookies, " for request ", req.url, "with method ", req.method);
     const isAuthenticated = await kindeClient.isAuthenticated(
       sessionManager(req, res)
     );
