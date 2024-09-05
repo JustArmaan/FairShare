@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "552c4c99-5446-42c0-bcfd-f8795fe1d307",
+  "id": "95d230db-d86f-4ee2-99a6-53bb6c7146f2",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "accounts": {
@@ -232,11 +232,32 @@
           "notNull": true,
           "autoincrement": false
         },
+        "user_id": {
+          "name": "user_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
         "icon": {
           "name": "icon",
           "type": "text",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "color": {
+          "name": "color",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "message": {
+          "name": "message",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
           "autoincrement": false
         }
       },
@@ -253,6 +274,19 @@
             "id"
           ],
           "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "genericNotification_user_id_users_id_fk": {
+          "name": "genericNotification_user_id_users_id_fk",
+          "tableFrom": "genericNotification",
+          "tableTo": "users",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
           "onUpdate": "no action"
         }
       },
@@ -320,8 +354,8 @@
           "notNull": true,
           "autoincrement": false
         },
-        "fk_user_group_id": {
-          "name": "fk_user_group_id",
+        "user_group_id": {
+          "name": "user_group_id",
           "type": "text",
           "primaryKey": false,
           "notNull": true,
@@ -343,12 +377,12 @@
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
-        "groupInvite_fk_user_group_id_usersToGroups_id_fk": {
-          "name": "groupInvite_fk_user_group_id_usersToGroups_id_fk",
+        "groupInvite_user_group_id_usersToGroups_id_fk": {
+          "name": "groupInvite_user_group_id_usersToGroups_id_fk",
           "tableFrom": "groupInvite",
           "tableTo": "usersToGroups",
           "columnsFrom": [
-            "fk_user_group_id"
+            "user_group_id"
           ],
           "columnsTo": [
             "id"
@@ -377,8 +411,15 @@
           "notNull": true,
           "autoincrement": false
         },
-        "fk_user_group_id": {
-          "name": "fk_user_group_id",
+        "user_group_id": {
+          "name": "user_group_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "message": {
+          "name": "message",
           "type": "text",
           "primaryKey": false,
           "notNull": true,
@@ -400,12 +441,12 @@
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
-        "groupNotification_fk_user_group_id_usersToGroups_id_fk": {
-          "name": "groupNotification_fk_user_group_id_usersToGroups_id_fk",
+        "groupNotification_user_group_id_usersToGroups_id_fk": {
+          "name": "groupNotification_user_group_id_usersToGroups_id_fk",
           "tableFrom": "groupNotification",
           "tableTo": "usersToGroups",
           "columnsFrom": [
-            "fk_user_group_id"
+            "user_group_id"
           ],
           "columnsTo": [
             "id"
@@ -431,7 +472,7 @@
           "name": "group_transaction_id",
           "type": "text",
           "primaryKey": false,
-          "notNull": true,
+          "notNull": false,
           "autoincrement": false
         },
         "pending": {
@@ -511,6 +552,20 @@
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
+        },
+        "group_transaction_to_users_to_groups_status_id": {
+          "name": "group_transaction_to_users_to_groups_status_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "linked_transaction_id": {
+          "name": "linked_transaction_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
         }
       },
       "indexes": {},
@@ -540,13 +595,39 @@
           ],
           "onDelete": "cascade",
           "onUpdate": "no action"
+        },
+        "groupTransactionToUsersToGroups_group_transaction_to_users_to_groups_status_id_groupTransactionToUsersToGroupsStatus_id_fk": {
+          "name": "groupTransactionToUsersToGroups_group_transaction_to_users_to_groups_status_id_groupTransactionToUsersToGroupsStatus_id_fk",
+          "tableFrom": "groupTransactionToUsersToGroups",
+          "tableTo": "groupTransactionToUsersToGroupsStatus",
+          "columnsFrom": [
+            "group_transaction_to_users_to_groups_status_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "groupTransactionToUsersToGroups_linked_transaction_id_transactions_id_fk": {
+          "name": "groupTransactionToUsersToGroups_linked_transaction_id_transactions_id_fk",
+          "tableFrom": "groupTransactionToUsersToGroups",
+          "tableTo": "transactions",
+          "columnsFrom": [
+            "linked_transaction_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "groupTransfer": {
-      "name": "groupTransfer",
+    "groupTransactionToUsersToGroupsStatus": {
+      "name": "groupTransactionToUsersToGroupsStatus",
       "columns": {
         "id": {
           "name": "id",
@@ -555,152 +636,16 @@
           "notNull": true,
           "autoincrement": false
         },
-        "group_transaction_to_users_to_groups_id": {
-          "name": "group_transaction_to_users_to_groups_id",
+        "status": {
+          "name": "status",
           "type": "text",
           "primaryKey": false,
           "notNull": true,
-          "autoincrement": false
-        },
-        "group_transfer_receiver_status_id": {
-          "name": "group_transfer_receiver_status_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "group_transfer_sender_status_id": {
-          "name": "group_transfer_sender_status_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "sender_user_id": {
-          "name": "sender_user_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "receiver_user_id": {
-          "name": "receiver_user_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "sender_completed_timestamp": {
-          "name": "sender_completed_timestamp",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "sender_initiated_timestamp": {
-          "name": "sender_initiated_timestamp",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "receiver_completed_timestamp": {
-          "name": "receiver_completed_timestamp",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "receiver_initiated_timestamp": {
-          "name": "receiver_initiated_timestamp",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "sender_vopay_transfer_id": {
-          "name": "sender_vopay_transfer_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "receiver_vopay_transfer_id": {
-          "name": "receiver_vopay_transfer_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
           "autoincrement": false
         }
       },
       "indexes": {},
-      "foreignKeys": {
-        "groupTransfer_group_transaction_to_users_to_groups_id_groupTransactionToUsersToGroups_id_fk": {
-          "name": "groupTransfer_group_transaction_to_users_to_groups_id_groupTransactionToUsersToGroups_id_fk",
-          "tableFrom": "groupTransfer",
-          "tableTo": "groupTransactionToUsersToGroups",
-          "columnsFrom": [
-            "group_transaction_to_users_to_groups_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "groupTransfer_group_transfer_receiver_status_id_groupTransferStatus_id_fk": {
-          "name": "groupTransfer_group_transfer_receiver_status_id_groupTransferStatus_id_fk",
-          "tableFrom": "groupTransfer",
-          "tableTo": "groupTransferStatus",
-          "columnsFrom": [
-            "group_transfer_receiver_status_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "groupTransfer_group_transfer_sender_status_id_groupTransferStatus_id_fk": {
-          "name": "groupTransfer_group_transfer_sender_status_id_groupTransferStatus_id_fk",
-          "tableFrom": "groupTransfer",
-          "tableTo": "groupTransferStatus",
-          "columnsFrom": [
-            "group_transfer_sender_status_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "groupTransfer_sender_user_id_users_id_fk": {
-          "name": "groupTransfer_sender_user_id_users_id_fk",
-          "tableFrom": "groupTransfer",
-          "tableTo": "users",
-          "columnsFrom": [
-            "sender_user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "groupTransfer_receiver_user_id_users_id_fk": {
-          "name": "groupTransfer_receiver_user_id_users_id_fk",
-          "tableFrom": "groupTransfer",
-          "tableTo": "users",
-          "columnsFrom": [
-            "receiver_user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
+      "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
@@ -881,11 +826,11 @@
           "name": "notification_type_id",
           "type": "text",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "autoincrement": false
         },
-        "message": {
-          "name": "message",
+        "user_id": {
+          "name": "user_id",
           "type": "text",
           "primaryKey": false,
           "notNull": true,
@@ -896,24 +841,39 @@
           "type": "text",
           "primaryKey": false,
           "notNull": true,
-          "autoincrement": false
+          "autoincrement": false,
+          "default": "(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))"
         },
         "read_status": {
           "name": "read_status",
           "type": "integer",
           "primaryKey": false,
           "notNull": false,
-          "autoincrement": false
+          "autoincrement": false,
+          "default": "0"
         }
       },
       "indexes": {},
       "foreignKeys": {
-        "notifications_notification_type_id_notification_type_id_fk": {
-          "name": "notifications_notification_type_id_notification_type_id_fk",
+        "notifications_notification_type_id_notificationType_id_fk": {
+          "name": "notifications_notification_type_id_notificationType_id_fk",
           "tableFrom": "notifications",
-          "tableTo": "notification_type",
+          "tableTo": "notificationType",
           "columnsFrom": [
             "notification_type_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "notifications_user_id_users_id_fk": {
+          "name": "notifications_user_id_users_id_fk",
+          "tableFrom": "notifications",
+          "tableTo": "users",
+          "columnsFrom": [
+            "user_id"
           ],
           "columnsTo": [
             "id"
@@ -925,8 +885,8 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "notification_type": {
-      "name": "notification_type",
+    "notificationType": {
+      "name": "notificationType",
       "columns": {
         "id": {
           "name": "id",
@@ -1110,6 +1070,70 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
+    "receiptLineItemToGroupTransaction": {
+      "name": "receiptLineItemToGroupTransaction",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "fk_receipt_line_item_id": {
+          "name": "fk_receipt_line_item_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "fk_group_transaction_id": {
+          "name": "fk_group_transaction_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "amount": {
+          "name": "amount",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "receiptLineItemToGroupTransaction_fk_receipt_line_item_id_receiptsToItems_id_fk": {
+          "name": "receiptLineItemToGroupTransaction_fk_receipt_line_item_id_receiptsToItems_id_fk",
+          "tableFrom": "receiptLineItemToGroupTransaction",
+          "tableTo": "receiptsToItems",
+          "columnsFrom": [
+            "fk_receipt_line_item_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "receiptLineItemToGroupTransaction_fk_group_transaction_id_groupTransactionToUsersToGroups_id_fk": {
+          "name": "receiptLineItemToGroupTransaction_fk_group_transaction_id_groupTransactionToUsersToGroups_id_fk",
+          "tableFrom": "receiptLineItemToGroupTransaction",
+          "tableTo": "groupTransactionToUsersToGroups",
+          "columnsFrom": [
+            "fk_group_transaction_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
     "splitType": {
       "name": "splitType",
       "columns": {
@@ -1249,16 +1273,79 @@
           "notNull": true,
           "autoincrement": false
         },
-        "fk_group_transaction_state_id": {
-          "name": "fk_group_transaction_state_id",
+        "fk_transaction_id": {
+          "name": "fk_transaction_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "fk_group_id": {
+          "name": "fk_group_id",
           "type": "text",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
-        "fk_transaction_id": {
-          "name": "fk_transaction_id",
+        "total": {
+          "name": "total",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "subtotal": {
+          "name": "subtotal",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "phone": {
+          "name": "phone",
           "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "store_address": {
+          "name": "store_address",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "store_name": {
+          "name": "store_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "tax": {
+          "name": "tax",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "tips": {
+          "name": "tips",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "timestamp": {
+          "name": "timestamp",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "discount": {
+          "name": "discount",
+          "type": "real",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
@@ -1266,25 +1353,25 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "transactionReceipt_fk_group_transaction_state_id_groupTransactionState_id_fk": {
-          "name": "transactionReceipt_fk_group_transaction_state_id_groupTransactionState_id_fk",
-          "tableFrom": "transactionReceipt",
-          "tableTo": "groupTransactionState",
-          "columnsFrom": [
-            "fk_group_transaction_state_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
         "transactionReceipt_fk_transaction_id_transactions_id_fk": {
           "name": "transactionReceipt_fk_transaction_id_transactions_id_fk",
           "tableFrom": "transactionReceipt",
           "tableTo": "transactions",
           "columnsFrom": [
             "fk_transaction_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "transactionReceipt_fk_group_id_groups_id_fk": {
+          "name": "transactionReceipt_fk_group_id_groups_id_fk",
+          "tableFrom": "transactionReceipt",
+          "tableTo": "groups",
+          "columnsFrom": [
+            "fk_group_id"
           ],
           "columnsTo": [
             "id"

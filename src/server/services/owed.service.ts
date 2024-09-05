@@ -17,21 +17,23 @@ import { accounts } from "../database/schema/accounts";
 import { cashAccount } from "../database/schema/cashAccount";
 import { plaidAccount } from "../database/schema/plaidAccount";
 import { items } from "../database/schema/items";
+import {
+  createGenericNotificationWithWebsocket,
+  createGroupNotificationWithWebsocket,
+} from "../utils/createNotification";
+import { get } from "https";
+import type { UserSchema } from "../interface/types";
 
 type Owed = ExtractFunctionReturnType<typeof getOwed>;
 
 const db = getDB();
 
 async function getGroupTransactionState(id: string) {
-  try {
-    const result = await db
-      .select()
-      .from(groupTransactionState)
-      .where(eq(groupTransactionState.id, id));
-    return result[0];
-  } catch (e) {
-    console.trace();
-  }
+  const result = await db
+    .select()
+    .from(groupTransactionState)
+    .where(eq(groupTransactionState.id, id));
+  return result[0];
 }
 
 type GroupTransactionState = ExtractFunctionReturnType<
@@ -41,40 +43,38 @@ type GroupTransactionState = ExtractFunctionReturnType<
 export async function createGroupTransactionState(
   newGroupTransactionState: Omit<GroupTransactionState, "id" | "splitTypeId">
 ) {
-  try {
-    const equalSplit = await db
-      .select()
-      .from(splitType)
-      .where(eq(splitType.type, "equal"));
+  const equalSplit = await db
+    .select()
+    .from(splitType)
+    .where(eq(splitType.type, "equal"));
 
-    return await db
-      .insert(groupTransactionState)
-      .values({
-        ...newGroupTransactionState,
-        id: uuid(),
-        splitTypeId: equalSplit[0].id,
-      })
-      .returning();
-  } catch (e) {
-    console.log(e, "at getGroupTransactionState");
-  }
+  return await db
+    .insert(groupTransactionState)
+    .values({
+      ...newGroupTransactionState,
+      id: uuid(),
+      splitTypeId: equalSplit[0].id,
+    })
+    .returning();
 }
 
 export async function createOwed(owed: Omit<Owed, "id">) {
+  const id = uuid();
   const newState = await db
     .select()
     .from(groupTransactionToUsersToGroupsStatus)
     .where(eq(groupTransactionToUsersToGroupsStatus.status, "notSent"));
   await db.insert(groupTransactionToUsersToGroups).values({
     ...owed,
-    id: uuid(),
+    id,
     groupTransactionToUsersToGroupsStatusId: newState[0].id,
   });
 
-  const { userId } = (
+  const { userId, firstName } = (
     await db
-      .select({ userId: usersToGroups.userId })
+      .select({ userId: usersToGroups.userId, firstName: users.firstName })
       .from(usersToGroups)
+      .innerJoin(users, eq(users.id, usersToGroups.userId))
       .where(eq(usersToGroups.id, owed.usersToGroupsId))
   )[0];
 
@@ -86,138 +86,128 @@ export async function createOwed(owed: Omit<Owed, "id">) {
   )[0];
 
   io.to(userId).emit("updateGroup", { groupId });
+  if (owed.amount < 0) {
+    await createGroupNotificationWithWebsocket(
+      groupId,
+      "addOwed",
+      userId,
+      (await getTransactionOwnerFromOwedId(id)).id,
+      `${firstName} has split a transaction with you for $${Math.abs(owed.amount).toFixed(2)}`
+    );
+  }
 }
 
 export async function getOwed(id: string) {
-  try {
-    const results = await db
-      .select()
-      .from(groupTransactionToUsersToGroups)
-      .where(eq(groupTransactionToUsersToGroups.id, id));
-    return results[0];
-  } catch (e) {
-    return null;
-  }
+  const results = await db
+    .select()
+    .from(groupTransactionToUsersToGroups)
+    .where(eq(groupTransactionToUsersToGroups.id, id));
+  return results[0];
 }
 
 export async function getGroupIdAndTransactionIdForOwed(owedId: string) {
-  try {
-    const results = await db
-      .select({
-        groupId: transactionsToGroups.groupsId,
-        transactionId: transactionsToGroups.transactionId,
-      })
-      .from(groupTransactionToUsersToGroups)
-      .innerJoin(
-        groupTransactionState,
-        eq(
-          groupTransactionState.id,
-          groupTransactionToUsersToGroups.groupTransactionStateId
-        )
+  const results = await db
+    .select({
+      groupId: transactionsToGroups.groupsId,
+      transactionId: transactionsToGroups.transactionId,
+    })
+    .from(groupTransactionToUsersToGroups)
+    .innerJoin(
+      groupTransactionState,
+      eq(
+        groupTransactionState.id,
+        groupTransactionToUsersToGroups.groupTransactionStateId
       )
-      .innerJoin(
-        transactionsToGroups,
-        eq(groupTransactionState.groupTransactionId, transactionsToGroups.id)
-      )
-      .where(eq(groupTransactionToUsersToGroups.id, owedId));
-    return results[0];
-  } catch (e) {
-    console.error(e, "at getGroupIdAndTransactionForOwed");
-    return null;
-  }
+    )
+    .innerJoin(
+      transactionsToGroups,
+      eq(groupTransactionState.groupTransactionId, transactionsToGroups.id)
+    )
+    .where(eq(groupTransactionToUsersToGroups.id, owedId));
+  return results[0];
 }
 
 export async function getAllOwedForGroupTransactionWithMemberInfo(
   groupId: string,
   transactionId: string
 ) {
-  try {
-    const results = await db
-      .select({
-        user: users,
-        amount: groupTransactionToUsersToGroups.amount,
-        owedId: groupTransactionToUsersToGroups.id,
-      })
-      .from(transactionsToGroups)
-      .innerJoin(
-        groupTransactionState,
-        eq(groupTransactionState.groupTransactionId, transactionsToGroups.id)
+  const results = await db
+    .select({
+      user: users,
+      amount: groupTransactionToUsersToGroups.amount,
+      owedId: groupTransactionToUsersToGroups.id,
+    })
+    .from(transactionsToGroups)
+    .innerJoin(
+      groupTransactionState,
+      eq(groupTransactionState.groupTransactionId, transactionsToGroups.id)
+    )
+    .innerJoin(
+      groupTransactionToUsersToGroups,
+      eq(
+        groupTransactionState.id,
+        groupTransactionToUsersToGroups.groupTransactionStateId
       )
-      .innerJoin(
-        groupTransactionToUsersToGroups,
-        eq(
-          groupTransactionState.id,
-          groupTransactionToUsersToGroups.groupTransactionStateId
-        )
+    )
+    .innerJoin(
+      usersToGroups,
+      eq(usersToGroups.id, groupTransactionToUsersToGroups.usersToGroupsId)
+    )
+    .innerJoin(users, eq(usersToGroups.userId, users.id))
+    .where(
+      and(
+        eq(transactionsToGroups.transactionId, transactionId),
+        eq(transactionsToGroups.groupsId, groupId)
       )
-      .innerJoin(
-        usersToGroups,
-        eq(usersToGroups.id, groupTransactionToUsersToGroups.usersToGroupsId)
-      )
-      .innerJoin(users, eq(usersToGroups.userId, users.id))
-      .where(
-        and(
-          eq(transactionsToGroups.transactionId, transactionId),
-          eq(transactionsToGroups.groupsId, groupId)
-        )
-      );
+    );
 
-    return [
-      ...results.map((result) => ({
-        ...result,
-      })),
-    ];
-  } catch (e) {
-    console.error(e, "at getOwed");
-    return null;
-  }
+  return [
+    ...results.map((result) => ({
+      ...result,
+    })),
+  ];
 }
 
 export async function getAllOwedForGroupTransactionNotPendingWithMemberInfo(
   groupId: string,
   transactionId: string
 ) {
-  try {
-    const results = await db
-      .select({
-        user: users,
-        amount: groupTransactionToUsersToGroups.amount,
-        owedId: groupTransactionToUsersToGroups.id,
-      })
-      .from(transactionsToGroups)
-      .innerJoin(
-        groupTransactionState,
-        eq(groupTransactionState.groupTransactionId, transactionsToGroups.id)
+  const results = await db
+    .select({
+      user: users,
+      amount: groupTransactionToUsersToGroups.amount,
+      owedId: groupTransactionToUsersToGroups.id,
+    })
+    .from(transactionsToGroups)
+    .innerJoin(
+      groupTransactionState,
+      eq(groupTransactionState.groupTransactionId, transactionsToGroups.id)
+    )
+    .innerJoin(
+      groupTransactionToUsersToGroups,
+      eq(
+        groupTransactionState.id,
+        groupTransactionToUsersToGroups.groupTransactionStateId
       )
-      .innerJoin(
-        groupTransactionToUsersToGroups,
-        eq(
-          groupTransactionState.id,
-          groupTransactionToUsersToGroups.groupTransactionStateId
-        )
+    )
+    .innerJoin(
+      usersToGroups,
+      eq(usersToGroups.id, groupTransactionToUsersToGroups.usersToGroupsId)
+    )
+    .innerJoin(users, eq(usersToGroups.userId, users.id))
+    .where(
+      and(
+        eq(transactionsToGroups.transactionId, transactionId),
+        eq(transactionsToGroups.groupsId, groupId),
+        eq(groupTransactionState.pending, false)
       )
-      .innerJoin(
-        usersToGroups,
-        eq(usersToGroups.id, groupTransactionToUsersToGroups.usersToGroupsId)
-      )
-      .innerJoin(users, eq(usersToGroups.userId, users.id))
-      .where(
-        and(
-          eq(transactionsToGroups.transactionId, transactionId),
-          eq(transactionsToGroups.groupsId, groupId),
-          eq(groupTransactionState.pending, false)
-        )
-      );
+    );
 
-    return [
-      ...results.map((result) => ({
-        ...result,
-      })),
-    ];
-  } catch (e) {
-    console.error(e, "at getOwed");
-    return null;
-  }
+  return [
+    ...results.map((result) => ({
+      ...result,
+    })),
+  ];
 }
 
 export type OwedTransactionWithMember = NonNullable<
@@ -228,217 +218,193 @@ export async function getAllOwedForGroupTransaction(
   groupId: string,
   transactionId: string
 ) {
-  try {
-    const results = await db
-      .select()
-      .from(transactionsToGroups)
-      .innerJoin(
-        groupTransactionState,
-        eq(transactionsToGroups.id, groupTransactionState.groupTransactionId)
+  const results = await db
+    .select()
+    .from(transactionsToGroups)
+    .innerJoin(
+      groupTransactionState,
+      eq(transactionsToGroups.id, groupTransactionState.groupTransactionId)
+    )
+    .innerJoin(
+      groupTransactionToUsersToGroups,
+      eq(
+        transactionsToGroups.id,
+        groupTransactionToUsersToGroups.groupTransactionStateId
       )
-      .innerJoin(
-        groupTransactionToUsersToGroups,
-        eq(
-          transactionsToGroups.id,
-          groupTransactionToUsersToGroups.groupTransactionStateId
-        )
+    )
+    .innerJoin(
+      usersToGroups,
+      eq(usersToGroups.id, groupTransactionToUsersToGroups.usersToGroupsId)
+    )
+    .where(
+      and(
+        eq(transactionsToGroups.transactionId, transactionId),
+        eq(transactionsToGroups.groupsId, groupId)
       )
-      .innerJoin(
-        usersToGroups,
-        eq(usersToGroups.id, groupTransactionToUsersToGroups.usersToGroupsId)
-      )
-      .where(
-        and(
-          eq(transactionsToGroups.transactionId, transactionId),
-          eq(transactionsToGroups.groupsId, groupId)
-        )
-      );
+    );
 
-    return [
-      ...results.map((result) => ({
-        amount: result.groupTransactionToUsersToGroups.amount,
-        userId: result.usersToGroups.userId,
-      })),
-    ];
-  } catch (e) {
-    console.error(e, "at getOwed");
-    return null;
-  }
+  return [
+    ...results.map((result) => ({
+      amount: result.groupTransactionToUsersToGroups.amount,
+      userId: result.usersToGroups.userId,
+    })),
+  ];
 }
 
 export async function getAllOwedForGroupTransactionWithTransactionId(
   groupId: string,
   transactionId: string
 ) {
-  try {
-    const results = await db
-      .select()
-      .from(transactionsToGroups)
-      .innerJoin(
-        groupTransactionState,
-        eq(transactionsToGroups.id, groupTransactionState.groupTransactionId)
+  const results = await db
+    .select()
+    .from(transactionsToGroups)
+    .innerJoin(
+      groupTransactionState,
+      eq(transactionsToGroups.id, groupTransactionState.groupTransactionId)
+    )
+    .innerJoin(
+      groupTransactionToUsersToGroups,
+      eq(
+        groupTransactionState.id,
+        groupTransactionToUsersToGroups.groupTransactionStateId
       )
-      .innerJoin(
-        groupTransactionToUsersToGroups,
-        eq(
-          groupTransactionState.id,
-          groupTransactionToUsersToGroups.groupTransactionStateId
-        )
+    )
+    .innerJoin(
+      usersToGroups,
+      eq(usersToGroups.id, groupTransactionToUsersToGroups.usersToGroupsId)
+    )
+    .where(
+      and(
+        eq(transactionsToGroups.transactionId, transactionId),
+        eq(transactionsToGroups.groupsId, groupId)
       )
-      .innerJoin(
-        usersToGroups,
-        eq(usersToGroups.id, groupTransactionToUsersToGroups.usersToGroupsId)
-      )
-      .where(
-        and(
-          eq(transactionsToGroups.transactionId, transactionId),
-          eq(transactionsToGroups.groupsId, groupId)
-        )
-      );
+    );
 
-    return [
-      ...results.map((result) => ({
-        amount: result.groupTransactionToUsersToGroups.amount,
-        userId: result.usersToGroups.userId,
-        transactionId: result.transactionsToGroups.transactionId,
-        pending: result.groupTransactionState.pending,
-        groupTransactionToUsersToGroupsId:
-          result.groupTransactionToUsersToGroups.id,
-      })),
-    ];
-  } catch (e) {
-    console.error(e, "at getOwed");
-    return null;
-  }
+  return [
+    ...results.map((result) => ({
+      amount: result.groupTransactionToUsersToGroups.amount,
+      userId: result.usersToGroups.userId,
+      transactionId: result.transactionsToGroups.transactionId,
+      pending: result.groupTransactionState.pending,
+      groupTransactionToUsersToGroupsId:
+        result.groupTransactionToUsersToGroups.id,
+    })),
+  ];
 }
 
 export async function getAllOwedForGroupPendingTransactionWithTransactionId(
   groupId: string,
   transactionId: string
 ) {
-  try {
-    const results = await db
-      .select()
-      .from(transactionsToGroups)
-      .innerJoin(
-        groupTransactionState,
-        eq(transactionsToGroups.id, groupTransactionState.groupTransactionId)
+  const results = await db
+    .select()
+    .from(transactionsToGroups)
+    .innerJoin(
+      groupTransactionState,
+      eq(transactionsToGroups.id, groupTransactionState.groupTransactionId)
+    )
+    .innerJoin(
+      groupTransactionToUsersToGroups,
+      eq(
+        groupTransactionState.id,
+        groupTransactionToUsersToGroups.groupTransactionStateId
       )
-      .innerJoin(
-        groupTransactionToUsersToGroups,
-        eq(
-          groupTransactionState.id,
-          groupTransactionToUsersToGroups.groupTransactionStateId
-        )
+    )
+    .innerJoin(
+      usersToGroups,
+      eq(usersToGroups.id, groupTransactionToUsersToGroups.usersToGroupsId)
+    )
+    .where(
+      and(
+        eq(transactionsToGroups.transactionId, transactionId),
+        eq(transactionsToGroups.groupsId, groupId),
+        eq(groupTransactionState.pending, true)
       )
-      .innerJoin(
-        usersToGroups,
-        eq(usersToGroups.id, groupTransactionToUsersToGroups.usersToGroupsId)
-      )
-      .where(
-        and(
-          eq(transactionsToGroups.transactionId, transactionId),
-          eq(transactionsToGroups.groupsId, groupId),
-          eq(groupTransactionState.pending, true)
-        )
-      );
+    );
 
-    return [
-      ...results.map((result) => ({
-        amount: result.groupTransactionToUsersToGroups.amount,
-        userId: result.usersToGroups.userId,
-        transactionId: result.transactionsToGroups.transactionId,
-        pending: result.groupTransactionState.pending,
-        groupTransactionToUsersToGroupsId:
-          result.groupTransactionToUsersToGroups.id,
-      })),
-    ];
-  } catch (e) {
-    console.error(e, "at getOwed");
-    return null;
-  }
+  return [
+    ...results.map((result) => ({
+      amount: result.groupTransactionToUsersToGroups.amount,
+      userId: result.usersToGroups.userId,
+      transactionId: result.transactionsToGroups.transactionId,
+      pending: result.groupTransactionState.pending,
+      groupTransactionToUsersToGroupsId:
+        result.groupTransactionToUsersToGroups.id,
+    })),
+  ];
 }
 
 export async function getGroupTransactionDetails(
   groupTransactionStateId: string
 ) {
-  try {
-    const results = await db
-      .select({
-        groupTransactionToUsersToGroups,
-        users,
-        transactions,
-        groupTransactionToUsersToGroupsStatus,
-      })
-      .from(groupTransactionState)
-      .innerJoin(
-        groupTransactionToUsersToGroups,
-        eq(
-          groupTransactionToUsersToGroups.groupTransactionStateId,
-          groupTransactionState.id
-        )
+  const results = await db
+    .select({
+      groupTransactionToUsersToGroups,
+      users,
+      transactions,
+      groupTransactionToUsersToGroupsStatus,
+    })
+    .from(groupTransactionState)
+    .innerJoin(
+      groupTransactionToUsersToGroups,
+      eq(
+        groupTransactionToUsersToGroups.groupTransactionStateId,
+        groupTransactionState.id
       )
-      .innerJoin(
-        transactionsToGroups,
-        eq(groupTransactionState.groupTransactionId, transactionsToGroups.id)
+    )
+    .innerJoin(
+      transactionsToGroups,
+      eq(groupTransactionState.groupTransactionId, transactionsToGroups.id)
+    )
+    .innerJoin(
+      transactions,
+      eq(transactions.id, transactionsToGroups.transactionId)
+    )
+    .innerJoin(
+      usersToGroups,
+      eq(usersToGroups.id, groupTransactionToUsersToGroups.usersToGroupsId)
+    )
+    .innerJoin(users, eq(users.id, usersToGroups.userId))
+    .innerJoin(
+      groupTransactionToUsersToGroupsStatus,
+      eq(
+        groupTransactionToUsersToGroups.groupTransactionToUsersToGroupsStatusId,
+        groupTransactionToUsersToGroupsStatus.id
       )
-      .innerJoin(
-        transactions,
-        eq(transactions.id, transactionsToGroups.transactionId)
-      )
-      .innerJoin(
-        usersToGroups,
-        eq(usersToGroups.id, groupTransactionToUsersToGroups.usersToGroupsId)
-      )
-      .innerJoin(users, eq(users.id, usersToGroups.userId))
-      .innerJoin(
-        groupTransactionToUsersToGroupsStatus,
-        eq(
-          groupTransactionToUsersToGroups.groupTransactionToUsersToGroupsStatusId,
-          groupTransactionToUsersToGroupsStatus.id
-        )
-      )
-      .where(eq(groupTransactionState.id, groupTransactionStateId));
+    )
+    .where(eq(groupTransactionState.id, groupTransactionStateId));
 
-    return results;
-  } catch (e) {
-    console.trace();
-    console.error(e);
-  }
+  return results;
 }
 
 export async function getGroupTransactionStateIdFromOwedId(owedId: string) {
-  try {
-    const results = await db
-      .select()
-      .from(groupTransactionToUsersToGroups)
-      .innerJoin(
-        groupTransactionState,
-        eq(
-          groupTransactionToUsersToGroups.groupTransactionStateId,
-          groupTransactionState.id
-        )
+  const results = await db
+    .select()
+    .from(groupTransactionToUsersToGroups)
+    .innerJoin(
+      groupTransactionState,
+      eq(
+        groupTransactionToUsersToGroups.groupTransactionStateId,
+        groupTransactionState.id
       )
+    )
 
-      .innerJoin(
-        groupTransactionToUsersToGroupsStatus,
-        eq(
-          groupTransactionToUsersToGroupsStatus.id,
-          groupTransactionToUsersToGroups.groupTransactionToUsersToGroupsStatusId
-        )
+    .innerJoin(
+      groupTransactionToUsersToGroupsStatus,
+      eq(
+        groupTransactionToUsersToGroupsStatus.id,
+        groupTransactionToUsersToGroups.groupTransactionToUsersToGroupsStatusId
       )
-      .where(eq(groupTransactionToUsersToGroups.id, owedId));
-    return results[0];
-  } catch (e) {
-    console.trace();
-    console.error(e);
-  }
+    )
+    .where(eq(groupTransactionToUsersToGroups.id, owedId));
+  return results[0];
 }
 
 export async function updateOwedStatus(
   owedId: string,
   newStatus: OwedStatus[number],
-  linkedTransactionId?: string
+  linkedTransactionId?: string,
+  sender?: UserSchema
 ) {
   const states = await db.select().from(groupTransactionToUsersToGroupsStatus);
 
@@ -466,7 +432,12 @@ export async function updateOwedStatus(
     .where(eq(groupTransactionToUsersToGroups.id, owedId));
 
   const userIds = await db
-    .select({ userId: usersToGroups.userId, groupId: usersToGroups.groupId })
+    .select({
+      userId: usersToGroups.userId,
+      groupId: usersToGroups.groupId,
+      amount: groupTransactionToUsersToGroups.amount,
+      name: users.firstName,
+    })
     .from(groupTransactionState)
     .innerJoin(
       groupTransactionToUsersToGroups,
@@ -479,6 +450,7 @@ export async function updateOwedStatus(
       usersToGroups,
       eq(usersToGroups.id, groupTransactionToUsersToGroups.usersToGroupsId)
     )
+    .innerJoin(users, eq(usersToGroups.userId, users.id))
     .where(
       eq(
         groupTransactionState.id,
@@ -486,12 +458,39 @@ export async function updateOwedStatus(
       )
     );
 
-  userIds.forEach(({ userId, groupId }) => {
+  const group = (
+    await db
+      .select({ icon: groups.icon, color: groups.color })
+      .from(groups)
+      .where(eq(groups.id, userIds[0].groupId))
+  )[0];
+
+  userIds.forEach(async ({ userId, groupId, amount, name }) => {
     io.to(userId).emit("requestConfirmation", {
       owedId,
       groupId,
     });
     io.to(userId).emit("updateGroup", { groupId });
+
+    if (amount > 0 && newStatus === "awaitingConfirmation") {
+      await createGenericNotificationWithWebsocket(
+        userId,
+        "refreshNotifications",
+        `${sender?.firstName} has sent you a transfer!`,
+        group.icon,
+        group.color,
+        sender!.id
+      );
+    } else if (amount < 0 && newStatus === "confirmed") {
+      await createGenericNotificationWithWebsocket(
+        userId,
+        "refreshNotifications",
+        `${sender?.firstName} has confirmed your transfer.`,
+        group.icon,
+        group.color,
+        sender!.id
+      );
+    }
   });
 }
 
@@ -578,7 +577,7 @@ export async function getTransactionOwnerFromOwedId(owedId: string) {
       users,
       or(eq(items.userId, users.id), eq(cashAccount.userId, users.id))
     )
-    // .where(eq(groupTransactionToUsersToGroups.id, owedId))
+    .where(eq(groupTransactionToUsersToGroups.id, owedId))
     .limit(1);
 
   console.log(results);

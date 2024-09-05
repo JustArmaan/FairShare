@@ -11,5 +11,6 @@ export const genericNotification = sqliteTable("genericNotification", {
     .references(() => users.id)
     .notNull(),
   icon: text("icon").notNull(),
+  color: text("color").notNull(),
   message: text("message").notNull(),
 });

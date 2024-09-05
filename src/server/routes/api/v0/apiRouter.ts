@@ -10,15 +10,9 @@ import {
   getItemsForUser,
 } from "../../../services/plaid.service";
 import { syncTransactionsForUser } from "../../../integrations/plaid/sync";
-import { findUser, getUserByItemId } from "../../../services/user.service";
+import { getUserByItemId } from "../../../services/user.service";
 import crypto from "crypto";
-import { env } from "../../../../../env";
-import {
-  completeTransfer,
-  createTransferForReceiver,
-} from "../../../integrations/vopay/transfer";
-import { getGroupTransferByTransactionId } from "../../../services/plaid.transfer.service";
-import { getGroup, getGroupByOwedId } from "../../../services/group.service";
+import { getGroup } from "../../../services/group.service";
 
 const router = Router();
 
@@ -89,15 +83,26 @@ router.get("/has-accounts", async (req, res) => {
 });
 
 router.post("/sync", async (req, res) => {
-  console.log("sync request received!", req);
   const { item_id } = req.body as { [key: string]: string };
   if (
     req.body.webhook_code === "SYNC_UPDATES_AVAILABLE" ||
     req.body.webhook_code === "DEFAULT_UPDATE" ||
     req.body.webhook_code === "NEW_ACCOUNTS_AVAILABLE"
   ) {
-    if (!item_id) return res.status(400).send();
+    if (!item_id) {
+      console.log("400, no item");
+      return res.status(400).send();
+    }
     const { id } = (await getUserByItemId(item_id))!;
+    const items = await getItemsForUser(id);
+    const accounts = items[0]
+      ? await getAccountsForUser(id, items[0].item.id)
+      : [];
+    const connected = accounts && accounts.length > 0;
+    if (!connected) {
+      console.log("not conncted! returning...");
+      return res.status(200).send();
+    }
     await syncTransactionsForUser(id, "/sync");
 
     console.log("synced up");
@@ -106,6 +111,7 @@ router.post("/sync", async (req, res) => {
 });
 
 router.get("/sync", async (req, res) => {
+  console.log("syncing!");
   if (!req.user) {
     return res.json({
       error: "Not logged in.",
@@ -114,6 +120,7 @@ router.get("/sync", async (req, res) => {
   }
 
   await syncTransactionsForUser(req.user.id);
+  console.log("synced in get");
   return res.status(200).send();
 });
 

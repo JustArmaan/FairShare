@@ -40,8 +40,17 @@ export function setupSocketListener() {
     });
 
     function refreshNotifications() {
+      const notificationIcon = document.querySelector("#notification-icon");
+      if (notificationIcon) {
+        htmx.ajax("GET", `/notification/notificationIcon`, {
+          target: "#notification-icon",
+          swap: "outerHTML",
+        });
+      }
+
       const notificationPage = document.querySelector("#ws-notification-page");
       if (!notificationPage) return;
+
       const sort = (
         document.querySelector("#notification-list") as HTMLDivElement
       ).dataset.selectedSort;
@@ -53,15 +62,7 @@ export function setupSocketListener() {
     }
 
     socket.on("groupInvite", ({ groupId }) => {
-      const notificationIcon = document.querySelector("#notification-icon");
       refreshNotifications();
-
-      if (notificationIcon) {
-        htmx.ajax("GET", `/notification/notificationIcon`, {
-          target: "#notification-icon",
-          swap: "outerHTML",
-        });
-      }
 
       if ((window as any).ReactNativeWebView) {
         (window as any).ReactNativeWebView.postMessage(
@@ -96,6 +97,8 @@ export function setupSocketListener() {
     // group UI update events
     socket.on("joinedGroup", refreshGroupList);
 
+    socket.on("refreshNotifications", refreshNotifications);
+
     // refresh member list and owed/owing/history components in group view page
     socket.on("updateGroup", ({ groupId }) => {
       refreshGroupList();
@@ -121,6 +124,10 @@ export function setupSocketListener() {
           swap: "innerHTML",
         }
       );
+    });
+
+    socket.on("addOwed", ({ }) => {
+      refreshNotifications();
     });
 
     socket.on("requestConfirmation", ({ owedId, groupId }) => {

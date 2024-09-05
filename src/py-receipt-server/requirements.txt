@@ -1,5 +1,0 @@
-transformers[torch]==4.33.2
-pillow
-flask
-numpy
-flask_cors

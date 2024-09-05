@@ -23,7 +23,10 @@ export const SplitByPercentage = (props: {
 
       <div class="flex flex-col space-y-3">
         {props.group.members.map((member, index) => (
-          <div class="flex justify-between items-center">
+          <div
+            class="flex justify-between items-center"
+            id={`member-${member.id}`}
+          >
             <div class="flex items-center">
               <div
                 class={`flex rounded-full bg-${member.color} h-[2rem] w-[2rem] justify-center border-2 border-primary-black`}
@@ -61,10 +64,10 @@ export const SplitByPercentage = (props: {
 
               <div id={`splitOptionsRadioButton${member.id}`}>
                 <img
-                  hx-get={`/billSplit/checkSplit/${member.id}?ischecked=true`}
+                  hx-get={`/billSplit/checkSplit/${member.id}/${props.transactionDetails[0].id}?ischecked=true`}
                   hx-swap="innerHTML"
                   hx-trigger="click"
-                  hx-target={`#splitOptionsRadioButton${member.id}`}
+                  hx-target={`#member-${member.id}`}
                   src="/activeIcons/checked_blue_circle.svg"
                   alt="selected icon"
                   class="ml-1 cursor-pointer"

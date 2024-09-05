@@ -176,5 +176,6 @@ async function runLinkSetup() {
     }
   } catch (error) {
     console.log(error);
+    console.trace("error!");
   }
 }

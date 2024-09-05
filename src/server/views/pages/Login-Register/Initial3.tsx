@@ -18,7 +18,7 @@ export const Initial3 = () => {
           </a>
           <div class="absolute p-4 top-4 right-3 z-30 cursor-pointer">
             <a
-              hx-get="/auth/registerPage"
+              hx-get="/onboard/connect"
               hx-swap="innerHTML"
               hx-target="body"
               hx-trigger="click"
@@ -34,7 +34,7 @@ export const Initial3 = () => {
               </p>
             </div>
             <img
-              src="./icons/journeyLogo.svg"
+              src="/icons/journeyLogo.svg"
               class="w-2/3 block max-w-[17rem]"
             />
             <p class="text-font-off-white font-medium text-[1rem] w-[20rem] text-center mt-3">

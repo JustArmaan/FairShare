@@ -97,9 +97,9 @@ export const PendingItems = (props: {
           <p class="text-font-off-white text-xl font-medium pt-3 text-center">
             Pending Transfers
           </p>
-          <div class="flex-col w-full justify-center rounded-lg py-1.5 px-4 mt-3 flex items-center">
+          <div class="flex-col w-full justify-center rounded-lg px-4 mt-3 flex items-center">
             {owedToCurrentUserTransactions.map((result) => (
-              <div class="w-full bg-primary-black relative rounded-md shadow-[0px_2px_2px_0px_rgba(0,0,0,0.25)]">
+              <div class="w-full bg-primary-black relative rounded-md shadow-[0px_2px_2px_0px_rgba(0,0,0,0.25)] my-2">
                 <div class="p-3">
                   <div class="flex flex-row justify-between w-full">
                     <div class="flex flex-col justify-start w-fit">

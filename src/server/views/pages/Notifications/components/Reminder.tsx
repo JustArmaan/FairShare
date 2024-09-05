@@ -1,7 +1,9 @@
+import type { UserSchema } from "../../../../interface/types";
 import type { getGroupOwnerWithGroupId } from "../../../../services/group.service";
 import {
   type InviteNotification,
   type CombinedNotification,
+  type GenericNotification,
 } from "../../../../services/notification.service";
 import type { ExtractFunctionReturnType } from "../../../../services/user.service";
 import { ProfileIcon } from "../../../components/ProfileIcon";
@@ -61,6 +63,9 @@ export const Reminder = (props: {
   const { notifications } = props;
 
   let message: string | JSX.Element = "";
+  let iconSrc: string | undefined;
+  let iconColor: string | undefined;
+  let sender: UserSchema | undefined;
 
   if (isInviteNotification(notifications)) {
     message = (
@@ -71,27 +76,39 @@ export const Reminder = (props: {
     );
   } else if (isGenericNotification(notifications)) {
     message = notifications.genericNotification.message || "No message.";
+    iconSrc = (notifications as GenericNotification).genericNotification.icon;
+    iconColor = (notifications as GenericNotification).genericNotification
+      .color;
+
+    sender = (notifications as GenericNotification).users;
   } else if (isGroupNotification(notifications)) {
     message = notifications.groupNotification.message || "No message.";
+    sender = (notifications as CombinedNotification).users;
   }
 
   return (
     <div class="animate-fade-in mb-[1.25rem]">
-      <div class="bg-primary-black rounded-xl shadow-[0_3px_2px_0_rgba(0,0,0,0.25)] mb-1 flex justify-between relative pb-0.5 px-3 items-center">
+      <div class="bg-primary-black rounded-xl shadow-[0_3px_2px_0_rgba(0,0,0,0.25)] mb-1 flex justify-between relative px-3 items-center pb-1 py-4 ">
         <div class="h-20 w-20 flex-col items-center justify-center flex mr-[1rem]">
-          <ProfileIcon user={props.groupOwner!} class="h-14 w-14" />
+          <ProfileIcon
+            user={sender ? sender : props.groupOwner!}
+            class="h-[4rem] w-[4rem]"
+          />
         </div>
         <div class="flex flex-col w-full justify-center">
           <div class="flex justify-between items-center w-full mt-2">
-            <div class="flex flex-col mr-[4.5rem] leading-5">
+            <div class="flex flex-col mr-[1rem] leading-5 ">
               <p class="text-font-off-white">{message}</p>
               <span class="text-font-grey font-normal text-xs align-top mt-[0.25rem]">
-                Sent by {props.groupOwner?.firstName}
+                Sent by {sender ? sender.firstName : props.groupOwner!}
               </span>
             </div>
             {!isInviteNotification(notifications) && (
               <span class="text-xs text-font-grey m-2.5 items-end right-0 top-0 absolute">
-                {timeAgo(notifications.notifications.timestamp)}
+                {timeAgo(notifications.notifications.timestamp) ===
+                "0 seconds ago"
+                  ? "Now"
+                  : timeAgo(notifications.notifications.timestamp)}
               </span>
             )}
           </div>
@@ -130,7 +147,9 @@ export const Reminder = (props: {
             )}
           </div>
         </div>
-        {notifications.notifications.readStatus === false && (
+        {(notifications.notifications.readStatus === false ||
+          timeAgo(notifications.notifications.timestamp) ===
+            "0 seconds ago") && (
           <>
             <span class="animate-ping absolute inline-flex h-2.5 w-2.5 rounded-full bg-accent-blue opacity-100 right-5 top-[50%]"></span>
             <span class="absolute inline-flex h-2.5 w-2.5 rounded-full bg-accent-blue opacity-100 right-5 top-[50%] z-20"></span>

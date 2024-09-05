@@ -7,7 +7,7 @@ export const SplitTypeSelector = (props: {
   return (
     <div
       class="flex space-x-2 bg-light-grey opacity-30 rounded-full w-fit"
-      id="splitTypeSelector"
+      id={`splitTypeSelector-${props.receiptLineItem[0].id}`}
     >
       <button
         class={`${
@@ -17,7 +17,7 @@ export const SplitTypeSelector = (props: {
         } py-1 px-4 rounded-full`}
         hx-get={`/billSplit/splitSelector/Equally/${props.receiptLineItem[0].id}`}
         hx-swap="outerHTML"
-        hx-target="#splitTypeSelector"
+        hx-target={`#splitTypeSelector-${props.receiptLineItem[0].id}`}
         hx-trigger="click"
       >
         =
@@ -30,7 +30,7 @@ export const SplitTypeSelector = (props: {
         } py-1 px-4 rounded-full`}
         hx-get={`/billSplit/splitSelector/Amount/${props.receiptLineItem[0].id}`}
         hx-swap="outerHTML"
-        hx-target="#splitTypeSelector"
+        hx-target={`#splitTypeSelector-${props.receiptLineItem[0].id}`}
         hx-trigger="click"
       >
         $
@@ -43,7 +43,7 @@ export const SplitTypeSelector = (props: {
         } py-1 px-4 rounded-full`}
         hx-get={`/billSplit/splitSelector/Percentage/${props.receiptLineItem[0].id}`}
         hx-swap="outerHTML"
-        hx-target="#splitTypeSelector"
+        hx-target={`#splitTypeSelector-${props.receiptLineItem[0].id}`}
         hx-trigger="click"
       >
         %

@@ -5,6 +5,8 @@ import { Initial1 } from "../views/pages/Login-Register/Initial1";
 import { Initial2 } from "../views/pages/Login-Register/Initial2";
 import { Initial3 } from "../views/pages/Login-Register/Initial3";
 import { Initial4 } from "../views/pages/Login-Register/Initial4";
+import { ConnectItem } from "../views/pages/Login-Register/ConnectItem";
+import { findUser } from "../services/user.service";
 
 const router = express.Router();
 
@@ -30,6 +32,12 @@ router.get("/embark", async (req, res) => {
 
 router.get("/master", async (req, res) => {
   const html = renderToHtml(<Initial4 />);
+  res.send(html);
+});
+
+router.get("/connect", async (req, res) => {
+  const user = await findUser(req.user!.id);
+  const html = renderToHtml(<ConnectItem user={user?.firstName || "user"} />);
   res.send(html);
 });
 

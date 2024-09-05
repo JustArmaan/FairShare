@@ -2,6 +2,7 @@ import {
   addAccount,
   addPlaidAccount,
   getAccount,
+  updatePlaidAccount,
 } from "../../services/account.service";
 import { getAccountTypeIdByName } from "../../services/accountType.service";
 import { getCategoryIdByName } from "../../services/category.service";
@@ -17,7 +18,7 @@ import {
 } from "../../services/plaid.service";
 import { plaidRequest } from "./link";
 import { io } from "../../main";
-import fs from "fs/promises";
+import { v4 } from "uuid";
 
 type StoreEntry = { timestamp: string; syncStore?: Set<string> };
 type ItemEntry = {
@@ -51,19 +52,11 @@ export async function syncTransactionsForUser(userId: string, origin?: string) {
 
     await Promise.all(
       items.map(async (item) => {
-        /*
-        setInterval(async () => {
-          console.log("trigger updates!");
-          const res = await plaidRequest("/sandbox/item/fire_webhook", {
-            webhook_code: "SYNC_UPDATES_AVAILABLE",
-            access_token: item.item.plaidAccessToken,
-          });
-          console.log(res);
-        }, 1000);
-        */
+        console.log("sync transaction", item.item.institutionName);
         return await syncTransaction({ ...item, userId }, itemEntry);
       })
     );
+    console.log("all transactions synced");
   } catch (error) {
     console.error(`Error syncing transactions for user ${userId}:`, error);
     // Optionally, you might want to requeue the userId here or handle the error.
@@ -88,6 +81,9 @@ async function updateAccounts(
       const accountTypeId = await getAccountTypeIdByName(account.type);
       if (!accountTypeId) return;
       const acc = await getAccount(account.account_id);
+
+      const balance = (account.balances.available || account.balances.current)!;
+
       if (!acc) {
         await addAccount({
           id: account.account_id,
@@ -96,13 +92,27 @@ async function updateAccounts(
           currencyCodeId: null,
         });
         await addPlaidAccount({
-          id: account.account_id,
+          id: v4(),
           accountTypeId: accountTypeId.id,
-          balance: (account.balances.available ||
-            account.balances.current)!.toString(),
+          balance: (account.type === "credit"
+            ? Math.abs(
+              balance - (account.balances.limit ? account.balances.limit : 0)
+            )
+            : balance
+          ).toString(),
           itemId: itemId,
           currencyCodeId: null,
           accountsId: account.account_id,
+        });
+      } else {
+        // update acc balance
+        updatePlaidAccount(account.account_id, {
+          balance: (account.type === "credit"
+            ? Math.abs(
+              balance - (account.balances.limit ? account.balances.limit : 0)
+            )
+            : balance
+          ).toString(),
         });
       }
     })
@@ -133,73 +143,78 @@ async function syncTransaction(
   { item }: { item: Item; userId: string },
   entry?: ItemEntry
 ) {
-  console.log(entry, "entry exists?");
-  const count = 500;
-  let cursor: string | undefined = item.nextCursor
-    ? item.nextCursor
-    : undefined;
-  const originalCursor = cursor;
+  try {
+    // console.log(entry, "entry exists?");
+    const count = 500;
+    let cursor: string | undefined = item.nextCursor
+      ? item.nextCursor
+      : undefined;
+    const originalCursor = cursor;
 
-  let toAdd: AddedPlaidTransaction[] = [];
-  let toModify: ModifiedPlaidTransaction[] = [];
-  let toRemove: { transaction_id: string }[] = [];
-  while (true) {
-    const response = (await plaidRequest("/transactions/sync", {
-      access_token: item.plaidAccessToken,
-      cursor,
-      count,
-    })) as SyncResponse;
+    let toAdd: AddedPlaidTransaction[] = [];
+    let toModify: ModifiedPlaidTransaction[] = [];
+    let toRemove: { transaction_id: string }[] = [];
+    while (true) {
+      const response = (await plaidRequest("/transactions/sync", {
+        access_token: item.plaidAccessToken,
+        cursor,
+        count,
+      })) as SyncResponse;
 
-    if (
-      response.error_code === "TRANSACTIONS_SYNC_MUTATION_DURING_PAGINATION"
-    ) {
-      cursor = originalCursor;
-      toAdd = [];
-      toModify = [];
-      toRemove = [];
-      continue;
+      if (
+        response.error_code === "TRANSACTIONS_SYNC_MUTATION_DURING_PAGINATION"
+      ) {
+        cursor = originalCursor;
+        toAdd = [];
+        toModify = [];
+        toRemove = [];
+        continue;
+      }
+
+      const { accounts } = response;
+      if (accounts) await updateAccounts(accounts, item.id);
+
+      if (entry && !entry.items.find((item) => item.id)) {
+        console.log("pushing item into entry!");
+        entry.items.push({
+          id: item.id,
+          timestamp: new Date(Date.now()).toLocaleString(),
+          responses: [{ reqCursor: cursor, response }],
+        });
+      } else if (entry) {
+        console.log("creating new item in entry!");
+        entry.items
+          .find((item) => item.id)!
+          .responses.push({ reqCursor: cursor, response });
+      }
+
+      const { added, modified, removed, next_cursor, has_more } = response;
+      !added && console.log(response, "sync response where added is undefined");
+      added && added.forEach((added) => toAdd.push(added));
+      modified && modified.forEach((modified) => toModify.push(modified));
+      removed && removed.forEach((removed) => toRemove.push(removed));
+      cursor = next_cursor;
+      if (!has_more && next_cursor) {
+        break;
+      }
     }
 
-    const { accounts } = response;
-    if (accounts) await updateAccounts(accounts, item.id);
+    toAdd.length > 0 && (await addTransactions(toAdd));
+    toModify.length > 0 && (await Promise.all(toModify.map(modifyTransaction)));
+    toRemove.length > 0 &&
+      (await deleteTransactions(
+        toRemove.map((removed) => removed.transaction_id)
+      ));
 
-    if (entry && !entry.items.find((item) => item.id)) {
-      console.log("pushing item into entry!");
-      entry.items.push({
-        id: item.id,
-        timestamp: new Date(Date.now()).toLocaleString(),
-        responses: [{ reqCursor: cursor, response }],
-      });
-    } else if (entry) {
-      console.log("creating new item in entry!");
-      entry.items
-        .find((item) => item.id)!
-        .responses.push({ reqCursor: cursor, response });
-    }
+    await updateItem(item.id, {
+      nextCursor: cursor,
+    });
 
-    const { added, modified, removed, next_cursor, has_more } = response;
-    !added && console.log(response, "sync response where added is undefined");
-    added && added.forEach((added) => toAdd.push(added));
-    modified && modified.forEach((modified) => toModify.push(modified));
-    removed && removed.forEach((removed) => toRemove.push(removed));
-    cursor = next_cursor;
-    if (!has_more && next_cursor) {
-      break;
-    }
+    handleTransactionWebsocketEvents(toAdd, toModify, toRemove, item.userId);
+  } catch (e) {
+    console.error(e);
+    console.trace();
   }
-
-  toAdd.length > 0 && (await addTransactions(toAdd));
-  toModify.length > 0 && (await Promise.all(toModify.map(modifyTransaction)));
-  toRemove.length > 0 &&
-    (await deleteTransactions(
-      toRemove.map((removed) => removed.transaction_id)
-    ));
-
-  await updateItem(item.id, {
-    nextCursor: cursor,
-  });
-
-  handleTransactionWebsocketEvents(toAdd, toModify, toRemove, item.userId);
 }
 
 type TransactionEvent = { transactionIds: string[]; accountId: string };

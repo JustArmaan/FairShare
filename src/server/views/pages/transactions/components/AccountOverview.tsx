@@ -20,10 +20,11 @@ export const AccountOverview = ({
 }) => {
   // Assuming `mapTransactionsToCategories` and `generatePathStyles` should be called for each account's transactions
   const categories = mapTransactionsToCategories(account.transactions);
+  categories.sort((a, b) => b.cost - a.cost);
   const pathStyles = generatePathStyles(categories);
 
   const currentDate = new Date();
-  const currentMonthNumber = currentDate.getMonth() + (lastMonth ? 0 : 1);
+  const currentMonthNumber = currentDate.getMonth() + (lastMonth ? 1 : 0);
   currentDate.setMonth(currentMonthNumber);
   const currentMonth = currentDate.toLocaleString("default", { month: "long" });
 
@@ -83,13 +84,16 @@ export const AccountOverview = ({
         )}
         <div class="w-full h-[1px] bg-font-grey rounded mb-2 opacity-50"></div>
         <div class="transactions flex flex-col">
-          {account.transactions.slice(0, 2).map((transaction) => (
-            <Transaction
-              transaction={transaction}
-              tailwindColorClass={transaction.category.color}
-              url={"/home/page/default"}
-            />
-          ))}
+          {account.transactions
+            .reverse()
+            .slice(0, 2)
+            .map((transaction) => (
+              <Transaction
+                transaction={transaction}
+                tailwindColorClass={transaction.category.color}
+                url={"/home/page/default"}
+              />
+            ))}
           <p
             hx-get={`/transactions/page/${account.itemId}/${account.id}`}
             hx-trigger="click"
