@@ -17,11 +17,6 @@ import { RegisterPage } from "../views/pages/Login-Register/RegisterPage";
 import { EnterInfoRegisterPage } from "../views/pages/Login-Register/EnterInfoRegisterPage";
 
 const colors = [
-  "accent-blue",
-  "accent-purple",
-  "accent-red",
-  "accent-yellow",
-  "accent-green",
   "category-color-0",
   "category-color-1",
   "category-color-2",
@@ -231,7 +226,11 @@ export async function getUser(req: Request, res: Response, next: NextFunction) {
     (!req.headers["accept"]?.includes("text/html") &&
       !(req.headers["hx-request"] === "true") &&
       !req.url.includes("api")) ||
-    (req.url.endsWith("/sync") && req.method === "POST")
+    (req.url.endsWith("/sync") && req.method === "POST") ||
+    req.url.endsWith(".svg") ||
+    req.url.endsWith(".jpg") ||
+    req.url.endsWith(".jpeg") ||
+    req.url.endsWith(".png") 
   ) {
     return next();
   }
