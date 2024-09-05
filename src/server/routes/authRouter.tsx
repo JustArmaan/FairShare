@@ -235,9 +235,14 @@ export async function getUser(req: Request, res: Response, next: NextFunction) {
     return next();
   }
 
-  try {
     console.log("checking for auth");
-    console.log(req.cookies, " for request ", req.url, "with method ", req.method);
+    console.log(
+      req.cookies,
+      " for request ",
+      req.url,
+      "with method ",
+      req.method
+    );
     const isAuthenticated = await kindeClient.isAuthenticated(
       sessionManager(req, res)
     );
@@ -295,10 +300,6 @@ export async function getUser(req: Request, res: Response, next: NextFunction) {
         return res.redirect("/auth/login");
       }
     }
-  } catch (e) {
-    console.error(e);
-    return res.status(500).send();
-  }
 }
 
 export const authRouter = router;
