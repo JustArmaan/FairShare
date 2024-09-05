@@ -235,71 +235,79 @@ export async function getUser(req: Request, res: Response, next: NextFunction) {
     return next();
   }
 
-    console.log("checking for auth");
-    console.log(
-      req.cookies,
-      " for request ",
-      req.url,
-      "with method ",
-      req.method
-    );
-    const isAuthenticated = await kindeClient.isAuthenticated(
-      sessionManager(req, res)
-    );
-    if (isAuthenticated && !req.url.includes("logout")) {
-      const profile = await kindeClient.getUserProfile(
-        sessionManager(req, res)
-      );
+  console.log("checking for auth");
+  console.log(
+    req.cookies,
+    " for request ",
+    req.url,
+    "with method ",
+    req.method
+  );
+  const isAuthenticated = await kindeClient.isAuthenticated(
+    sessionManager(req, res)
+  );
 
-      if (!profile) {
-        const logoutUrl = await kindeClient.logout(sessionManager(req, res));
-        return res.redirect(logoutUrl.toString());
-      }
+  console.log(
+    "made it past authentitcated",
+    req.cookies,
+    " for request ",
+    req.url,
+    "with method ",
+    req.method
+  );
 
-      const user = await findUser(profile.id);
-      // const user = {
-      //   id: "kp_b20575f122824fe5b0099f12948a4912",
-      //   firstName: "Byron",
-      //   lastName: "Dray",
-      //   email: "byrondray2@gmail.com",
-      //   color: "category-color-0",
-      //   createdAt: new Date().toISOString(),
-      // };
+  if (isAuthenticated && !req.url.includes("logout")) {
+    const profile = await kindeClient.getUserProfile(sessionManager(req, res));
 
-      if (!user) {
-        const { id, given_name, family_name, email } = profile;
-        await createUser({
-          id,
-          firstName: given_name,
-          lastName: family_name ? family_name : null,
-          email,
-          color: faker.helpers.arrayElement(colors),
-        });
-        // await seedFakeTransactions(id, 20);
-        if (!(await findUser(id))) throw new Error("failed to create user");
-        return next();
-      } else {
-        req.user = user;
-        return next();
-      }
-    } else {
-      if (
-        req.url.startsWith(`/auth`) ||
-        req.url.startsWith(`/mobile/auth`) ||
-        req.url.startsWith(`/onboard`) ||
-        req.url === "/"
-      ) {
-        return next();
-      } else {
-        if (req.url.includes("invite")) {
-          res.cookie("redirect", req.originalUrl, {
-            ...cookieOptions,
-            httpOnly: false,
-          });
-        }
-        return res.redirect("/auth/login");
-      }
+    if (!profile) {
+      const logoutUrl = await kindeClient.logout(sessionManager(req, res));
+      return res.redirect(logoutUrl.toString());
     }
+
+    const user = await findUser(profile.id);
+    // const user = {
+    //   id: "kp_b20575f122824fe5b0099f12948a4912",
+    //   firstName: "Byron",
+    //   lastName: "Dray",
+    //   email: "byrondray2@gmail.com",
+    //   color: "category-color-0",
+    //   createdAt: new Date().toISOString(),
+    // };
+
+    if (!user) {
+      const { id, given_name, family_name, email } = profile;
+      await createUser({
+        id,
+        firstName: given_name,
+        lastName: family_name ? family_name : null,
+        email,
+        color: faker.helpers.arrayElement(colors),
+      });
+      // await seedFakeTransactions(id, 20);
+      if (!(await findUser(id))) throw new Error("failed to create user");
+      return next();
+    } else {
+      req.user = user;
+      return next();
+    }
+  } else {
+    if (
+      req.url.startsWith(`/auth`) ||
+      req.url.startsWith(`/mobile/auth`) ||
+      req.url.startsWith(`/onboard`) ||
+      req.url === "/"
+    ) {
+      return next();
+    } else {
+      if (req.url.includes("invite")) {
+        res.cookie("redirect", req.originalUrl, {
+          ...cookieOptions,
+          httpOnly: false,
+        });
+      }
+      return res.redirect("/auth/login");
+    }
+  }
 }
 
 export const authRouter = router;
