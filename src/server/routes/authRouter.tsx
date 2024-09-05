@@ -244,13 +244,6 @@ export async function getUser(req: Request, res: Response, next: NextFunction) {
     req.method
   );
 
-  if (
-    req.cookies["ac-state-key"] !== undefined &&
-    req.cookies["access-token"] === undefined
-  ) {
-    const session = sessionManager(req, res);
-    session.destroySession();
-  }
   const isAuthenticated = await kindeClient.isAuthenticated(
     sessionManager(req, res)
   );
