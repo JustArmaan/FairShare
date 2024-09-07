@@ -17,11 +17,6 @@ import { RegisterPage } from "../views/pages/Login-Register/RegisterPage";
 import { EnterInfoRegisterPage } from "../views/pages/Login-Register/EnterInfoRegisterPage";
 
 const colors = [
-  "accent-blue",
-  "accent-purple",
-  "accent-red",
-  "accent-yellow",
-  "accent-green",
   "category-color-0",
   "category-color-1",
   "category-color-2",
@@ -231,72 +226,88 @@ export async function getUser(req: Request, res: Response, next: NextFunction) {
     (!req.headers["accept"]?.includes("text/html") &&
       !(req.headers["hx-request"] === "true") &&
       !req.url.includes("api")) ||
-    (req.url.endsWith("/sync") && req.method === "POST")
+    (req.url.endsWith("/sync") && req.method === "POST") ||
+    req.url.endsWith(".svg") ||
+    req.url.endsWith(".jpg") ||
+    req.url.endsWith(".jpeg") ||
+    req.url.endsWith(".png")
   ) {
     return next();
   }
 
-  try {
-    const isAuthenticated = await kindeClient.isAuthenticated(
-      sessionManager(req, res)
-    );
-    if (isAuthenticated && !req.url.includes("logout")) {
-      const profile = await kindeClient.getUserProfile(
-        sessionManager(req, res)
-      );
+  console.log("checking for auth");
+  console.log(
+    req.cookies,
+    " for request ",
+    req.url,
+    "with method ",
+    req.method
+  );
 
-      if (!profile) {
-        const logoutUrl = await kindeClient.logout(sessionManager(req, res));
-        return res.redirect(logoutUrl.toString());
-      }
+  const isAuthenticated = await kindeClient.isAuthenticated(
+    sessionManager(req, res)
+  );
 
-      const user = await findUser(profile.id);
-      // const user = {
-      //   id: "kp_b20575f122824fe5b0099f12948a4912",
-      //   firstName: "Byron",
-      //   lastName: "Dray",
-      //   email: "byrondray2@gmail.com",
-      //   color: "category-color-0",
-      //   createdAt: new Date().toISOString(),
-      // };
+  console.log(
+    "made it past authentitcated",
+    req.cookies,
+    " for request ",
+    req.url,
+    "with method ",
+    req.method
+  );
 
-      if (!user) {
-        const { id, given_name, family_name, email } = profile;
-        await createUser({
-          id,
-          firstName: given_name,
-          lastName: family_name ? family_name : null,
-          email,
-          color: faker.helpers.arrayElement(colors),
-        });
-        // await seedFakeTransactions(id, 20);
-        if (!(await findUser(id))) throw new Error("failed to create user");
-        return next();
-      } else {
-        req.user = user;
-        return next();
-      }
-    } else {
-      if (
-        req.url.startsWith(`/auth`) ||
-        req.url.startsWith(`/mobile/auth`) ||
-        req.url.startsWith(`/onboard`) ||
-        req.url === "/"
-      ) {
-        return next();
-      } else {
-        if (req.url.includes("invite")) {
-          res.cookie("redirect", req.originalUrl, {
-            ...cookieOptions,
-            httpOnly: false,
-          });
-        }
-        return res.redirect("/auth/login");
-      }
+  if (isAuthenticated && !req.url.includes("logout")) {
+    const profile = await kindeClient.getUserProfile(sessionManager(req, res));
+
+    if (!profile) {
+      const logoutUrl = await kindeClient.logout(sessionManager(req, res));
+      return res.redirect(logoutUrl.toString());
     }
-  } catch (e) {
-    console.error(e);
-    return res.status(500).send();
+
+    const user = await findUser(profile.id);
+    // const user = {
+    //   id: "kp_b20575f122824fe5b0099f12948a4912",
+    //   firstName: "Byron",
+    //   lastName: "Dray",
+    //   email: "byrondray2@gmail.com",
+    //   color: "category-color-0",
+    //   createdAt: new Date().toISOString(),
+    // };
+
+    if (!user) {
+      const { id, given_name, family_name, email } = profile;
+      await createUser({
+        id,
+        firstName: given_name,
+        lastName: family_name ? family_name : null,
+        email,
+        color: faker.helpers.arrayElement(colors),
+      });
+      // await seedFakeTransactions(id, 20);
+      if (!(await findUser(id))) throw new Error("failed to create user");
+      return next();
+    } else {
+      req.user = user;
+      return next();
+    }
+  } else {
+    if (
+      req.url.startsWith(`/auth`) ||
+      req.url.startsWith(`/mobile/auth`) ||
+      req.url.startsWith(`/onboard`) ||
+      req.url === "/"
+    ) {
+      return next();
+    } else {
+      if (req.url.includes("invite")) {
+        res.cookie("redirect", req.originalUrl, {
+          ...cookieOptions,
+          httpOnly: false,
+        });
+      }
+      return res.redirect("/auth/login");
+    }
   }
 }
 
