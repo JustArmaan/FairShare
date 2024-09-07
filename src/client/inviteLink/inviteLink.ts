@@ -1,5 +1,5 @@
 export function clipBoardCopyInviteLink() {
-  const inviteLink = document.getElementById("invite-link");
+  const inviteLink = document.getElementById("");
   const clipboardIcon = document.getElementById("clipboard-icon");
 
   if (inviteLink && clipboardIcon && !clipboardIcon.dataset.listenerAttached) {

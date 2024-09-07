@@ -28,6 +28,12 @@ export function setupSocketConnectionListener(io: Server) {
       socket.handshake.headers.cookie
     );
 
+    if (!userId) {
+      console.error("Error: Websocket connection failed; no user to connect.");
+      console.trace();
+      return;
+    }
+
     socket.join(userId);
   });
 }

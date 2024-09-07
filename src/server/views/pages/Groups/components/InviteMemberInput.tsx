@@ -14,7 +14,7 @@ export const InviteMemberInput = (props: { groupId: string }) => {
             class="bg-primary-black rounded-md w-full text-font-off-white flex justify-between px-2 mt-1 placeholder-primary-grey placeholder-font-light mr-3"
             type="text"
             name="emailOrPhone"
-            placeholder="Enter email or phone number"
+            placeholder="Enter email"
           />
           <button
             // id="send-invite-button"

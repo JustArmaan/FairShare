@@ -1,9 +1,16 @@
 import { io } from "socket.io-client";
 import htmx from "htmx.org";
+import { apiVersion } from "../main";
 
 export function setupSocketListener() {
-  document.addEventListener("DOMContentLoaded", () => {
+  const socketInterval = setInterval(async () => {
+    const response = await fetch(`/api/v${apiVersion}/connected`);
+    const { data } = await response.json();
+
+    if (!data) return;
+
     const socket = io();
+    clearInterval(socketInterval);
 
     socket.on("newTransaction", (data) => {
       const newTransactions: NewTransaction = data.newTransactions;
@@ -141,7 +148,7 @@ export function setupSocketListener() {
         swap: "innerHTML",
       });
     });
-  });
+  }, 1000);
 }
 
 type NewTransaction = {
