@@ -24,10 +24,10 @@ export const ConnectItem = (props: { user: string }) => {
       <div class="z-20 h-screen flex flex-col items-center relative">
         <img
           src="/images/Logo.svg"
-          class="w-1/4 block max-w-[17rem] mt-[10rem]"
+          class="w-1/4 min-w-32 block max-w-[17rem] mt-[10rem] animate-fade-in"
         />
         <div class="flex flex-col items-center text-font-off-white my-3">
-          <p class="font-medium text-3xl font-kanit mt-[7.5rem]">
+          <p class="font-medium text-3xl font-kanit mt-[5rem]">
             Welcome, {props.user}
           </p>
         </div>
