@@ -30,6 +30,7 @@ export function checkHTMX(
     "auth",
     "json",
     "png",
+    "webp",
     "js",
     "favicon",
   ];

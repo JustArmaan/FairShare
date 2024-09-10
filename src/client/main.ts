@@ -23,6 +23,7 @@ import {
   addTakePictureButton,
   attachDeleteEventListeners,
 } from "./receiptScanning/receiptScanning";
+import { loadLazyImages } from "./performance/loadLazyImages";
 
 // !!!
 // @ts-ignore
@@ -31,6 +32,7 @@ window.onMessage = onMessage;
 // debug:
 
 main();
+loadLazyImages();
 splitTransfer();
 setupSocketListener();
 handleNavigation();

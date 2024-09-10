@@ -65,3 +65,10 @@
     -moz-appearance: textfield;
   }
 }
+
+/* for non-essential bg images */
+
+.lazybg {
+  display: none;
+  background-image: none !important;
+}

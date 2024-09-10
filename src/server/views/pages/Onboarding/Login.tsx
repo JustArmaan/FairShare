@@ -5,10 +5,10 @@ export const Login = () => {
         <div class="absolute h-2/3 z-10 animate-fade-in">
           <div class="bg-[radial-gradient(circle,_rgba(0,0,0,0)_0%,_rgba(24,22,22,1)_90%)] w-full h-full absolute"></div>
           <div class="bg-[linear-gradient(0deg,_rgba(24,22,22,1)_20%,_rgba(0,0,0,0)_50%)] w-full h-full absolute"></div>
-          <img src="./images/color.png" class="w-screen h-full"></img>
+          <img src="/images/color.webp" class="w-screen h-full"></img>
         </div>
         <div class="z-20 w-screen h-screen flex flex-col items-center justify-center relative">
-          <img src="./images/Logo.svg" class="w-1/4 block max-w-28" />
+          <img src="/images/Logo.svg" class="w-1/4 block max-w-28" />
           <div class="flex flex-col items-center text-font-off-white my-20">
             <p class="font-bold text-3xl">FairShare</p>
             <p class="text-lg font-semibold">

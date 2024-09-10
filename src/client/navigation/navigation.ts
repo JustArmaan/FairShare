@@ -30,7 +30,7 @@ export function handleNavigation() {
   document.cookie = "redirect=none";
 
   htmx.ajax("GET", url, {
-    target: "#app",
+    target: url.includes("onboard/welcome") ? "body" : "#app",
     swap: "innerHTML",
   });
 }

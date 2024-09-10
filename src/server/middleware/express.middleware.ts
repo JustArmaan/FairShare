@@ -20,7 +20,7 @@ export const configureApp = async (app: Express) => {
   app.use(express.static("~/public"));
   app.use(cookieParser());
 
-  app.use("/", getUser, (req, res, next) => {
+  app.use("/", getUser, (_, __, next) => {
     next();
   });
 
