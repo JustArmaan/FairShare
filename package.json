@@ -55,7 +55,7 @@
     "vite-express": "^0.16.0"
   },
   "devDependencies": {
-    "@playwright/test": "^1.45.0",
+    "@playwright/test": "^1.58.2",
     "@types/connect-livereload": "^0.6.3",
     "@types/express": "^4.17.21",
     "@types/express-session": "^1.18.0",
