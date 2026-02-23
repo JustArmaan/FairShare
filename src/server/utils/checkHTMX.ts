@@ -1,4 +1,4 @@
-import type { Request, Response, NextFunction } from "express";
+import type { NextFunction, Request, Response } from "express";
 import { env } from "../../../env";
 import { cookieOptions } from "../routes/authRouter";
 
@@ -8,7 +8,6 @@ export function checkHTMX(
   next: NextFunction,
   reloadPath: string = "/fullPageReload"
 ): void {
-  // const referer = req.headers.referer;
   const requestedUrl = new URL(
     req.originalUrl,
     env.isDev ? `http://${req.headers.host}` : `https://${req.headers.host}`
@@ -32,6 +31,24 @@ export function checkHTMX(
     "png",
     "js",
     "favicon",
+    "signin",
+    "onboard",
+    "mobile",
+    "callback",
+    "home",
+    "boot",
+    "nav",
+    "header",
+    "error",
+    "split",
+    "groups",
+    "transfer",
+    "notification",
+    "transactions",
+    "breakdown",
+    "receipt",
+    "institutions",
+    "billSplit",
   ];
 
   const shouldExclude = (url: string) =>
@@ -70,7 +87,18 @@ export function checkHTMX(
   } else {
     req.isHTMX = false;
 
-    if (!requestedUrl.pathname.includes(reloadPath)) {
+    const cookies = req.headers.cookie || "";
+
+    const isBaseRoute =
+      requestedUrl.pathname === "/" ||
+      requestedUrl.pathname === "/signin" ||
+      requestedUrl.pathname === "/boot";
+
+    if (
+      !isBaseRoute &&
+      !requestedUrl.pathname.includes(reloadPath) &&
+      !cookies.includes("redirect=none")
+    ) {
       res.cookie("redirect", requestedUrl.toString(), {
         ...cookieOptions,
         httpOnly: false,

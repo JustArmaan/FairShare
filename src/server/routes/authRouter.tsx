@@ -1,20 +1,20 @@
+import { faker } from "@faker-js/faker";
 import {
   createKindeServerClient,
   GrantType,
   type SessionManager,
 } from "@kinde-oss/kinde-typescript-sdk";
-import { env } from "../../../env";
 import express, {
+  type NextFunction,
   type Request,
   type Response,
-  type NextFunction,
 } from "express";
-import { createUser, findUser } from "../services/user.service";
-import { faker } from "@faker-js/faker";
 import { renderToHtml } from "jsxte";
+import { env } from "../../../env";
+import { createUser, findUser } from "../services/user.service";
+import { EnterInfoRegisterPage } from "../views/pages/Login-Register/EnterInfoRegisterPage";
 import { LoginPage } from "../views/pages/Login-Register/LoginPage";
 import { RegisterPage } from "../views/pages/Login-Register/RegisterPage";
-import { EnterInfoRegisterPage } from "../views/pages/Login-Register/EnterInfoRegisterPage";
 
 const colors = [
   "category-color-0",
@@ -52,7 +52,7 @@ export const kindeClient = createKindeServerClient(
 export const cookieOptions = {
   maxAge: 24 * 60 * 60 * 1000,
   httpOnly: true,
-  secure: true,
+  secure: env.isDev ? false : true,
   sameSite: "lax",
 } as const;
 
@@ -106,10 +106,15 @@ router.get("/logout", async (req, res) => {
 });
 
 router.get("/callback", async (req, res) => {
-  console.log("Callback hit");
-  const url = new URL(`${req.protocol}://${req.get("host")}${req.url}`);
-  await kindeClient.handleRedirectToApp(sessionManager(req, res), url);
-  return res.redirect("/");
+  console.log("🔔 Callback hit");
+  try {
+    const url = new URL(`${req.protocol}://${req.get("host")}${req.url}`);
+    await kindeClient.handleRedirectToApp(sessionManager(req, res), url);
+    return res.redirect("/");
+  } catch (err) {
+    console.error("❌ Callback error:", err);
+    return res.status(500).send("Auth callback failed: " + String(err));
+  }
 });
 
 router.get("/loginPage", async (req, res) => {
@@ -127,29 +132,19 @@ router.post("/registerContinue", async (req, res) => {
   if (password !== confirmPassword) {
     return res.status(400).send("Passwords do not match");
   }
-
   if (!email || !password || !confirmPassword) {
     return res.status(400).send("Missing email or password");
   }
-
   const html = renderToHtml(<EnterInfoRegisterPage email={email} />);
-
   res.send(html);
 });
 
 router.get("/apple", async (req, res) => {
-  console.log("Attempting Apple login");
-
   const sessionManagement = sessionManager(req, res);
-
   try {
     const appleLoginUrl = await kindeClient.login(sessionManagement, {
-      authUrlParams: {
-        connection_id: env.kindeAppleConnectionId,
-      },
+      authUrlParams: { connection_id: env.kindeAppleConnectionId },
     });
-
-    console.log("Redirecting to Apple login URL:", appleLoginUrl.toString());
     res.redirect(appleLoginUrl.toString());
   } catch (error) {
     console.error("Failed to initiate Apple login:", error);
@@ -159,27 +154,19 @@ router.get("/apple", async (req, res) => {
 
 router.get("/google", async (req, res) => {
   const sessionManagement = sessionManager(req, res);
-
   try {
     const googleLoginUri = await kindeClient.login(sessionManagement, {
-      authUrlParams: {
-        connection_id: env.kindeGoogleConnectionId,
-      },
+      authUrlParams: { connection_id: env.kindeGoogleConnectionId },
     });
-
-    console.log("Redirecting to Google login URL:", googleLoginUri.toString());
     res.redirect(googleLoginUri.toString());
   } catch (error) {
-    console.error("Failed to initiate Apple login:", error);
+    console.error("Failed to initiate Google login:", error);
     res.status(500).send("Failed to initiate login with Google.");
   }
 });
 
 router.get("/email", async (req, res) => {
-  console.log("Attempting Email login");
-
   const sessionManagement = sessionManager(req, res);
-
   try {
     const emailLoginUrl = await kindeClient.login(sessionManagement, {
       authUrlParams: {
@@ -187,8 +174,6 @@ router.get("/email", async (req, res) => {
         login_hint: "email",
       },
     });
-
-    console.log("Redirecting to Email login URL:", emailLoginUrl.toString());
     res.redirect(emailLoginUrl.toString());
   } catch (error) {
     console.error("Failed to initiate Email login:", error);
@@ -197,23 +182,6 @@ router.get("/email", async (req, res) => {
 });
 
 export async function getUser(req: Request, res: Response, next: NextFunction) {
-  // in playwright, when you first setup tests, run createUser({test info})
-  // if (req.cookies.testing === "true") {
-  //   req.user = getUser(testUserId);
-  //   return next();
-  // }
-
-  // const fakeUser = {
-  //   id: "kp_2094a928179447078aa5f5f27df766bc",
-  //   firstName: "Byron",
-  //   lastName: "Dray",
-  //   email: "byrondray8@gmail.com",
-  //   color: "category-color-0",
-  //   createdAt: new Date().toISOString(),
-  // };
-  // req.user = fakeUser;
-  // return next();
-
   if (
     req.get("host")?.includes("render") &&
     !req.get("host")?.includes("localhost") &&
@@ -230,31 +198,25 @@ export async function getUser(req: Request, res: Response, next: NextFunction) {
     req.url.endsWith(".svg") ||
     req.url.endsWith(".jpg") ||
     req.url.endsWith(".jpeg") ||
-    req.url.endsWith(".png")
+    req.url.endsWith(".png") ||
+    req.url.endsWith(".css") ||
+    req.url.endsWith(".js") ||
+    req.url.endsWith(".ts") ||
+    req.url.endsWith(".ico") ||
+    req.url.endsWith(".json") ||
+    req.url.endsWith(".woff") ||
+    req.url.endsWith(".woff2") ||
+    req.url.endsWith(".ttf") ||
+    req.url.endsWith(".webp")
   ) {
     return next();
   }
 
   console.log("checking for auth");
-  console.log(
-    req.cookies,
-    " for request ",
-    req.url,
-    "with method ",
-    req.method
-  );
+  console.log(req.cookies, " for request ", req.url, "with method ", req.method);
 
   const isAuthenticated = await kindeClient.isAuthenticated(
     sessionManager(req, res)
-  );
-
-  console.log(
-    "made it past authentitcated",
-    req.cookies,
-    " for request ",
-    req.url,
-    "with method ",
-    req.method
   );
 
   if (isAuthenticated && !req.url.includes("logout")) {
@@ -266,14 +228,6 @@ export async function getUser(req: Request, res: Response, next: NextFunction) {
     }
 
     const user = await findUser(profile.id);
-    // const user = {
-    //   id: "kp_b20575f122824fe5b0099f12948a4912",
-    //   firstName: "Byron",
-    //   lastName: "Dray",
-    //   email: "byrondray2@gmail.com",
-    //   color: "category-color-0",
-    //   createdAt: new Date().toISOString(),
-    // };
 
     if (!user) {
       const { id, given_name, family_name, email } = profile;
@@ -284,7 +238,6 @@ export async function getUser(req: Request, res: Response, next: NextFunction) {
         email,
         color: faker.helpers.arrayElement(colors),
       });
-      // await seedFakeTransactions(id, 20);
       if (!(await findUser(id))) throw new Error("failed to create user");
       return next();
     } else {
@@ -293,9 +246,13 @@ export async function getUser(req: Request, res: Response, next: NextFunction) {
     }
   } else {
     if (
-      req.url.startsWith(`/auth`) ||
-      req.url.startsWith(`/mobile/auth`) ||
-      req.url.startsWith(`/onboard`) ||
+      req.url.startsWith("/auth") ||
+      req.url.startsWith("/mobile/auth") ||
+      req.url.startsWith("/onboard") ||
+      req.url.startsWith("/header") ||
+      req.url.startsWith("/nav") ||
+      req.url.startsWith("/signin") ||
+      req.url.startsWith("/boot") ||
       req.url === "/"
     ) {
       return next();

@@ -10,7 +10,7 @@
     <link rel="manifest" href="/manifest.json" />
     <title>Fairshare</title>
     <script type="module" src="/src/client/main.ts" defer></script>
-    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    <script src="https://unpkg.com/htmx.org@1.9.12"></script>
     <script src="https://cdn.plaid.com/link/v2/stable/link-initialize.js"></script>
     <link rel="stylesheet" href="/output.css" />
     <link rel="stylesheet" href="/global.css" />
@@ -35,12 +35,14 @@
       hx-trigger="load"
       hx-swap="outerHTML"
     ></div>
-    <div id="app" class="m-[1rem]"></div>
+    <div
+      id="app"
+      hx-get="/boot"
+      hx-trigger="load"
+      hx-swap="innerHTML"
+      class="m-[1rem]"
+    ></div>
     <div class="h-24 spacer"></div>
     <div id="nav" hx-get="/nav" hx-trigger="load" hx-swap="outerHTML"></div>
-    <script src="/socket.io/socket.io.js"></script>
-    <script>
-      const socket = io();
-    </script>
   </body>
 </html>
