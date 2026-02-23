@@ -5,6 +5,5 @@ export default {
   dialect: "sqlite",
   schema: "./src/server/database/schema/*",
   out: "./drizzle",
-  driver: "turso",
   dbCredentials: config,
 } satisfies Config;
