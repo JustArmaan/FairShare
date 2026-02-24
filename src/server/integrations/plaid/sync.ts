@@ -1,3 +1,4 @@
+import { v4 } from "uuid";
 import {
   addAccount,
   addPlaidAccount,
@@ -7,18 +8,17 @@ import {
 import { getAccountTypeIdByName } from "../../services/accountType.service";
 import { getCategoryIdByName } from "../../services/category.service";
 import {
-  createTransactions,
-  deleteTransactions,
-  updateTransaction,
-} from "../../services/transaction.service";
-import {
   getItemsForUser,
   updateItem,
   type Item,
 } from "../../services/plaid.service";
+import {
+  createTransactions,
+  deleteTransactions,
+  updateTransaction,
+} from "../../services/transaction.service";
+import { sendToUser } from "../../websockets/sse";
 import { plaidRequest } from "./link";
-import { io } from "../../main";
-import { v4 } from "uuid";
 
 type StoreEntry = { timestamp: string; syncStore?: Set<string> };
 type ItemEntry = {
@@ -259,13 +259,13 @@ function handleTransactionWebsocketEvents(
 
   console.log("potentially sending websocket sync/update events");
   if (addedMessage.length > 0) {
-    io.to(userId).emit("newTransaction", JSON.stringify(addedMessage));
+   sendToUser(userId, "newTransaction", { newTransactions: addedMessage });
   }
   if (modifiedMessage.length > 0) {
-    io.to(userId).emit("newTransaction", JSON.stringify(modifiedMessage));
+    sendToUser(userId, "newTransaction", { newTransactions: modifiedMessage });
   }
   if (removedMessage.length > 0) {
-    io.to(userId).emit("newTransaction", JSON.stringify(removedMessage));
+    sendToUser(userId, "newTransaction", { newTransactions: removedMessage });
   }
 }
 

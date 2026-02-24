@@ -1,39 +1,41 @@
-import type { Server } from "socket.io";
-import { kindeClient } from "../routes/authRouter";
-import { sessionManager } from "../routes/authRouter";
+// Replaced Socket.io with server sent events, so we can host on vercel
 
-async function computeUserIdFromHeaders(cookie: string) {
-  try {
-    const cookies = cookie.split("; ").reduce(
-      (cookieObject: Record<string, any>, cookieString: string) => {
-        const cookies = cookieString.split("=");
-        cookieObject[cookies[0]] = cookies[1];
-        return cookieObject;
-      },
-      {} as Record<string, any>
-    );
-    const user = await kindeClient.getUserProfile(sessionManager({ cookies }));
-    return user.id;
-  } catch (e) {
-    console.error("failed to compute id from headers");
-    console.trace();
-  }
-}
+// import type { Server } from "socket.io";
+// import { kindeClient } from "../routes/authRouter";
+// import { sessionManager } from "../routes/authRouter";
 
-export function setupSocketConnectionListener(io: Server) {
-  io.on("connection", async (socket) => {
-    if (!socket.handshake.headers.cookie) return;
+// async function computeUserIdFromHeaders(cookie: string) {
+//   try {
+//     const cookies = cookie.split("; ").reduce(
+//       (cookieObject: Record<string, any>, cookieString: string) => {
+//         const cookies = cookieString.split("=");
+//         cookieObject[cookies[0]] = cookies[1];
+//         return cookieObject;
+//       },
+//       {} as Record<string, any>
+//     );
+//     const user = await kindeClient.getUserProfile(sessionManager({ cookies }));
+//     return user.id;
+//   } catch (e) {
+//     console.error("failed to compute id from headers");
+//     console.trace();
+//   }
+// }
 
-    const userId = await computeUserIdFromHeaders(
-      socket.handshake.headers.cookie
-    );
+// export function setupSocketConnectionListener(io: Server) {
+//   io.on("connection", async (socket) => {
+//     if (!socket.handshake.headers.cookie) return;
 
-    if (!userId) {
-      console.error("Error: Websocket connection failed; no user to connect.");
-      console.trace();
-      return;
-    }
+//     const userId = await computeUserIdFromHeaders(
+//       socket.handshake.headers.cookie
+//     );
 
-    socket.join(userId);
-  });
-}
+//     if (!userId) {
+//       console.error("Error: Websocket connection failed; no user to connect.");
+//       console.trace();
+//       return;
+//     }
+
+//     socket.join(userId);
+//   });
+// }
