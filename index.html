@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -37,8 +37,8 @@
     ></div>
     <div id="app" class="m-[1rem]"></div>
     <div class="h-24 spacer"></div>
-    <div id="nav" hx-get="/nav" hx-trigger="load" hx-swap="outerHTML"></div>
-    <script src="/socket.io/socket.io.js"></script>
+    <div id="nav" hx-get="/nav.html" hx-trigger="load" hx-swap="outerHTML"></div>
+    <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
     <script>
       const socket = io();
     </script>

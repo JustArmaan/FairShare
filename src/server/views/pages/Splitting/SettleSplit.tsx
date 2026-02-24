@@ -22,7 +22,7 @@ export const SettleSplit = (props: {
   owedId: string;
   linkTransferActive?: boolean;
   results: GroupTransactionDetails;
-  owedStatus: OwedStatus[number];
+  owedStatus: OwedStatus[number] | null;
 }) => {
   return (
     <div class="text-font-off-white">

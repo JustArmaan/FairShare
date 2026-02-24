@@ -176,8 +176,6 @@ router.get("/google", async (req, res) => {
 });
 
 router.get("/email", async (req, res) => {
-  console.log("Attempting Email login");
-
   const sessionManagement = sessionManager(req, res);
 
   try {
@@ -226,35 +224,13 @@ export async function getUser(req: Request, res: Response, next: NextFunction) {
     (!req.headers["accept"]?.includes("text/html") &&
       !(req.headers["hx-request"] === "true") &&
       !req.url.includes("api")) ||
-    (req.url.endsWith("/sync") && req.method === "POST") ||
-    req.url.endsWith(".svg") ||
-    req.url.endsWith(".jpg") ||
-    req.url.endsWith(".jpeg") ||
-    req.url.endsWith(".png")
+    (req.url.endsWith("/sync") && req.method === "POST")
   ) {
     return next();
   }
 
-  console.log("checking for auth");
-  console.log(
-    req.cookies,
-    " for request ",
-    req.url,
-    "with method ",
-    req.method
-  );
-
   const isAuthenticated = await kindeClient.isAuthenticated(
     sessionManager(req, res)
-  );
-
-  console.log(
-    "made it past authentitcated",
-    req.cookies,
-    " for request ",
-    req.url,
-    "with method ",
-    req.method
   );
 
   if (isAuthenticated && !req.url.includes("logout")) {

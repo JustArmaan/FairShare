@@ -79,52 +79,52 @@ const router = express.Router();
 
 const createIcons = [
   {
-    name: "Books",
-    icon: "/createGroupIcons/book.svg",
+    name: "House",
+    icon: "/createGroupIcons/house.svg",
   },
   {
-    name: "Dentist",
-    icon: "/createGroupIcons/dentists.svg",
+    name: "People",
+    icon: "/createGroupIcons/people.svg",
   },
   {
-    name: "Education",
-    icon: "/createGroupIcons/education.svg",
-  },
-  {
-    name: "Entertainment",
-    icon: "/createGroupIcons/entertainment.svg",
+    name: "Night",
+    icon: "/createGroupIcons/nightlife.svg",
   },
   {
     name: "Food",
     icon: "/createGroupIcons/food.svg",
   },
   {
-    name: "Healthcare",
-    icon: "/createGroupIcons/healthcare.svg",
+    name: "Entertainment",
+    icon: "/createGroupIcons/confirmation.svg",
   },
   {
-    name: "Home",
-    icon: "/createGroupIcons/home.svg",
+    name: "Travel",
+    icon: "/createGroupIcons/airplane.svg",
+  },
+  {
+    name: "Water",
+    icon: "/createGroupIcons/water.svg",
   },
   {
     name: "Shopping",
-    icon: "/createGroupIcons/shopping.svg",
+    icon: "/createGroupIcons/cart.svg",
   },
   {
-    name: "Hydro",
-    icon: "/createGroupIcons/hydro.svg",
+    name: "Gas",
+    icon: "/createGroupIcons/gas.svg",
   },
   {
-    name: "Utilities",
-    icon: "/createGroupIcons/utilities.svg",
+    name: "Star",
+    icon: "/createGroupIcons/star.svg",
   },
   {
-    name: "Medicine",
-    icon: "/createGroupIcons/medicine.svg",
+    name: "Flower",
+    icon: "/createGroupIcons/flower.svg",
   },
   {
-    name: "Wifi",
-    icon: "/createGroupIcons/wifi.svg",
+    name: "Bunny",
+    icon: "/createGroupIcons/bunny.svg",
   },
 ];
 

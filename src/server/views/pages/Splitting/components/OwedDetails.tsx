@@ -10,7 +10,7 @@ export const OwedDetails = (props: {
   amountOwed: number; // positive means you owe, negative means you're owed
   pending?: boolean;
   linkedTransactionAccountName?: string;
-  owedStatus: OwedStatus[number];
+  owedStatus: OwedStatus[number] | null;
   results: GroupTransactionDetails;
 }) => {
   const currentUserResult = props.results.find(
