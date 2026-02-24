@@ -1,29 +1,30 @@
 import express from "express";
-import http from "http";
-import { renderToHtml } from "jsxte";
+import { indexRouter } from "./routes/indexRouter";
 import ViteExpress from "vite-express";
-import { errorHandler } from "./middleware/errorHandler.middleware";
+import { breakdownRouter } from "./routes/breakdownRouter";
 import { configureApp } from "./middleware/express.middleware";
-import { remapSvgs } from "./middleware/svgHandler.middleware";
+import { homeRouter } from "./routes/homeRouter";
+import { transactionRouter } from "./routes/transactionRouter";
+import { groupRouter } from "./routes/groups/groupRouter";
 import { apiRouterV0 } from "./routes/api/v0/apiRouter";
 import { authRouter } from "./routes/authRouter";
-import { billSplitRouter } from "./routes/billSplitRouter";
-import { breakdownRouter } from "./routes/breakdownRouter";
-import { errorRouter } from "./routes/errorRouter";
-import { groupRouter } from "./routes/groups/groupRouter";
-import { groupSplitRouter } from "./routes/groupSplitRouter";
-import { homeRouter } from "./routes/homeRouter";
-import { indexRouter } from "./routes/indexRouter";
-import { institutionRouter } from "./routes/institutionRouter";
-import { notificationRouter } from "./routes/notificationRouter";
-import { onboardRouter } from "./routes/onboardRouter";
-import { plaidMobileLinkRouter } from "./routes/plaidMobileLinkRouter";
-import { receiptRouter } from "./routes/receiptRouter";
-import { transactionRouter } from "./routes/transactionRouter";
 import { transferRouter } from "./routes/transferRouter";
-import { ErrorPage } from "./views/pages/Errors/Error";
-import { sseHandler } from "./websockets/sse";
+import { notificationRouter } from "./routes/notificationRouter";
+import http from "http";
+import { Server } from "socket.io";
+import { setupSocketConnectionListener } from "./websockets/connection";
 const PORT = process.env.PORT || 3000;
+import { institutionRouter } from "./routes/institutionRouter";
+import { errorHandler } from "./middleware/errorHandler.middleware";
+import { errorRouter } from "./routes/errorRouter";
+import { ErrorPage } from "./views/pages/Errors/Error";
+import { renderToHtml } from "jsxte";
+import { plaidMobileLinkRouter } from "./routes/plaidMobileLinkRouter";
+import { remapSvgs } from "./middleware/svgHandler.middleware";
+import { receiptRouter } from "./routes/receiptRouter";
+import { groupSplitRouter } from "./routes/groupSplitRouter";
+import { billSplitRouter } from "./routes/billSplitRouter";
+import { onboardRouter } from "./routes/onboardRouter";
 const app = express();
 const server = http.createServer(app);
 
@@ -59,8 +60,10 @@ app.use("", (req, res, next) => {
   next();
 });
 
-// ss endpoints
-app.get("/api/sse", sseHandler);
+// sockets
+
+export const io = new Server(server);
+setupSocketConnectionListener(io);
 
 const runningServer = server.listen(PORT as number, () => {
   console.log(`Server is running on port ${PORT}...`);

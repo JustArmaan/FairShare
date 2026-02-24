@@ -1,25 +1,25 @@
-import { and, eq, not } from "drizzle-orm";
-import { v4 as uuidv4 } from "uuid";
 import { getDB } from "../database/client";
-import { accounts } from "../database/schema/accounts";
-import { cashAccount } from "../database/schema/cashAccount";
-import { categories } from "../database/schema/category";
 import { groups } from "../database/schema/group";
-import { groupTransactionState } from "../database/schema/groupTransactionState";
-import { groupTransactionToUsersToGroups } from "../database/schema/groupTransactionToUsersToGroups";
-import { items } from "../database/schema/items";
-import { memberType } from "../database/schema/memberType";
-import { plaidAccount } from "../database/schema/plaidAccount";
-import { splitType } from "../database/schema/splitType";
-import { transactions } from "../database/schema/transaction";
-import { transactionsToGroups } from "../database/schema/transactionsToGroups";
-import { users } from "../database/schema/users";
+import { categories } from "../database/schema/category";
 import { usersToGroups } from "../database/schema/usersToGroups";
+import { memberType } from "../database/schema/memberType";
+import { eq, and, not } from "drizzle-orm";
+import { v4 as uuidv4 } from "uuid";
+import { users } from "../database/schema/users";
 import type { UserSchemaWithMemberType } from "../interface/types";
-import { splitEqualTransactions } from "../utils/equalSplit";
-import { filterUniqueTransactions } from "../utils/filter";
-import { sendToUser } from "../websockets/sse";
 import type { ExtractFunctionReturnType } from "./user.service";
+import { transactionsToGroups } from "../database/schema/transactionsToGroups";
+import { transactions } from "../database/schema/transaction";
+import { groupTransactionState } from "../database/schema/groupTransactionState";
+import { splitType } from "../database/schema/splitType";
+import { accounts } from "../database/schema/accounts";
+import { items } from "../database/schema/items";
+import { groupTransactionToUsersToGroups } from "../database/schema/groupTransactionToUsersToGroups";
+import { filterUniqueTransactions } from "../utils/filter";
+import { plaidAccount } from "../database/schema/plaidAccount";
+import { splitEqualTransactions } from "../utils/equalSplit";
+import { cashAccount } from "../database/schema/cashAccount";
+import { io } from "../main";
 
 const db = getDB();
 
@@ -543,7 +543,7 @@ export async function deleteTransactionFromGroup(
     );
 
   results.forEach(({ userId }) => {
-  sendToUser(userId, "updateGroup", { groupId });
+    io.to(userId).emit("updateGroup", { groupId });
   });
 
   return true;
@@ -803,7 +803,7 @@ export async function changeMemberTypeInGroup(
   if (type === "Member") {
     const group = (await getGroupWithMembers(groupId))!;
     group.members.forEach((member) => {
-      sendToUser(member.id, "updateGroup", { groupId });
+      io.to(member.id).emit("updateGroup", { groupId });
     });
   }
 

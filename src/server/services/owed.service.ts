@@ -1,27 +1,28 @@
 import { and, eq, or } from "drizzle-orm";
-import { v4 as uuid } from "uuid";
 import { getDB } from "../database/client";
-import { accounts } from "../database/schema/accounts";
-import { cashAccount } from "../database/schema/cashAccount";
-import { groups } from "../database/schema/group";
-import { groupTransactionState } from "../database/schema/groupTransactionState";
 import { groupTransactionToUsersToGroups } from "../database/schema/groupTransactionToUsersToGroups";
-import { groupTransactionToUsersToGroupsStatus } from "../database/schema/groupTransactionToUsersToGroupStatus";
-import { items } from "../database/schema/items";
-import { plaidAccount } from "../database/schema/plaidAccount";
+import { transactionsToGroups } from "../database/schema/transactionsToGroups";
+import { usersToGroups } from "../database/schema/usersToGroups";
+import type { ExtractFunctionReturnType } from "./user.service";
+import { v4 as uuid } from "uuid";
+import { users } from "../database/schema/users";
+import { groupTransactionState } from "../database/schema/groupTransactionState";
 import { splitType } from "../database/schema/splitType";
 import { transactions } from "../database/schema/transaction";
-import { transactionsToGroups } from "../database/schema/transactionsToGroups";
-import { users } from "../database/schema/users";
-import { usersToGroups } from "../database/schema/usersToGroups";
+import { groupTransactionToUsersToGroupsStatus } from "../database/schema/groupTransactionToUsersToGroupStatus";
 import type { OwedStatus } from "../database/seed";
-import type { UserSchema } from "../interface/types";
+import { groups } from "../database/schema/group";
+import { io } from "../main";
+import { accounts } from "../database/schema/accounts";
+import { cashAccount } from "../database/schema/cashAccount";
+import { plaidAccount } from "../database/schema/plaidAccount";
+import { items } from "../database/schema/items";
 import {
   createGenericNotificationWithWebsocket,
   createGroupNotificationWithWebsocket,
 } from "../utils/createNotification";
-import { sendToUser } from "../websockets/sse";
-import type { ExtractFunctionReturnType } from "./user.service";
+import { get } from "https";
+import type { UserSchema } from "../interface/types";
 
 type Owed = ExtractFunctionReturnType<typeof getOwed>;
 
@@ -84,7 +85,7 @@ export async function createOwed(owed: Omit<Owed, "id">) {
       .where(eq(usersToGroups.id, owed.usersToGroupsId))
   )[0];
 
-  sendToUser(userId, "updateGroup", { groupId });
+  io.to(userId).emit("updateGroup", { groupId });
   if (owed.amount < 0) {
     await createGroupNotificationWithWebsocket(
       groupId,
@@ -465,8 +466,11 @@ export async function updateOwedStatus(
   )[0];
 
   userIds.forEach(async ({ userId, groupId, amount, name }) => {
-    sendToUser(userId, "requestConfirmation", { owedId, groupId });
-    sendToUser(userId, "updateGroup", { groupId });
+    io.to(userId).emit("requestConfirmation", {
+      owedId,
+      groupId,
+    });
+    io.to(userId).emit("updateGroup", { groupId });
 
     if (amount > 0 && newStatus === "awaitingConfirmation") {
       await createGenericNotificationWithWebsocket(
