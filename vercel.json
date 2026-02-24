@@ -1,0 +1,8 @@
+{
+  "version": 2,
+  "buildCommand": "bun run build && bun run tailwind-build",
+  "outputDirectory": "dist",
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/api/server" }
+  ]
+}
