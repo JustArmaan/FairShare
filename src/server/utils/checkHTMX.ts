@@ -1,4 +1,4 @@
-import type { Request, Response, NextFunction } from "express";
+import type { NextFunction, Request, Response } from "express";
 import { env } from "../../../env";
 import { cookieOptions } from "../routes/authRouter";
 
@@ -16,22 +16,13 @@ export function checkHTMX(
   const contentType = req.headers["content-type"];
 
   const excludePaths = [
-    "svg",
-    "@",
-    "src",
-    "node_modules",
-    "vite",
-    "css",
-    "logout",
-    "login",
-    "register",
-    "api",
-    "kinde",
-    "auth",
-    "json",
-    "png",
-    "js",
-    "favicon",
+    "svg", "@", "src", "node_modules", "vite", "css",
+    "json", "png", "js", "favicon", "woff", "ttf", "webp", "ico",
+    "logout", "login", "register", "kinde", "auth", "callback",
+    "signin", "onboard", "mobile",
+    "home", "nav", "header", "menu", "empty", "error", "split",
+    "groups", "transfer", "notification", "transactions", "breakdown",
+    "receipt", "institutions", "billSplit", "webhook", "api",
   ];
 
   const shouldExclude = (url: string) =>
@@ -69,8 +60,15 @@ export function checkHTMX(
     next();
   } else {
     req.isHTMX = false;
-
-    if (!requestedUrl.pathname.includes(reloadPath)) {
+    const isBaseRoute =
+      requestedUrl.pathname === "/" ||
+      requestedUrl.pathname === "/signin" ||
+      requestedUrl.pathname === "/onboard";
+    if (
+      !isBaseRoute &&
+      !requestedUrl.pathname.includes(reloadPath) &&
+      !req.headers.cookie?.includes("redirect=none")
+    ) {
       res.cookie("redirect", requestedUrl.toString(), {
         ...cookieOptions,
         httpOnly: false,
