@@ -1,20 +1,20 @@
+import { faker } from "@faker-js/faker";
 import {
   createKindeServerClient,
   GrantType,
   type SessionManager,
 } from "@kinde-oss/kinde-typescript-sdk";
-import { env } from "../../../env";
 import express, {
+  type NextFunction,
   type Request,
   type Response,
-  type NextFunction,
 } from "express";
-import { createUser, findUser } from "../services/user.service";
-import { faker } from "@faker-js/faker";
 import { renderToHtml } from "jsxte";
+import { env } from "../../../env";
+import { createUser, findUser } from "../services/user.service";
+import { EnterInfoRegisterPage } from "../views/pages/Login-Register/EnterInfoRegisterPage";
 import { LoginPage } from "../views/pages/Login-Register/LoginPage";
 import { RegisterPage } from "../views/pages/Login-Register/RegisterPage";
-import { EnterInfoRegisterPage } from "../views/pages/Login-Register/EnterInfoRegisterPage";
 
 const colors = [
   "category-color-0",
@@ -215,9 +215,10 @@ export async function getUser(req: Request, res: Response, next: NextFunction) {
   if (
     req.get("host")?.includes("render") &&
     !req.get("host")?.includes("localhost") &&
-    !req.get("host")?.includes("idsp")
+    !req.get("host")?.includes("idsp") &&
+    !req.get("host")?.includes("onrender.com")
   ) {
-    return res.redirect("https://myfairshare.ca");
+    return res.redirect("https://fairshare-qf06.onrender.com");
   }
 
   if (

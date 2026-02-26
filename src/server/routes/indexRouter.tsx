@@ -1,14 +1,15 @@
 import express from "express";
 import { renderToHtml } from "jsxte";
 import { Header } from "../views/components/Header";
-import { Nav } from "../views/components/Navigation";
 import { Menu } from "../views/components/Menu";
+import { Nav } from "../views/components/Navigation";
 import { Login } from "../views/pages/Onboarding/Login";
 
 const router = express.Router();
 
-// at mobile/link, we don't want to display the navigation bar, but still
-// want the <head>
+router.get("/", (req, res, next) => {
+  next();
+});
 router.get("/header", (_, res) => {
   const html = renderToHtml(<Header />);
   res.send(html);
@@ -36,6 +37,13 @@ router.get("/empty", (req, res) => {
 });
 
 router.get("/signin", (req, res) => {
+  if (req.user) {
+    if (req.headers["hx-request"] === "true") {
+      res.set("HX-Redirect", "/home/page/default");
+      return res.send("");
+    }
+    return res.redirect("/home/page/default");
+  }
   const html = renderToHtml(<Login />);
   return res.send(html);
 });
