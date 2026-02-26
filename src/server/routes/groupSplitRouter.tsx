@@ -24,6 +24,7 @@ import { getCategoryIdByName } from "../services/category.service";
 import {
   getGroupByOwedId,
   getGroupIdFromOwed,
+  getGroupTransactionStateFromOwedId,
 } from "../services/group.service";
 import type { OwedStatus } from "../database/seed";
 import {
@@ -98,18 +99,38 @@ router.get("/view", async (req, res) => {
 });
 
 router.get("/settle", async (req, res) => {
-  const { owedId, groupId } = req.query as {
+  const { owedId, groupId, owedListUnparsed } = req.query as {
     [key: string]: string;
   };
 
+  let owedList =
+    owedListUnparsed !== undefined
+      ? (JSON.parse(decodeURIComponent(owedListUnparsed)) as string[])
+      : undefined;
+
+  if (owedId && owedList && owedList.length > 0) return res.status(400).send();
+
   const user = req.user!;
 
-  const details = await getGroupTransactionStateIdFromOwedId(owedId);
-  const results = await getGroupTransactionDetails(
-    details!.groupTransactionState.id
+  if (owedId) owedList = [owedId];
+
+  console.log(owedList, "here");
+
+  const resultsSpread = await Promise.all(
+    owedList!.map(async (val) => {
+      const details = await getGroupTransactionStateIdFromOwedId(val);
+      const result = await getGroupTransactionDetails(
+        details.groupTransactionState.id
+      );
+      console.log(result);
+      return result;
+    })
   );
 
-  if (!results) throw new Error("no results");
+  console.log(resultsSpread);
+  const results = resultsSpread.flat();
+
+  console.log(results);
 
   const transactionOwner = results.find(
     (transaction) => transaction.groupTransactionToUsersToGroups.amount > 0
@@ -133,9 +154,10 @@ router.get("/settle", async (req, res) => {
             0
           )) * -1;
 
-  const userOwedStatusId =
-    details!.groupTransactionToUsersToGroups
-      .groupTransactionToUsersToGroupsStatusId;
+  const userOwedStatusId = owedId
+    ? (await getGroupTransactionStateIdFromOwedId(owedId))
+        .groupTransactionToUsersToGroups.groupTransactionToUsersToGroupsStatusId
+    : null;
 
   let linkedAccountName: string | undefined;
   if (userTransaction?.groupTransactionToUsersToGroups.linkedTransactionId) {
@@ -146,7 +168,9 @@ router.get("/settle", async (req, res) => {
     linkedAccountName = account!.name;
   }
 
-  const userOwedStatus = await getOwedStatusNameFromId(userOwedStatusId);
+  const userOwedStatus = userOwedStatusId
+    ? await getOwedStatusNameFromId(userOwedStatusId)
+    : null;
 
   const html = renderToHtml(
     <SettleSplit

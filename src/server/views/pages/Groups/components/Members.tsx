@@ -15,17 +15,6 @@ export const Members = (props: {
     typeof getGroupTransactionDetails
   >[];
 }) => {
-  /*
-  const totalOwed = calculateTotalOwedAll(
-    props.owedPerMember,
-    props.memberDetails
-  );*/
-
-  // need to figure out how much is owed relative to us
-  // figure out if we're owing or owed for a transaction and add it to the sum
-
-  // map into relative to current user, then reduce over member list
-
   const memberObject = props.memberDetails
     .filter((member) => member.type !== "Invited")
     .map((member) => ({

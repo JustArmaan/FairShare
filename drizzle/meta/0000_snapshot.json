@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "95d230db-d86f-4ee2-99a6-53bb6c7146f2",
+  "id": "3697efe3-990d-4fe2-9012-63da5883230a",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "accounts": {
@@ -836,6 +836,13 @@
           "notNull": true,
           "autoincrement": false
         },
+        "notification_sender_id": {
+          "name": "notification_sender_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
         "timestamp": {
           "name": "timestamp",
           "type": "text",
@@ -874,6 +881,19 @@
           "tableTo": "users",
           "columnsFrom": [
             "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "notifications_notification_sender_id_users_id_fk": {
+          "name": "notifications_notification_sender_id_users_id_fk",
+          "tableFrom": "notifications",
+          "tableTo": "users",
+          "columnsFrom": [
+            "notification_sender_id"
           ],
           "columnsTo": [
             "id"

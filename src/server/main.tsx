@@ -45,8 +45,9 @@ app.use("/institutions", institutionRouter);
 app.use("/split", groupSplitRouter);
 app.use("/mobile", plaidMobileLinkRouter);
 app.use("/billSplit", billSplitRouter);
-app.use("/error", errorRouter);
 app.use("/onboard", onboardRouter);
+
+app.use("/error", errorRouter);
 
 app.use("", (req, res, next) => {
   console.log(req.url);

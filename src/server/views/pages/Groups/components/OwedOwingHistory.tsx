@@ -113,7 +113,7 @@ export const OwedOwingHistory = (props: {
               </p>
               {tab !== "history" && calculateTransactionCount(tab) !== 0 && (
                 <div class="flex items-center justify-center absolute border-primary-black border-2 -right-1.5 -top-2 bg-accent-red h-5 rounded-full aspect-square">
-                  <p class="text-xs font-semibold leading-none relative">
+                  <p class="text-xs font-semibold leading-none relative top-0.5">
                     {transactionCount > 9
                       ? `${transactionCount}+`
                       : transactionCount}
