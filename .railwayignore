@@ -1,0 +1,9 @@
+node_modules
+.git
+src/py-receipt-server/.venv
+src/py-receipt-server/__pycache__
+playwright-report
+test-results
+tests
+tests-examples
+playwright
