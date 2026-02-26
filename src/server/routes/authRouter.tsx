@@ -218,7 +218,7 @@ export async function getUser(req: Request, res: Response, next: NextFunction) {
     !req.get("host")?.includes("idsp") &&
     !req.get("host")?.includes("onrender.com")
   ) {
-    return res.redirect("https://fairshare-qf06.onrender.com");
+    return res.redirect("https://fairshare-app-production.up.railway.app");
   }
 
   if (
